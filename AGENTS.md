@@ -276,8 +276,7 @@ totals, never committed. When the secret is absent the step logs a skip
 line and the run continues. The key was added Nov 12, 2026 (Craig
 registered at api.data.gov); the first scheduled run will confirm it by
 logging whether freshness ran or skipped. Rotate it in repo Settings →
-Secrets and variables → Actions if it ever leaks or expires. Known gap: bare `--all`
-runs no F24 sweeps (see `STATUS.md`, Open questions).
+Secrets and variables → Actions if it ever leaks or expires. `--all` runs the six F24 committee sweeps (gated per committee by the pre-flight gate, `src/ingest/pull_gate.py`); `--no-gate` forces the full run.
 
 **Workflow files change like any other code** — one change per commit
 (§2), and a workflow change is its own commit, never bundled with a data
