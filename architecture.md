@@ -66,6 +66,35 @@ not harder.
 - If a number exists in two places and they disagree, the JSON wins and the
   disagreement is a bug.
 
+## 1a. Configuration — one source of truth (added Nov 12, 2026)
+- `config.yaml` (repo root) holds every value shared across pipeline
+  scripts: FEC committee IDs (AIPAC PAC, UDP), cycles (career range, UDP
+  cycles, current cycle), repo-relative paths, FEC API settings (base URL,
+  key from `FEC_API_KEY` with `DEMO_KEY` fallback, timeout, request delay),
+  party-code map, verification constants (prior UDP cycle totals), and
+  reporting thresholds.
+- `work/config.py` loads it; every script resolves paths from the repo root
+  (derived from the script's own location), never from an absolute path and
+  never from the current working directory. The repo runs from any checkout
+  location. No script may re-hardcode a value from `config.yaml`; a new
+  shared value goes in `config.yaml` first.
+- Verified Nov 12, 2026: the config refactor reproduced outputs exactly —
+  `pull_money.py` re-run byte-identical to the original script's output,
+  `compute_opposition.py` re-run byte-identical, `build_roster.py` re-run in
+  a copied checkout identical except for post-build enrichment (see below).
+- Known reproducibility gap (not fixed by the config refactor): the pipeline
+  is not yet fully re-runnable from scripts alone. The weball double-count
+  dedup ($451,776,015.34; 32 persons, 90 groups) lives in
+  `work/dedup-applied.json` and was applied downstream of `pull_money.py`,
+  not inside it — a bare re-run of `pull_money.py` reproduces the
+  pre-dedup totals. Likewise `roster_intermediate.json` on disk is
+  `build_roster.py` output **plus** `fec_lookup.py` results **plus** manual
+  FEC-ID additions (7 rows, `_fec_source: fec-api-2026-manual`) and one
+  manual note. The merge, ranking, and 2026-column steps have no saved
+  script yet. Codifying those steps is the next cleanup task; until then,
+  the deduped intermediates and the final dataset are the record, and any
+  re-run must be diffed against them, not blindly trusted.
+
 ## 2. Stable keys — join on IDs, never on names
 - Person = `person_key` (Bioguide ID from the legislators dataset — the
   stable identity across chambers and cycles). A person's FEC candidate IDs
