@@ -246,6 +246,23 @@ layout mirrors the future tables — `data/source/` (inputs),
 - The interface is a **mobile-first web app**: a link that works natively on
   iPhone and Android (responsive layout, touch-friendly controls, fast load
   even at ~4,400 rows). That is the first interface and the foundation.
+- **Static site — BUILT Nov 12, 2026.** `docs/index.html` is generated from
+  the canonical dataset by `src/site/build_site.py` (one command:
+  `python3 src/site/build_site.py`; verified by
+  `src/site/verify_site.py`, which decodes the embedded data and checks it
+  against the dataset field-by-field, plus a Node runtime smoke test
+  `src/site/smoke_test.js`). Single self-contained page, no external
+  dependencies: the dataset is embedded in a compact positional encoding
+  (1.6 MB for 664 rows). Content parity with the private tracker artifact
+  (v6): search, filters, sort by every money column, totals strip + footer,
+  per-person drill-down with cycle-by-cycle tables, leaderboards, clean-money
+  view, party-by-chamber breakdown, 2026 primary-target list, methodology
+  section, CSV download from the same embedded figures. The 14
+  complete-picture columns are shown through switchable column views, not
+  one 25-column table. **Never hand-edit `docs/index.html`** — edit the
+  generator and re-run it. GitHub Pages is the publishing source (`docs/`);
+  enabling Pages in repo Settings is Craig's step — the site is not public
+  until he does that.
 - **Native apps (App Store, Google Play) and a desktop app come later** — as
   packaging of the same web app and the same data layer (e.g. a web-view
   wrapper), not a rebuild. They need developer accounts (Apple $99/yr,
