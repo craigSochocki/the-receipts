@@ -1003,6 +1003,16 @@ everything else in the snapshot: labeled by source and date, **never merged
 into dataset totals**. First live confirmation: the Sunday Nov 15, 2026
 scheduled run.
 
+**A note on negative residuals at committee scale.** At committee scale the
+deduped-unfiltered total can come out BELOW the F24-only total — observed
+Nov 12, 2026 for the UDP committee-wide sweep (deduped $54,160,031.20 vs
+F24-only $54,453,360.66, residual −$293,329.46). That is a property of the
+dedup key (expenditure_date / amount / payee): distinct rows sharing a key
+collapse into one deduped row, and negative-amount rows (refunds/corrections)
+enter the unfiltered set. The check that matters is the unexplained residual —
+F24 rows missing from the F24-only set — which was $0.00; a negative explained
+residual is not a discrepancy.
+
 **Weball-vs-API gap, with Constantino as the test case.** The bulk weball file says
 Constantino's 2026 loans are $14.4M through Oct 14; the API totals endpoint agrees
 (per-cycle row) — but the $1M Oct-29 loan exists ONLY as a Form 6 notice. Neither
