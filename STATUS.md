@@ -51,8 +51,8 @@
   failed rebuild/verify commits and pushes nothing. That push triggers CI,
   which re-verifies. No cache of the bulk data: every run re-downloads
   fresh with `./download_bulk.sh` (~315 MB) — see `README.md`,
-  "Automation (GitHub Actions)", for the reason. See also the F24 open
-  item under Open questions.
+  "Automation (GitHub Actions)", for the reason. See also the F24 item
+  under Open questions (closed Nov 12, pending Sunday live confirmation).
 
 - **Roster: 664 people** — union of the 119th Congress (540 served) and the
   incoming 120th (535 named): 411 in both, 124 in the 119th only, 124 in the
@@ -213,16 +213,22 @@
 
 ## Open questions
 
-- Freshness F24 gap (open, Nov 12): a bare `pull_freshness.py --all` —
-  the form the scheduled refresh runs — covers the totals + Form 6 legs
-  for all 664 people but runs NO F24 sweeps, because the driver's
-  `f24_targets` list (`src/ingest/pull_freshness.py:184`) is
-  `args.f24_candidate or args.person`, which is empty unless
-  `--person` / `--f24-candidate` is given. The F24 leg (24/48-hour
-  independent expenditures — e.g. the $20,903,437.57 UDP-vs-El-Sayed
-  finding) is therefore not covered by the scheduled freshness run. Fix
-  needs a driver design decision (per-person sweeps vs a committee-only
-  UDP sweep); out of scope for the automation docs pass.
+- Freshness F24 gap — CLOSED Nov 12, pending live confirmation on the Sunday
+  Nov 15 scheduled run. A bare `pull_freshness.py --all` — the form the
+  scheduled refresh runs — used to run NO F24 sweeps, because the driver's
+  `f24_targets` list (`src/ingest/pull_freshness.py:184`) was
+  `args.f24_candidate or args.person`, empty unless `--person` /
+  `--f24-candidate` was given. The driver now also runs committee-only F24
+  sweeps for six config-listed spender committees on every `--all` (top 5 by
+  2026 roster-targeted IE — NO GOING BACK PAC, WinSenate, HMP, TEXAS PAC,
+  DEFEND AMERICAN JOBS — plus UDP by design; `config.yaml`,
+  `freshness.f24_committee_sweep`, cycle 2026 only), attributed to roster
+  people by candidate_id with non-roster rows summed separately, into a
+  top-level `committee_sweeps` list in the snapshot — never merged into
+  dataset totals. A standalone `--f24-committee-sweep` mode runs just the
+  sweeps. No workflow change was needed (it already runs bare `--all`). The
+  first live confirmation is the Sunday Nov 15, 2026 scheduled run: check
+  that the snapshot artifact carries `committee_sweeps` with six entries.
 - Opposition credit: split by primary vs. general phase (so anti-El-Sayed
   spending would credit to Stevens in the primary and Rogers in the
   general), or keep the conservative single-backer rule?
