@@ -357,7 +357,7 @@ TEMPLATE_BODY = """
 <span id="find-person"></span>
 </div>
 </section>
-<p class="fresh">%%FRESH_LINE%%</p>
+<p class="fresh" id="fresh-line">%%FRESH_LINE%%</p>
 <p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
