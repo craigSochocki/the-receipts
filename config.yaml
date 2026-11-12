@@ -38,6 +38,11 @@ paths:
   snapshots: data/snapshots
   evidence: data/evidence
   research: research
+  site: docs
+  site_generator: src/site/build_site.py
+  site_verify: src/site/verify_site.py
+  dataset_json: congress-money-tracker.json
+  dataset_csv: congress-money-tracker.csv
   roster: data/intermediate/roster.json
   roster_intermediate: data/intermediate/roster_intermediate.json
   fec_lookup_results: data/source/fec_lookup_results.json
