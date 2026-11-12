@@ -271,7 +271,7 @@ TEMPLATE_BODY = """
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
 <footer>
 <p class="foot-totals" id="foot-totals"></p>
-<p>Data as of %%DATA_AS_OF%%. Source: FEC bulk filings (weball, pas2, committee master, independent-expenditure files) — see Methodology. Dataset md5: <code>%%DATASET_MD5%%</code>. Generated %%GENERATED_AT%% from <code>congress-money-tracker.json</code> by <code>src/site/build_site.py</code>. The tracker stays private until its owner says to publish it.</p>
+<p>Data as of %%DATA_AS_OF%%. Source: FEC bulk filings (weball, pas2, committee master, independent-expenditure files) — see Methodology. Dataset md5: <code>%%DATASET_MD5%%</code>. Generated %%GENERATED_AT%% from <code>congress-money-tracker.json</code> by <code>src/site/build_site.py</code>. Live at https://craigsochocki.github.io/the-receipts/.</p>
 </footer>
 <script id="receipts-cols" type="application/json">%%COLS_JSON%%</script>
 <script id="receipts-data" type="application/json">%%DATA_JSON%%</script>
