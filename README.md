@@ -9,8 +9,9 @@ the method for every column is written down in `methodology.md`.
 The finished dataset is already here: `congress-money-tracker.csv` /
 `.json` — 664 people (the 119th Congress plus the incoming 120th), career
 money, rankings, and 2026-cycle clean/dirty flags. You don't need to build
-anything to explore it. The tracker web page itself is not built from this
-repo yet — that's a known gap, see `architecture.md`.
+anything to explore it. The static site (`docs/index.html`, served by
+GitHub Pages once Craig enables it) is generated from that dataset — see
+"Static site" below.
 
 ## Quick start
 
@@ -116,6 +117,37 @@ api.data.gov key (1,000 req/hr) via the `FEC_API_KEY` environment variable
 (`config.yaml` `fec_api`, default `DEMO_KEY`). No registered key exists in
 the repo yet.
 
+## Static site
+
+`docs/index.html` is the tracker page as a static site, for GitHub Pages.
+It is **generated, never hand-edited**: `src/site/build_site.py` reads
+`congress-money-tracker.json` and emits the page with the dataset embedded
+in a compact positional encoding (1.6 MB for 664 rows — column list +
+array-of-arrays). Every view on the page (search, filters, sorting,
+leaderboards, clean view, party breakdown, primary targets, CSV download)
+is computed from that embedded data at runtime, so the page cannot drift
+from the dataset. A data refresh regenerates the site with one command:
+
+```sh
+python3 src/site/build_site.py     # regenerate docs/index.html
+python3 src/site/verify_site.py    # verify it against the dataset
+```
+
+`verify_site.py` decodes the embedded payload and checks it field-by-field
+against the JSON (0 mismatches), recomputes the headline figures (664 rows;
+clean True 84 / None 1; incoming House clean 67, Senate 10; top-10 total
+accepted; 192 primary targets; 53 career-clean House), syntax-checks the
+page JavaScript with `node --check`, serves `docs/` locally and checks it
+returns 200, runs the Node runtime smoke test (`src/site/smoke_test.js` —
+renders the table and every tab against a DOM stub, opens a drill-down,
+exercises the CSV path), and checks the generator is deterministic apart
+from the generation timestamp. Any failure exits non-zero.
+
+To preview locally: `python3 -m http.server --directory docs 8000`, then
+open http://localhost:8000. GitHub Pages is the publishing source
+(`docs/`); enabling Pages in repo Settings → Pages is Craig's step — the
+site is not public until he does that.
+
 ## Configuration
 
 `config.yaml` at the repo root is the single source of truth for committee
@@ -142,6 +174,10 @@ works from any directory on any machine.
 - `research/` — pull logs, verification notes, source research
 - `data/raw/` — staged FEC bulk data, **not committed** (gitignored, ~6 GB,
   re-downloadable from fec.gov — see `research/bulk-inventory.md`)
+- `docs/` — the generated static site (`index.html`, from
+  `src/site/build_site.py`; never hand-edited)
+- `src/site/` — site generator (`build_site.py`), verifier
+  (`verify_site.py`), runtime smoke test (`smoke_test.js`)
 
 ## Ground rules
 
