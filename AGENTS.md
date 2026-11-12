@@ -47,14 +47,16 @@ documented is not done.
   intermittently gets connection-reset by the egress proxy:
 
   ```sh
-  GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o ProxyCommand='nc -X connect -x 198.19.0.1:3128 %h %p'" git push
+  GIT_SSH_COMMAND="ssh -i /home/hatch/.ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=/home/hatch/.ssh/known_hosts -o ProxyCommand='nc -X connect -x 198.19.0.1:3128 %h %p'" git push
   ```
 
 - **SSH home-dir split (Nov 12, 2026):** the shell's `$HOME` is
   `/home/hatch` but ssh resolves `~` from the passwd entry, which is
-  `/root` — so ssh reads `known_hosts` from `/root/.ssh/known_hosts`,
-  NOT `~/.ssh/known_hosts`. If a push fails with "Host key
-  verification failed" even though `~/.ssh/known_hosts` is populated,
+  `/root` — so the `~` form of the push command fails with "Host key
+  verification failed". The command above (and `~/.ssh/config`) uses
+  absolute paths for that reason. If some other ssh use still fails
+  with "Host key verification failed" even though
+  `~/.ssh/known_hosts` is populated,
   copy it over (`cp ~/.ssh/known_hosts /root/.ssh/known_hosts`) and
   retry; the server key is GitHub's published Ed25519
   (`SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`) — verify with
