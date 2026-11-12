@@ -1,0 +1,163 @@
+# The Receipts — scheduled refresh: re-pull FEC bulk, rebuild, commit if changed.
+#
+# Schedule: weekly, Sunday 09:00 UTC.
+#   WHY Sunday morning UTC: it is off-hours US time (04:00 ET / 01:00 PT),
+#   so a refresh never lands mid-day while Craig is working in the repo.
+#   WHY weekly: the FEC bulk files are updated in place as new filings
+#   are processed, and a weekly cadence catches late filings between the
+#   quarterly / post-general (Dec 3) / year-end (Jan 31) deadlines
+#   without hammering the FEC servers daily.
+#   The job is idempotent: a run with no new filings changes nothing
+#   and commits nothing (see the commit step's change gate below).
+# Manual runs: workflow_dispatch — e.g. an on-demand refresh right after
+# the Dec 3 post-general deadline instead of waiting for Sunday.
+#
+# Flow: same pipeline as CI (download bulk -> rebuild -> byte-identical
+# gate -> build site -> verify site), then:
+#   - Freshness overlay (Form 6 / F24 late money) — ONLY when a
+#     registered FEC API key is present as the FEC_API_KEY secret.
+#     The snapshot is uploaded as a workflow artifact, never merged
+#     into the dataset and never committed (it lives under
+#     data/intermediate/, which is gitignored).
+#   - If the dataset or the site changed, commit + push back to master
+#     with a bot commit. That push triggers CI, which re-verifies —
+#     intended, and idempotent (a no-change run commits nothing).
+#   - A FAILED rebuild/verify commits NOTHING and pushes NOTHING: the
+#     commit step is gated on the earlier steps succeeding (the default
+#     for steps after a failure, plus an explicit `if: success()`).
+#
+# CACHE DECISION: NO cache of the bulk data — fresh ./download_bulk.sh
+# every run. The 2026 bulk files are updated IN PLACE by the FEC as new
+# filings arrive, under the same cycle-named URLs (e.g. weball26.zip),
+# with no version in the URL. Any content-blind cache key (workflow
+# file hash, runner OS, calendar week) would silently serve stale 2026
+# files and the rebuild would then "verify" against outdated filings —
+# the byte-identical gate cannot catch that, because it only checks the
+# rebuild against the committed dataset, not the filings against the
+# FEC. A safe cache would need a content-aware key (per-file ETag /
+# Last-Modified from a HEAD request, verified before restore), and
+# download_bulk.sh has no such mechanism — building one is out of scope
+# for this workflow. Fresh download costs ~315 MB per run; correctness
+# is worth more than the bandwidth.
+#
+# NO deploy step: GitHub Pages serves docs/ on master automatically.
+
+name: Scheduled refresh
+
+on:
+  schedule:
+    # Weekly, Sunday 09:00 UTC (see header comment for why).
+    - cron: "0 9 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write  # needed for the bot commit + push back to master
+
+concurrency:
+  group: scheduled-refresh
+  cancel-in-progress: false  # never kill a refresh mid-rebuild; queue instead
+
+jobs:
+  refresh:
+    name: Refresh from FEC bulk
+    runs-on: ubuntu-latest
+    # Budget: download + rebuild + site (same as CI, ~tens of minutes)
+    # plus the freshness step below (~30-45 min expected, 90 min cap).
+    # 180 min total leaves headroom for a slow FEC API day.
+    timeout-minutes: 180
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          # Full history: the commit step pushes back to master, and a
+          # shallow clone risks push edge cases. Repo history is small.
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Stage FEC bulk data
+        # Fresh download every run — NO cache (see header comment).
+        # Idempotent; resumes partial downloads. Skips oppexp on purpose.
+        run: ./download_bulk.sh
+
+      - name: Rebuild dataset
+        run: python3 src/rebuild.py
+
+      - name: Show rebuilt dataset checksums
+        run: md5sum congress-money-tracker.csv congress-money-tracker.json
+
+      - name: Build static site
+        run: python3 src/site/build_site.py
+
+      - name: Verify static site
+        run: python3 src/site/verify_site.py
+
+      # ---- Freshness overlay (late money since bulk coverage) ----
+      # Runs ONLY when the FEC_API_KEY secret is set. With DEMO_KEY the
+      # driver REFUSES --all (it exits with an error), and no registered
+      # key exists yet — so until the secret is added this step logs a
+      # skip line and the run continues without it. The snapshot is an
+      # overlay: it is NEVER merged into dataset totals.
+      - name: Freshness refresh (registered key only)
+        if: ${{ secrets.FEC_API_KEY != '' }}
+        env:
+          FEC_API_KEY: ${{ secrets.FEC_API_KEY }}
+        # Timeout math: config.yaml sets fec_api.sleep_between_requests_
+        # seconds: 0.4, but pull_freshness.py (and pull_f6.py / pull_f24.py)
+        # floor the effective sleep at 1.0 s per API call
+        # (SLEEP = max(0.4, 1.0)). --all makes ~1,300+ calls, so sleep
+        # alone is >= ~22 min; plus per-call request latency (~0.2-1 s)
+        # and F6 CSV downloads, a realistic run is ~30-45 min. 90 min
+        # gives ~2x headroom; a slow API day fails loudly instead of
+        # hanging until the job timeout.
+        timeout-minutes: 90
+        run: python3 src/ingest/pull_freshness.py --all
+
+      - name: Upload freshness snapshot artifact
+        if: ${{ success() && secrets.FEC_API_KEY != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: freshness-snapshot-${{ github.run_number }}
+          path: data/intermediate/freshness_snapshot.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Freshness skipped (no FEC API key)
+        if: ${{ secrets.FEC_API_KEY == '' }}
+        run: |
+          echo "SKIP: freshness refresh not run — FEC_API_KEY secret is not set."
+          echo "pull_freshness.py --all refuses DEMO_KEY, so there is nothing to run."
+          echo "To enable: add a registered api.data.gov key as the FEC_API_KEY repository secret."
+
+      # ---- Commit + push, only if the rebuild changed something ----
+      # Gated on success(): a failed rebuild/verify commits NOTHING.
+      # Change gate: the dataset files count on ANY diff. For the site,
+      # ignore the generation timestamp — build_site.py re-stamps
+      # ("Generated YYYY-MM-DD HH:MM UTC") on every run, so a
+      # timestamp-only rebuild is not a content change and must not
+      # trigger a commit (otherwise every weekly run would commit even
+      # with no new filings). git diff -I uses the same timestamp
+      # pattern verify_site.py's determinism check strips.
+      - name: Commit and push if changed
+        if: success()
+        run: |
+          dataset_changed=0
+          site_changed=0
+          git diff --quiet -- congress-money-tracker.csv congress-money-tracker.json || dataset_changed=1
+          git diff --quiet -I'Generated [0-9-]+ [0-9:]+ UTC' -- docs/index.html || site_changed=1
+          if [ "$dataset_changed" -eq 0 ] && [ "$site_changed" -eq 0 ]; then
+            echo "No changes to dataset or site content — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add congress-money-tracker.csv congress-money-tracker.json docs/index.html
+          git commit -m "data: refresh from FEC bulk $(date -u +%F)"
+          git push origin master

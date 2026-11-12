@@ -1,0 +1,92 @@
+# The Receipts — CI: rebuild from FEC bulk and verify byte-identical output.
+#
+# What this does:
+#   1. Stages the FEC bulk files with ./download_bulk.sh (gitignored,
+#      ~315 MB down, ~2 GB on disk under data/raw/).
+#   2. Runs the full pipeline: python3 src/rebuild.py
+#      (roster -> money -> UDP -> dedup -> self-funding -> other-committees
+#      -> all-IE -> opposition -> merge -> ranking -> 2026 -> verify;
+#      verify_dataset.py runs 93 standing audits as rebuild's last step).
+#   3. FAILS if the rebuild does not reproduce the committed dataset
+#      byte-identically (git diff --exit-code on the two dataset files).
+#      A mismatch means the code, the data, or the method is wrong —
+#      never adjust a figure to match (AGENTS.md §5).
+#   4. Rebuilds the static site (docs/index.html) and runs its verifier.
+#
+# What this does NOT do: deploy. GitHub Pages serves docs/ on master
+# automatically, so there is no deploy step here or anywhere else.
+# This workflow needs no secrets (the rebuild uses the committed
+# fec_lookup_results.json, not a live FEC lookup), so it is safe to run
+# on pull requests, including PRs from forks (which get no secrets).
+#
+# Concurrency: runs queue behind each other (cancel-in-progress: false)
+# so a push during a run never kills a verification in flight.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  rebuild-and-verify:
+    name: Rebuild and verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # download (~315 MB) + full rebuild over ~2 GB of
+      # bulk data + site build/verify. No rebuild timing is recorded in the
+      # repo yet; 120 min is headroom, not a measured bound — tighten it
+      # once real run durations are known.
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Stage FEC bulk data
+        # Idempotent; resumes partial downloads. Skips oppexp on purpose
+        # (operating expenditures — no script reads them).
+        run: ./download_bulk.sh
+
+      - name: Rebuild dataset
+        run: python3 src/rebuild.py
+
+      - name: Show rebuilt dataset checksums
+        # Informational only — the gate below is the byte comparison.
+        # Committed md5s (verified Nov 12, 2026):
+        #   CSV  f346fca949d1c160317f2f1b45100273
+        #   JSON 48c2a2146523ef9aa1c4f11ac3d361a7
+        run: md5sum congress-money-tracker.csv congress-money-tracker.json
+
+      - name: Fail if rebuild differs from committed dataset
+        # rebuild.py does NOT compare against the committed dataset, so
+        # CI enforces byte-identical reproduction here. Any diff = FAIL.
+        run: |
+          if ! git diff --exit-code -- congress-money-tracker.csv congress-money-tracker.json; then
+            echo "::error::Rebuild did not reproduce the committed dataset byte-identically. See AGENTS.md §5: stop and report, never adjust a figure to match."
+            exit 1
+          fi
+
+      - name: Build static site
+        run: python3 src/site/build_site.py
+
+      - name: Verify static site
+        # Needs node (preinstalled on ubuntu-latest): node --check on the
+        # page scripts plus the runtime smoke test. Also re-runs the
+        # generator and checks determinism apart from the timestamp.
+        run: python3 src/site/verify_site.py
