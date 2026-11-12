@@ -75,7 +75,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.ingest import pull_f24, pull_f6
-from src.common.api_retry import open_with_retry, retry_settings
+from src.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from src.common.config import load_config
 
 CFG = load_config()
@@ -100,7 +100,7 @@ def api_get(path, params):
                              retry=RETRY, label=f'FEC API {path}') as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
-        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {url})')
+        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})')
 
 
 def principal_committees(candidate_id, cycle=2026):

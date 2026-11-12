@@ -118,7 +118,7 @@ def _backoff_seconds(attempt, retry):
                retry['backoff_cap_seconds'])
 
 
-def _sanitize_url(url):
+def sanitize_url(url):
     """URL with the api_key query param stripped, for logs and errors.
 
     Retry waits are logged to stderr (and loud failures surface in CI
@@ -133,7 +133,7 @@ def _sanitize_url(url):
 
 def _fail_loudly(label, url, reason, limit_note):
     raise SystemExit(
-        f'{label} failed: {reason} (url {_sanitize_url(url)}). {limit_note}')
+        f'{label} failed: {reason} (url {sanitize_url(url)}). {limit_note}')
 
 
 def open_with_retry(url, timeout, retry, label,
@@ -180,7 +180,7 @@ def open_with_retry(url, timeout, retry, label,
                     limit_note)
             print(f'[{label}] HTTP 429 rate-limited (attempt {attempt}/'
                   f'{max_attempts}): waiting {wait:.0f}s ({source}) '
-                  f'before retrying {_sanitize_url(url)}',
+                  f'before retrying {sanitize_url(url)}',
                   file=sys.stderr, flush=True)
             time.sleep(wait)
             waited += wait

@@ -45,7 +45,7 @@ import urllib.parse
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.api_retry import (DOCQUERY_RATE_LIMIT_NOTE, open_with_retry,
-                                  retry_settings)
+                                  retry_settings, sanitize_url)
 from src.common.config import load_config
 
 CFG = load_config()
@@ -66,7 +66,7 @@ def api_get(path, params):
                              retry=RETRY, label=f'FEC API {path}') as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
-        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {url})')
+        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})')
 
 
 def discover_f6(committee_id, since=None):
