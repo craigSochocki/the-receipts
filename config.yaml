@@ -220,19 +220,20 @@ verification:
     independent_expenditures: "2026-10-31"  # all-IE (UDP too)
     freshness_window_start: "2026-10-15"
   # Clean-in-2026 expectations from methodology.md §14, as of Nov 12, 2026.
-  # clean_2026 counts are over the whole roster; the 67 / 53 figures are
-  # the incoming (120th) House subset.
+  # clean_2026 counts are over the whole roster; the 64 / 53 figures are
+  # the incoming (120th) House subset. null_total 4 = Luria unverified +
+  # 3 unopposed (Pressley, Jacobs, Radewagen).
   clean_2026:
-    true_total: 84
+    true_total: 81
     false_total: 579
-    null_total: 1
-    house_120th_verified_clean: 67
-    house_120th_verified_clean_democrat: 63
-    house_120th_verified_clean_republican: 4
+    null_total: 4
+    house_120th_verified_clean: 64
+    house_120th_verified_clean_democrat: 61
+    house_120th_verified_clean_republican: 3
     house_120th_career_clean: 53
     house_120th_career_clean_democrat: 50
     house_120th_career_clean_republican: 3
-    house_120th_clean_2026_not_career_clean: 14
+    house_120th_clean_2026_not_career_clean: 11
 
 # The dataset's column order (CSV) and key order (JSON). The two differ
 # in the 2026 trio (the CSV lists individual_2026 first, the JSON lists
@@ -322,6 +323,7 @@ dataset:
     - udp_benefit_2026
     - dirty_2026
     - clean_2026
+    - unopposed_2026
     - dep_share_2026
     - self_funding_2026
     - cand_loans_2026
@@ -414,6 +416,7 @@ dataset:
     - udp_benefit_2026
     - dirty_2026
     - clean_2026
+    - unopposed_2026
     - dep_share_2026
     - self_funding_2026
     - cand_loans_2026

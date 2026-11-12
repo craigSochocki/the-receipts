@@ -1,6 +1,6 @@
 # Congress Money Tracker — Status Snapshot
 
-**As of: Thursday, November 12, 2026, ~1:15 PM EST**
+**As of: Thursday, November 12, 2026, ~5:20 PM EST**
 
 ## What is built
 
@@ -14,8 +14,8 @@
   per-person drill-down (FEC IDs, cycle-by-cycle tables, UDP-by-cycle,
   ranks, notes, self-funding/topline/other-committee/all-IE); leaderboards
   (Top 20 total accepted, Top 10 UDP benefit, Top 10 self-funding, Top 10
-  all-IE); party-by-chamber breakdown; clean-money view (77 verified clean:
-  67 House + 10 Senate; Luria the one unverified); 2026 primary-target list
+  all-IE); party-by-chamber breakdown; clean-money view (74 verified clean:
+  64 House + 10 Senate; Luria the one unverified, 3 ran unopposed); 2026 primary-target list
   (192 House Democrats); methodology section; CSV download from the same
   embedded figures. The 14 complete-picture columns are switchable views,
   not one 25-column table. Verification: embedded data round-trips exactly
@@ -133,7 +133,12 @@
   loans $14.4M, coverage 10/14/2026; all-IE 2026 $459,491.94 support /
   $3,721,257.82 oppose) — the counts return to **67 House / 77 total**,
   correcting the 66 / 76 figures recorded in MEMORY.md and the intro page
-  (the dataset itself always said 67). Curtis 2024 dedup extended to weball
+  (the dataset itself always said 67). A later change the same day excludes
+  members who ran unopposed in 2026 from verified-clean (Pressley MA-07,
+  Jacobs CA-51, Radewagen AS — no opponent with receipts over $0 in
+  weball26; King-Hinds is contested — MP race filed under district 01, not
+  the roster's 0 — and stays verified-clean), bringing the counts to
+  **64 House / 74 total**. Curtis 2024 dedup extended to weball
   cols 6–9 (kept-minus-dropped $107,207.83 exactly; roster receipts
   −$5,640,855.75, disbursements −$5,239,012.32, transfers-from
   −$1,261,797.03, transfers-to −$3,300.00; only Curtis's row changed).

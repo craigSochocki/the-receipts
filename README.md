@@ -147,9 +147,9 @@ python3 src/site/verify_site.py    # verify it against the dataset
 
 `verify_site.py` decodes the embedded payload and checks it field-by-field
 against the JSON (0 mismatches), recomputes the headline figures (664 rows;
-clean True 84 / None 1; incoming House clean 67, Senate 10; top-10 total
-accepted; 192 primary targets; 53 career-clean House), syntax-checks the
-page JavaScript with `node --check`, serves `docs/` locally and checks it
+clean True 81 / None 4 (Luria unverified + 3 unopposed); incoming House
+clean 64, Senate 10; top-10 total accepted; 192 primary targets; 53
+career-clean House), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
 returns 200, runs the Node runtime smoke test (`src/site/smoke_test.js` —
 renders the table and every tab against a DOM stub, opens a drill-down,
 exercises the CSV path), and checks the generator is deterministic apart
