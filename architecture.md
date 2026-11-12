@@ -119,9 +119,11 @@ not harder.
 
 ## 2a. Data model — tables by grain (proposed Nov 12, 2026)
 
-Today the mart is one wide record per person (664 rows, 44 fields, JSON
-1.88 MB): identity, career money, ranks, embedded `per_cycle` /
-`udp_per_cycle` lists, 2026 columns. That works at this scale. It does not
+Today the mart is one wide record per person (664 rows, 91 fields, JSON
+~4 MB): identity, career money, ranks, embedded `per_cycle` /
+`udp_per_cycle` / `self_funding_per_cycle` / `other_committees_per_cycle` /
+`all_ie_per_cycle` lists, the JSON-only `all_ie_top_committees`, and 2026
+columns. That works at this scale. It does not
 scale to the North Star layers, because polls are a time series, votes are
 thousands of rows per person, and promises are a list with statuses — none of
 that flattens into one row without going sparse and slow.
@@ -131,8 +133,18 @@ The model, as layers are added:
 - `persons` — identity + congress membership. Key: `person_key`. FEC
   candidate IDs as a list.
 - `money_by_cycle` — grain (person, cycle): every money fact. Career totals
-  are sums over this table. (Today this exists as the embedded `per_cycle`
-  lists; the move is to make it a first-class table.)
+  are sums over this table; stocks (cash on hand, debts owed by) are the
+  latest cycle's value, not sums. (Today this exists as the embedded
+  `per_cycle` lists; the move is to make it a first-class table.)
+- `committees` — FEC committee registry: committee ID → name, type, cycle.
+  The all-IE top-committees view is a (person, committee) rollup of the IE
+  table, not a person attribute.
+- `freshness` — an OVERLAY, not part of the canonical dataset: grain
+  (person, source, date): Form 6 notices, F24 expenditures, and totals-
+  refresh flags found since bulk coverage. It is never merged into the mart;
+  it is reconciled against the next bulk re-pull and then discarded. A
+  freshness figure that lands in the mart without a bulk source behind it
+  is a bug.
 - `outcomes` — grain (person, cycle, race): won primary / won general /
   lost / uncalled / runoff, margins. Own as-of date, own source.
 - `committees` — FEC committee registry: committee ID → name, type, cycle.
@@ -156,10 +168,15 @@ min/max/mid with an `is_estimate` flag. Versioned snapshots become a
 - **Raw (bronze):** FEC bulk dumps and API responses, stored as received under
   `work/bulk/`, immutable, dated. Never edited in place.
 - **Staging (silver):** deduped, typed, joined tables (`money_pas2_weball.csv`,
-  `money_per_cycle.json`, `opposition-computed.json`). Each staging script
+  `money_per_cycle.json`, `opposition-computed.json`,
+  `self_funding_per_cycle.json`, `other_committees_per_cycle.json`,
+  `all_ie_per_cycle.json`, `all_ie_top_committees.json`). Each staging script
   records its inputs, its dedup rule, and its row counts in a log.
 - **Marts (gold):** the per-person dataset (career + per-cycle). Every column
   is produced by a script. No manual edits to the JSON/CSV, ever.
+- **Freshness (overlay):** `freshness_snapshot.json`, produced by a separate
+  entry point (`work/pull_freshness.py`) on its own cadence. It is not part
+  of the rebuild pipeline and never feeds the mart.
 - **Presentation:** the artifact. It reads the mart; it computes nothing that
   the mart doesn't already contain (except display sorting/filtering).
 
@@ -203,7 +220,8 @@ min/max/mid with an `is_estimate` flag. Versioned snapshots become a
   triggers fires.
 - Keep the public/private boundary explicit: a flag for what is publishable.
   A public build must never show unverified or partial-cycle figures without
-  labeling them as such (e.g. "2026 cycle partial through Sep 30, 2026").
+  labeling them as such (e.g. "2026 cycle partial — committee money through
+  Sep 30, weball through Oct 14, independent expenditures through Oct 31").
 
 ## 10. Methodology ships with the data
 - Every new column, rule, or definition lands in `methodology.md` in the same
