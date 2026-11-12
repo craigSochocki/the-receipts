@@ -1028,5 +1028,6 @@ six committee sweeps, 2 paginated fetches each; sleep alone is ~37–39 min at t
 90-min step timeout — ~1.5× headroom; see the driver's docstring);
 DEMO_KEY (~30/hr, shared) is spot-checks only — the driver refuses `--all` on DEMO_KEY.
 Production needs a registered api.data.gov key (1,000 req/hr) via the `FEC_API_KEY`
-environment variable (wired in `config.yaml`, default `DEMO_KEY`). No registered key
-exists in the repo yet.
+environment variable (wired in `config.yaml`, default `DEMO_KEY`). A registered key
+was added Nov 12, 2026 by Craig as the `FEC_API_KEY` repository secret; the first
+scheduled run will confirm it by logging whether freshness ran or skipped.
