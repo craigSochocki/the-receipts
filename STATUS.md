@@ -22,9 +22,11 @@
   (0 mismatched fields), all headline figures recomputed from the embedded
   data match, page JS parses, local serve returns 200, Node runtime smoke
   test passes (table + every tab render, drill-down, CSV), generator
-  deterministic apart from the timestamp. **Not public yet:** GitHub Pages
-  is the publishing source (`docs/`); Craig enables Pages in repo Settings
-  → Pages. Never hand-edit `docs/index.html` — edit the generator.
+  deterministic apart from the timestamp. **LIVE Nov 12:** Craig enabled
+  GitHub Pages (publishing source `docs/` on `master`) and the site is
+  public at https://craigsochocki.github.io/the-receipts/ — verified the
+  live page serves the methodology content with correct figures. Never
+  hand-edit `docs/index.html` — edit the generator.
 
 - **Roster: 664 people** — union of the 119th Congress (540 served) and the
   incoming 120th (535 named): 411 in both, 124 in the 119th only, 124 in the
@@ -155,11 +157,11 @@
    (6) transfers between authorized committees. New columns shown
    separately, never blended into total_accepted. Re-pull bulk mid-Dec
    (post-general, due Dec 3) and Feb (year-end, due Jan 31, 2027).
-2. **Static site — DONE Nov 12.** `docs/index.html` generated from the
-   canonical dataset (see "What is built"). **Craig's step: enable GitHub
-   Pages in repo Settings → Pages** (publishing source `docs/`), then verify
-   the live link. The tracker artifact stays the private version until he
-   says to publish.
+2. **Static site — DONE Nov 12, LIVE the same day.** `docs/index.html`
+   generated from the canonical dataset (see "What is built"). Craig
+   enabled GitHub Pages (publishing source `docs/` on `master`) and the
+   site is public at https://craigsochocki.github.io/the-receipts/.
+   The tracker artifact stays the private version until he says to publish.
 3. **Ad spending — research DONE Nov 12; Google build BLOCKED on GCP
    access.** Google first (BigQuery public dataset
    `bigquery-public-data.google_political_ads`, no approvals; join is
