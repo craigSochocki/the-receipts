@@ -1,2 +1,6 @@
 work/bulk/
 *.zip
+
+# Python bytecode (created when any work/*.py script imports config)
+__pycache__/
+*.pyc
