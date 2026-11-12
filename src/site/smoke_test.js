@@ -30,6 +30,9 @@ const colsJson = extract(
 const dataJson = extract(
   /<script id="receipts-data" type="application\/json">(.*?)<\/script>/s,
   "receipts-data payload");
+const oppJson = extract(
+  /<script id="opp-data" type="application\/json">(.*?)<\/script>/s,
+  "opp-data payload");
 const appScripts = [...html.matchAll(/<script>(.*?)<\/script>/gs)].map((m) => m[1]);
 assert.strictEqual(appScripts.length, 2, "expected 2 app scripts, got " + appScripts.length);
 
@@ -60,6 +63,7 @@ const byId = {};
 function elFor(id) { if (!byId[id]) byId[id] = new El(); return byId[id]; }
 byId["receipts-cols"] = Object.assign(new El(), { textContent: colsJson });
 byId["receipts-data"] = Object.assign(new El(), { textContent: dataJson });
+byId["opp-data"] = Object.assign(new El(), { textContent: oppJson });
 const queryCache = {};
 global.document = {
   getElementById: (id) => elFor(id),
@@ -120,6 +124,21 @@ const detailHtml = document.getElementById("detail-sheet").innerHTML;
 assert.ok(detailHtml.includes("$17,000,000.00"), "Constantino detail shows $17M self-funding");
 assert.ok(detailHtml.includes("Self-funding"), "detail has self-funding section");
 assert.ok(detailHtml.includes("Cycle by cycle"), "detail has cycle tables");
+closeDetail();
+
+const stevensKey = PEOPLE.find((p) => p.full_name.includes("Stevens")).person_key;
+openDetail(stevensKey);
+const stevensHtml = document.getElementById("detail-sheet").innerHTML;
+assert.ok(
+  stevensHtml.includes("UDP opposition credit by race"),
+  "Stevens detail shows opposition credit by race");
+assert.ok(stevensHtml.includes("Primary"), "Stevens detail shows the phase");
+assert.ok(
+  stevensHtml.includes("$20,139,904.21"),
+  "Stevens detail shows the 2026 primary-phase credit");
+assert.ok(
+  stevensHtml.includes("$341,792.98"),
+  "Stevens detail shows the 2022 primary-phase credit");
 closeDetail();
 
 downloadCsv(); // must not throw (Blob + object URL path)

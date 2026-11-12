@@ -8,7 +8,10 @@ positional encoding (column list + array-of-arrays, ~1.6 MB vs 5.5 MB
 minified JSON) and every view on the page — table, filters, leaderboards,
 clean view, breakdown, primary targets, CSV download — is computed from
 that embedded data at runtime, so the figures on the page can never drift
-from the dataset.
+from the dataset. A second, smaller payload carries the race-phase UDP
+opposition-credit detail (from data/intermediate/opposition-computed.json,
+the race-level record) so a person's drill-down can show the credit split
+by primary / general / other phase.
 
 Usage:
     python3 src/site/build_site.py            # regenerate docs/index.html
@@ -113,6 +116,35 @@ def encode_row(r):
         cols = NESTED_COLS[name]
         vals = r.get(name) or []
         out.append([[e.get(k) for k in cols] for e in vals])
+    return out
+
+
+def build_opp_payload():
+    """Race-phase UDP opposition credit per roster person, for the drill-down.
+
+    From data/intermediate/opposition-computed.json (the race-level record):
+    {person_key: [{cycle, office, state, district, phase, amount, opposed:
+    [[name, amount], ...]}, ...]}. Non-roster credits are excluded (no
+    drill-down row exists for them). Deterministic: entries sorted by race
+    key, opposed names by amount descending.
+    """
+    opp = json.loads((ROOT / CFG["paths"]["opposition_computed"]).read_text())
+    out = {}
+    for race, pk, _name, amount, opposed in opp["credit_detail"]:
+        if pk.startswith("__nonroster__"):
+            continue
+        cycle, office, state, district, ele_type = race
+        out.setdefault(pk, []).append({
+            "cycle": cycle, "office": office, "state": state,
+            "district": district, "phase": ele_type,
+            "amount": round(float(amount), 2),
+            "opposed": sorted(
+                [[n, round(float(a), 2)] for n, a in opposed.items()],
+                key=lambda x: -x[1]),
+        })
+    for pk in out:
+        out[pk].sort(key=lambda e: (e["cycle"], e["office"], e["state"],
+                                    e["district"], e["phase"]))
     return out
 
 
@@ -275,11 +307,14 @@ TEMPLATE_BODY = """
 </footer>
 <script id="receipts-cols" type="application/json">%%COLS_JSON%%</script>
 <script id="receipts-data" type="application/json">%%DATA_JSON%%</script>
+<script id="opp-data" type="application/json">%%OPP_JSON%%</script>
 <script>
 "use strict";
 /* ---- decode ---- */
 const COLS = JSON.parse(document.getElementById('receipts-cols').textContent);
 const RAW = JSON.parse(document.getElementById('receipts-data').textContent);
+const OPP = JSON.parse(document.getElementById('opp-data').textContent);
+const PHASE_LABEL = {P:'Primary', G:'General', O:'Other'};
 const NS = COLS.scalars.length;
 function mkobj(cols, arr){ const o={}; cols.forEach((k,i)=>{ o[k]=arr[i]; }); return o; }
 const PEOPLE = RAW.map(a=>{
@@ -574,6 +609,19 @@ function openDetail(key){
     + kvRow('Other committees total', fmtMoney(p.other_committees_total_career)+' ('+fmtRank(p.rank_other_committees_total)+')')
     + kvRow('All IE support / oppose / total (2022–2026)', fmtMoney(p.all_ie_support_career)+' / '+fmtMoney(p.all_ie_oppose_career)+' / <b>'+fmtMoney(p.all_ie_total_career)+'</b> ('+fmtRank(p.rank_all_ie_total)+')')
     + '</div>';
+  const oppRows = OPP[p.person_key];
+  if(oppRows && oppRows.length){
+    h += cycleTable('UDP opposition credit by race — phase by phase', oppRows.map(e=>({
+      race: e.cycle+' · '+(e.office==='S'?'Senate':'House')+' · '+e.state+(e.office==='H'?'-'+e.district:''),
+      phase: PHASE_LABEL[e.phase]||e.phase,
+      amount: e.amount,
+      opposed: e.opposed.map(o=>o[0]+' ('+fmtMoney(o[1])+')').join(', ')
+    })), [
+      {k:'race',label:'Race',type:'text'},
+      {k:'phase',label:'Phase',type:'text'},
+      {k:'amount',label:'Credited',type:'money'},
+      {k:'opposed',label:'Opposed',type:'text'}]);
+  }
   h += '<h3>2026 cycle (partial)</h3><div class="kv">'
     + kvRow('Clean in 2026', fmtClean(p))
     + kvRow('Dirty 2026', fmtMoney(p.dirty_2026))
@@ -837,10 +885,10 @@ METHOD_HTML = """
 <li><b>Weball double-count corrected:</b> where weball repeats an identical individual-contribution total under a chamber-switcher’s House and Senate IDs in the same cycle, it is counted once ($451,776,015.34 across 32 persons).</li>
 <li><b>UDP reconciliation:</b> the deduped 2024 UDP total is $38,044,932.69 vs OpenSecrets’ $37,860,200 (+0.49%, unresolved).</li>
 <li><b>16 people who served in the 119th but left before Nov 2026 are excluded</b> (Vance, Rubio, Graham, D. Scott, Turner, Grijalva, Connolly, Green, Sherrill, Greene, LaMalfa, Gonzales, Swalwell, Cherfilus-McCormick, Mullin, Waltz). 5 seats are TBD/uncalled; 120th results are media calls, uncertified; 120th leadership is TBD (elections Nov 18–19, 2026).</li>
-<li><b>Opposition credit is conservative:</b> race = cycle + office + state + district, no primary/general split; credit only when UDP backed exactly one candidate in the race.</li>
+<li><b>Opposition credit is conservative:</b> race = cycle + office + state + district + election phase (primary / general / other, from the filing's ele_type — expenditure dates are blank on UDP rows, so no date split is possible); credit only when UDP backed exactly one candidate in that phase of the race.</li>
 </ul>
 <h3>Sources &amp; reproducibility</h3>
-<p>FEC bulk files are the source of truth for every figure; the FEC API was used for spot-checks; OpenSecrets is a cross-check only. The full method, reconciliation tables, and every limitation are in <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>. The pipeline that builds this dataset is scripted (<code>python3 src/rebuild.py</code>) and reproduces the committed dataset byte-identically; this page is generated from that dataset by <code>src/site/build_site.py</code> — never hand-edited.</p>
+<p>FEC bulk files are the source of truth for every figure; the FEC API was used for spot-checks; OpenSecrets is a cross-check only. The full method, reconciliation tables, and every limitation are in <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>. The pipeline that builds this dataset is scripted (<code>python3 src/rebuild.py</code>) and reproduces the committed dataset byte-identically; this page is generated from that dataset (plus the race-level opposition-credit record in <code>data/intermediate/opposition-computed.json</code>, shown in the drill-down) by <code>src/site/build_site.py</code> — never hand-edited.</p>
 """
 
 
@@ -854,6 +902,7 @@ def main():
     if missing:
         raise SystemExit(f"dataset rows missing scalar fields: {missing}")
     rows = [encode_row(r) for r in dataset]
+    opp_payload = build_opp_payload()
     cols_payload = {
         "scalars": SCALARS,
         "pc": PC_COLS, "upc": UPC_COLS, "sf": SF_COLS,
@@ -884,6 +933,7 @@ def main():
     html = html.replace("%%METHOD_HTML%%", METHOD_HTML)
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
+    html = html.replace("%%OPP_JSON%%", safe_json(opp_payload))
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
     html = html.replace("%%STAMP%%", stamp)
@@ -894,6 +944,8 @@ def main():
     print(f"rows: {len(rows)}")
     print(f"dataset md5: {dataset_md5}")
     print(f"embedded payload bytes: {len(safe_json(rows))}")
+    print(f"opposition detail: {len(opp_payload)} persons, "
+          f"{sum(len(v) for v in opp_payload.values())} race-phases")
     print(f"wrote {out} ({out.stat().st_size} bytes)")
 
 

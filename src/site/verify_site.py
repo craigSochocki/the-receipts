@@ -14,6 +14,9 @@ Checks:
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
+ 7. The embedded opposition-credit detail matches
+    data/intermediate/opposition-computed.json exactly (race-phase level),
+    including Stevens' two credited phases.
 
 Usage: python3 src/site/verify_site.py [--skip-serve]
 Exit non-zero on any failure.
@@ -33,7 +36,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
-from src.site.build_site import (SCALARS, NESTED, NESTED_COLS, main as build_main)
+from src.site.build_site import (SCALARS, NESTED, NESTED_COLS, build_opp_payload,
+                               main as build_main)
 
 CFG = load_config()
 ROOT = CFG["_root"]
@@ -129,6 +133,20 @@ def main():
                           f"site={d_row.get(k)!r} dataset={v!r}")
     check("embedded data round-trips exactly (all rows, all fields)",
           mismatches == 0, f"{mismatches} mismatched fields")
+
+    # ---- opposition-credit detail payload (race-phase level) ----
+    opp_embedded = extract_payload(html, "opp-data")
+    opp_expected = build_opp_payload()
+    check("embedded opposition detail matches opposition-computed.json",
+          values_equal(opp_embedded, opp_expected, "opp"),
+          f"{len(opp_embedded)} persons, "
+          f"{sum(len(v) for v in opp_embedded.values())} race-phases")
+    stevens_opp = { (e["cycle"], e["phase"]): e["amount"]
+                    for e in opp_embedded.get("S001215", []) }
+    check("Stevens drill-down detail: 2022 P $341,792.98, 2026 P $20,139,904.21",
+          stevens_opp.get((2022, "P")) == 341792.98
+          and stevens_opp.get((2026, "P")) == 20139904.21
+          and len(stevens_opp) == 2, f"got {stevens_opp}")
 
     # ---- headline figures, recomputed from the embedded (decoded) data ----
     def num(v):
