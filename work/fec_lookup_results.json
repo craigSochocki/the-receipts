@@ -1,0 +1,728 @@
+{
+ "A000383": {
+  "name": "Alan Armstrong",
+  "state": "OK",
+  "status": "not_found",
+  "value": []
+ },
+ "G000608": {
+  "name": "Darline Graham",
+  "state": "SC",
+  "status": "found-manual",
+  "value": "S6SC04437"
+ },
+ "julianastrattonilsenate": {
+  "name": "Juliana Stratton",
+  "state": "IL",
+  "status": "found",
+  "value": "S6IL00458"
+ },
+ "joshturekiasenate": {
+  "name": "Josh Turek",
+  "state": "IA",
+  "status": "found",
+  "value": "S6IA00298"
+ },
+ "adamhamiltonkssenate": {
+  "name": "Adam Hamilton",
+  "state": "KS",
+  "status": "found",
+  "value": "S6KS00312"
+ },
+ "troyjacksonmesenate": {
+  "name": "Troy Jackson",
+  "state": "ME",
+  "status": "found",
+  "value": "S6ME00464"
+ },
+ "abdulelsayedmisenate": {
+  "name": "Abdul El-Sayed",
+  "state": "MI",
+  "status": "found",
+  "value": "S6MI00418"
+ },
+ "peggyflanaganmnsenate": {
+  "name": "Peggy Flanagan",
+  "state": "MN",
+  "status": "found-manual",
+  "value": "S6MN00440"
+ },
+ "scottcolommssenate": {
+  "name": "Scott Colom",
+  "state": "MS",
+  "status": "found",
+  "value": "S6MS00133"
+ },
+ "kurtalmemtsenate": {
+  "name": "Kurt Alme",
+  "state": "MT",
+  "status": "found",
+  "value": "S6MT00295"
+ },
+ "roycooperncsenate": {
+  "name": "Roy Cooper",
+  "state": "NC",
+  "status": "found",
+  "value": "S6NC00407"
+ },
+ "annieandrewsscsenate": {
+  "name": "Annie Andrews",
+  "state": "SC",
+  "status": "found",
+  "value": "S6SC04239"
+ },
+ "jamestalaricotxsenate": {
+  "name": "James Talarico",
+  "state": "TX",
+  "status": "found",
+  "value": "S6TX00479"
+ },
+ "amishshahazhouse": {
+  "name": "Amish Shah",
+  "state": "AZ",
+  "status": "found",
+  "value": "H4AZ01194"
+ },
+ "marklambazhouse": {
+  "name": "Mark Lamb",
+  "state": "AZ",
+  "status": "found",
+  "value": "H6AZ05265"
+ },
+ "joannamendozaazhouse": {
+  "name": "JoAnna Mendoza",
+  "state": "AZ",
+  "status": "found",
+  "value": "H6AZ06099"
+ },
+ "mikemcguirecahouse": {
+  "name": "Mike McGuire",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA01269"
+ },
+ "richardpancahouse": {
+  "name": "Richard Pan",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA03158"
+ },
+ "scottwienercahouse": {
+  "name": "Scott Wiener",
+  "state": "CA",
+  "status": "found",
+  "value": "H8CA11116"
+ },
+ "randyvillegascahouse": {
+  "name": "Randy Villegas",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA22190"
+ },
+ "jacquiirwincahouse": {
+  "name": "Jacqui Irwin",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA26266"
+ },
+ "angelagonzalestorrescahouse": {
+  "name": "Angela Gonzales-Torres",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA34286"
+ },
+ "marni-vonwilpertcahouse": {
+  "name": "Marni von Wilpert",
+  "state": "CA",
+  "status": "found",
+  "value": "H6CA48310"
+ },
+ "melatkiroscohouse": {
+  "name": "Melat Kiros",
+  "state": "CO",
+  "status": "found",
+  "value": "H6CO01273"
+ },
+ "eileenlaubachercohouse": {
+  "name": "Eileen Laubacher",
+  "state": "CO",
+  "status": "found",
+  "value": "H6CO04202"
+ },
+ "jessicakillincohouse": {
+  "name": "Jessica Killin",
+  "state": "CO",
+  "status": "found",
+  "value": "H6CO05324"
+ },
+ "mannyrutinelcohouse": {
+  "name": "Manny Rutinel",
+  "state": "CO",
+  "status": "found",
+  "value": "H6CO08013"
+ },
+ "lukebronincthouse": {
+  "name": "Luke Bronin",
+  "state": "CT",
+  "status": "found",
+  "value": "H6CT01206"
+ },
+ "austinrogersflhouse": {
+  "name": "Austin Rogers",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL02331"
+ },
+ "ryanelijahflhouse": {
+  "name": "Ryan Elijah",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL07231"
+ },
+ "joestradaflhouse": {
+  "name": "Joe Strada",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL11332"
+ },
+ "sydneygrutersflhouse": {
+  "name": "Sydney Gruters",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL16141"
+ },
+ "jimschwartzelflhouse": {
+  "name": "Jim Schwartzel",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL19137"
+ },
+ "piadandiyaflhouse": {
+  "name": "Pia Dandiya",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL21059"
+ },
+ "olivergilbertflhouse": {
+  "name": "Oliver Gilbert",
+  "state": "FL",
+  "status": "found",
+  "value": "H6FL24095"
+ },
+ "jimkingstongahouse": {
+  "name": "Jim Kingston",
+  "state": "GA",
+  "status": "found-manual",
+  "value": "H6GA01109"
+ },
+ "houstongainesgahouse": {
+  "name": "Houston Gaines",
+  "state": "GA",
+  "status": "found",
+  "value": "H6GA10175"
+ },
+ "johncowangahouse": {
+  "name": "John Cowan",
+  "state": "GA",
+  "status": "found",
+  "value": "H0GA14048"
+ },
+ "jasmineclarkgahouse": {
+  "name": "Jasmine Clark",
+  "state": "GA",
+  "status": "found",
+  "value": "H6GA13070"
+ },
+ "donnamillerilhouse": {
+  "name": "Donna Miller",
+  "state": "IL",
+  "status": "found",
+  "value": "H6IL02355"
+ },
+ "pattygarciailhouse": {
+  "name": "Patty Garc\u00eda",
+  "state": "IL",
+  "status": "found",
+  "value": "H6IL04153"
+ },
+ "la-shawnfordilhouse": {
+  "name": "La Shawn Ford",
+  "state": "IL",
+  "status": "found",
+  "value": "H6IL07354"
+ },
+ "danielbissilhouse": {
+  "name": "Daniel Biss",
+  "state": "IL",
+  "status": "found",
+  "value": "H6IL09228"
+ },
+ "jdfordinhouse": {
+  "name": "J.D. Ford",
+  "state": "IN",
+  "status": "found",
+  "value": "H6IN05307"
+ },
+ "christinabohannaniahouse": {
+  "name": "Christina Bohannan",
+  "state": "IA",
+  "status": "found",
+  "value": "H2IA02111"
+ },
+ "lindsayjamesiahouse": {
+  "name": "Lindsay James",
+  "state": "IA",
+  "status": "found",
+  "value": "H6IA02211"
+ },
+ "sarah-tronegarriottiahouse": {
+  "name": "Sarah Trone Garriott",
+  "state": "IA",
+  "status": "found",
+  "value": "H6IA03268"
+ },
+ "chrismcgowaniahouse": {
+  "name": "Chris McGowan",
+  "state": "IA",
+  "status": "found",
+  "value": "H6IA04167"
+ },
+ "edgallreinkyhouse": {
+  "name": "Ed Gallrein",
+  "state": "KY",
+  "status": "found",
+  "value": "H6KY04171"
+ },
+ "zachdembokyhouse": {
+  "name": "Zach Dembo",
+  "state": "KY",
+  "status": "found",
+  "value": "H6KY06184"
+ },
+ "paullepagemehouse": {
+  "name": "Paul LePage",
+  "state": "ME",
+  "status": "found",
+  "value": "H6ME02148"
+ },
+ "adrianboafomdhouse": {
+  "name": "Adrian Boafo",
+  "state": "MD",
+  "status": "found",
+  "value": "H6MD05321"
+ },
+ "dankohmahouse": {
+  "name": "Dan Koh",
+  "state": "MA",
+  "status": "found",
+  "value": "H8MA03072"
+ },
+ "seanmccannmihouse": {
+  "name": "Sean McCann",
+  "state": "MI",
+  "status": "found",
+  "value": "H6MI04204"
+ },
+ "williamlawrencemihouse": {
+  "name": "William Lawrence",
+  "state": "MI",
+  "status": "found",
+  "value": "H6MI07298"
+ },
+ "kristen-mcdonaldrivetmihouse": {
+  "name": "Kristen McDonald Rivet",
+  "state": "MI",
+  "status": "found",
+  "value": "H4MI08218"
+ },
+ "christinahinesmihouse": {
+  "name": "Christina Hines",
+  "state": "MI",
+  "status": "found",
+  "value": "H6MI10276"
+ },
+ "jeremymossmihouse": {
+  "name": "Jeremy Moss",
+  "state": "MI",
+  "status": "found",
+  "value": "H6MI11191"
+ },
+ "donavanmckinneymihouse": {
+  "name": "Donavan McKinney",
+  "state": "MI",
+  "status": "found",
+  "value": "H6MI13254"
+ },
+ "jakejohnsonmnhouse": {
+  "name": "Jake Johnson",
+  "state": "MN",
+  "status": "found-manual",
+  "value": "H6MN01190"
+ },
+ "mattlittlemnhouse": {
+  "name": "Matt Little",
+  "state": "MN",
+  "status": "found-manual",
+  "value": "H6MN02230"
+ },
+ "fredwellmanmohouse": {
+  "name": "Fred Wellman",
+  "state": "MO",
+  "status": "found",
+  "value": "H6MO02343"
+ },
+ "chrisstigallmohouse": {
+  "name": "Chris Stigall",
+  "state": "MO",
+  "status": "found",
+  "value": "H6MO06310"
+ },
+ "samforstagmthouse": {
+  "name": "Sam Forstag",
+  "state": "MT",
+  "status": "found",
+  "value": "H6MT01137"
+ },
+ "denisepowellnehouse": {
+  "name": "Denise Powell",
+  "state": "NE",
+  "status": "found",
+  "value": "H6NE02174"
+ },
+ "teresabenitezthompsonnvhouse": {
+  "name": "Teresa Benitez-Thompson",
+  "state": "NV",
+  "status": "found",
+  "value": "H6NV02362"
+ },
+ "stefanyshaheennhhouse": {
+  "name": "Stefany Shaheen",
+  "state": "NH",
+  "status": "found",
+  "value": "H6NH01321"
+ },
+ "zackmullocknjhouse": {
+  "name": "Zack Mullock",
+  "state": "NJ",
+  "status": "found",
+  "value": "H6NJ02251"
+ },
+ "rebeccabennettnjhouse": {
+  "name": "Rebecca Bennett",
+  "state": "NJ",
+  "status": "found",
+  "value": "H6NJ07201"
+ },
+ "adamhamawynjhouse": {
+  "name": "Adam Hamawy",
+  "state": "NJ",
+  "status": "found",
+  "value": "H6NJ12417"
+ },
+ "clairevaldeznyhouse": {
+  "name": "Claire Valdez",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY07214"
+ },
+ "bradlandernyhouse": {
+  "name": "Brad Lander",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY10176"
+ },
+ "micahlashernyhouse": {
+  "name": "Micah Lasher",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY12172"
+ },
+ "darializaavila-chevaliernyhouse": {
+  "name": "Darializa Avila Chevalier",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY13279"
+ },
+ "caitconleynyhouse": {
+  "name": "Cait Conley",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY17171"
+ },
+ "anthonyconstantinonyhouse": {
+  "name": "Anthony Constantino",
+  "state": "NY",
+  "status": "found",
+  "value": "H6NY21157"
+ },
+ "raymondsmithnchouse": {
+  "name": "Raymond Smith Jr.",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC03229"
+ },
+ "chuckhubbardnchouse": {
+  "name": "Chuck Hubbard",
+  "state": "NC",
+  "status": "found",
+  "value": "H4NC05294"
+ },
+ "cyriljeffersonnchouse": {
+  "name": "Cyril Jefferson",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC06164"
+ },
+ "richardojedanchouse": {
+  "name": "Richard Ojeda",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC09218"
+ },
+ "jamieagernchouse": {
+  "name": "Jamie Ager",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC11248"
+ },
+ "paulbarringernchouse": {
+  "name": "Paul Barringer",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC13228"
+ },
+ "lakeshawomacknchouse": {
+  "name": "LaKesha Womack",
+  "state": "NC",
+  "status": "found",
+  "value": "H6NC14069"
+ },
+ "brianpoindexterohhouse": {
+  "name": "Brian Poindexter",
+  "state": "OH",
+  "status": "found",
+  "value": "H6OH07168"
+ },
+ "kristinaknickerbockerohhouse": {
+  "name": "Kristina Knickerbocker",
+  "state": "OH",
+  "status": "found",
+  "value": "H6OH10121"
+ },
+ "donleonardohhouse": {
+  "name": "Don Leonard",
+  "state": "OH",
+  "status": "found",
+  "value": "H6OH15112"
+ },
+ "marktedfordokhouse": {
+  "name": "Mark Tedford",
+  "state": "OK",
+  "status": "found",
+  "value": "H6OK01235"
+ },
+ "bobharviepahouse": {
+  "name": "Bob Harvie",
+  "state": "PA",
+  "status": "found-manual",
+  "value": "H6PA01181"
+ },
+ "chrisrabbpahouse": {
+  "name": "Chris Rabb",
+  "state": "PA",
+  "status": "found",
+  "value": "H6PA03203"
+ },
+ "bobbrookspahouse": {
+  "name": "Bob Brooks",
+  "state": "PA",
+  "status": "found",
+  "value": "H6PA07188"
+ },
+ "paigecognettipahouse": {
+  "name": "Paige Cognetti",
+  "state": "PA",
+  "status": "found",
+  "value": "H6PA08293"
+ },
+ "janellestelsonpahouse": {
+  "name": "Janelle Stelson",
+  "state": "PA",
+  "status": "found",
+  "value": "H4PA10104"
+ },
+ "nancylacoreschouse": {
+  "name": "Nancy Lacore",
+  "state": "SC",
+  "status": "found",
+  "value": "H6SC01359"
+ },
+ "wesclimerschouse": {
+  "name": "Wes Climer",
+  "state": "SC",
+  "status": "found",
+  "value": "H6SC05202"
+ },
+ "martyjackleysdhouse": {
+  "name": "Marty Jackley",
+  "state": "SD",
+  "status": "found",
+  "value": "H6SD01109"
+ },
+ "victoriabrodericktnhouse": {
+  "name": "Victoria Broderick",
+  "state": "TN",
+  "status": "found",
+  "value": "H4TN04270"
+ },
+ "charliehatchertnhouse": {
+  "name": "Charlie Hatcher",
+  "state": "TN",
+  "status": "found",
+  "value": "H6TN05405"
+ },
+ "johnnygarretttnhouse": {
+  "name": "Johnny Garrett",
+  "state": "TN",
+  "status": "found",
+  "value": "H6TN06213"
+ },
+ "brenttaylortnhouse": {
+  "name": "Brent Taylor",
+  "state": "TN",
+  "status": "found",
+  "value": "H6TN09464"
+ },
+ "stevetothtxhouse": {
+  "name": "Steve Toth",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX08175"
+ },
+ "jessicasteinmanntxhouse": {
+  "name": "Jessica Hart Steinmann",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX08209"
+ },
+ "leticiagutierreztxhouse": {
+  "name": "Leticia Gutierrez",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX09231"
+ },
+ "chrisgobertxhouse": {
+  "name": "Chris Gober",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX10221"
+ },
+ "bobbypulidotxhouse": {
+  "name": "Bobby Pulido",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX15246"
+ },
+ "tomselltxhouse": {
+  "name": "Tom Sell",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX19206"
+ },
+ "markteixeiratxhouse": {
+  "name": "Mark Teixeira",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX21301"
+ },
+ "trevernehlstxhouse": {
+  "name": "Trever Nehls",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX22283"
+ },
+ "katypadilla-stouttxhouse": {
+  "name": "Katy Padilla Stout",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX23273"
+ },
+ "frederickhaynestxhouse": {
+  "name": "Frederick Haynes III",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX30245"
+ },
+ "jaceyarbroughtxhouse": {
+  "name": "Jace Yarbrough",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX32225"
+ },
+ "johnnygarciatxhouse": {
+  "name": "Johnny Garcia",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX35095"
+ },
+ "jonboncktxhouse": {
+  "name": "Jon Bonck",
+  "state": "TX",
+  "status": "found",
+  "value": "H6TX02244"
+ },
+ "shannontaylorvahouse": {
+  "name": "Shannon Taylor",
+  "state": "VA",
+  "status": "found",
+  "value": "H6VA01299"
+ },
+ "amandamckinneywahouse": {
+  "name": "Amanda McKinney",
+  "state": "WA",
+  "status": "found",
+  "value": "H6WA04216"
+ },
+ "mitchellbermanwihouse": {
+  "name": "Mitchell Berman",
+  "state": "WI",
+  "status": "found",
+  "value": "H6WI01283"
+ },
+ "rebeccacookewihouse": {
+  "name": "Rebecca Cooke",
+  "state": "WI",
+  "status": "found",
+  "value": "H4WI03169"
+ },
+ "michaelalfonsowihouse": {
+  "name": "Michael Alfonso",
+  "state": "WI",
+  "status": "found",
+  "value": "H6WI07223"
+ },
+ "chuckgraywyhouse": {
+  "name": "Chuck Gray",
+  "state": "WY",
+  "status": "found",
+  "value": "H6WY00217"
+ },
+ "robertwhitedchouse": {
+  "name": "Robert White",
+  "state": "DC",
+  "status": "found",
+  "value": "H6DC01079"
+ },
+ "alicialimtiacoguhouse": {
+  "name": "Alicia Limtiaco",
+  "state": "GU",
+  "status": "found",
+  "value": "H6GU01032"
+ },
+ "janellesarauwvihouse": {
+  "name": "Janelle Sarauw",
+  "state": "VI",
+  "status": "found-manual",
+  "value": "H6VI01065"
+ }
+}
