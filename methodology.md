@@ -977,6 +977,32 @@ dataset totals**. Full research in `research/freshness-research.md`.
    should be $0). Form 5 needs no leg: it covers only unregistered spenders, and
    registered committees file zero F5s.
 
+**Committee sweeps — the scheduled-run F24 leg (added Nov 12, 2026).** The
+per-person F24 route above only runs when a person is passed explicitly, so a
+bare `--all` — the form the scheduled refresh runs — ran no F24 sweeps at all.
+The driver now also sweeps six spender committees committee-wide, cycle 2026
+only, on every `--all` (and on demand via `--f24-committee-sweep`, which runs
+just the sweeps): NO GOING BACK PAC INC. (`C00960435`), WinSenate
+(`C00865444`), HMP (`C00495028`), TEXAS PAC (`C00960211`), DEFEND AMERICAN
+JOBS (`C00836221`), and UNITED DEMOCRACY PROJECT (`C00799031`) — the top 5 by
+2026 roster-targeted IE plus UDP (#10, included by design: AIPAC-affiliated,
+source of the $20.9M vs El-Sayed finding). The list lives in `config.yaml`
+(`freshness.f24_committee_sweep`). Each sweep reuses `pull_f24.sweep()`
+committee-only (same F24-only filter, dedup reconciliation, residual
+classification), so no Schedule E logic is duplicated. Rows are attributed to
+roster people by `candidate_id` (support/oppose from the row's
+`support_oppose_indicator`); rows for candidates not on the roster — the
+sweeps cover every candidate a committee targeted, not just roster people —
+are summed separately as `non_roster_total` / `non_roster_n_rows`, never
+attributed to anyone and never dropped silently; rows with an indicator other
+than S/O are summed as unclassified, never folded into support/oppose. Raw
+rows are not embedded in the snapshot (a sweep can run to thousands of rows);
+the per-committee attribution aggregates are the record, reproducible with
+`pull_f24.py --committee <id> --cycle 2026`. Sweep figures are an overlay like
+everything else in the snapshot: labeled by source and date, **never merged
+into dataset totals**. First live confirmation: the Sunday Nov 15, 2026
+scheduled run.
+
 **Weball-vs-API gap, with Constantino as the test case.** The bulk weball file says
 Constantino's 2026 loans are $14.4M through Oct 14; the API totals endpoint agrees
 (per-cycle row) — but the $1M Oct-29 loan exists ONLY as a Form 6 notice. Neither
@@ -993,8 +1019,12 @@ unexplained F24 residual: $0.
 
 **Cadence and keys.** Final 20 days before an election: daily. Cycle in progress
 outside the final 20 days: weekly. After each filing deadline (Dec 3 post-general,
-Jan 31 year-end): event-driven. A full refresh is ~1,300+ API calls; DEMO_KEY
-(~30/hr, shared) is spot-checks only — the driver refuses `--all` on DEMO_KEY.
+Jan 31 year-end): event-driven. A full refresh is ~1,500+ keyed API calls
+(recounted Nov 12, 2026 — the old "~1,300+" predated the sweeps and undercounted
+the per-person legs: 754 totals + 754 committee lookups for the roster's 754
+candidate IDs, one F6 discovery call per principal committee, plus 12–94 for the
+six committee sweeps, 2 paginated fetches each; see the driver's docstring);
+DEMO_KEY (~30/hr, shared) is spot-checks only — the driver refuses `--all` on DEMO_KEY.
 Production needs a registered api.data.gov key (1,000 req/hr) via the `FEC_API_KEY`
 environment variable (wired in `config.yaml`, default `DEMO_KEY`). No registered key
 exists in the repo yet.
