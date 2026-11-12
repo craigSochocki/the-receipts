@@ -9,17 +9,21 @@
   separately in its own column.
 - Ranks (`rank_total_accepted`, `rank_individual`, `rank_corporate_pac`,
   `rank_aipac_direct`, `rank_udp_support`, `rank_udp_opposing_opponents`,
-  `rank_udp_total_benefit`): 1 = most money, ties share a rank
+  `rank_udp_total_benefit`, `rank_self_funding`, `rank_all_ie_support`,
+  `rank_all_ie_oppose`, `rank_all_ie_total`,
+  `rank_other_committees_total`): 1 = most money, ties share a rank
   (competition ranking: rank = 1 + the number of people with strictly
   more). Ranks are computed over all 664 people; Alan Armstrong is
   unranked (money unknown, not zero) — his `total_accepted_career` and
-  all seven ranks are null. A negative total (Patrick Ryan, AIPAC
+  all twelve ranks are null. A negative total (Patrick Ryan, AIPAC
   -$10,000) ranks as filed.
 
 Reads the dataset written by `merge_dataset.py`, adds the columns, and
 rewrites both files in the final column order (the 2026 columns are
 added later by `compute_2026.py`). All other values are carried through
-untouched.
+untouched. `all_ie_top_committees` is JSON-only by design: it is carried
+through the JSON and has no CSV column, so the CSV/JSON order check
+below allows for exactly that one key.
 """
 import json
 
@@ -38,6 +42,11 @@ RANK_DEFS = [
     ('rank_udp_support', 'udp_ie_support_career'),
     ('rank_udp_opposing_opponents', 'udp_ie_opposing_opponents_career'),
     ('rank_udp_total_benefit', 'udp_ie_total_benefit_career'),
+    ('rank_self_funding', 'self_funding_career'),
+    ('rank_all_ie_support', 'all_ie_support_career'),
+    ('rank_all_ie_oppose', 'all_ie_oppose_career'),
+    ('rank_all_ie_total', 'all_ie_total_career'),
+    ('rank_other_committees_total', 'other_committees_total_career'),
 ]
 
 
@@ -77,10 +86,13 @@ for r in records:
         r[rank_col] = rank_maps[rank_col][r['person_key']]
 
 # Rebuild in the final column order (minus the 2026 columns, which do
-# not exist yet). CSV and JSON orders agree for these columns.
+# not exist yet). CSV and JSON orders agree for these columns except for
+# all_ie_top_committees, which is JSON-only by design.
 csv_cols = [c for c in CFG['dataset']['csv_columns'] if '2026' not in c]
 json_keys = [k for k in CFG['dataset']['json_keys'] if '2026' not in k]
-assert csv_cols == json_keys, 'CSV/JSON orders diverge before the 2026 columns'
+assert [k for k in json_keys if k != 'all_ie_top_committees'] == csv_cols, \
+    'CSV/JSON orders diverge before the 2026 columns (beyond all_ie_top_committees)'
+assert 'all_ie_top_committees' in json_keys, 'all_ie_top_committees missing from json_keys'
 ordered = [{k: r[k] for k in json_keys} for r in records]
 
 with open(ROOT / CFG['paths']['dataset_json'], 'w') as f:
