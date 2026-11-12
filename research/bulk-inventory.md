@@ -1,12 +1,11 @@
 # FEC bulk data — download inventory
 
 **Staged:** Thu Nov 12, 2026 (downloads 12:13–12:19 UTC; extraction + verification 12:19–12:35 UTC).
-**Location:** `~/workspace/user/congress-money-tracker/work/bulk/` (zips + extracted `.txt` side by side).
-**Source doc:** `~/workspace/user/congress-money-tracker/work/fec-sources.md` (verified Nov 12, 2026).
+**Location:** `data/raw/` (zips + extracted `.txt` side by side; `work/bulk/` before the Nov 12, 2026 restructure).
+**Source doc:** `research/fec-sources.md` (verified Nov 12, 2026).
 **Download method:** `curl -L --fail --retry 3 --retry-delay 5 -C -` per file from
 `https://www.fec.gov/files/bulk-downloads/<cycle>/<file><YY>.zip`. Zero failures, zero retries
-needed. `weball26.zip` and `cm26.zip` were copied from the verification agent's samples already in
-`work/` (sizes match the doc exactly: 200,004 and 880,749 bytes); the other 82 files were downloaded.
+needed. `weball26.zip` and `cm26.zip` were copied from the verification agent's samples already staged on the VM (sizes match the doc exactly: 200,004 and 880,749 bytes); the other 82 files were downloaded.
 
 ## Totals
 
@@ -26,16 +25,16 @@ samples skipped) and all 84 extracted with `unzip` exit code 0.
 ## Layout note — per-cycle subfolders for cm / pas2 / oppexp
 
 `weballYY.zip` contains a per-cycle-named file (`weballYY.txt`), so those extract flat into
-`bulk/weball/`. But `cmYY.zip`, `pas2YY.zip`, and `oppexpYY.zip` all contain a single
+`data/raw/weball/`. But `cmYY.zip`, `pas2YY.zip`, and `oppexpYY.zip` all contain a single
 generic-named file (`cm.txt`, `itpas2.txt`, `oppexp.txt`). Extracting them flat would overwrite
 every cycle except the last — this happened on the first extraction pass and was caught by the
 file count (only 3 `.txt` files for those three types). They were re-extracted into per-cycle
 subfolders, so the pull agent should glob:
 
-- `bulk/weball/weballYY.txt`
-- `bulk/cm/<cycle>/cm.txt` (e.g. `bulk/cm/2024/cm.txt`)
-- `bulk/pas2/<cycle>/itpas2.txt`
-- `bulk/oppexp/<cycle>/oppexp.txt`
+- `data/raw/weball/weballYY.txt`
+- `data/raw/cm/<cycle>/cm.txt` (e.g. `data/raw/cm/2024/cm.txt`)
+- `data/raw/pas2/<cycle>/itpas2.txt`
+- `data/raw/oppexp/<cycle>/oppexp.txt`
 
 ## ⚠️ CRITICAL CORRECTION — `oppexp` is NOT independent expenditures
 
