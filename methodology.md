@@ -70,7 +70,7 @@ research notes live in `research/`.
 | `district_119`, `district_120` | House district number; `0` for at-large seats and delegates; blank for Senators and for Congresses the person is not in. |
 | `party_119`, `party_120` | Party in that Congress; blank if not in it. |
 | `leadership_119`, `leadership_120` | Leadership role in that Congress; blank if none. `leadership_120` is `TBD` for everyone (see §1). |
-| `in_119th`, `in_120th` | `yes` / `no`; `in_120th` is `unknown` for the 5 TBD seats in §1. |
+| `in_119th`, `in_120th` | `yes` / `no`; `in_120th` is `unknown` for the 5 TBD seats in §1. The site derives an election-outcome label from `in_120th` alone — `yes` → Won, `unknown` → Uncalled, `no` → Not returning (see §8 item 15). |
 | `fec_candidate_ids` | Every FEC candidate ID for the person, semicolon-joined in the CSV, a list in the JSON. A person who moved House → Senate has one ID per office; money is summed across all of them and all cycles 1980–2026. One person (Alan Armstrong) has none. |
 | `individual_contribution_total_career` | **Career total of individual contributions** (itemized + unitemized) to the person's campaign(s), summed across all their candidate IDs and all FEC cycles 1980–2026. Source: `TTL_INDIV_CONTRIB` (col 18) of the FEC all-candidates file (`weball`). **De-duplicated (corrected Nov 12, 2026 — see §8.15):** where weball repeats the identical `TTL_INDIV_CONTRIB` under two of a person's candidate IDs in the same cycle (one principal committee reported under both a House and a Senate ID), the amount is counted **once** per (person, cycle). Groups where same-cycle amounts *differ* across IDs are genuinely different money and are still summed in full. Roster-wide individual total after the correction: **$8,763,847,353.73** (was $9,215,623,369.07 before it; correction $451,776,015.34 across 32 persons / 90 (person, cycle) groups). |
 | `aipac_pac_direct_career` | **HEADLINE AIPAC column — TOTAL Schedule B disbursements from the AIPAC PAC (C00797670) to the person's campaign(s), 2022–2026.** This is the sum of *all* `24K`/`24P` pas2 rows from that committee: the PAC's own money **plus** earmarked/bundled individual checks transmitted through it. See the AIPAC decision box below. |
@@ -549,6 +549,18 @@ total still 535.
 14. **Weball double-counting warning (FEC doc):** if a candidate has multiple authorised
     committees that transfer funds between each other, activity is counted twice; subtract
     `TRANS_FROM_AUTH` (col 7) / `TRANS_TO_AUTH` (col 9) where both are present.
+15. **Election outcome is derived from `in_120th` alone — "Not returning" is not
+    "Lost".** The site shows Won (`in_120th = "yes"`, 535 people), Uncalled
+    (`"unknown"`, the 5 TBD seats), or Not returning (`"no"`, 124 people) next to each
+    person's party chip. The dataset carries no outcome field (no won/lost/retired
+    flag), so a `"no"` cannot be split into lost re-election vs retired / didn't run /
+    left early — the label deliberately does not guess. Resolving that split needs the
+    outcomes table (Phase 2: every 2026 candidate with a primary/general outcome
+    flag), not an inference from this roster. The party chip derives the same way:
+    `party_120` when non-empty, else `party_119` (every row has one or the other);
+    Democrat → D (blue), Republican → R (red), Independent → I (gray), any other
+    stored label (e.g. PPD) → a gray chip showing the label — always letter + color,
+    never color alone.
     `TTL_INDIV_CONTRIB` itself is a receipts breakout and is not affected by
     committee-to-committee transfers — but see limitation 15, which is the material
     version of this problem for this dataset.
