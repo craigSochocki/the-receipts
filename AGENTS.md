@@ -1,0 +1,228 @@
+# AGENTS.md — The Receipts
+
+The shared operating model for every agent working in this repo — Muse
+and Craig's VS Code agent alike. Read this file first when you open the
+repo cold. It is the contract.
+
+- `README.md` is the setup guide (clone, rebuild, layout).
+- `methodology.md` is the definitions — every column, source, and
+  limitation. If this file and `methodology.md` disagree on a number,
+  `methodology.md` wins.
+- `architecture.md` is the design (data model, North Star, gaps).
+- `STATUS.md` is where the build stands right now.
+
+## 1. The job / North Star
+
+Expose the effect money has on politics — money breakdowns, election
+outcomes, public perception (polling), behavior in session (votes,
+signals, priorities), follow-through on campaign promises and how
+funding shapes platforms — as a **voter guide for 2028**.
+
+This tracker is layer 1: every person in Congress and the money behind
+them, from FEC filings. **664 rows** — the union of the 119th Congress
+(540 served) and the incoming 120th (535 named).
+
+The ethos is audit-first: **show the evidence, never just the number.**
+Every figure traces to an FEC filing, and the method for every column is
+written down in `methodology.md`. A number without its definition
+documented is not done.
+
+## 2. Source of truth and git
+
+- Remote: `git@github.com:craigSochocki/the-receipts.git`, branch
+  `master`. This repo is the shared source of truth between agents and
+  Craig's local clone.
+- **Pull before starting work; push when done.** Check the remote for
+  new commits first — another agent or Craig may have landed work since
+  you last looked.
+- **One change per commit, scoped to a single bit of functionality**,
+  so the history stays auditable. A commit message names the one thing
+  it does (`feat(merge): ...`, `fix(dedup): ...`, `docs(methodology):
+  ...`, `data: ...`).
+- **Never work the same files as another agent or human at the same
+  time.** Coordinate through branches (e.g. `craig/<thing>`) or by
+  stating what area you are touching, and wait for a running job in the
+  same repo to finish and push before starting yours.
+- Push from this VM needs the proxy SSH command — plain `git push`
+  intermittently gets connection-reset by the egress proxy:
+
+  ```sh
+  GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o ProxyCommand='nc -X connect -x 198.19.0.1:3128 %h %p'" git push
+  ```
+
+- After pushing, verify remote master = local HEAD:
+
+  ```sh
+  git ls-remote origin master   # must match git rev-parse HEAD
+  ```
+
+## 3. Layout
+
+The staged layout (Nov 12, 2026 restructure). Paths below are
+repo-relative; `config.yaml` is the single source of truth for shared
+values (committee IDs, cycles, paths, thresholds, API settings) — change
+a value there, never in a script. Scripts resolve all paths from the repo
+root via `src/common/config.py`, never from an absolute path or the
+current working directory.
+
+```
+the-receipts/
+├── AGENTS.md                  # this file — the agent contract
+├── README.md, STATUS.md, methodology.md, architecture.md
+├── config.yaml                # single source of truth for shared values
+├── congress-money-tracker.csv / .json   # the dataset (stays at repo root)
+├── src/
+│   ├── common/                # config loader (config.py)
+│   ├── ingest/                # pulls from FEC bulk + API:
+│   │                          # pull_money, pull_udp, pull_self_funding,
+│   │                          # pull_other_committees, pull_all_ie,
+│   │                          # pull_f6, pull_f24, pull_freshness
+│   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
+│   │                          # apply_dedup, compute_opposition,
+│   │                          # merge_dataset, compute_ranking, compute_2026
+│   ├── validate/              # verify_dataset.py — the standing audits
+│   └── rebuild.py             # the one command that runs the whole pipeline
+├── data/
+│   ├── raw/                   # staged FEC bulk (~5.6 GB), GITIGNORED,
+│   │                          # re-downloadable — see research/bulk-inventory.md
+│   ├── source/                # committed TRUE inputs: legislators yaml,
+│   │                          # dedup-applied.json, manual_roster_notes.json,
+│   │                          # fec_lookup_results.json
+│   ├── intermediate/          # regenerable staging files, GITIGNORED —
+│   │                          # rebuild.py recreates them all
+│   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
+│   └── evidence/              # one-off API dumps from spot checks
+├── research/                  # pull logs, verification notes, source research
+└── docs/                      # RESERVED for the static site (not created yet)
+```
+
+- The dataset (`congress-money-tracker.csv` / `.json`) stays at the repo
+  root for now. The CSV is an export of the JSON; the JSON wins if they
+  ever disagree.
+- **Future direction: data eventually lives outside the repo in a
+  database, not in git.** Until then, every script reads and writes data
+  through the `config.yaml` paths layer, so that move is a config
+  change, not a rewrite of every script.
+- Before changing the dataset, back it up to `data/snapshots/` with a
+  dated, descriptive name (`congress-money-tracker-pre-<change>.csv/.json`).
+
+## 4. Data rules
+
+- **FEC filings are the spine and source of truth.** OpenSecrets is a
+  cross-check only, never a primary source. Every number traces to a
+  filing; methodology §3–§4 names the file and columns for each family.
+- **Never blend columns.**
+  - Earmark columns are subsets of the headline column — never added again.
+  - UDP / outside spending is **excluded from `total_accepted`**. It is
+    money spent *about* a race, never given to the campaign.
+  - `total_accepted` (career) = individual contributions + corporate PAC
+    + AIPAC PAC direct. New columns never change this definition; they
+    are shown separately.
+- **Clean rule (generalized, methodology §14).** A 120th member is
+  `unverified` (`clean_2026 = null`) only if they have **no 2026 entries
+  in ANY money source**. Verified-clean in 2026: **77 total (67 House +
+  10 Senate)**. Elaine Luria is the one null — her real 2026 campaign
+  (H6VA02198, $8.04M receipts) is not linked in the roster; linking it
+  is a roster change, not something to do unilaterally.
+- **Cutoffs differ by data family and must be labeled everywhere.**
+  Committee money (pas2) through **Sep 30, 2026**; weball-derived
+  figures (individual, self-funding, topline) through **Oct 14, 2026**;
+  all-IE (UDP too) through **Oct 31, 2026**. 2026 is partial — say so
+  wherever 2026 figures appear.
+- **Weball is a lower bound where the FEC API runs ahead — document the
+  gap, never paper over it.** Constantino: weball loans $14.4M vs API
+  $17M. Spot-check named cases against the FEC API where the bulk lags.
+- **All-IE "career" means 2022–2026 only** (the 2010–2020 IE files are
+  not staged) — label it as such everywhere. IE files contain tens of
+  billions in bogus filings, so the filter (registered committee +
+  identified candidate) and the excluded amounts are part of the method
+  (methodology §4, §8), not an implementation detail.
+- **Freshness is an overlay, not part of the dataset.**
+  `src/ingest/pull_freshness.py` reports late money (Form 6 48-Hour
+  Notices, F24 24/48-hour IE, totals refresh) into
+  `data/intermediate/freshness_snapshot.json` — labeled by source and
+  date, **never merged into dataset totals**. It is a separate entry
+  point, not in `rebuild.py`'s default pipeline. Production runs need a
+  registered api.data.gov key (`FEC_API_KEY`); DEMO_KEY is spot-checks
+  only and the driver refuses `--all` on it.
+
+## 5. Verification — the gate
+
+A change to data or pipeline is not done until it passes this gate:
+
+1. **Full rebuild reproduces the committed dataset byte-identically:**
+
+   ```sh
+   python3 src/rebuild.py
+   ```
+
+   It runs the pipeline in order (roster → FEC lookup → money → UDP →
+   dedup → self-funding → other-committees → all-IE → opposition →
+   merge → ranking → 2026 → verify), backing the current dataset up
+   to `data/snapshots/` first, and fails fast if `data/raw/` isn't
+   staged. Verified Nov 12, 2026: a fresh clone with staged bulk data
+   rebuilds the committed dataset byte-identically (CSV md5
+   `f346fca949d1c160317f2f1b45100273`, JSON md5
+   `48c2a2146523ef9aa1c4f11ac3d361a7`).
+2. **All audits in `src/validate/verify_dataset.py` pass** (93 standing
+   audits: per-cycle sums for every column family, roster totals vs
+   methodology, all 12 rank columns, clean counts and the generalized
+   clean rule, 2026 columns, opposition, dedup, CSV↔JSON agreement, row
+   order). Exit non-zero on any mismatch.
+3. **If any value differs, STOP and report — never adjust a figure to
+   match.** A mismatch means the code, the data, or the method is
+   wrong; find which one.
+4. **The verifier checks the dataset against its own definitions, so it
+   cannot catch a missing money dimension.** Any new money type needs a
+   **coverage check** — what the FEC reports vs what the tracker
+   covers — not just a math check. (This is how the self-funding blind
+   spot survived: 474 people self-funded something, 17 with
+   self-funding exceeding their total_accepted, and no audit fired.)
+5. New columns, rules, or definitions land in `methodology.md` **in the
+   same change** that lands the data.
+
+## 6. Hard no's
+
+- **Nothing goes public without Craig's explicit go-ahead.** The
+  tracker page and the intro page stay private; do not share them, do
+  not enable GitHub Pages, do not publish anything derived from the
+  repo. Public launch is his call, in his words.
+- **Nothing goes out under Craig's name without his approval** — no
+  emails, posts, or submissions.
+- **No invented figures. No guessed URLs.** If a value isn't in a
+  source you can cite, say you don't have it. If a route is blocked,
+  document the blocker — do not invent a workaround or fake the data.
+- **Never hand-edit generated files** — the dataset CSV/JSON and
+  everything in `data/intermediate/` are rebuilt, not edited. Edit the
+  scripts and docs; let the rebuild regenerate the rest. (Same rule
+  applies to the web tracker page: it re-embeds the dataset; it is
+  never the master.)
+
+## 7. Reporting
+
+Every build reports back with evidence, not adjectives:
+
+- md5s of the dataset CSV/JSON, audit count and result, the commit
+  list (one change per commit), and what changed.
+- **Open items get documented** in `methodology.md` / `STATUS.md`,
+  never silently dropped. If an access route is blocked, name the
+  blocker and what it would take to unblock it.
+- If a verification step fails, report what failed, what the evidence
+  says, and what happens next — and stop. Do not retry a blocked step
+  through another tool or agent.
+
+## 8. Human workflow (Craig in VS Code)
+
+Craig works on this repo in VS Code on a local clone. The same rules
+apply, in human form:
+
+- Pull before starting, push when done. Work on a branch
+  (`craig/<thing>`) or state the area you're touching; never work the
+  same files as a running agent job.
+- Never hand-edit generated files (dataset, `data/intermediate/`).
+- The bulk data (~5.6 GB, gitignored) is **not in the clone** — a local
+  rebuild needs the documented download (`README.md`,
+  `research/bulk-inventory.md`). Editing code, methodology, or docs
+  doesn't need it.
+- A fuller human-facing `CONTRIBUTING.md` may follow; this file is the
+  agent contract.
