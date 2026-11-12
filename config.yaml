@@ -25,9 +25,22 @@ paths:
   ie: work/bulk/ie
   roster: work/roster.json
   roster_intermediate: work/roster_intermediate.json
+  fec_lookup_results: work/fec_lookup_results.json
+  manual_roster_notes: work/manual_roster_notes.json
+  money_per_cycle: work/money_per_cycle.json
+  money_pas2_weball: work/money_pas2_weball.csv
+  money_udp: work/money_udp.csv
+  money_udp_per_cycle: work/money_udp_per_cycle.json
+  dedup_applied: work/dedup-applied.json
+  dedup_notes: work/dedup-notes.json
+  primary_targets: work/primary-targets.md
   opposition_computed: work/opposition-computed.json
   dataset_csv: congress-money-tracker.csv
   dataset_json: congress-money-tracker.json
+
+# As-of date carried on every dataset row (data_as_of). Update when the
+# pulls are re-run on newer filings.
+data_as_of: "2026-11-12"
 
 fec_api:
   base_url: "https://api.open.fec.gov/v1/candidates/"
@@ -53,3 +66,124 @@ verification:
   # Uncredited races are only listed in the opposition report when the
   # opposing spend reaches this threshold (dollars).
   opposition_uncredited_report_threshold: 100000
+  # Roster-wide career totals from methodology.md §6, as of Nov 12, 2026.
+  # verify_dataset.py checks the rebuilt dataset against these to the cent.
+  # (Armstrong's "unknown" money is excluded from every sum.)
+  methodology_totals:
+    individual_contribution_total_career: 8763847353.73
+    aipac_pac_direct_career: 7567773.00
+    aipac_earmark_transmitted_career: 191573.00
+    corporate_pac_career: 972228584.00
+    corporate_earmark_transmitted_career: 26850.00
+    udp_ie_support_career: 42415003.76
+    udp_ie_opposing_opponents_career: 28281982.23
+    udp_ie_total_benefit_career: 70696985.99
+  # Clean-in-2026 expectations from methodology.md §14, as of Nov 12, 2026.
+  # clean_2026 counts are over the whole roster; the 67 / 53 figures are
+  # the incoming (120th) House subset.
+  clean_2026:
+    true_total: 84
+    false_total: 579
+    null_total: 1
+    house_120th_verified_clean: 67
+    house_120th_verified_clean_democrat: 63
+    house_120th_verified_clean_republican: 4
+    house_120th_career_clean: 53
+    house_120th_career_clean_democrat: 50
+    house_120th_career_clean_republican: 3
+    house_120th_clean_2026_not_career_clean: 14
+
+# The dataset's column order (CSV) and key order (JSON). The two differ
+# only in the 2026 trio: the CSV lists individual_2026 first, the JSON
+# lists corp_2026 first — both orders are the committed ones, preserved
+# exactly so a rebuild is byte-identical. Every script that writes the
+# dataset filters these lists to the columns it produces.
+dataset:
+  csv_columns:
+    - person_key
+    - full_name
+    - chamber_119
+    - chamber_120
+    - state
+    - district_119
+    - district_120
+    - party_119
+    - party_120
+    - leadership_119
+    - leadership_120
+    - in_119th
+    - in_120th
+    - fec_candidate_ids
+    - individual_contribution_total_career
+    - aipac_pac_direct_career
+    - aipac_earmark_transmitted_career
+    - corporate_pac_career
+    - corporate_earmark_transmitted_career
+    - udp_ie_support_career
+    - data_as_of
+    - data_notes
+    - per_cycle
+    - udp_per_cycle
+    - total_accepted_career
+    - rank_total_accepted
+    - rank_individual
+    - rank_corporate_pac
+    - rank_aipac_direct
+    - rank_udp_support
+    - udp_ie_opposing_opponents_career
+    - udp_ie_total_benefit_career
+    - rank_udp_opposing_opponents
+    - rank_udp_total_benefit
+    - individual_2026
+    - corp_2026
+    - aipac_direct_2026
+    - udp_support_2026
+    - udp_opp_credit_2026
+    - udp_benefit_2026
+    - dirty_2026
+    - clean_2026
+    - dep_share_2026
+  json_keys:
+    - person_key
+    - full_name
+    - chamber_119
+    - chamber_120
+    - state
+    - district_119
+    - district_120
+    - party_119
+    - party_120
+    - leadership_119
+    - leadership_120
+    - in_119th
+    - in_120th
+    - fec_candidate_ids
+    - individual_contribution_total_career
+    - aipac_pac_direct_career
+    - aipac_earmark_transmitted_career
+    - corporate_pac_career
+    - corporate_earmark_transmitted_career
+    - udp_ie_support_career
+    - data_as_of
+    - data_notes
+    - per_cycle
+    - udp_per_cycle
+    - total_accepted_career
+    - rank_total_accepted
+    - rank_individual
+    - rank_corporate_pac
+    - rank_aipac_direct
+    - rank_udp_support
+    - udp_ie_opposing_opponents_career
+    - udp_ie_total_benefit_career
+    - rank_udp_opposing_opponents
+    - rank_udp_total_benefit
+    - corp_2026
+    - aipac_direct_2026
+    - individual_2026
+    - udp_support_2026
+    - udp_opp_credit_2026
+    - udp_benefit_2026
+    - dirty_2026
+    - clean_2026
+    - dep_share_2026
