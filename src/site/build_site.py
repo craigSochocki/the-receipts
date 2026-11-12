@@ -136,6 +136,7 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
 header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
 h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
 .sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
+.stamp{font-size:.9rem;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .stat{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
 .stat b{display:block;font-size:1.15rem}
@@ -204,6 +205,7 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 <header>
 <h1>The Receipts</h1>
 <p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, 2026 clean/dirty flags, self-funding, and outside spending.</p>
+<p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
 <p class="cutoffs"><b>2026 is partial.</b> Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p>
 </header>
@@ -860,15 +862,32 @@ def main():
     }
     dataset_md5 = hashlib.md5(DATASET_JSON.read_bytes()).hexdigest()
     data_as_of = sorted({r.get("data_as_of", "") for r in dataset})
+    # Visible data-as-of stamp (header). Coverage end dates come from
+    # config.yaml verification.coverage_end — never hardcoded here.
+    # The build time reuses the exact "Generated <ts>" string the footer
+    # uses, so the verifier's strip_ts regex normalizes both occurrences
+    # and the generator stays deterministic apart from that timestamp.
+    coverage = CFG["verification"]["coverage_end"]
+    def fmt_cov(iso):
+        return datetime.strptime(iso, "%Y-%m-%d").strftime("%b %d, %Y")
+    generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    stamp = (
+        "Data as of \u2014 committee money through "
+        f"{fmt_cov(coverage['committee_money_pas2'])}; "
+        "individual / self-funding / topline through "
+        f"{fmt_cov(coverage['weball'])}; "
+        "independent expenditures through "
+        f"{fmt_cov(coverage['independent_expenditures'])}. "
+        f"2026 is partial. Generated {generated_at}."
+    )
     html = TEMPLATE_HEAD + TEMPLATE_BODY + TEMPLATE_JS2
     html = html.replace("%%METHOD_HTML%%", METHOD_HTML)
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
-    html = html.replace(
-        "%%GENERATED_AT%%",
-        datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"))
+    html = html.replace("%%STAMP%%", stamp)
+    html = html.replace("%%GENERATED_AT%%", generated_at)
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     out = SITE_DIR / "index.html"
     out.write_text(html, encoding="utf-8")

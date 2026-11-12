@@ -96,6 +96,18 @@ def main():
     html = html_path.read_text(encoding="utf-8")
     check("no unreplaced placeholders", "%%" not in html)
 
+    # Visible data-as-of stamp: the coverage end dates it shows must be
+    # the ones in config.yaml verification.coverage_end (formatted
+    # "Sep 30, 2026" style), and it must carry the "Data as of" label.
+    cov = CFG["verification"]["coverage_end"]
+    from datetime import datetime as _dt
+    cov_dates = [_dt.strptime(cov[k], "%Y-%m-%d").strftime("%b %d, %Y")
+                 for k in ("committee_money_pas2", "weball",
+                           "independent_expenditures")]
+    check("stamp shows config coverage end dates",
+          all(d in html for d in cov_dates), f"looking for {cov_dates}")
+    check("stamp says 2026 is partial", "2026 is partial" in html)
+
     dataset = json.loads(DATASET_JSON.read_text())
     cols = extract_payload(html, "receipts-cols")
     raw = extract_payload(html, "receipts-data")
@@ -200,7 +212,8 @@ def main():
                 status = resp.status
             check("local serve returns 200", status == 200, f"got {status}")
             for needle in ["The Receipts", "receipts-data", "Methodology",
-                           "primary targets", "Clean money", "Leaderboards"]:
+                           "primary targets", "Clean money", "Leaderboards",
+                           "Data as of"]:
                 check(f"served page contains {needle!r}", needle in body)
             check("served page size matches file",
                   len(body.encode("utf-8")) == html_path.stat().st_size)
