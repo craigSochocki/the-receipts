@@ -12,11 +12,9 @@ and the 2026 opposition credit in `opposition-computed.json`:
   credit (float, `0.0` when none).
 - `udp_benefit_2026` = support + credit; `dirty_2026` = corp + AIPAC
   direct + benefit. Individual contributions are NOT dirty money.
-- `dirty_career` = `corporate_pac_career` + `aipac_pac_direct_career` +
-  `udp_ie_total_benefit_career` — the career analog of `dirty_2026`,
-  the same three dirty sources summed over all cycles. Null for Alan
-  Armstrong (money unknown, not zero), like the other career money
-  columns; 60 people are exactly $0.
+  (`dirty_career`, the career analog, is computed in
+  `compute_ranking.py` — it runs first and rewrites the dataset in
+  final column order.)
 - `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
   `total_receipts_2026`, `total_disbursements_2026` — the 2026
   `self_funding_per_cycle` sums, same int-0-when-empty rule.
@@ -230,14 +228,6 @@ for r in records:
     r['udp_opp_credit_2026'] = credit_2026.get(r['person_key'], 0.0)
     r['udp_benefit_2026'] = round(r['udp_support_2026'] + r['udp_opp_credit_2026'], 2)
     r['dirty_2026'] = round(r['corp_2026'] + r['aipac_direct_2026'] + r['udp_benefit_2026'], 2)
-    # Career dirty money: the same three sources summed over all cycles.
-    # Null when any component is unknown (Armstrong: 'unknown' / None),
-    # never zero-filled — unknown is not zero.
-    career_parts = [r['corporate_pac_career'], r['aipac_pac_direct_career'],
-                    r['udp_ie_total_benefit_career']]
-    r['dirty_career'] = (round(sum(career_parts), 2)
-                         if all(isinstance(v, (int, float)) and not isinstance(v, bool)
-                                for v in career_parts) else None)
     denom = r['individual_2026'] + r['corp_2026'] + r['aipac_direct_2026']
     r['dep_share_2026'] = (round((r['corp_2026'] + r['aipac_direct_2026']) / denom, 4)
                            if denom > 0 else None)

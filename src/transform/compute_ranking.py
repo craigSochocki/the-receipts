@@ -7,6 +7,12 @@
   are NOT counted as accepted — that money was never given to the
   campaign, it was spent about the race — but UDP support is ranked
   separately in its own column.
+- `dirty_career` = corporate PAC + AIPAC PAC direct + UDP total
+  benefit, career — the career analog of `dirty_2026`, the same three
+  dirty sources summed over all cycles. Null for Alan Armstrong (money
+  unknown, not zero), like `total_accepted_career`; 60 people are
+  exactly $0. Computed here (not in `compute_2026.py`) because this
+  step runs first and rewrites the dataset in final column order.
 - Ranks (`rank_total_accepted`, `rank_individual`, `rank_corporate_pac`,
   `rank_aipac_direct`, `rank_udp_support`, `rank_udp_opposing_opponents`,
   `rank_udp_total_benefit`, `rank_self_funding`, `rank_all_ie_support`,
@@ -80,6 +86,15 @@ for r in records:
         r['total_accepted_career'] = round(ind + corp + aipac, 2)
     else:
         r['total_accepted_career'] = None
+
+# dirty_career (same three dirty sources as dirty_2026, all cycles)
+for r in records:
+    parts = (r['corporate_pac_career'], r['aipac_pac_direct_career'],
+             r['udp_ie_total_benefit_career'])
+    if all(is_num(v) for v in parts):
+        r['dirty_career'] = round(sum(parts), 2)
+    else:
+        r['dirty_career'] = None
 
 # ranks
 rank_maps = {rank_col: competition_ranks(records, val_col)
