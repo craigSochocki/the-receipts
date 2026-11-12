@@ -1190,21 +1190,34 @@ totals.
 
 ---
 
-## 17. Chamber composition charts — House and Senate
+## 17. Chamber composition charts — House waffle and Senate state tiles
 
-The front door carries two parliament (hemicycle) charts, one per chamber,
-computed from the dataset at render time — one dot per seat, the chamber
-total in the middle, party by color and dirtiness by fill. Placement: front
-door, after the clean story and before the finder; side by side on desktop,
-stacked on mobile.
+The front door carries two composition charts, one per chamber, computed
+from the dataset at render time. Placement: front door, after the clean
+story and before the finder; stacked full-width, House first, then
+Senate. (The original parliament/hemicycle charts were replaced Nov 12,
+2026 — Craig found the House hemicycle hard to read.)
 
-- **Color = party**, the party-chip palette: Democrat blue, Republican red,
-  Independent/other gray.
-- **Fill = dirtiness in 2026** (`clean_2026`): a **solid** dot took dirty
-  money in 2026; a **hollow ring** is verified clean in 2026; a **gray
-  hollow ring** is not judged — the member ran unopposed or is unverified,
-  so $0 dirty money there is not a clean verdict; a **dashed gray ring**
-  is an uncalled seat with no named incoming member yet.
+- **House: a 15-row x 29-column waffle grid, 435 bubbles, one per
+  voting seat.** Bubbles fill one column at a time from left to right
+  (top to bottom, then the next column), grouped Clean D, Dirty D,
+  Dirty R, Clean R, then Unopposed, Unverified, Uncalled at the far
+  right. The "435" total is heading text ("435 voting seats") — a
+  grid has no middle to put it in.
+- **Senate: 50 tiles, one per state, in a 10 x 5 grid, each labeled
+  with its two-letter state code.** Each tile is split in half, one
+  half per senator; a split delegation colors each half for its own
+  senator. Halves are ordered by party (D, R, I), then name, so a
+  split is deterministic.
+- **Encoding — clean is solid, dirty is black with the party color
+  inside.** A clean seat is a solid party-color bubble (House) or a
+  solid party-color half (Senate): Democrat blue (#1e40af),
+  Republican red (#991b1b), Independent/other gray (#374151). A dirty
+  seat is black with the party color inside: a single centered dot on
+  the House waffle, a dotted party-color pattern on the Senate tiles.
+  Unopposed and unverified are gray hollow rings / white halves (not
+  judged — $0 dirty money there is not a clean verdict); uncalled is
+  a dashed gray ring / empty half (no named member yet).
 - **House: 435 voting seats.** Named voting members 430 + 5 uncalled
   (Alaska House, LA-05 with no roster row, the LA-06 runoff, and two
   California races) = 435. The 6 non-voting delegates are **not plotted**
@@ -1214,6 +1227,8 @@ stacked on mobile.
   §14 (61 D, 3 R), which counts the Northern Mariana Islands delegate
   King-Hinds.
 - **Senate: 100 seats.** Named 99 + 1 uncalled (Alaska) = 100.
+  Alaska's tile is half decided (Murkowski, Republican, dirty) and
+  half uncalled; every other state's tile has two named senators.
 
 Counts as of Nov 12, 2026 (computed from the dataset; the charts recompute
 them at render, so they move with the data):
