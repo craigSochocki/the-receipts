@@ -81,7 +81,7 @@ SCALARS = [
     "rank_udp_total_benefit", "rank_self_funding", "rank_all_ie_support",
     "rank_all_ie_oppose", "rank_all_ie_total", "rank_other_committees_total",
     "corp_2026", "aipac_direct_2026", "individual_2026", "udp_support_2026",
-    "udp_opp_credit_2026", "udp_benefit_2026", "dirty_2026", "clean_2026",
+    "udp_opp_credit_2026", "udp_benefit_2026", "dirty_2026", "dirty_career", "clean_2026",
     "unopposed_2026", "dep_share_2026", "self_funding_2026", "cand_loans_2026",
     "cand_contrib_2026", "total_receipts_2026", "total_disbursements_2026",
     "cash_on_hand_2026", "other_committees_total_2026",
@@ -308,7 +308,7 @@ TEMPLATE_BODY = """
 
 <section id="tab-leaders" hidden>
 <h2 class="sec">Leaderboards</h2>
-<p style="color:var(--muted)">Career totals unless noted. Rank 1 = most money. “Total accepted” is individual contributions + corporate PAC + AIPAC PAC direct. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
+<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, in 2026 and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
 <div id="leaders"></div>
 </section>
 
@@ -528,7 +528,7 @@ const SORTABLE = new Set(['individual_contribution_total_career','corporate_pac_
 /* ---- state ---- */
 const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core',
-  sortKey:'total_accepted_career', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
+  sortKey:'dirty_2026', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
 
 function getVal(p, key){
   if(key==='place') return place(p);
@@ -802,6 +802,7 @@ function openDetail(key){
     + kvRow('AIPAC PAC direct', fmtMoney(p.aipac_pac_direct_career)+' ('+fmtRank(p.rank_aipac_direct)+')')
     + kvRow('— of which earmarked (individuals’ money, passed through)', fmtMoney(p.aipac_earmark_transmitted_career))
     + kvRow('Total accepted', '<b>'+fmtMoney(p.total_accepted_career)+'</b> ('+fmtRank(p.rank_total_accepted)+')')
+    + kvRow('Dirty money (career)', fmtMoney(p.dirty_career))
     + kvRow('UDP support', fmtMoney(p.udp_ie_support_career)+' ('+fmtRank(p.rank_udp_support)+')')
     + kvRow('UDP opposition credit', fmtMoney(p.udp_ie_opposing_opponents_career)+' ('+fmtRank(p.rank_udp_opposing_opponents)+')')
     + kvRow('UDP total benefit', fmtMoney(p.udp_ie_total_benefit_career)+' ('+fmtRank(p.rank_udp_total_benefit)+')')
@@ -895,9 +896,23 @@ function boardHtml(title, sub, entries){
   });
   return h + '</ol>';
 }
+/* ---- leaderboards: dirty leads ----
+   The first two boards are the dirtiness measure (2026, then career);
+   total accepted is fundraising scale, not dirtiness, so it comes
+   after. The dirty boards sort by amount at render time from the
+   embedded data — no rank column is needed for them. */
+function topByAmount(amountKey, n){
+  return PEOPLE.filter(p=>num(p[amountKey])!==null && num(p[amountKey])>0)
+    .sort((a,b)=>num(b[amountKey])-num(a[amountKey])).slice(0,n)
+    .map(p=>({name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
+}
 function renderLeaders(){
   document.getElementById('leaders').innerHTML =
-    boardHtml('Top 20 — total accepted (career)', 'Individual contributions + corporate PAC + AIPAC PAC direct. Rank 1 = most money accepted.',
+    boardHtml('Top 20 — dirtiest in 2026', 'Corporate PAC + AIPAC PAC direct + UDP benefit in the 2026 cycle. Individual contributions are not dirty money.',
+      topByAmount('dirty_2026',20))
+    + boardHtml('Top 20 — dirtiest, career', 'Career dirty money: corporate PAC + AIPAC PAC direct + UDP benefit, all cycles.',
+      topByAmount('dirty_career',20))
+    + boardHtml('Top 20 — total accepted (career)', 'Individual contributions + corporate PAC + AIPAC PAC direct. Total accepted measures fundraising scale, not dirtiness — the two lists above are the dirtiness measure.',
       topByRank('rank_total_accepted','total_accepted_career',20))
     + boardHtml('Top 10 — UDP total benefit (career)', 'UDP spending supporting the candidate plus opposition credit for spending against their opponent. Money spent about the race, never given to the campaign.',
       topByRank('rank_udp_total_benefit','udp_ie_total_benefit_career',10))
