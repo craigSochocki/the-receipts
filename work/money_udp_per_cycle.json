@@ -1,0 +1,3418 @@
+{
+ "A000370": {
+  "person_key": "A000370",
+  "full_name": "Alma S. Adams",
+  "udp_per_cycle": []
+ },
+ "A000055": {
+  "person_key": "A000055",
+  "full_name": "Robert B. Aderholt",
+  "udp_per_cycle": []
+ },
+ "jamieagernchouse": {
+  "person_key": "jamieagernchouse",
+  "full_name": "Jamie Ager",
+  "udp_per_cycle": []
+ },
+ "A000371": {
+  "person_key": "A000371",
+  "full_name": "Pete Aguilar",
+  "udp_per_cycle": []
+ },
+ "michaelalfonsowihouse": {
+  "person_key": "michaelalfonsowihouse",
+  "full_name": "Michael Alfonso",
+  "udp_per_cycle": []
+ },
+ "A000379": {
+  "person_key": "A000379",
+  "full_name": "Mark Alford",
+  "udp_per_cycle": []
+ },
+ "A000372": {
+  "person_key": "A000372",
+  "full_name": "Rick W. Allen",
+  "udp_per_cycle": []
+ },
+ "A000376": {
+  "person_key": "A000376",
+  "full_name": "Colin Allred",
+  "udp_per_cycle": []
+ },
+ "kurtalmemtsenate": {
+  "person_key": "kurtalmemtsenate",
+  "full_name": "Kurt Alme",
+  "udp_per_cycle": []
+ },
+ "A000382": {
+  "person_key": "A000382",
+  "full_name": "Angela D. Alsobrooks",
+  "udp_per_cycle": []
+ },
+ "A000380": {
+  "person_key": "A000380",
+  "full_name": "Gabe Amo",
+  "udp_per_cycle": []
+ },
+ "A000369": {
+  "person_key": "A000369",
+  "full_name": "Mark E. Amodei",
+  "udp_per_cycle": []
+ },
+ "annieandrewsscsenate": {
+  "person_key": "annieandrewsscsenate",
+  "full_name": "Annie Andrews",
+  "udp_per_cycle": []
+ },
+ "A000381": {
+  "person_key": "A000381",
+  "full_name": "Yassamin Ansari",
+  "udp_per_cycle": []
+ },
+ "A000383": {
+  "person_key": "A000383",
+  "full_name": "Alan Armstrong",
+  "udp_per_cycle": []
+ },
+ "A000375": {
+  "person_key": "A000375",
+  "full_name": "Jodey C. Arrington",
+  "udp_per_cycle": []
+ },
+ "A000148": {
+  "person_key": "A000148",
+  "full_name": "Jake Auchincloss",
+  "udp_per_cycle": []
+ },
+ "darializaavila-chevaliernyhouse": {
+  "person_key": "darializaavila-chevaliernyhouse",
+  "full_name": "Darializa Avila Chevalier",
+  "udp_per_cycle": []
+ },
+ "B001291": {
+  "person_key": "B001291",
+  "full_name": "Brian Babin",
+  "udp_per_cycle": []
+ },
+ "B001298": {
+  "person_key": "B001298",
+  "full_name": "Don Bacon",
+  "udp_per_cycle": []
+ },
+ "B001307": {
+  "person_key": "B001307",
+  "full_name": "James R. Baird",
+  "udp_per_cycle": []
+ },
+ "B001306": {
+  "person_key": "B001306",
+  "full_name": "Troy Balderson",
+  "udp_per_cycle": []
+ },
+ "B001230": {
+  "person_key": "B001230",
+  "full_name": "Tammy Baldwin",
+  "udp_per_cycle": []
+ },
+ "B001318": {
+  "person_key": "B001318",
+  "full_name": "Becca Balint",
+  "udp_per_cycle": []
+ },
+ "B001299": {
+  "person_key": "B001299",
+  "full_name": "Jim Banks",
+  "udp_per_cycle": []
+ },
+ "B001282": {
+  "person_key": "B001282",
+  "full_name": "Andy Barr",
+  "udp_per_cycle": []
+ },
+ "B001300": {
+  "person_key": "B001300",
+  "full_name": "Nanette Diaz Barrag\u00e1n",
+  "udp_per_cycle": []
+ },
+ "B001261": {
+  "person_key": "B001261",
+  "full_name": "John Barrasso",
+  "udp_per_cycle": []
+ },
+ "B001321": {
+  "person_key": "B001321",
+  "full_name": "Tom Barrett",
+  "udp_per_cycle": []
+ },
+ "paulbarringernchouse": {
+  "person_key": "paulbarringernchouse",
+  "full_name": "Paul Barringer",
+  "udp_per_cycle": []
+ },
+ "B001322": {
+  "person_key": "B001322",
+  "full_name": "Michael Baumgartner",
+  "udp_per_cycle": []
+ },
+ "B001314": {
+  "person_key": "B001314",
+  "full_name": "Aaron Bean",
+  "udp_per_cycle": []
+ },
+ "B001253": {
+  "person_key": "B001253",
+  "full_name": "Melissa Bean",
+  "udp_per_cycle": []
+ },
+ "B001281": {
+  "person_key": "B001281",
+  "full_name": "Joyce Beatty",
+  "udp_per_cycle": []
+ },
+ "B001323": {
+  "person_key": "B001323",
+  "full_name": "Nicholas J. Begich III",
+  "udp_per_cycle": []
+ },
+ "B001324": {
+  "person_key": "B001324",
+  "full_name": "Wesley Bell",
+  "udp_per_cycle": [
+   {
+    "cycle": 2024,
+    "candidate_id": "H4MO01134",
+    "udp_ie_support": 3356279.25
+   },
+   {
+    "cycle": 2026,
+    "candidate_id": "H4MO01134",
+    "udp_ie_support": 685626.16
+   }
+  ]
+ },
+ "teresabenitezthompsonnvhouse": {
+  "person_key": "teresabenitezthompsonnvhouse",
+  "full_name": "Teresa Benitez-Thompson",
+  "udp_per_cycle": []
+ },
+ "B001267": {
+  "person_key": "B001267",
+  "full_name": "Michael F. Bennet",
+  "udp_per_cycle": []
+ },
+ "rebeccabennettnjhouse": {
+  "person_key": "rebeccabennettnjhouse",
+  "full_name": "Rebecca Bennett",
+  "udp_per_cycle": []
+ },
+ "B000668": {
+  "person_key": "B000668",
+  "full_name": "Cliff Bentz",
+  "udp_per_cycle": []
+ },
+ "B001287": {
+  "person_key": "B001287",
+  "full_name": "Ami Bera",
+  "udp_per_cycle": []
+ },
+ "B001301": {
+  "person_key": "B001301",
+  "full_name": "Jack Bergman",
+  "udp_per_cycle": []
+ },
+ "mitchellbermanwihouse": {
+  "person_key": "mitchellbermanwihouse",
+  "full_name": "Mitchell Berman",
+  "udp_per_cycle": []
+ },
+ "B001292": {
+  "person_key": "B001292",
+  "full_name": "Donald S. Beyer, Jr.",
+  "udp_per_cycle": []
+ },
+ "B000740": {
+  "person_key": "B000740",
+  "full_name": "Stephanie I. Bice",
+  "udp_per_cycle": []
+ },
+ "B001302": {
+  "person_key": "B001302",
+  "full_name": "Andy Biggs",
+  "udp_per_cycle": []
+ },
+ "B001325": {
+  "person_key": "B001325",
+  "full_name": "Sheri Biggs",
+  "udp_per_cycle": []
+ },
+ "B001257": {
+  "person_key": "B001257",
+  "full_name": "Gus M. Bilirakis",
+  "udp_per_cycle": []
+ },
+ "B000490": {
+  "person_key": "B000490",
+  "full_name": "Sanford D. Bishop, Jr.",
+  "udp_per_cycle": []
+ },
+ "danielbissilhouse": {
+  "person_key": "danielbissilhouse",
+  "full_name": "Daniel Biss",
+  "udp_per_cycle": []
+ },
+ "B001243": {
+  "person_key": "B001243",
+  "full_name": "Marsha Blackburn",
+  "udp_per_cycle": []
+ },
+ "B001328": {
+  "person_key": "B001328",
+  "full_name": "Everton Blair Jr.",
+  "udp_per_cycle": []
+ },
+ "B001277": {
+  "person_key": "B001277",
+  "full_name": "Richard Blumenthal",
+  "udp_per_cycle": []
+ },
+ "B001303": {
+  "person_key": "B001303",
+  "full_name": "Lisa Blunt Rochester",
+  "udp_per_cycle": []
+ },
+ "adrianboafomdhouse": {
+  "person_key": "adrianboafomdhouse",
+  "full_name": "Adrian Boafo",
+  "udp_per_cycle": [
+   {
+    "cycle": 2026,
+    "candidate_id": "H6MD05321",
+    "udp_ie_support": 5734013.28
+   }
+  ]
+ },
+ "B000825": {
+  "person_key": "B000825",
+  "full_name": "Lauren Boebert",
+  "udp_per_cycle": []
+ },
+ "christinabohannaniahouse": {
+  "person_key": "christinabohannaniahouse",
+  "full_name": "Christina Bohannan",
+  "udp_per_cycle": []
+ },
+ "B001278": {
+  "person_key": "B001278",
+  "full_name": "Suzanne Bonamici",
+  "udp_per_cycle": []
+ },
+ "jonboncktxhouse": {
+  "person_key": "jonboncktxhouse",
+  "full_name": "Jon Bonck",
+  "udp_per_cycle": []
+ },
+ "B001288": {
+  "person_key": "B001288",
+  "full_name": "Cory A. Booker",
+  "udp_per_cycle": []
+ },
+ "B001236": {
+  "person_key": "B001236",
+  "full_name": "John Boozman",
+  "udp_per_cycle": []
+ },
+ "B001295": {
+  "person_key": "B001295",
+  "full_name": "Mike Bost",
+  "udp_per_cycle": []
+ },
+ "B001296": {
+  "person_key": "B001296",
+  "full_name": "Brendan F. Boyle",
+  "udp_per_cycle": []
+ },
+ "B001317": {
+  "person_key": "B001317",
+  "full_name": "Josh Brecheen",
+  "udp_per_cycle": []
+ },
+ "B001327": {
+  "person_key": "B001327",
+  "full_name": "Robert P. Bresnahan, Jr.",
+  "udp_per_cycle": []
+ },
+ "B001319": {
+  "person_key": "B001319",
+  "full_name": "Katie Boyd Britt",
+  "udp_per_cycle": []
+ },
+ "victoriabrodericktnhouse": {
+  "person_key": "victoriabrodericktnhouse",
+  "full_name": "Victoria Broderick",
+  "udp_per_cycle": []
+ },
+ "lukebronincthouse": {
+  "person_key": "lukebronincthouse",
+  "full_name": "Luke Bronin",
+  "udp_per_cycle": []
+ },
+ "bobbrookspahouse": {
+  "person_key": "bobbrookspahouse",
+  "full_name": "Bob Brooks",
+  "udp_per_cycle": []
+ },
+ "B000944": {
+  "person_key": "B000944",
+  "full_name": "Sherrod Brown",
+  "udp_per_cycle": []
+ },
+ "B001313": {
+  "person_key": "B001313",
+  "full_name": "Shontel M. Brown",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2OH11169",
+    "udp_ie_support": 83172.02
+   }
+  ]
+ },
+ "B001285": {
+  "person_key": "B001285",
+  "full_name": "Julia Brownley",
+  "udp_per_cycle": []
+ },
+ "B001260": {
+  "person_key": "B001260",
+  "full_name": "Vern Buchanan",
+  "udp_per_cycle": []
+ },
+ "B001305": {
+  "person_key": "B001305",
+  "full_name": "Ted Budd",
+  "udp_per_cycle": []
+ },
+ "B001315": {
+  "person_key": "B001315",
+  "full_name": "Nikki Budzinski",
+  "udp_per_cycle": []
+ },
+ "B001309": {
+  "person_key": "B001309",
+  "full_name": "Tim Burchett",
+  "udp_per_cycle": []
+ },
+ "B001316": {
+  "person_key": "B001316",
+  "full_name": "Eric Burlison",
+  "udp_per_cycle": []
+ },
+ "B001326": {
+  "person_key": "B001326",
+  "full_name": "Janelle S. Bynum",
+  "udp_per_cycle": []
+ },
+ "C000059": {
+  "person_key": "C000059",
+  "full_name": "Ken Calvert",
+  "udp_per_cycle": []
+ },
+ "C001039": {
+  "person_key": "C001039",
+  "full_name": "Kat Cammack",
+  "udp_per_cycle": []
+ },
+ "C000127": {
+  "person_key": "C000127",
+  "full_name": "Maria Cantwell",
+  "udp_per_cycle": []
+ },
+ "C001047": {
+  "person_key": "C001047",
+  "full_name": "Shelley Moore Capito",
+  "udp_per_cycle": []
+ },
+ "C001112": {
+  "person_key": "C001112",
+  "full_name": "Salud O. Carbajal",
+  "udp_per_cycle": []
+ },
+ "C001126": {
+  "person_key": "C001126",
+  "full_name": "Mike Carey",
+  "udp_per_cycle": []
+ },
+ "C001054": {
+  "person_key": "C001054",
+  "full_name": "Jerry Carl",
+  "udp_per_cycle": []
+ },
+ "C001072": {
+  "person_key": "C001072",
+  "full_name": "Andr\u00e9 Carson",
+  "udp_per_cycle": []
+ },
+ "C001103": {
+  "person_key": "C001103",
+  "full_name": "Earl L. \"Buddy\" Carter",
+  "udp_per_cycle": []
+ },
+ "C001051": {
+  "person_key": "C001051",
+  "full_name": "John R. Carter",
+  "udp_per_cycle": []
+ },
+ "C001125": {
+  "person_key": "C001125",
+  "full_name": "Troy A. Carter",
+  "udp_per_cycle": []
+ },
+ "C001131": {
+  "person_key": "C001131",
+  "full_name": "Greg Casar",
+  "udp_per_cycle": []
+ },
+ "C001055": {
+  "person_key": "C001055",
+  "full_name": "Ed Case",
+  "udp_per_cycle": []
+ },
+ "C001075": {
+  "person_key": "C001075",
+  "full_name": "Bill Cassidy",
+  "udp_per_cycle": []
+ },
+ "C001117": {
+  "person_key": "C001117",
+  "full_name": "Sean Casten",
+  "udp_per_cycle": []
+ },
+ "C001066": {
+  "person_key": "C001066",
+  "full_name": "Kathy Castor",
+  "udp_per_cycle": []
+ },
+ "C001091": {
+  "person_key": "C001091",
+  "full_name": "Joaquin Castro",
+  "udp_per_cycle": []
+ },
+ "C001080": {
+  "person_key": "C001080",
+  "full_name": "Judy Chu",
+  "udp_per_cycle": []
+ },
+ "C001133": {
+  "person_key": "C001133",
+  "full_name": "Juan Ciscomani",
+  "udp_per_cycle": []
+ },
+ "C001123": {
+  "person_key": "C001123",
+  "full_name": "Gilbert Ray Cisneros, Jr.",
+  "udp_per_cycle": []
+ },
+ "jasmineclarkgahouse": {
+  "person_key": "jasmineclarkgahouse",
+  "full_name": "Jasmine Clark",
+  "udp_per_cycle": []
+ },
+ "C001101": {
+  "person_key": "C001101",
+  "full_name": "Katherine M. Clark",
+  "udp_per_cycle": []
+ },
+ "C001067": {
+  "person_key": "C001067",
+  "full_name": "Yvette D. Clarke",
+  "udp_per_cycle": []
+ },
+ "C001061": {
+  "person_key": "C001061",
+  "full_name": "Emanuel Cleaver",
+  "udp_per_cycle": []
+ },
+ "wesclimerschouse": {
+  "person_key": "wesclimerschouse",
+  "full_name": "Wes Climer",
+  "udp_per_cycle": []
+ },
+ "C001118": {
+  "person_key": "C001118",
+  "full_name": "Ben Cline",
+  "udp_per_cycle": []
+ },
+ "C001115": {
+  "person_key": "C001115",
+  "full_name": "Michael Cloud",
+  "udp_per_cycle": []
+ },
+ "C000537": {
+  "person_key": "C000537",
+  "full_name": "James E. Clyburn",
+  "udp_per_cycle": []
+ },
+ "C001116": {
+  "person_key": "C001116",
+  "full_name": "Andrew S. Clyde",
+  "udp_per_cycle": []
+ },
+ "paigecognettipahouse": {
+  "person_key": "paigecognettipahouse",
+  "full_name": "Paige Cognetti",
+  "udp_per_cycle": []
+ },
+ "C001068": {
+  "person_key": "C001068",
+  "full_name": "Steve Cohen",
+  "udp_per_cycle": []
+ },
+ "C001053": {
+  "person_key": "C001053",
+  "full_name": "Tom Cole",
+  "udp_per_cycle": []
+ },
+ "C001129": {
+  "person_key": "C001129",
+  "full_name": "Mike Collins",
+  "udp_per_cycle": []
+ },
+ "C001035": {
+  "person_key": "C001035",
+  "full_name": "Susan M. Collins",
+  "udp_per_cycle": []
+ },
+ "scottcolommssenate": {
+  "person_key": "scottcolommssenate",
+  "full_name": "Scott Colom",
+  "udp_per_cycle": []
+ },
+ "C001108": {
+  "person_key": "C001108",
+  "full_name": "James Comer",
+  "udp_per_cycle": []
+ },
+ "C001136": {
+  "person_key": "C001136",
+  "full_name": "Herbert C. Conaway, Jr.",
+  "udp_per_cycle": []
+ },
+ "caitconleynyhouse": {
+  "person_key": "caitconleynyhouse",
+  "full_name": "Cait Conley",
+  "udp_per_cycle": []
+ },
+ "anthonyconstantinonyhouse": {
+  "person_key": "anthonyconstantinonyhouse",
+  "full_name": "Anthony Constantino",
+  "udp_per_cycle": []
+ },
+ "rebeccacookewihouse": {
+  "person_key": "rebeccacookewihouse",
+  "full_name": "Rebecca Cooke",
+  "udp_per_cycle": []
+ },
+ "C001088": {
+  "person_key": "C001088",
+  "full_name": "Christopher A. Coons",
+  "udp_per_cycle": []
+ },
+ "roycooperncsenate": {
+  "person_key": "roycooperncsenate",
+  "full_name": "Roy Cooper",
+  "udp_per_cycle": []
+ },
+ "C001056": {
+  "person_key": "C001056",
+  "full_name": "John Cornyn",
+  "udp_per_cycle": []
+ },
+ "C001110": {
+  "person_key": "C001110",
+  "full_name": "J. Luis Correa",
+  "udp_per_cycle": []
+ },
+ "C001113": {
+  "person_key": "C001113",
+  "full_name": "Catherine Cortez Masto",
+  "udp_per_cycle": []
+ },
+ "C001059": {
+  "person_key": "C001059",
+  "full_name": "Jim Costa",
+  "udp_per_cycle": []
+ },
+ "C001095": {
+  "person_key": "C001095",
+  "full_name": "Tom Cotton",
+  "udp_per_cycle": []
+ },
+ "C001069": {
+  "person_key": "C001069",
+  "full_name": "Joe Courtney",
+  "udp_per_cycle": []
+ },
+ "johncowangahouse": {
+  "person_key": "johncowangahouse",
+  "full_name": "John Cowan",
+  "udp_per_cycle": []
+ },
+ "C001119": {
+  "person_key": "C001119",
+  "full_name": "Angie Craig",
+  "udp_per_cycle": []
+ },
+ "C001096": {
+  "person_key": "C001096",
+  "full_name": "Kevin Cramer",
+  "udp_per_cycle": []
+ },
+ "C001132": {
+  "person_key": "C001132",
+  "full_name": "Elijah Crane",
+  "udp_per_cycle": []
+ },
+ "C001137": {
+  "person_key": "C001137",
+  "full_name": "Jeff Crank",
+  "udp_per_cycle": []
+ },
+ "C000880": {
+  "person_key": "C000880",
+  "full_name": "Mike Crapo",
+  "udp_per_cycle": []
+ },
+ "C001087": {
+  "person_key": "C001087",
+  "full_name": "Eric A. \"Rick\" Crawford",
+  "udp_per_cycle": []
+ },
+ "C001120": {
+  "person_key": "C001120",
+  "full_name": "Dan Crenshaw",
+  "udp_per_cycle": []
+ },
+ "C001130": {
+  "person_key": "C001130",
+  "full_name": "Jasmine Crockett",
+  "udp_per_cycle": []
+ },
+ "C001121": {
+  "person_key": "C001121",
+  "full_name": "Jason Crow",
+  "udp_per_cycle": []
+ },
+ "C001098": {
+  "person_key": "C001098",
+  "full_name": "Ted Cruz",
+  "udp_per_cycle": []
+ },
+ "C001063": {
+  "person_key": "C001063",
+  "full_name": "Henry Cuellar",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2TX23082",
+    "udp_ie_support": 421417.54
+   }
+  ]
+ },
+ "C001114": {
+  "person_key": "C001114",
+  "full_name": "John R. Curtis",
+  "udp_per_cycle": []
+ },
+ "D000618": {
+  "person_key": "D000618",
+  "full_name": "Steve Daines",
+  "udp_per_cycle": []
+ },
+ "piadandiyaflhouse": {
+  "person_key": "piadandiyaflhouse",
+  "full_name": "Pia Dandiya",
+  "udp_per_cycle": []
+ },
+ "D000629": {
+  "person_key": "D000629",
+  "full_name": "Sharice Davids",
+  "udp_per_cycle": []
+ },
+ "D000626": {
+  "person_key": "D000626",
+  "full_name": "Warren Davidson",
+  "udp_per_cycle": []
+ },
+ "D000096": {
+  "person_key": "D000096",
+  "full_name": "Danny K. Davis",
+  "udp_per_cycle": []
+ },
+ "D000230": {
+  "person_key": "D000230",
+  "full_name": "Donald G. Davis",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2NC02287",
+    "udp_ie_support": 2102637.82,
+    "attribution": "name_state_district_office_match; cand_id blank in FEC file"
+   }
+  ]
+ },
+ "D000594": {
+  "person_key": "D000594",
+  "full_name": "Monica De La Cruz",
+  "udp_per_cycle": []
+ },
+ "D000631": {
+  "person_key": "D000631",
+  "full_name": "Madeleine Dean",
+  "udp_per_cycle": []
+ },
+ "D000197": {
+  "person_key": "D000197",
+  "full_name": "Diana DeGette",
+  "udp_per_cycle": []
+ },
+ "D000216": {
+  "person_key": "D000216",
+  "full_name": "Rosa L. DeLauro",
+  "udp_per_cycle": []
+ },
+ "D000617": {
+  "person_key": "D000617",
+  "full_name": "Suzan K. DelBene",
+  "udp_per_cycle": []
+ },
+ "D000530": {
+  "person_key": "D000530",
+  "full_name": "Christopher R. Deluzio",
+  "udp_per_cycle": []
+ },
+ "zachdembokyhouse": {
+  "person_key": "zachdembokyhouse",
+  "full_name": "Zach Dembo",
+  "udp_per_cycle": []
+ },
+ "D000623": {
+  "person_key": "D000623",
+  "full_name": "Mark DeSaulnier",
+  "udp_per_cycle": []
+ },
+ "D000616": {
+  "person_key": "D000616",
+  "full_name": "Scott DesJarlais",
+  "udp_per_cycle": []
+ },
+ "D000635": {
+  "person_key": "D000635",
+  "full_name": "Maxine Dexter",
+  "udp_per_cycle": []
+ },
+ "D000600": {
+  "person_key": "D000600",
+  "full_name": "Mario Diaz-Balart",
+  "udp_per_cycle": []
+ },
+ "D000624": {
+  "person_key": "D000624",
+  "full_name": "Debbie Dingell",
+  "udp_per_cycle": []
+ },
+ "D000399": {
+  "person_key": "D000399",
+  "full_name": "Lloyd Doggett",
+  "udp_per_cycle": []
+ },
+ "D000032": {
+  "person_key": "D000032",
+  "full_name": "Byron Donalds",
+  "udp_per_cycle": []
+ },
+ "D000634": {
+  "person_key": "D000634",
+  "full_name": "Troy Downing",
+  "udp_per_cycle": []
+ },
+ "D000622": {
+  "person_key": "D000622",
+  "full_name": "Tammy Duckworth",
+  "udp_per_cycle": []
+ },
+ "D000628": {
+  "person_key": "D000628",
+  "full_name": "Neal P. Dunn",
+  "udp_per_cycle": []
+ },
+ "D000563": {
+  "person_key": "D000563",
+  "full_name": "Richard J. Durbin",
+  "udp_per_cycle": []
+ },
+ "E000246": {
+  "person_key": "E000246",
+  "full_name": "Chuck Edwards",
+  "udp_per_cycle": []
+ },
+ "abdulelsayedmisenate": {
+  "person_key": "abdulelsayedmisenate",
+  "full_name": "Abdul El-Sayed",
+  "udp_per_cycle": []
+ },
+ "E000301": {
+  "person_key": "E000301",
+  "full_name": "Sarah Elfreth",
+  "udp_per_cycle": [
+   {
+    "cycle": 2024,
+    "candidate_id": "H4MD03156",
+    "udp_ie_support": 4218074.08
+   }
+  ]
+ },
+ "ryanelijahflhouse": {
+  "person_key": "ryanelijahflhouse",
+  "full_name": "Ryan Elijah",
+  "udp_per_cycle": []
+ },
+ "E000071": {
+  "person_key": "E000071",
+  "full_name": "Jake Ellzey",
+  "udp_per_cycle": []
+ },
+ "E000294": {
+  "person_key": "E000294",
+  "full_name": "Tom Emmer",
+  "udp_per_cycle": []
+ },
+ "E000295": {
+  "person_key": "E000295",
+  "full_name": "Joni Ernst",
+  "udp_per_cycle": []
+ },
+ "E000299": {
+  "person_key": "E000299",
+  "full_name": "Veronica Escobar",
+  "udp_per_cycle": []
+ },
+ "E000297": {
+  "person_key": "E000297",
+  "full_name": "Adriano Espaillat",
+  "udp_per_cycle": []
+ },
+ "E000298": {
+  "person_key": "E000298",
+  "full_name": "Ron Estes",
+  "udp_per_cycle": []
+ },
+ "E000296": {
+  "person_key": "E000296",
+  "full_name": "Dwight Evans",
+  "udp_per_cycle": []
+ },
+ "E000300": {
+  "person_key": "E000300",
+  "full_name": "Gabe Evans",
+  "udp_per_cycle": []
+ },
+ "E000235": {
+  "person_key": "E000235",
+  "full_name": "Mike Ezell",
+  "udp_per_cycle": []
+ },
+ "F000246": {
+  "person_key": "F000246",
+  "full_name": "Pat Fallon",
+  "udp_per_cycle": []
+ },
+ "F000482": {
+  "person_key": "F000482",
+  "full_name": "Julie Fedorchak",
+  "udp_per_cycle": []
+ },
+ "F000446": {
+  "person_key": "F000446",
+  "full_name": "Randy Feenstra",
+  "udp_per_cycle": []
+ },
+ "F000479": {
+  "person_key": "F000479",
+  "full_name": "John Fetterman",
+  "udp_per_cycle": []
+ },
+ "F000110": {
+  "person_key": "F000110",
+  "full_name": "Cleo Fields",
+  "udp_per_cycle": []
+ },
+ "F000481": {
+  "person_key": "F000481",
+  "full_name": "Shomari Figures",
+  "udp_per_cycle": []
+ },
+ "F000484": {
+  "person_key": "F000484",
+  "full_name": "Randy Fine",
+  "udp_per_cycle": []
+ },
+ "F000475": {
+  "person_key": "F000475",
+  "full_name": "Brad Finstad",
+  "udp_per_cycle": []
+ },
+ "F000470": {
+  "person_key": "F000470",
+  "full_name": "Michelle Fischbach",
+  "udp_per_cycle": []
+ },
+ "F000463": {
+  "person_key": "F000463",
+  "full_name": "Deb Fischer",
+  "udp_per_cycle": []
+ },
+ "F000471": {
+  "person_key": "F000471",
+  "full_name": "Scott Fitzgerald",
+  "udp_per_cycle": []
+ },
+ "F000466": {
+  "person_key": "F000466",
+  "full_name": "Brian K. Fitzpatrick",
+  "udp_per_cycle": []
+ },
+ "peggyflanaganmnsenate": {
+  "person_key": "peggyflanaganmnsenate",
+  "full_name": "Peggy Flanagan",
+  "udp_per_cycle": []
+ },
+ "F000459": {
+  "person_key": "F000459",
+  "full_name": "Charles J. \"Chuck\" Fleischmann",
+  "udp_per_cycle": []
+ },
+ "F000468": {
+  "person_key": "F000468",
+  "full_name": "Lizzie Fletcher",
+  "udp_per_cycle": []
+ },
+ "F000474": {
+  "person_key": "F000474",
+  "full_name": "Mike Flood",
+  "udp_per_cycle": []
+ },
+ "F000480": {
+  "person_key": "F000480",
+  "full_name": "Vince Fong",
+  "udp_per_cycle": []
+ },
+ "jdfordinhouse": {
+  "person_key": "jdfordinhouse",
+  "full_name": "J.D. Ford",
+  "udp_per_cycle": []
+ },
+ "la-shawnfordilhouse": {
+  "person_key": "la-shawnfordilhouse",
+  "full_name": "La Shawn Ford",
+  "udp_per_cycle": []
+ },
+ "samforstagmthouse": {
+  "person_key": "samforstagmthouse",
+  "full_name": "Sam Forstag",
+  "udp_per_cycle": []
+ },
+ "F000454": {
+  "person_key": "F000454",
+  "full_name": "Bill Foster",
+  "udp_per_cycle": []
+ },
+ "F000477": {
+  "person_key": "F000477",
+  "full_name": "Valerie P. Foushee",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2NC06114",
+    "udp_ie_support": 2128196.18,
+    "attribution": "name_state_district_office_match; cand_id blank in FEC file"
+   }
+  ]
+ },
+ "F000450": {
+  "person_key": "F000450",
+  "full_name": "Virginia Foxx",
+  "udp_per_cycle": []
+ },
+ "F000462": {
+  "person_key": "F000462",
+  "full_name": "Lois Frankel",
+  "udp_per_cycle": []
+ },
+ "F000472": {
+  "person_key": "F000472",
+  "full_name": "Scott Franklin",
+  "udp_per_cycle": []
+ },
+ "F000483": {
+  "person_key": "F000483",
+  "full_name": "Laura Friedman",
+  "udp_per_cycle": []
+ },
+ "F000476": {
+  "person_key": "F000476",
+  "full_name": "Maxwell Frost",
+  "udp_per_cycle": []
+ },
+ "F000478": {
+  "person_key": "F000478",
+  "full_name": "Russell Fry",
+  "udp_per_cycle": []
+ },
+ "F000469": {
+  "person_key": "F000469",
+  "full_name": "Russ Fulcher",
+  "udp_per_cycle": []
+ },
+ "F000485": {
+  "person_key": "F000485",
+  "full_name": "Clay Fuller",
+  "udp_per_cycle": []
+ },
+ "houstongainesgahouse": {
+  "person_key": "houstongainesgahouse",
+  "full_name": "Houston Gaines",
+  "udp_per_cycle": []
+ },
+ "G000607": {
+  "person_key": "G000607",
+  "full_name": "James Gallagher",
+  "udp_per_cycle": []
+ },
+ "G000574": {
+  "person_key": "G000574",
+  "full_name": "Ruben Gallego",
+  "udp_per_cycle": []
+ },
+ "edgallreinkyhouse": {
+  "person_key": "edgallreinkyhouse",
+  "full_name": "Ed Gallrein",
+  "udp_per_cycle": [
+   {
+    "cycle": 2026,
+    "candidate_id": "H6KY04171",
+    "udp_ie_support": 579318.62
+   }
+  ]
+ },
+ "G000559": {
+  "person_key": "G000559",
+  "full_name": "John Garamendi",
+  "udp_per_cycle": []
+ },
+ "G000597": {
+  "person_key": "G000597",
+  "full_name": "Andrew R. Garbarino",
+  "udp_per_cycle": []
+ },
+ "johnnygarciatxhouse": {
+  "person_key": "johnnygarciatxhouse",
+  "full_name": "Johnny Garcia",
+  "udp_per_cycle": []
+ },
+ "G000598": {
+  "person_key": "G000598",
+  "full_name": "Robert Garcia",
+  "udp_per_cycle": []
+ },
+ "G000587": {
+  "person_key": "G000587",
+  "full_name": "Sylvia R. Garcia",
+  "udp_per_cycle": []
+ },
+ "G000586": {
+  "person_key": "G000586",
+  "full_name": "Jes\u00fas G. \"Chuy\" Garc\u00eda",
+  "udp_per_cycle": []
+ },
+ "pattygarciailhouse": {
+  "person_key": "pattygarciailhouse",
+  "full_name": "Patty Garc\u00eda",
+  "udp_per_cycle": []
+ },
+ "johnnygarretttnhouse": {
+  "person_key": "johnnygarretttnhouse",
+  "full_name": "Johnny Garrett",
+  "udp_per_cycle": []
+ },
+ "sarah-tronegarriottiahouse": {
+  "person_key": "sarah-tronegarriottiahouse",
+  "full_name": "Sarah Trone Garriott",
+  "udp_per_cycle": []
+ },
+ "olivergilbertflhouse": {
+  "person_key": "olivergilbertflhouse",
+  "full_name": "Oliver Gilbert",
+  "udp_per_cycle": []
+ },
+ "G000603": {
+  "person_key": "G000603",
+  "full_name": "Brandon Gill",
+  "udp_per_cycle": []
+ },
+ "G000602": {
+  "person_key": "G000602",
+  "full_name": "Laura Gillen",
+  "udp_per_cycle": []
+ },
+ "G000555": {
+  "person_key": "G000555",
+  "full_name": "Kirsten E. Gillibrand",
+  "udp_per_cycle": []
+ },
+ "G000593": {
+  "person_key": "G000593",
+  "full_name": "Carlos A. Gimenez",
+  "udp_per_cycle": []
+ },
+ "G000600": {
+  "person_key": "G000600",
+  "full_name": "Marie Gluesenkamp Perez",
+  "udp_per_cycle": []
+ },
+ "chrisgobertxhouse": {
+  "person_key": "chrisgobertxhouse",
+  "full_name": "Chris Gober",
+  "udp_per_cycle": []
+ },
+ "G000592": {
+  "person_key": "G000592",
+  "full_name": "Jared F. Golden",
+  "udp_per_cycle": []
+ },
+ "G000601": {
+  "person_key": "G000601",
+  "full_name": "Craig A. Goldman",
+  "udp_per_cycle": []
+ },
+ "G000599": {
+  "person_key": "G000599",
+  "full_name": "Daniel S. Goldman",
+  "udp_per_cycle": []
+ },
+ "G000585": {
+  "person_key": "G000585",
+  "full_name": "Jimmy Gomez",
+  "udp_per_cycle": [
+   {
+    "cycle": 2024,
+    "candidate_id": "H8CA34266",
+    "udp_ie_support": 1723990.15
+   }
+  ]
+ },
+ "angelagonzalestorrescahouse": {
+  "person_key": "angelagonzalestorrescahouse",
+  "full_name": "Angela Gonzales-Torres",
+  "udp_per_cycle": []
+ },
+ "G000581": {
+  "person_key": "G000581",
+  "full_name": "Vicente Gonzalez",
+  "udp_per_cycle": []
+ },
+ "G000589": {
+  "person_key": "G000589",
+  "full_name": "Lance Gooden",
+  "udp_per_cycle": []
+ },
+ "G000604": {
+  "person_key": "G000604",
+  "full_name": "Maggie Goodlander",
+  "udp_per_cycle": []
+ },
+ "G000565": {
+  "person_key": "G000565",
+  "full_name": "Paul A. Gosar",
+  "udp_per_cycle": []
+ },
+ "G000583": {
+  "person_key": "G000583",
+  "full_name": "Josh Gottheimer",
+  "udp_per_cycle": []
+ },
+ "G000608": {
+  "person_key": "G000608",
+  "full_name": "Darline Graham",
+  "udp_per_cycle": []
+ },
+ "G000386": {
+  "person_key": "G000386",
+  "full_name": "Chuck Grassley",
+  "udp_per_cycle": []
+ },
+ "G000546": {
+  "person_key": "G000546",
+  "full_name": "Sam Graves",
+  "udp_per_cycle": []
+ },
+ "G000605": {
+  "person_key": "G000605",
+  "full_name": "Adam Gray",
+  "udp_per_cycle": []
+ },
+ "chuckgraywyhouse": {
+  "person_key": "chuckgraywyhouse",
+  "full_name": "Chuck Gray",
+  "udp_per_cycle": []
+ },
+ "G000553": {
+  "person_key": "G000553",
+  "full_name": "Al Green",
+  "udp_per_cycle": []
+ },
+ "G000568": {
+  "person_key": "G000568",
+  "full_name": "H. Morgan Griffith",
+  "udp_per_cycle": []
+ },
+ "G000606": {
+  "person_key": "G000606",
+  "full_name": "Adelita S. Grijalva",
+  "udp_per_cycle": []
+ },
+ "G000576": {
+  "person_key": "G000576",
+  "full_name": "Glenn Grothman",
+  "udp_per_cycle": []
+ },
+ "sydneygrutersflhouse": {
+  "person_key": "sydneygrutersflhouse",
+  "full_name": "Sydney Gruters",
+  "udp_per_cycle": []
+ },
+ "G000591": {
+  "person_key": "G000591",
+  "full_name": "Michael Guest",
+  "udp_per_cycle": []
+ },
+ "G000558": {
+  "person_key": "G000558",
+  "full_name": "Brett Guthrie",
+  "udp_per_cycle": []
+ },
+ "leticiagutierreztxhouse": {
+  "person_key": "leticiagutierreztxhouse",
+  "full_name": "Leticia Gutierrez",
+  "udp_per_cycle": []
+ },
+ "H001096": {
+  "person_key": "H001096",
+  "full_name": "Harriet M. Hageman",
+  "udp_per_cycle": []
+ },
+ "H000601": {
+  "person_key": "H000601",
+  "full_name": "Bill Hagerty",
+  "udp_per_cycle": []
+ },
+ "H001098": {
+  "person_key": "H001098",
+  "full_name": "Abraham J. Hamadeh",
+  "udp_per_cycle": []
+ },
+ "adamhamawynjhouse": {
+  "person_key": "adamhamawynjhouse",
+  "full_name": "Adam Hamawy",
+  "udp_per_cycle": []
+ },
+ "adamhamiltonkssenate": {
+  "person_key": "adamhamiltonkssenate",
+  "full_name": "Adam Hamilton",
+  "udp_per_cycle": []
+ },
+ "H001090": {
+  "person_key": "H001090",
+  "full_name": "Josh Harder",
+  "udp_per_cycle": []
+ },
+ "H001099": {
+  "person_key": "H001099",
+  "full_name": "Mike Haridopolos",
+  "udp_per_cycle": []
+ },
+ "H001101": {
+  "person_key": "H001101",
+  "full_name": "Pat Harrigan",
+  "udp_per_cycle": []
+ },
+ "H001052": {
+  "person_key": "H001052",
+  "full_name": "Andy Harris",
+  "udp_per_cycle": []
+ },
+ "H001102": {
+  "person_key": "H001102",
+  "full_name": "Mark Harris",
+  "udp_per_cycle": []
+ },
+ "H001086": {
+  "person_key": "H001086",
+  "full_name": "Diana Harshbarger",
+  "udp_per_cycle": []
+ },
+ "bobharviepahouse": {
+  "person_key": "bobharviepahouse",
+  "full_name": "Bob Harvie",
+  "udp_per_cycle": []
+ },
+ "H001076": {
+  "person_key": "H001076",
+  "full_name": "Margaret Wood Hassan",
+  "udp_per_cycle": []
+ },
+ "charliehatchertnhouse": {
+  "person_key": "charliehatchertnhouse",
+  "full_name": "Charlie Hatcher",
+  "udp_per_cycle": []
+ },
+ "H001089": {
+  "person_key": "H001089",
+  "full_name": "Josh Hawley",
+  "udp_per_cycle": []
+ },
+ "H001081": {
+  "person_key": "H001081",
+  "full_name": "Jahana Hayes",
+  "udp_per_cycle": []
+ },
+ "frederickhaynestxhouse": {
+  "person_key": "frederickhaynestxhouse",
+  "full_name": "Frederick Haynes III",
+  "udp_per_cycle": []
+ },
+ "H001046": {
+  "person_key": "H001046",
+  "full_name": "Martin Heinrich",
+  "udp_per_cycle": []
+ },
+ "H001082": {
+  "person_key": "H001082",
+  "full_name": "Kevin Hern",
+  "udp_per_cycle": []
+ },
+ "H001103": {
+  "person_key": "H001103",
+  "full_name": "Pablo Jos\u00e9 Hern\u00e1ndez",
+  "udp_per_cycle": []
+ },
+ "H000273": {
+  "person_key": "H000273",
+  "full_name": "John W. Hickenlooper",
+  "udp_per_cycle": []
+ },
+ "H001077": {
+  "person_key": "H001077",
+  "full_name": "Clay Higgins",
+  "udp_per_cycle": []
+ },
+ "H001072": {
+  "person_key": "H001072",
+  "full_name": "J. French Hill",
+  "udp_per_cycle": []
+ },
+ "H001047": {
+  "person_key": "H001047",
+  "full_name": "James A. Himes",
+  "udp_per_cycle": []
+ },
+ "christinahinesmihouse": {
+  "person_key": "christinahinesmihouse",
+  "full_name": "Christina Hines",
+  "udp_per_cycle": []
+ },
+ "H001091": {
+  "person_key": "H001091",
+  "full_name": "Ashley Hinson",
+  "udp_per_cycle": []
+ },
+ "H001042": {
+  "person_key": "H001042",
+  "full_name": "Mazie K. Hirono",
+  "udp_per_cycle": []
+ },
+ "H001061": {
+  "person_key": "H001061",
+  "full_name": "John Hoeven",
+  "udp_per_cycle": []
+ },
+ "H001066": {
+  "person_key": "H001066",
+  "full_name": "Steven Horsford",
+  "udp_per_cycle": []
+ },
+ "H001093": {
+  "person_key": "H001093",
+  "full_name": "Erin Houchin",
+  "udp_per_cycle": []
+ },
+ "H001085": {
+  "person_key": "H001085",
+  "full_name": "Chrissy Houlahan",
+  "udp_per_cycle": []
+ },
+ "H000874": {
+  "person_key": "H000874",
+  "full_name": "Steny H. Hoyer",
+  "udp_per_cycle": []
+ },
+ "H001094": {
+  "person_key": "H001094",
+  "full_name": "Val T. Hoyle",
+  "udp_per_cycle": []
+ },
+ "chuckhubbardnchouse": {
+  "person_key": "chuckhubbardnchouse",
+  "full_name": "Chuck Hubbard",
+  "udp_per_cycle": []
+ },
+ "H001067": {
+  "person_key": "H001067",
+  "full_name": "Richard Hudson",
+  "udp_per_cycle": []
+ },
+ "H001068": {
+  "person_key": "H001068",
+  "full_name": "Jared Huffman",
+  "udp_per_cycle": []
+ },
+ "H001058": {
+  "person_key": "H001058",
+  "full_name": "Bill Huizenga",
+  "udp_per_cycle": []
+ },
+ "H001095": {
+  "person_key": "H001095",
+  "full_name": "Wesley Hunt",
+  "udp_per_cycle": []
+ },
+ "H001100": {
+  "person_key": "H001100",
+  "full_name": "Jeff Hurd",
+  "udp_per_cycle": []
+ },
+ "H001104": {
+  "person_key": "H001104",
+  "full_name": "Jon Husted",
+  "udp_per_cycle": []
+ },
+ "H001079": {
+  "person_key": "H001079",
+  "full_name": "Cindy Hyde-Smith",
+  "udp_per_cycle": []
+ },
+ "jacquiirwincahouse": {
+  "person_key": "jacquiirwincahouse",
+  "full_name": "Jacqui Irwin",
+  "udp_per_cycle": []
+ },
+ "I000056": {
+  "person_key": "I000056",
+  "full_name": "Darrell Issa",
+  "udp_per_cycle": []
+ },
+ "I000058": {
+  "person_key": "I000058",
+  "full_name": "Glenn Ivey",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2MD04315",
+    "udp_ie_support": 1734184.42
+   }
+  ]
+ },
+ "J000311": {
+  "person_key": "J000311",
+  "full_name": "Brian Jack",
+  "udp_per_cycle": []
+ },
+ "martyjackleysdhouse": {
+  "person_key": "martyjackleysdhouse",
+  "full_name": "Marty Jackley",
+  "udp_per_cycle": []
+ },
+ "J000309": {
+  "person_key": "J000309",
+  "full_name": "Jonathan L. Jackson",
+  "udp_per_cycle": []
+ },
+ "J000304": {
+  "person_key": "J000304",
+  "full_name": "Ronny Jackson",
+  "udp_per_cycle": []
+ },
+ "troyjacksonmesenate": {
+  "person_key": "troyjacksonmesenate",
+  "full_name": "Troy Jackson",
+  "udp_per_cycle": []
+ },
+ "J000305": {
+  "person_key": "J000305",
+  "full_name": "Sara Jacobs",
+  "udp_per_cycle": []
+ },
+ "J000307": {
+  "person_key": "J000307",
+  "full_name": "John James",
+  "udp_per_cycle": []
+ },
+ "lindsayjamesiahouse": {
+  "person_key": "lindsayjamesiahouse",
+  "full_name": "Lindsay James",
+  "udp_per_cycle": []
+ },
+ "J000298": {
+  "person_key": "J000298",
+  "full_name": "Pramila Jayapal",
+  "udp_per_cycle": []
+ },
+ "cyriljeffersonnchouse": {
+  "person_key": "cyriljeffersonnchouse",
+  "full_name": "Cyril Jefferson",
+  "udp_per_cycle": []
+ },
+ "J000294": {
+  "person_key": "J000294",
+  "full_name": "Hakeem S. Jeffries",
+  "udp_per_cycle": []
+ },
+ "J000301": {
+  "person_key": "J000301",
+  "full_name": "Dusty Johnson",
+  "udp_per_cycle": []
+ },
+ "J000288": {
+  "person_key": "J000288",
+  "full_name": "Henry C. \"Hank\" Johnson, Jr.",
+  "udp_per_cycle": []
+ },
+ "jakejohnsonmnhouse": {
+  "person_key": "jakejohnsonmnhouse",
+  "full_name": "Jake Johnson",
+  "udp_per_cycle": []
+ },
+ "J000310": {
+  "person_key": "J000310",
+  "full_name": "Julie Johnson",
+  "udp_per_cycle": []
+ },
+ "J000299": {
+  "person_key": "J000299",
+  "full_name": "Mike Johnson",
+  "udp_per_cycle": []
+ },
+ "J000293": {
+  "person_key": "J000293",
+  "full_name": "Ron Johnson",
+  "udp_per_cycle": []
+ },
+ "J000289": {
+  "person_key": "J000289",
+  "full_name": "Jim Jordan",
+  "udp_per_cycle": []
+ },
+ "J000295": {
+  "person_key": "J000295",
+  "full_name": "David P. Joyce",
+  "udp_per_cycle": []
+ },
+ "J000302": {
+  "person_key": "J000302",
+  "full_name": "John Joyce",
+  "udp_per_cycle": []
+ },
+ "J000312": {
+  "person_key": "J000312",
+  "full_name": "James C. Justice",
+  "udp_per_cycle": []
+ },
+ "K000384": {
+  "person_key": "K000384",
+  "full_name": "Tim Kaine",
+  "udp_per_cycle": []
+ },
+ "K000400": {
+  "person_key": "K000400",
+  "full_name": "Sydney Kamlager-Dove",
+  "udp_per_cycle": []
+ },
+ "K000009": {
+  "person_key": "K000009",
+  "full_name": "Marcy Kaptur",
+  "udp_per_cycle": []
+ },
+ "K000398": {
+  "person_key": "K000398",
+  "full_name": "Thomas H. Kean, Jr.",
+  "udp_per_cycle": []
+ },
+ "K000375": {
+  "person_key": "K000375",
+  "full_name": "William R. Keating",
+  "udp_per_cycle": []
+ },
+ "K000377": {
+  "person_key": "K000377",
+  "full_name": "Mark Kelly",
+  "udp_per_cycle": []
+ },
+ "K000376": {
+  "person_key": "K000376",
+  "full_name": "Mike Kelly",
+  "udp_per_cycle": []
+ },
+ "K000385": {
+  "person_key": "K000385",
+  "full_name": "Robin L. Kelly",
+  "udp_per_cycle": []
+ },
+ "K000388": {
+  "person_key": "K000388",
+  "full_name": "Trent Kelly",
+  "udp_per_cycle": []
+ },
+ "K000393": {
+  "person_key": "K000393",
+  "full_name": "John Kennedy",
+  "udp_per_cycle": []
+ },
+ "K000403": {
+  "person_key": "K000403",
+  "full_name": "Mike Kennedy",
+  "udp_per_cycle": []
+ },
+ "K000402": {
+  "person_key": "K000402",
+  "full_name": "Timothy M. Kennedy",
+  "udp_per_cycle": []
+ },
+ "K000389": {
+  "person_key": "K000389",
+  "full_name": "Ro Khanna",
+  "udp_per_cycle": []
+ },
+ "K000399": {
+  "person_key": "K000399",
+  "full_name": "Jennifer A. Kiggans",
+  "udp_per_cycle": []
+ },
+ "K000401": {
+  "person_key": "K000401",
+  "full_name": "Kevin Kiley",
+  "udp_per_cycle": []
+ },
+ "jessicakillincohouse": {
+  "person_key": "jessicakillincohouse",
+  "full_name": "Jessica Killin",
+  "udp_per_cycle": []
+ },
+ "K000394": {
+  "person_key": "K000394",
+  "full_name": "Andy Kim",
+  "udp_per_cycle": []
+ },
+ "K000397": {
+  "person_key": "K000397",
+  "full_name": "Young Kim",
+  "udp_per_cycle": []
+ },
+ "K000383": {
+  "person_key": "K000383",
+  "full_name": "Angus S. King, Jr.",
+  "udp_per_cycle": []
+ },
+ "K000404": {
+  "person_key": "K000404",
+  "full_name": "Kimberlyn King-Hinds",
+  "udp_per_cycle": []
+ },
+ "jimkingstongahouse": {
+  "person_key": "jimkingstongahouse",
+  "full_name": "Jim Kingston",
+  "udp_per_cycle": []
+ },
+ "melatkiroscohouse": {
+  "person_key": "melatkiroscohouse",
+  "full_name": "Melat Kiros",
+  "udp_per_cycle": []
+ },
+ "K000367": {
+  "person_key": "K000367",
+  "full_name": "Amy Klobuchar",
+  "udp_per_cycle": []
+ },
+ "kristinaknickerbockerohhouse": {
+  "person_key": "kristinaknickerbockerohhouse",
+  "full_name": "Kristina Knickerbocker",
+  "udp_per_cycle": []
+ },
+ "K000405": {
+  "person_key": "K000405",
+  "full_name": "Brad Knott",
+  "udp_per_cycle": []
+ },
+ "dankohmahouse": {
+  "person_key": "dankohmahouse",
+  "full_name": "Dan Koh",
+  "udp_per_cycle": []
+ },
+ "K000391": {
+  "person_key": "K000391",
+  "full_name": "Raja Krishnamoorthi",
+  "udp_per_cycle": []
+ },
+ "K000392": {
+  "person_key": "K000392",
+  "full_name": "David Kustoff",
+  "udp_per_cycle": []
+ },
+ "nancylacoreschouse": {
+  "person_key": "nancylacoreschouse",
+  "full_name": "Nancy Lacore",
+  "udp_per_cycle": []
+ },
+ "L000585": {
+  "person_key": "L000585",
+  "full_name": "Darin LaHood",
+  "udp_per_cycle": []
+ },
+ "L000598": {
+  "person_key": "L000598",
+  "full_name": "Nick LaLota",
+  "udp_per_cycle": []
+ },
+ "marklambazhouse": {
+  "person_key": "marklambazhouse",
+  "full_name": "Mark Lamb",
+  "udp_per_cycle": []
+ },
+ "bradlandernyhouse": {
+  "person_key": "bradlandernyhouse",
+  "full_name": "Brad Lander",
+  "udp_per_cycle": []
+ },
+ "L000601": {
+  "person_key": "L000601",
+  "full_name": "Greg Landsman",
+  "udp_per_cycle": []
+ },
+ "L000600": {
+  "person_key": "L000600",
+  "full_name": "Nicholas A. Langworthy",
+  "udp_per_cycle": []
+ },
+ "L000575": {
+  "person_key": "L000575",
+  "full_name": "James Lankford",
+  "udp_per_cycle": []
+ },
+ "L000560": {
+  "person_key": "L000560",
+  "full_name": "Rick Larsen",
+  "udp_per_cycle": []
+ },
+ "L000557": {
+  "person_key": "L000557",
+  "full_name": "John B. Larson",
+  "udp_per_cycle": []
+ },
+ "micahlashernyhouse": {
+  "person_key": "micahlashernyhouse",
+  "full_name": "Micah Lasher",
+  "udp_per_cycle": []
+ },
+ "L000606": {
+  "person_key": "L000606",
+  "full_name": "George Latimer",
+  "udp_per_cycle": [
+   {
+    "cycle": 2024,
+    "candidate_id": "H4NY16087",
+    "udp_ie_support": 4682560.29
+   }
+  ]
+ },
+ "L000566": {
+  "person_key": "L000566",
+  "full_name": "Robert E. Latta",
+  "udp_per_cycle": []
+ },
+ "eileenlaubachercohouse": {
+  "person_key": "eileenlaubachercohouse",
+  "full_name": "Eileen Laubacher",
+  "udp_per_cycle": []
+ },
+ "L000599": {
+  "person_key": "L000599",
+  "full_name": "Michael Lawler",
+  "udp_per_cycle": []
+ },
+ "williamlawrencemihouse": {
+  "person_key": "williamlawrencemihouse",
+  "full_name": "William Lawrence",
+  "udp_per_cycle": []
+ },
+ "L000597": {
+  "person_key": "L000597",
+  "full_name": "Laurel M. Lee",
+  "udp_per_cycle": []
+ },
+ "L000577": {
+  "person_key": "L000577",
+  "full_name": "Mike Lee",
+  "udp_per_cycle": []
+ },
+ "L000602": {
+  "person_key": "L000602",
+  "full_name": "Summer L. Lee",
+  "udp_per_cycle": []
+ },
+ "L000590": {
+  "person_key": "L000590",
+  "full_name": "Susie Lee",
+  "udp_per_cycle": []
+ },
+ "L000273": {
+  "person_key": "L000273",
+  "full_name": "Teresa Leger Fernandez",
+  "udp_per_cycle": []
+ },
+ "donleonardohhouse": {
+  "person_key": "donleonardohhouse",
+  "full_name": "Don Leonard",
+  "udp_per_cycle": []
+ },
+ "paullepagemehouse": {
+  "person_key": "paullepagemehouse",
+  "full_name": "Paul LePage",
+  "udp_per_cycle": []
+ },
+ "L000595": {
+  "person_key": "L000595",
+  "full_name": "Julia Letlow",
+  "udp_per_cycle": []
+ },
+ "L000593": {
+  "person_key": "L000593",
+  "full_name": "Mike Levin",
+  "udp_per_cycle": []
+ },
+ "L000607": {
+  "person_key": "L000607",
+  "full_name": "Sam T. Liccardo",
+  "udp_per_cycle": []
+ },
+ "L000582": {
+  "person_key": "L000582",
+  "full_name": "Ted Lieu",
+  "udp_per_cycle": []
+ },
+ "alicialimtiacoguhouse": {
+  "person_key": "alicialimtiacoguhouse",
+  "full_name": "Alicia Limtiaco",
+  "udp_per_cycle": []
+ },
+ "mattlittlemnhouse": {
+  "person_key": "mattlittlemnhouse",
+  "full_name": "Matt Little",
+  "udp_per_cycle": []
+ },
+ "L000397": {
+  "person_key": "L000397",
+  "full_name": "Zoe Lofgren",
+  "udp_per_cycle": []
+ },
+ "L000583": {
+  "person_key": "L000583",
+  "full_name": "Barry Loudermilk",
+  "udp_per_cycle": []
+ },
+ "L000491": {
+  "person_key": "L000491",
+  "full_name": "Frank D. Lucas",
+  "udp_per_cycle": []
+ },
+ "L000570": {
+  "person_key": "L000570",
+  "full_name": "Ben Ray Luj\u00e1n",
+  "udp_per_cycle": []
+ },
+ "L000571": {
+  "person_key": "L000571",
+  "full_name": "Cynthia M. Lummis",
+  "udp_per_cycle": []
+ },
+ "L000596": {
+  "person_key": "L000596",
+  "full_name": "Anna Paulina Luna",
+  "udp_per_cycle": []
+ },
+ "L000591": {
+  "person_key": "L000591",
+  "full_name": "Elaine Luria",
+  "udp_per_cycle": []
+ },
+ "L000603": {
+  "person_key": "L000603",
+  "full_name": "Morgan Luttrell",
+  "udp_per_cycle": []
+ },
+ "L000562": {
+  "person_key": "L000562",
+  "full_name": "Stephen F. Lynch",
+  "udp_per_cycle": []
+ },
+ "M000194": {
+  "person_key": "M000194",
+  "full_name": "Nancy Mace",
+  "udp_per_cycle": []
+ },
+ "M001230": {
+  "person_key": "M001230",
+  "full_name": "Ryan Mackenzie",
+  "udp_per_cycle": []
+ },
+ "M001223": {
+  "person_key": "M001223",
+  "full_name": "Seth Magaziner",
+  "udp_per_cycle": []
+ },
+ "M000317": {
+  "person_key": "M000317",
+  "full_name": "Nicole Malliotakis",
+  "udp_per_cycle": []
+ },
+ "M001228": {
+  "person_key": "M001228",
+  "full_name": "Celeste Maloy",
+  "udp_per_cycle": []
+ },
+ "M000871": {
+  "person_key": "M000871",
+  "full_name": "Tracey Mann",
+  "udp_per_cycle": []
+ },
+ "M001231": {
+  "person_key": "M001231",
+  "full_name": "John W. Mannion",
+  "udp_per_cycle": []
+ },
+ "M000133": {
+  "person_key": "M000133",
+  "full_name": "Edward J. Markey",
+  "udp_per_cycle": []
+ },
+ "M001198": {
+  "person_key": "M001198",
+  "full_name": "Roger Marshall",
+  "udp_per_cycle": []
+ },
+ "M001184": {
+  "person_key": "M001184",
+  "full_name": "Thomas Massie",
+  "udp_per_cycle": []
+ },
+ "M001199": {
+  "person_key": "M001199",
+  "full_name": "Brian J. Mast",
+  "udp_per_cycle": []
+ },
+ "M001163": {
+  "person_key": "M001163",
+  "full_name": "Doris O. Matsui",
+  "udp_per_cycle": []
+ },
+ "M001209": {
+  "person_key": "M001209",
+  "full_name": "Ben McAdams",
+  "udp_per_cycle": []
+ },
+ "M001208": {
+  "person_key": "M001208",
+  "full_name": "Lucy McBath",
+  "udp_per_cycle": []
+ },
+ "M001238": {
+  "person_key": "M001238",
+  "full_name": "Sarah McBride",
+  "udp_per_cycle": []
+ },
+ "seanmccannmihouse": {
+  "person_key": "seanmccannmihouse",
+  "full_name": "Sean McCann",
+  "udp_per_cycle": []
+ },
+ "M001157": {
+  "person_key": "M001157",
+  "full_name": "Michael T. McCaul",
+  "udp_per_cycle": []
+ },
+ "M001136": {
+  "person_key": "M001136",
+  "full_name": "Lisa C. McClain",
+  "udp_per_cycle": []
+ },
+ "M001232": {
+  "person_key": "M001232",
+  "full_name": "April McClain Delaney",
+  "udp_per_cycle": []
+ },
+ "M001227": {
+  "person_key": "M001227",
+  "full_name": "Jennifer L. McClellan",
+  "udp_per_cycle": []
+ },
+ "M001177": {
+  "person_key": "M001177",
+  "full_name": "Tom McClintock",
+  "udp_per_cycle": []
+ },
+ "M001143": {
+  "person_key": "M001143",
+  "full_name": "Betty McCollum",
+  "udp_per_cycle": []
+ },
+ "M000355": {
+  "person_key": "M000355",
+  "full_name": "Mitch McConnell",
+  "udp_per_cycle": []
+ },
+ "M001243": {
+  "person_key": "M001243",
+  "full_name": "David McCormick",
+  "udp_per_cycle": []
+ },
+ "M001218": {
+  "person_key": "M001218",
+  "full_name": "Richard McCormick",
+  "udp_per_cycle": []
+ },
+ "M001237": {
+  "person_key": "M001237",
+  "full_name": "Kristen McDonald Rivet",
+  "udp_per_cycle": []
+ },
+ "M001240": {
+  "person_key": "M001240",
+  "full_name": "Addison P. McDowell",
+  "udp_per_cycle": []
+ },
+ "M001220": {
+  "person_key": "M001220",
+  "full_name": "Morgan McGarvey",
+  "udp_per_cycle": []
+ },
+ "M000312": {
+  "person_key": "M000312",
+  "full_name": "James P. McGovern",
+  "udp_per_cycle": []
+ },
+ "chrismcgowaniahouse": {
+  "person_key": "chrismcgowaniahouse",
+  "full_name": "Chris McGowan",
+  "udp_per_cycle": []
+ },
+ "M001239": {
+  "person_key": "M001239",
+  "full_name": "John J. McGuire III",
+  "udp_per_cycle": []
+ },
+ "mikemcguirecahouse": {
+  "person_key": "mikemcguirecahouse",
+  "full_name": "Mike McGuire",
+  "udp_per_cycle": []
+ },
+ "M001229": {
+  "person_key": "M001229",
+  "full_name": "LaMonica McIver",
+  "udp_per_cycle": []
+ },
+ "amandamckinneywahouse": {
+  "person_key": "amandamckinneywahouse",
+  "full_name": "Amanda McKinney",
+  "udp_per_cycle": []
+ },
+ "donavanmckinneymihouse": {
+  "person_key": "donavanmckinneymihouse",
+  "full_name": "Donavan McKinney",
+  "udp_per_cycle": []
+ },
+ "M001137": {
+  "person_key": "M001137",
+  "full_name": "Gregory W. Meeks",
+  "udp_per_cycle": []
+ },
+ "M001246": {
+  "person_key": "M001246",
+  "full_name": "Analilia Mejia",
+  "udp_per_cycle": []
+ },
+ "joannamendozaazhouse": {
+  "person_key": "joannamendozaazhouse",
+  "full_name": "JoAnna Mendoza",
+  "udp_per_cycle": []
+ },
+ "M001245": {
+  "person_key": "M001245",
+  "full_name": "Christian D. Menefee",
+  "udp_per_cycle": []
+ },
+ "M001226": {
+  "person_key": "M001226",
+  "full_name": "Robert Menendez",
+  "udp_per_cycle": []
+ },
+ "M001188": {
+  "person_key": "M001188",
+  "full_name": "Grace Meng",
+  "udp_per_cycle": []
+ },
+ "M001176": {
+  "person_key": "M001176",
+  "full_name": "Jeff Merkley",
+  "udp_per_cycle": []
+ },
+ "M001233": {
+  "person_key": "M001233",
+  "full_name": "Mark B. Messmer",
+  "udp_per_cycle": []
+ },
+ "M001204": {
+  "person_key": "M001204",
+  "full_name": "Daniel Meuser",
+  "udp_per_cycle": []
+ },
+ "M000687": {
+  "person_key": "M000687",
+  "full_name": "Kweisi Mfume",
+  "udp_per_cycle": []
+ },
+ "M001205": {
+  "person_key": "M001205",
+  "full_name": "Carol D. Miller",
+  "udp_per_cycle": []
+ },
+ "donnamillerilhouse": {
+  "person_key": "donnamillerilhouse",
+  "full_name": "Donna Miller",
+  "udp_per_cycle": []
+ },
+ "M001211": {
+  "person_key": "M001211",
+  "full_name": "Mary E. Miller",
+  "udp_per_cycle": []
+ },
+ "M001222": {
+  "person_key": "M001222",
+  "full_name": "Max L. Miller",
+  "udp_per_cycle": []
+ },
+ "M001215": {
+  "person_key": "M001215",
+  "full_name": "Mariannette Miller-Meeks",
+  "udp_per_cycle": []
+ },
+ "M001216": {
+  "person_key": "M001216",
+  "full_name": "Cory Mills",
+  "udp_per_cycle": []
+ },
+ "M001241": {
+  "person_key": "M001241",
+  "full_name": "Dave Min",
+  "udp_per_cycle": []
+ },
+ "M001244": {
+  "person_key": "M001244",
+  "full_name": "Ashley Moody",
+  "udp_per_cycle": []
+ },
+ "M001194": {
+  "person_key": "M001194",
+  "full_name": "John R. Moolenaar",
+  "udp_per_cycle": []
+ },
+ "M001212": {
+  "person_key": "M001212",
+  "full_name": "Barry Moore",
+  "udp_per_cycle": []
+ },
+ "M001213": {
+  "person_key": "M001213",
+  "full_name": "Blake D. Moore",
+  "udp_per_cycle": []
+ },
+ "M001160": {
+  "person_key": "M001160",
+  "full_name": "Gwen Moore",
+  "udp_per_cycle": []
+ },
+ "M001235": {
+  "person_key": "M001235",
+  "full_name": "Riley M. Moore",
+  "udp_per_cycle": []
+ },
+ "M001236": {
+  "person_key": "M001236",
+  "full_name": "Tim Moore",
+  "udp_per_cycle": []
+ },
+ "M000934": {
+  "person_key": "M000934",
+  "full_name": "Jerry Moran",
+  "udp_per_cycle": []
+ },
+ "M001224": {
+  "person_key": "M001224",
+  "full_name": "Nathaniel Moran",
+  "udp_per_cycle": []
+ },
+ "M001206": {
+  "person_key": "M001206",
+  "full_name": "Joseph D. Morelle",
+  "udp_per_cycle": []
+ },
+ "M001242": {
+  "person_key": "M001242",
+  "full_name": "Bernie Moreno",
+  "udp_per_cycle": []
+ },
+ "M001234": {
+  "person_key": "M001234",
+  "full_name": "Kelly Morrison",
+  "udp_per_cycle": []
+ },
+ "M001217": {
+  "person_key": "M001217",
+  "full_name": "Jared Moskowitz",
+  "udp_per_cycle": []
+ },
+ "jeremymossmihouse": {
+  "person_key": "jeremymossmihouse",
+  "full_name": "Jeremy Moss",
+  "udp_per_cycle": []
+ },
+ "M001196": {
+  "person_key": "M001196",
+  "full_name": "Seth Moulton",
+  "udp_per_cycle": []
+ },
+ "M001219": {
+  "person_key": "M001219",
+  "full_name": "James C. Moylan",
+  "udp_per_cycle": []
+ },
+ "M001214": {
+  "person_key": "M001214",
+  "full_name": "Frank J. Mrvan",
+  "udp_per_cycle": []
+ },
+ "M001225": {
+  "person_key": "M001225",
+  "full_name": "Kevin Mullin",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H2CA14162",
+    "udp_ie_support": 588768.26,
+    "attribution": "name_state_district_office_match; cand_id blank in FEC file"
+   }
+  ]
+ },
+ "zackmullocknjhouse": {
+  "person_key": "zackmullocknjhouse",
+  "full_name": "Zack Mullock",
+  "udp_per_cycle": []
+ },
+ "M001153": {
+  "person_key": "M001153",
+  "full_name": "Lisa Murkowski",
+  "udp_per_cycle": []
+ },
+ "M001169": {
+  "person_key": "M001169",
+  "full_name": "Christopher Murphy",
+  "udp_per_cycle": []
+ },
+ "M001210": {
+  "person_key": "M001210",
+  "full_name": "Gregory F. Murphy",
+  "udp_per_cycle": []
+ },
+ "M001111": {
+  "person_key": "M001111",
+  "full_name": "Patty Murray",
+  "udp_per_cycle": []
+ },
+ "N000002": {
+  "person_key": "N000002",
+  "full_name": "Jerrold Nadler",
+  "udp_per_cycle": []
+ },
+ "N000015": {
+  "person_key": "N000015",
+  "full_name": "Richard E. Neal",
+  "udp_per_cycle": []
+ },
+ "N000191": {
+  "person_key": "N000191",
+  "full_name": "Joe Neguse",
+  "udp_per_cycle": []
+ },
+ "trevernehlstxhouse": {
+  "person_key": "trevernehlstxhouse",
+  "full_name": "Trever Nehls",
+  "udp_per_cycle": []
+ },
+ "N000026": {
+  "person_key": "N000026",
+  "full_name": "Troy E. Nehls",
+  "udp_per_cycle": []
+ },
+ "N000189": {
+  "person_key": "N000189",
+  "full_name": "Dan Newhouse",
+  "udp_per_cycle": []
+ },
+ "N000188": {
+  "person_key": "N000188",
+  "full_name": "Donald Norcross",
+  "udp_per_cycle": []
+ },
+ "N000190": {
+  "person_key": "N000190",
+  "full_name": "Ralph Norman",
+  "udp_per_cycle": []
+ },
+ "N000147": {
+  "person_key": "N000147",
+  "full_name": "Eleanor Holmes Norton",
+  "udp_per_cycle": []
+ },
+ "N000193": {
+  "person_key": "N000193",
+  "full_name": "Zachary Nunn",
+  "udp_per_cycle": []
+ },
+ "O000019": {
+  "person_key": "O000019",
+  "full_name": "Jay Obernolte",
+  "udp_per_cycle": []
+ },
+ "O000172": {
+  "person_key": "O000172",
+  "full_name": "Alexandria Ocasio-Cortez",
+  "udp_per_cycle": []
+ },
+ "O000175": {
+  "person_key": "O000175",
+  "full_name": "Andrew Ogles",
+  "udp_per_cycle": []
+ },
+ "richardojedanchouse": {
+  "person_key": "richardojedanchouse",
+  "full_name": "Richard Ojeda",
+  "udp_per_cycle": []
+ },
+ "O000176": {
+  "person_key": "O000176",
+  "full_name": "Johnny Olszewski, Jr.",
+  "udp_per_cycle": []
+ },
+ "O000173": {
+  "person_key": "O000173",
+  "full_name": "Ilhan Omar",
+  "udp_per_cycle": []
+ },
+ "O000177": {
+  "person_key": "O000177",
+  "full_name": "Robert F. Onder, Jr.",
+  "udp_per_cycle": []
+ },
+ "O000174": {
+  "person_key": "O000174",
+  "full_name": "Jon Ossoff",
+  "udp_per_cycle": []
+ },
+ "O000086": {
+  "person_key": "O000086",
+  "full_name": "Burgess Owens",
+  "udp_per_cycle": []
+ },
+ "P000145": {
+  "person_key": "P000145",
+  "full_name": "Alex Padilla",
+  "udp_per_cycle": []
+ },
+ "katypadilla-stouttxhouse": {
+  "person_key": "katypadilla-stouttxhouse",
+  "full_name": "Katy Padilla Stout",
+  "udp_per_cycle": []
+ },
+ "P000034": {
+  "person_key": "P000034",
+  "full_name": "Frank Pallone, Jr.",
+  "udp_per_cycle": []
+ },
+ "P000609": {
+  "person_key": "P000609",
+  "full_name": "Gary J. Palmer",
+  "udp_per_cycle": []
+ },
+ "richardpancahouse": {
+  "person_key": "richardpancahouse",
+  "full_name": "Richard Pan",
+  "udp_per_cycle": []
+ },
+ "P000613": {
+  "person_key": "P000613",
+  "full_name": "Jimmy Panetta",
+  "udp_per_cycle": []
+ },
+ "P000614": {
+  "person_key": "P000614",
+  "full_name": "Chris Pappas",
+  "udp_per_cycle": []
+ },
+ "P000622": {
+  "person_key": "P000622",
+  "full_name": "Jimmy Patronis",
+  "udp_per_cycle": []
+ },
+ "P000603": {
+  "person_key": "P000603",
+  "full_name": "Rand Paul",
+  "udp_per_cycle": []
+ },
+ "P000197": {
+  "person_key": "P000197",
+  "full_name": "Nancy Pelosi",
+  "udp_per_cycle": []
+ },
+ "P000605": {
+  "person_key": "P000605",
+  "full_name": "Scott Perry",
+  "udp_per_cycle": []
+ },
+ "P000595": {
+  "person_key": "P000595",
+  "full_name": "Gary C. Peters",
+  "udp_per_cycle": []
+ },
+ "P000608": {
+  "person_key": "P000608",
+  "full_name": "Scott H. Peters",
+  "udp_per_cycle": []
+ },
+ "P000620": {
+  "person_key": "P000620",
+  "full_name": "Brittany Pettersen",
+  "udp_per_cycle": []
+ },
+ "P000048": {
+  "person_key": "P000048",
+  "full_name": "August Pfluger",
+  "udp_per_cycle": []
+ },
+ "P000597": {
+  "person_key": "P000597",
+  "full_name": "Chellie Pingree",
+  "udp_per_cycle": []
+ },
+ "P000610": {
+  "person_key": "P000610",
+  "full_name": "Stacey E. Plaskett",
+  "udp_per_cycle": []
+ },
+ "P000607": {
+  "person_key": "P000607",
+  "full_name": "Mark Pocan",
+  "udp_per_cycle": []
+ },
+ "brianpoindexterohhouse": {
+  "person_key": "brianpoindexterohhouse",
+  "full_name": "Brian Poindexter",
+  "udp_per_cycle": []
+ },
+ "P000621": {
+  "person_key": "P000621",
+  "full_name": "Nellie Pou",
+  "udp_per_cycle": []
+ },
+ "denisepowellnehouse": {
+  "person_key": "denisepowellnehouse",
+  "full_name": "Denise Powell",
+  "udp_per_cycle": []
+ },
+ "P000617": {
+  "person_key": "P000617",
+  "full_name": "Ayanna Pressley",
+  "udp_per_cycle": []
+ },
+ "bobbypulidotxhouse": {
+  "person_key": "bobbypulidotxhouse",
+  "full_name": "Bobby Pulido",
+  "udp_per_cycle": []
+ },
+ "Q000023": {
+  "person_key": "Q000023",
+  "full_name": "Mike Quigley",
+  "udp_per_cycle": []
+ },
+ "chrisrabbpahouse": {
+  "person_key": "chrisrabbpahouse",
+  "full_name": "Chris Rabb",
+  "udp_per_cycle": []
+ },
+ "R000600": {
+  "person_key": "R000600",
+  "full_name": "Aumua Amata Coleman Radewagen",
+  "udp_per_cycle": []
+ },
+ "R000617": {
+  "person_key": "R000617",
+  "full_name": "Delia C. Ramirez",
+  "udp_per_cycle": []
+ },
+ "R000621": {
+  "person_key": "R000621",
+  "full_name": "Emily Randall",
+  "udp_per_cycle": []
+ },
+ "R000606": {
+  "person_key": "R000606",
+  "full_name": "Jamie Raskin",
+  "udp_per_cycle": []
+ },
+ "R000122": {
+  "person_key": "R000122",
+  "full_name": "Jack Reed",
+  "udp_per_cycle": []
+ },
+ "R000610": {
+  "person_key": "R000610",
+  "full_name": "Guy Reschenthaler",
+  "udp_per_cycle": []
+ },
+ "R000618": {
+  "person_key": "R000618",
+  "full_name": "Pete Ricketts",
+  "udp_per_cycle": []
+ },
+ "R000622": {
+  "person_key": "R000622",
+  "full_name": "Josh Riley",
+  "udp_per_cycle": []
+ },
+ "R000584": {
+  "person_key": "R000584",
+  "full_name": "James E. Risch",
+  "udp_per_cycle": []
+ },
+ "R000620": {
+  "person_key": "R000620",
+  "full_name": "Luz M. Rivas",
+  "udp_per_cycle": []
+ },
+ "kristen-mcdonaldrivetmihouse": {
+  "person_key": "kristen-mcdonaldrivetmihouse",
+  "full_name": "Kristen McDonald Rivet",
+  "udp_per_cycle": []
+ },
+ "austinrogersflhouse": {
+  "person_key": "austinrogersflhouse",
+  "full_name": "Austin Rogers",
+  "udp_per_cycle": []
+ },
+ "R000395": {
+  "person_key": "R000395",
+  "full_name": "Harold Rogers",
+  "udp_per_cycle": []
+ },
+ "R000575": {
+  "person_key": "R000575",
+  "full_name": "Mike Rogers",
+  "udp_per_cycle": []
+ },
+ "R000612": {
+  "person_key": "R000612",
+  "full_name": "John W. Rose",
+  "udp_per_cycle": []
+ },
+ "R000608": {
+  "person_key": "R000608",
+  "full_name": "Jacky Rosen",
+  "udp_per_cycle": []
+ },
+ "R000305": {
+  "person_key": "R000305",
+  "full_name": "Deborah K. Ross",
+  "udp_per_cycle": []
+ },
+ "R000605": {
+  "person_key": "R000605",
+  "full_name": "Mike Rounds",
+  "udp_per_cycle": []
+ },
+ "R000603": {
+  "person_key": "R000603",
+  "full_name": "David Rouzer",
+  "udp_per_cycle": []
+ },
+ "R000614": {
+  "person_key": "R000614",
+  "full_name": "Chip Roy",
+  "udp_per_cycle": []
+ },
+ "R000599": {
+  "person_key": "R000599",
+  "full_name": "Raul Ruiz",
+  "udp_per_cycle": []
+ },
+ "R000619": {
+  "person_key": "R000619",
+  "full_name": "Michael A. Rulli",
+  "udp_per_cycle": []
+ },
+ "R000609": {
+  "person_key": "R000609",
+  "full_name": "John H. Rutherford",
+  "udp_per_cycle": []
+ },
+ "mannyrutinelcohouse": {
+  "person_key": "mannyrutinelcohouse",
+  "full_name": "Manny Rutinel",
+  "udp_per_cycle": []
+ },
+ "R000579": {
+  "person_key": "R000579",
+  "full_name": "Patrick Ryan",
+  "udp_per_cycle": []
+ },
+ "S000168": {
+  "person_key": "S000168",
+  "full_name": "Maria Elvira Salazar",
+  "udp_per_cycle": []
+ },
+ "S001226": {
+  "person_key": "S001226",
+  "full_name": "Andrea Salinas",
+  "udp_per_cycle": []
+ },
+ "S000033": {
+  "person_key": "S000033",
+  "full_name": "Bernard Sanders",
+  "udp_per_cycle": []
+ },
+ "janellesarauwvihouse": {
+  "person_key": "janellesarauwvihouse",
+  "full_name": "Janelle Sarauw",
+  "udp_per_cycle": []
+ },
+ "S001176": {
+  "person_key": "S001176",
+  "full_name": "Steve Scalise",
+  "udp_per_cycle": []
+ },
+ "S001205": {
+  "person_key": "S001205",
+  "full_name": "Mary Gay Scanlon",
+  "udp_per_cycle": []
+ },
+ "S001145": {
+  "person_key": "S001145",
+  "full_name": "Janice D. Schakowsky",
+  "udp_per_cycle": []
+ },
+ "S001194": {
+  "person_key": "S001194",
+  "full_name": "Brian Schatz",
+  "udp_per_cycle": []
+ },
+ "S001150": {
+  "person_key": "S001150",
+  "full_name": "Adam B. Schiff",
+  "udp_per_cycle": []
+ },
+ "S001228": {
+  "person_key": "S001228",
+  "full_name": "Derek Schmidt",
+  "udp_per_cycle": []
+ },
+ "S001227": {
+  "person_key": "S001227",
+  "full_name": "Eric Schmitt",
+  "udp_per_cycle": []
+ },
+ "S001190": {
+  "person_key": "S001190",
+  "full_name": "Bradley Scott Schneider",
+  "udp_per_cycle": []
+ },
+ "S001221": {
+  "person_key": "S001221",
+  "full_name": "Hillary J. Scholten",
+  "udp_per_cycle": []
+ },
+ "S001216": {
+  "person_key": "S001216",
+  "full_name": "Kim Schrier",
+  "udp_per_cycle": []
+ },
+ "S000148": {
+  "person_key": "S000148",
+  "full_name": "Charles E. Schumer",
+  "udp_per_cycle": []
+ },
+ "jimschwartzelflhouse": {
+  "person_key": "jimschwartzelflhouse",
+  "full_name": "Jim Schwartzel",
+  "udp_per_cycle": []
+ },
+ "S001183": {
+  "person_key": "S001183",
+  "full_name": "David Schweikert",
+  "udp_per_cycle": []
+ },
+ "S001189": {
+  "person_key": "S001189",
+  "full_name": "Austin Scott",
+  "udp_per_cycle": []
+ },
+ "S001217": {
+  "person_key": "S001217",
+  "full_name": "Rick Scott",
+  "udp_per_cycle": []
+ },
+ "S000185": {
+  "person_key": "S000185",
+  "full_name": "Robert C. \"Bobby\" Scott",
+  "udp_per_cycle": []
+ },
+ "S001184": {
+  "person_key": "S001184",
+  "full_name": "Tim Scott",
+  "udp_per_cycle": []
+ },
+ "S001224": {
+  "person_key": "S001224",
+  "full_name": "Keith Self",
+  "udp_per_cycle": []
+ },
+ "tomselltxhouse": {
+  "person_key": "tomselltxhouse",
+  "full_name": "Tom Sell",
+  "udp_per_cycle": []
+ },
+ "S000250": {
+  "person_key": "S000250",
+  "full_name": "Pete Sessions",
+  "udp_per_cycle": []
+ },
+ "S001185": {
+  "person_key": "S001185",
+  "full_name": "Terri A. Sewell",
+  "udp_per_cycle": []
+ },
+ "amishshahazhouse": {
+  "person_key": "amishshahazhouse",
+  "full_name": "Amish Shah",
+  "udp_per_cycle": []
+ },
+ "S001181": {
+  "person_key": "S001181",
+  "full_name": "Jeanne Shaheen",
+  "udp_per_cycle": []
+ },
+ "stefanyshaheennhhouse": {
+  "person_key": "stefanyshaheennhhouse",
+  "full_name": "Stefany Shaheen",
+  "udp_per_cycle": []
+ },
+ "S001232": {
+  "person_key": "S001232",
+  "full_name": "Tim Sheehy",
+  "udp_per_cycle": []
+ },
+ "S000344": {
+  "person_key": "S000344",
+  "full_name": "Brad Sherman",
+  "udp_per_cycle": []
+ },
+ "S001229": {
+  "person_key": "S001229",
+  "full_name": "Jefferson Shreve",
+  "udp_per_cycle": []
+ },
+ "S001231": {
+  "person_key": "S001231",
+  "full_name": "Lateefah Simon",
+  "udp_per_cycle": []
+ },
+ "S001148": {
+  "person_key": "S001148",
+  "full_name": "Michael K. Simpson",
+  "udp_per_cycle": []
+ },
+ "S001208": {
+  "person_key": "S001208",
+  "full_name": "Elissa Slotkin",
+  "udp_per_cycle": []
+ },
+ "S000510": {
+  "person_key": "S000510",
+  "full_name": "Adam Smith",
+  "udp_per_cycle": []
+ },
+ "S001172": {
+  "person_key": "S001172",
+  "full_name": "Adrian Smith",
+  "udp_per_cycle": []
+ },
+ "S000522": {
+  "person_key": "S000522",
+  "full_name": "Christopher H. Smith",
+  "udp_per_cycle": []
+ },
+ "S001195": {
+  "person_key": "S001195",
+  "full_name": "Jason Smith",
+  "udp_per_cycle": []
+ },
+ "raymondsmithnchouse": {
+  "person_key": "raymondsmithnchouse",
+  "full_name": "Raymond Smith Jr.",
+  "udp_per_cycle": []
+ },
+ "S001203": {
+  "person_key": "S001203",
+  "full_name": "Tina Smith",
+  "udp_per_cycle": []
+ },
+ "S001199": {
+  "person_key": "S001199",
+  "full_name": "Lloyd Smucker",
+  "udp_per_cycle": []
+ },
+ "S001153": {
+  "person_key": "S001153",
+  "full_name": "Hilda Solis",
+  "udp_per_cycle": []
+ },
+ "S001225": {
+  "person_key": "S001225",
+  "full_name": "Eric Sorensen",
+  "udp_per_cycle": []
+ },
+ "S001200": {
+  "person_key": "S001200",
+  "full_name": "Darren Soto",
+  "udp_per_cycle": []
+ },
+ "S000929": {
+  "person_key": "S000929",
+  "full_name": "Victoria Spartz",
+  "udp_per_cycle": []
+ },
+ "S001218": {
+  "person_key": "S001218",
+  "full_name": "Melanie A. Stansbury",
+  "udp_per_cycle": []
+ },
+ "S001211": {
+  "person_key": "S001211",
+  "full_name": "Greg Stanton",
+  "udp_per_cycle": []
+ },
+ "S001212": {
+  "person_key": "S001212",
+  "full_name": "Pete Stauber",
+  "udp_per_cycle": []
+ },
+ "S001196": {
+  "person_key": "S001196",
+  "full_name": "Elise M. Stefanik",
+  "udp_per_cycle": []
+ },
+ "S001213": {
+  "person_key": "S001213",
+  "full_name": "Bryan Steil",
+  "udp_per_cycle": []
+ },
+ "jessicasteinmanntxhouse": {
+  "person_key": "jessicasteinmanntxhouse",
+  "full_name": "Jessica Hart Steinmann",
+  "udp_per_cycle": []
+ },
+ "janellestelsonpahouse": {
+  "person_key": "janellestelsonpahouse",
+  "full_name": "Janelle Stelson",
+  "udp_per_cycle": []
+ },
+ "S001214": {
+  "person_key": "S001214",
+  "full_name": "W. Gregory Steube",
+  "udp_per_cycle": []
+ },
+ "S001215": {
+  "person_key": "S001215",
+  "full_name": "Haley M. Stevens",
+  "udp_per_cycle": [
+   {
+    "cycle": 2022,
+    "candidate_id": "H8MI11254",
+    "udp_ie_support": 3878030.46
+   },
+   {
+    "cycle": 2026,
+    "candidate_id": "S6MI00426",
+    "udp_ie_support": 10498735.23
+   }
+  ]
+ },
+ "chrisstigallmohouse": {
+  "person_key": "chrisstigallmohouse",
+  "full_name": "Chris Stigall",
+  "udp_per_cycle": []
+ },
+ "joestradaflhouse": {
+  "person_key": "joestradaflhouse",
+  "full_name": "Joe Strada",
+  "udp_per_cycle": []
+ },
+ "julianastrattonilsenate": {
+  "person_key": "julianastrattonilsenate",
+  "full_name": "Juliana Stratton",
+  "udp_per_cycle": []
+ },
+ "S001159": {
+  "person_key": "S001159",
+  "full_name": "Marilyn Strickland",
+  "udp_per_cycle": []
+ },
+ "S001220": {
+  "person_key": "S001220",
+  "full_name": "Dale W. Strong",
+  "udp_per_cycle": []
+ },
+ "S001188": {
+  "person_key": "S001188",
+  "full_name": "Marlin A. Stutzman",
+  "udp_per_cycle": []
+ },
+ "S001230": {
+  "person_key": "S001230",
+  "full_name": "Suhas Subramanyam",
+  "udp_per_cycle": []
+ },
+ "S001198": {
+  "person_key": "S001198",
+  "full_name": "Dan Sullivan",
+  "udp_per_cycle": []
+ },
+ "S001201": {
+  "person_key": "S001201",
+  "full_name": "Thomas R. Suozzi",
+  "udp_per_cycle": []
+ },
+ "S001223": {
+  "person_key": "S001223",
+  "full_name": "Emilia Strong Sykes",
+  "udp_per_cycle": []
+ },
+ "S001156": {
+  "person_key": "S001156",
+  "full_name": "Linda T. S\u00e1nchez",
+  "udp_per_cycle": []
+ },
+ "T000472": {
+  "person_key": "T000472",
+  "full_name": "Mark Takano",
+  "udp_per_cycle": []
+ },
+ "jamestalaricotxsenate": {
+  "person_key": "jamestalaricotxsenate",
+  "full_name": "James Talarico",
+  "udp_per_cycle": []
+ },
+ "brenttaylortnhouse": {
+  "person_key": "brenttaylortnhouse",
+  "full_name": "Brent Taylor",
+  "udp_per_cycle": []
+ },
+ "T000490": {
+  "person_key": "T000490",
+  "full_name": "David J. Taylor",
+  "udp_per_cycle": []
+ },
+ "shannontaylorvahouse": {
+  "person_key": "shannontaylorvahouse",
+  "full_name": "Shannon Taylor",
+  "udp_per_cycle": []
+ },
+ "marktedfordokhouse": {
+  "person_key": "marktedfordokhouse",
+  "full_name": "Mark Tedford",
+  "udp_per_cycle": []
+ },
+ "markteixeiratxhouse": {
+  "person_key": "markteixeiratxhouse",
+  "full_name": "Mark Teixeira",
+  "udp_per_cycle": []
+ },
+ "T000478": {
+  "person_key": "T000478",
+  "full_name": "Claudia Tenney",
+  "udp_per_cycle": []
+ },
+ "T000488": {
+  "person_key": "T000488",
+  "full_name": "Shri Thanedar",
+  "udp_per_cycle": []
+ },
+ "T000193": {
+  "person_key": "T000193",
+  "full_name": "Bennie G. Thompson",
+  "udp_per_cycle": []
+ },
+ "T000467": {
+  "person_key": "T000467",
+  "full_name": "Glenn Thompson",
+  "udp_per_cycle": []
+ },
+ "T000460": {
+  "person_key": "T000460",
+  "full_name": "Mike Thompson",
+  "udp_per_cycle": []
+ },
+ "T000250": {
+  "person_key": "T000250",
+  "full_name": "John Thune",
+  "udp_per_cycle": []
+ },
+ "T000165": {
+  "person_key": "T000165",
+  "full_name": "Thomas P. Tiffany",
+  "udp_per_cycle": []
+ },
+ "T000476": {
+  "person_key": "T000476",
+  "full_name": "Thom Tillis",
+  "udp_per_cycle": []
+ },
+ "T000480": {
+  "person_key": "T000480",
+  "full_name": "William R. Timmons IV",
+  "udp_per_cycle": []
+ },
+ "T000468": {
+  "person_key": "T000468",
+  "full_name": "Dina Titus",
+  "udp_per_cycle": []
+ },
+ "T000481": {
+  "person_key": "T000481",
+  "full_name": "Rashida Tlaib",
+  "udp_per_cycle": []
+ },
+ "T000487": {
+  "person_key": "T000487",
+  "full_name": "Jill N. Tokuda",
+  "udp_per_cycle": []
+ },
+ "T000469": {
+  "person_key": "T000469",
+  "full_name": "Paul Tonko",
+  "udp_per_cycle": []
+ },
+ "T000474": {
+  "person_key": "T000474",
+  "full_name": "Norma J. Torres",
+  "udp_per_cycle": []
+ },
+ "T000486": {
+  "person_key": "T000486",
+  "full_name": "Ritchie Torres",
+  "udp_per_cycle": []
+ },
+ "stevetothtxhouse": {
+  "person_key": "stevetothtxhouse",
+  "full_name": "Steve Toth",
+  "udp_per_cycle": []
+ },
+ "T000482": {
+  "person_key": "T000482",
+  "full_name": "Lori Trahan",
+  "udp_per_cycle": []
+ },
+ "T000491": {
+  "person_key": "T000491",
+  "full_name": "Derek Tran",
+  "udp_per_cycle": []
+ },
+ "T000278": {
+  "person_key": "T000278",
+  "full_name": "Tommy Tuberville",
+  "udp_per_cycle": []
+ },
+ "joshturekiasenate": {
+  "person_key": "joshturekiasenate",
+  "full_name": "Josh Turek",
+  "udp_per_cycle": []
+ },
+ "T000463": {
+  "person_key": "T000463",
+  "full_name": "Michael R. Turner",
+  "udp_per_cycle": []
+ },
+ "U000040": {
+  "person_key": "U000040",
+  "full_name": "Lauren Underwood",
+  "udp_per_cycle": []
+ },
+ "V000129": {
+  "person_key": "V000129",
+  "full_name": "David G. Valadao",
+  "udp_per_cycle": []
+ },
+ "clairevaldeznyhouse": {
+  "person_key": "clairevaldeznyhouse",
+  "full_name": "Claire Valdez",
+  "udp_per_cycle": []
+ },
+ "V000133": {
+  "person_key": "V000133",
+  "full_name": "Jefferson Van Drew",
+  "udp_per_cycle": []
+ },
+ "V000134": {
+  "person_key": "V000134",
+  "full_name": "Beth Van Duyne",
+  "udp_per_cycle": []
+ },
+ "V000139": {
+  "person_key": "V000139",
+  "full_name": "Matt Van Epps",
+  "udp_per_cycle": []
+ },
+ "V000128": {
+  "person_key": "V000128",
+  "full_name": "Chris Van Hollen",
+  "udp_per_cycle": []
+ },
+ "V000135": {
+  "person_key": "V000135",
+  "full_name": "Derrick Van Orden",
+  "udp_per_cycle": []
+ },
+ "V000130": {
+  "person_key": "V000130",
+  "full_name": "Juan Vargas",
+  "udp_per_cycle": []
+ },
+ "V000136": {
+  "person_key": "V000136",
+  "full_name": "Gabe Vasquez",
+  "udp_per_cycle": []
+ },
+ "V000131": {
+  "person_key": "V000131",
+  "full_name": "Marc A. Veasey",
+  "udp_per_cycle": []
+ },
+ "V000081": {
+  "person_key": "V000081",
+  "full_name": "Nydia M. Vel\u00e1zquez",
+  "udp_per_cycle": []
+ },
+ "randyvillegascahouse": {
+  "person_key": "randyvillegascahouse",
+  "full_name": "Randy Villegas",
+  "udp_per_cycle": []
+ },
+ "V000138": {
+  "person_key": "V000138",
+  "full_name": "Eugene Simon Vindman",
+  "udp_per_cycle": []
+ },
+ "W000812": {
+  "person_key": "W000812",
+  "full_name": "Ann Wagner",
+  "udp_per_cycle": []
+ },
+ "W000832": {
+  "person_key": "W000832",
+  "full_name": "Aisha Wahab",
+  "udp_per_cycle": []
+ },
+ "W000798": {
+  "person_key": "W000798",
+  "full_name": "Tim Walberg",
+  "udp_per_cycle": []
+ },
+ "W000831": {
+  "person_key": "W000831",
+  "full_name": "James R. Walkinshaw",
+  "udp_per_cycle": []
+ },
+ "W000805": {
+  "person_key": "W000805",
+  "full_name": "Mark R. Warner",
+  "udp_per_cycle": []
+ },
+ "W000790": {
+  "person_key": "W000790",
+  "full_name": "Raphael G. Warnock",
+  "udp_per_cycle": []
+ },
+ "W000817": {
+  "person_key": "W000817",
+  "full_name": "Elizabeth Warren",
+  "udp_per_cycle": []
+ },
+ "W000797": {
+  "person_key": "W000797",
+  "full_name": "Debbie Wasserman Schultz",
+  "udp_per_cycle": []
+ },
+ "W000187": {
+  "person_key": "W000187",
+  "full_name": "Maxine Waters",
+  "udp_per_cycle": []
+ },
+ "W000822": {
+  "person_key": "W000822",
+  "full_name": "Bonnie Watson Coleman",
+  "udp_per_cycle": []
+ },
+ "W000814": {
+  "person_key": "W000814",
+  "full_name": "Randy K. Weber, Sr.",
+  "udp_per_cycle": []
+ },
+ "W000806": {
+  "person_key": "W000806",
+  "full_name": "Daniel Webster",
+  "udp_per_cycle": []
+ },
+ "W000800": {
+  "person_key": "W000800",
+  "full_name": "Peter Welch",
+  "udp_per_cycle": []
+ },
+ "fredwellmanmohouse": {
+  "person_key": "fredwellmanmohouse",
+  "full_name": "Fred Wellman",
+  "udp_per_cycle": []
+ },
+ "W000821": {
+  "person_key": "W000821",
+  "full_name": "Bruce Westerman",
+  "udp_per_cycle": []
+ },
+ "robertwhitedchouse": {
+  "person_key": "robertwhitedchouse",
+  "full_name": "Robert White",
+  "udp_per_cycle": []
+ },
+ "W000802": {
+  "person_key": "W000802",
+  "full_name": "Sheldon Whitehouse",
+  "udp_per_cycle": []
+ },
+ "W000830": {
+  "person_key": "W000830",
+  "full_name": "George Whitesides",
+  "udp_per_cycle": []
+ },
+ "W000437": {
+  "person_key": "W000437",
+  "full_name": "Roger F. Wicker",
+  "udp_per_cycle": []
+ },
+ "W000829": {
+  "person_key": "W000829",
+  "full_name": "Tony Wied",
+  "udp_per_cycle": []
+ },
+ "scottwienercahouse": {
+  "person_key": "scottwienercahouse",
+  "full_name": "Scott Wiener",
+  "udp_per_cycle": []
+ },
+ "W000788": {
+  "person_key": "W000788",
+  "full_name": "Nikema Williams",
+  "udp_per_cycle": []
+ },
+ "W000816": {
+  "person_key": "W000816",
+  "full_name": "Roger Williams",
+  "udp_per_cycle": []
+ },
+ "marni-vonwilpertcahouse": {
+  "person_key": "marni-vonwilpertcahouse",
+  "full_name": "Marni von Wilpert",
+  "udp_per_cycle": []
+ },
+ "W000808": {
+  "person_key": "W000808",
+  "full_name": "Frederica S. Wilson",
+  "udp_per_cycle": []
+ },
+ "W000795": {
+  "person_key": "W000795",
+  "full_name": "Joe Wilson",
+  "udp_per_cycle": []
+ },
+ "W000804": {
+  "person_key": "W000804",
+  "full_name": "Robert J. Wittman",
+  "udp_per_cycle": []
+ },
+ "lakeshawomacknchouse": {
+  "person_key": "lakeshawomacknchouse",
+  "full_name": "LaKesha Womack",
+  "udp_per_cycle": []
+ },
+ "W000809": {
+  "person_key": "W000809",
+  "full_name": "Steve Womack",
+  "udp_per_cycle": []
+ },
+ "W000779": {
+  "person_key": "W000779",
+  "full_name": "Ron Wyden",
+  "udp_per_cycle": []
+ },
+ "Y000067": {
+  "person_key": "Y000067",
+  "full_name": "Rudy Yakym III",
+  "udp_per_cycle": []
+ },
+ "jaceyarbroughtxhouse": {
+  "person_key": "jaceyarbroughtxhouse",
+  "full_name": "Jace Yarbrough",
+  "udp_per_cycle": []
+ },
+ "Y000064": {
+  "person_key": "Y000064",
+  "full_name": "Todd Young",
+  "udp_per_cycle": []
+ },
+ "Z000018": {
+  "person_key": "Z000018",
+  "full_name": "Ryan K. Zinke",
+  "udp_per_cycle": []
+ }
+}
