@@ -12,7 +12,9 @@ Checks:
     Constantino verified clean; Luria null; King-Hinds verified clean
     and contested; 9 ran unopposed; Armstrong "unknown" money cells;
     top-10 total-accepted names; 192 primary targets; 53 career-clean
-    incoming House members.
+    incoming House members; dirtiest top 5 in 2026 with the #1-vs-next-
+    four comparison; party/outcome derivation (535 Won / 124 Not
+    returning / 5 Uncalled, every row with a party source).
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
@@ -209,6 +211,76 @@ def main():
           re.search(r"\d+ of \d+ incoming members", prose) is None
           and re.search(r"\d+ House \+ \d+ Senate", prose) is None,
           "a literal story figure survives in the built page")
+
+    # ---- front door (landing-first): structure, mode, computed figures ----
+    check("front-door section exists",
+          all(x in html for x in ('id="front-door"', 'id="dirtiest-headline"',
+                                  'id="dirtiest-list"', 'id="explore-btn"',
+                                  'id="fresh-line"', 'id="explore-head"',
+                                  'id="tabs-nav"', 'id="main"')))
+    check("mode lives in the URL hash (#explore)",
+          "location.hash" in html and "modeFromHash" in html
+          and "setMode" in html and "'explore'" in html)
+    front = html[html.index('id="front-door"'):html.index('<footer>')]
+    check("front door carries no stat cards or totals strip",
+          'id="stats"' not in front and 'id="totals"' not in front)
+    DIRTY_LITERALS = ["31,025,889", "5,745,013", "4,161,286", "3,446,667",
+                      "1,860,780", "15,213,747", "$31.03M", "$15.21M"]
+    def has_dirty_literal(text):
+        return any(lit in text for lit in DIRTY_LITERALS)
+    check("dirtiest figures are computed, not hardcoded",
+          not has_dirty_literal(prose),
+          "a literal dirtiest figure survives in the built page")
+    # Negative test: an injected literal must trip the same detector,
+    # proving the clean-page result above is not vacuous.
+    check("negative test: injected dirtiest literal trips the check",
+          has_dirty_literal(prose + "Stevens took $31,025,889.44"))
+    dirty = sorted([r for r in decoded if num(r["dirty_2026"]) > 0],
+                   key=lambda r: -num(r["dirty_2026"]))[:5]
+    check("dirtiest top 5 in 2026 (names + order)",
+          [r["full_name"] for r in dirty] == ["Haley M. Stevens", "Adrian Boafo",
+           "Ed Gallrein", "Wesley Bell", "Brett Guthrie"],
+          f"got {[r['full_name'] for r in dirty]}")
+    top1 = num(dirty[0]["dirty_2026"])
+    next4 = sum(num(r["dirty_2026"]) for r in dirty[1:])
+    check("headline comparison holds: #1 exceeds next four combined (~2.04x)",
+          top1 > next4 and 2.0 < top1 / next4 < 2.1,
+          f"#1 {top1} vs next four {next4}, ratio {top1/next4:.3f}")
+    check("Stevens headline row is MI-11 and not in the 120th",
+          dirty[0]["in_120th"] == "no" and dirty[0]["state"] == "MI"
+          and dirty[0]["district_119"] == "11")
+
+    # ---- party chips + outcome labels (person marks) ----
+    # The chips render in JS at runtime (asserted in the smoke test);
+    # here: the helpers exist, and the derivation inputs recomputed
+    # from the embedded data cover every row with no per-person cases.
+    check("party chip + outcome helpers present",
+          "function partyChip" in html and "function outcomeLabel" in html
+          and "'Not returning'" in html and "'Uncalled'" in html
+          and 'class="pchip ' in html
+          and "Democrat:['D','d']" in html and "Republican:['R','r']" in html
+          and "Independent:['I','o']" in html)
+    no_party = [r for r in decoded if not r["party_120"] and not r["party_119"]]
+    check("every row has a party source (party_120 else party_119)",
+          len(no_party) == 0, f"{len(no_party)} rows with no party")
+    outcomes = {v: sum(1 for r in decoded if r["in_120th"] == v)
+                for v in ("yes", "no", "unknown")}
+    check("outcome mapping covers all 664 (Won 535 / Not returning 124 / Uncalled 5)",
+          outcomes == {"yes": 535, "no": 124, "unknown": 5}, f"got {outcomes}")
+    def mark_spot(name, party, outcome):
+        rows = [r for r in decoded if name in r["full_name"]]
+        return (len(rows) == 1
+                and (rows[0]["party_120"] or rows[0]["party_119"]) == party
+                and {"yes": "Won", "unknown": "Uncalled",
+                     "no": "Not returning"}[rows[0]["in_120th"]] == outcome)
+    check("marks spot-check: Stevens D / Not returning",
+          mark_spot("Stevens", "Democrat", "Not returning"))
+    check("marks spot-check: El-Sayed D / Won",
+          mark_spot("El-Sayed", "Democrat", "Won"))
+    check("marks spot-check: Guthrie R / Won",
+          mark_spot("Guthrie", "Republican", "Won"))
+    check("marks spot-check: Hernández PPD / Won (other gray chip)",
+          mark_spot("Hernández", "PPD", "Won"))
     const = [r for r in decoded if "Constantino" in r["full_name"]]
     check("Constantino verified clean",
           len(const) == 1 and const[0]["clean_2026"] is True
@@ -274,7 +346,8 @@ def main():
             for needle in ["The Receipts", "receipts-data", "Methodology",
                            "primary targets", "Clean money", "Leaderboards",
                            "Data as of", "Find your member",
-                           "took no dirty money in 2026"]:
+                           "took no dirty money in 2026",
+                           "Dirtiest in 2026", "Explore the full data"]:
                 check(f"served page contains {needle!r}", needle in body)
             check("served page size matches file",
                   len(body.encode("utf-8")) == html_path.stat().st_size)
