@@ -1,0 +1,19 @@
+{
+ "families": {
+  "F24": {
+   "last_seen": "2026-10-15",
+   "seen_file_numbers": []
+  },
+  "F3": {
+   "last_seen": "2026-10-15",
+   "seen_file_numbers": []
+  },
+  "F6": {
+   "last_seen": "2026-10-15",
+   "seen_file_numbers": []
+  }
+ },
+ "seed_note": "Seeded 2026-11-12 at the freshness window start (2026-10-15), NOT at the Nov 12 evidence snapshot's F6 latest (2026-11-01). The snapshot (data/evidence/freshness_snapshot-2026-11-12.json) covered only two persons' committees (Constantino C00892737, El-Sayed C00902668; F6 latest 2026-11-01, files 2045386/2045359), so it is not a roster-wide baseline — seeding F6 at 2026-11-01 would falsely claim roster-wide capture through Nov 1 and silently skip Oct 15-Nov 1 activity for the other 662 people. F24 has no receipt dates in the snapshot (Schedule E rows carry expenditure_date, not receipt_date) and F3 was never checked. The live global newest (2026-11-11, verified Nov 12 with DEMO_KEY for F6/F24/F3/F3X) is 'newest seen', not 'captured': no full --all has ever run, so there is no roster-wide baseline to seed from. Seeding at the window start makes the first gated run scan the whole freshness window and refresh everyone with activity since the bulk cutoff; later runs advance from observed newest. See src/ingest/pull_gate.py.",
+ "seeded_at": "2026-11-12T19:56:36+00:00",
+ "version": 1
+}

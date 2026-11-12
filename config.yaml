@@ -60,6 +60,7 @@ paths:
   all_ie_csv: data/intermediate/all_ie.csv
   all_ie_top_committees: data/intermediate/all_ie_top_committees.json
   freshness_snapshot: data/intermediate/freshness_snapshot.json
+  freshness_state: data/source/freshness_state.json
   dedup_applied: data/source/dedup-applied.json
   dedup_notes: data/intermediate/dedup-notes.json
   primary_targets: data/intermediate/primary-targets.md
@@ -127,6 +128,21 @@ freshness:
     - committee_id: "C00799031"
       committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
       note: "#10 by 2026 roster-targeted IE: $43,620,238.47 (S $17,497,693.29 / O $26,122,545.18); included by design (AIPAC-affiliated; source of the $20.9M vs El-Sayed F24 finding)"
+  # Pre-flight gate (src/ingest/pull_gate.py): one global /filings/
+  # check per family before the per-person legs of `pull_freshness.py
+  # --all`. F6 gates the Form 6 leg, F24 gates the six committee
+  # sweeps above, F3 gates the candidate-totals leg. F3X is
+  # deliberately NOT a family — F3X is filed by non-candidate
+  # committees (PACs, parties) and no freshness leg is driven by
+  # F3X filings, so gating on it would gate nothing (see
+  # pull_gate.py's module docstring). max_pages_per_family bounds
+  # the backward scan: hitting it is a gate error, and a gate error
+  # falls back to the full run, never to a skip.
+  gate:
+    families: ["F6", "F24", "F3"]
+    per_page: 100
+    max_pages_per_family: 200
+    committee_master_path: "data/raw/cm/2026/cm.txt"
 
 party_codes:
   # Roster party label -> FEC API party code (used by fec_lookup.py).
