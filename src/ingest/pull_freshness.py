@@ -32,7 +32,8 @@ Usage:
     # Limited spot check (DEMO_KEY-friendly, ~5 calls):
     python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \\
         --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
-    # Committee sweeps only, no per-person refresh (on-demand / testing):
+    # Committee sweeps only, no per-person refresh (registered key
+    # required — DEMO_KEY is refused; see the guard below):
     python3 src/ingest/pull_freshness.py --f24-committee-sweep
     # Full refresh (registered key REQUIRED — ~1,500+ keyed API calls):
     FEC_API_KEY=<registered key> python3 src/ingest/pull_freshness.py --all
@@ -293,10 +294,12 @@ def main():
                          'defaults to the --person list)')
     ap.add_argument('--f24-committee-sweep', action='store_true',
                     help='run ONLY the six config-listed committee F24 sweeps '
-                         '(cycle 2026), no per-person refresh; for on-demand '
-                         'use and testing. Each sweep is 2+ paginated API '
-                         'calls, so DEMO_KEY (~30/hr) may still run out on '
-                         'the big committees.')
+                         '(cycle 2026), no per-person refresh; registered key '
+                         'required — DEMO_KEY is refused (six committee sweeps '
+                         'are ~12-94+ keyed calls, production-scale, not a '
+                         'spot check). For a DEMO_KEY test use the '
+                         'single-committee CLI instead: pull_f24.py '
+                         '--committee <id> --cycle 2026.')
     ap.add_argument('--out', default=None,
                     help='snapshot path (default data/intermediate/freshness_snapshot.json)')
     args = ap.parse_args()
@@ -308,6 +311,12 @@ def main():
     by_key = {r['person_key']: r for r in dataset}
     by_candidate = {cid: r for r in dataset
                     for cid in (r.get('fec_candidate_ids') or [])}
+    if args.f24_committee_sweep and API_KEY == CFG['fec_api']['api_key_default']:
+        sys.exit('ERROR: --f24-committee-sweep needs a registered api.data.gov key '
+                 '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
+                 'the six committee sweeps (~12-94+ keyed calls). '
+                 'Single-committee spot check instead: '
+                 'python3 src/ingest/pull_f24.py --committee <id> --cycle 2026.')
     if args.f24_committee_sweep:
         # Standalone mode: sweeps only, no per-person refresh.
         sweeps = [sweep_committee_f24(c['committee_id'], c['committee_name'],
