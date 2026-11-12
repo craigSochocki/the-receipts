@@ -86,9 +86,18 @@ DEDUP (chamber-switchers with two candidate IDs in the same cycle):
   $1,369,004.86 vs $1,261,797.03; disbursements $5,346,220.15 vs
   $5,239,012.32; transfers to auth $107,982.83 vs $3,300.00). The recorded
   dedup decision was scoped to TTL_INDIV_CONTRIB and does not cover those
-  four differing columns, so both copies are counted for receipts /
-  disbursements / transfers in that one group and it is flagged in
-  data_notes and in the JSON meta block — NOT silently corrected.
+  four differing columns — BUT the extension recorded on the Curtis 2024
+  entry in dedup-applied.json (`extend_to_columns_6_9`) covers them:
+  kept-minus-dropped is $107,207.83 EXACTLY for cols 6, 7 and 8, and cols
+  10-18 are byte-identical, so the dropped row is a strict subset of the
+  kept row and counting both double-counts the House row's activity. The
+  extension zeroes the dropped copy for cols 6-9 as well, guarded by the
+  recorded expected cents; the guard fails loudly if the staged file ever
+  stops matching. Effect on roster totals: receipts -$5,640,855.75,
+  disbursements -$5,239,012.32, transfers-from-auth -$1,261,797.03,
+  transfers-to-auth -$3,300.00. Any OTHER group whose dropped copy differs
+  from the kept copy on any column is still flagged in data_notes and in
+  the JSON meta block, NOT silently corrected.
   Guard: the kept row's col 18 and each dropped row's col 18 must equal
   the recorded dedup `amount`, else the script fails loudly.
 
@@ -202,6 +211,8 @@ for e in dedup:
         raise SystemExit(f"{e['name']} {cy}: kept TTL_INDIV_CONTRIB "
                          f"{kept[COL_INDIV - 5] / 100:.2f} != recorded {e['amount']}")
     n_dedup_groups += 1
+    extend = bool(e.get('extend_to_columns_6_9'))
+    exp = e.get('extend_expected_cents') or {}
     for did in e['dropped_ids']:
         dropped = raw.get((did, cy))
         if dropped is None:
@@ -209,7 +220,34 @@ for e in dedup:
         if dropped[COL_INDIV - 5] != cents(e['amount']):
             raise SystemExit(f"{e['name']} {cy}: dropped TTL_INDIV_CONTRIB "
                              f"{dropped[COL_INDIV - 5] / 100:.2f} != recorded {e['amount']}")
+        if extend:
+            # Curtis 2024 extension (recorded on the dedup entry): the
+            # dropped copy is a strict subset of the kept copy —
+            # kept-minus-dropped is $107,207.83 exactly for weball cols 6,
+            # 7, 8 and cols 10-18 are byte-identical — so zero the dropped
+            # copy for cols 6-9 as well. Guarded by the recorded expected
+            # cents; fails loudly on mismatch.
+            for j, key in ((0, 'col6_kept_minus_dropped'),
+                           (1, 'col7_kept_minus_dropped'),
+                           (2, 'col8_kept_minus_dropped')):
+                if kept[COL_RECEIPTS - 5 + j] - dropped[COL_RECEIPTS - 5 + j] != exp.get(key):
+                    raise SystemExit(f"{e['name']} {cy}: Curtis extension guard failed: "
+                                     f"col {6 + j} kept-minus-dropped != recorded {key}")
+            if dropped[COL_TO_AUTH - 5] != exp.get('col9_dropped'):
+                raise SystemExit(f"{e['name']} {cy}: Curtis extension guard failed: "
+                                 f"dropped col 9 != recorded col9_dropped")
+            if kept[COL_TO_AUTH - 5] != exp.get('col9_kept'):
+                raise SystemExit(f"{e['name']} {cy}: Curtis extension guard failed: "
+                                 f"kept col 9 != recorded col9_kept")
         for j in range(len(RAW_COLS)):
+            col_1indexed = RAW_COLS[j] + 1
+            if extend and col_1indexed in (6, 7, 8, 9):
+                # Extension: zero the dropped copy for receipts/transfers/
+                # disbursements even though it differs from the kept copy.
+                if dropped[j] != 0:
+                    n_cells_zeroed += 1
+                dropped[j] = 0
+                continue
             if dropped[j] == kept[j]:
                 if dropped[j] != 0:
                     n_cells_zeroed += 1

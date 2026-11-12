@@ -261,7 +261,16 @@
    "H8UT03238"
   ],
   "amount": "2319425.97",
-  "reason": "chamber after cycle (Senate)"
+  "reason": "chamber after cycle (Senate)",
+  "extend_to_columns_6_9": true,
+  "extend_reason": "Kept-minus-dropped is $107,207.83 exactly for weball cols 6, 7 and 8 (receipts, transfers from authorized committees, disbursements); cols 10-18 byte-identical. The dropped House row is a strict subset of the kept Senate row \u2014 counting both double-counts the House row's activity. Zero the dropped copy for cols 6-9 as well (dropped transfers-to-auth $3,300.00). Verified from staged work/bulk/weball/weball24.txt Nov 12, 2026.",
+  "extend_expected_cents": {
+   "col6_kept_minus_dropped": 10720783,
+   "col7_kept_minus_dropped": 10720783,
+   "col8_kept_minus_dropped": 10720783,
+   "col9_dropped": 330000,
+   "col9_kept": 10798283
+  }
  },
  {
   "person_key": "C001114",

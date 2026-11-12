@@ -21,49 +21,8 @@
   "dedup": {
    "groups_in_record": 90,
    "groups_applied": 90,
-   "identical_cells_zeroed": 582,
-   "differing_columns_flagged_not_corrected": [
-    {
-     "person_key": "C001114",
-     "name": "John R. Curtis",
-     "cycle": 2024,
-     "kept_id": "S4UT00282",
-     "dropped_id": "H8UT03238",
-     "column_1indexed": 6,
-     "kept_value": "5748063.58",
-     "dropped_value": "5640855.75"
-    },
-    {
-     "person_key": "C001114",
-     "name": "John R. Curtis",
-     "cycle": 2024,
-     "kept_id": "S4UT00282",
-     "dropped_id": "H8UT03238",
-     "column_1indexed": 7,
-     "kept_value": "1369004.86",
-     "dropped_value": "1261797.03"
-    },
-    {
-     "person_key": "C001114",
-     "name": "John R. Curtis",
-     "cycle": 2024,
-     "kept_id": "S4UT00282",
-     "dropped_id": "H8UT03238",
-     "column_1indexed": 8,
-     "kept_value": "5346220.15",
-     "dropped_value": "5239012.32"
-    },
-    {
-     "person_key": "C001114",
-     "name": "John R. Curtis",
-     "cycle": 2024,
-     "kept_id": "S4UT00282",
-     "dropped_id": "H8UT03238",
-     "column_1indexed": 9,
-     "kept_value": "107982.83",
-     "dropped_value": "3300.00"
-    }
-   ]
+   "identical_cells_zeroed": 586,
+   "differing_columns_flagged_not_corrected": []
   },
   "weball_rows_scanned": 70381,
   "weball_rows_matched_roster": 4186,
@@ -14749,21 +14708,6 @@
      "transfers_from_auth": "90104.43",
      "transfers_to_auth": "0.00",
      "coverage_end_date": "12/31/2022"
-    },
-    {
-     "cycle": 2024,
-     "candidate_id": "H8UT03238",
-     "candidate_contributions": "0.00",
-     "candidate_loans": "0.00",
-     "loan_repayments": "0.00",
-     "debts_owed_by": "0.00",
-     "debts_owed_to": null,
-     "total_receipts": "5640855.75",
-     "total_disbursements": "5239012.32",
-     "cash_on_hand": "0.00",
-     "transfers_from_auth": "1261797.03",
-     "transfers_to_auth": "3300.00",
-     "coverage_end_date": "12/31/2024"
     },
     {
      "cycle": 2024,

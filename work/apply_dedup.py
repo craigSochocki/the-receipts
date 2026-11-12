@@ -106,6 +106,15 @@ for pk, entries in sorted(by_person.items()):
                  f'the identical TTL_INDIV_CONTRIB under both House and Senate candidate IDs in '
                  f'{cycles_str}; counted once per cycle (dedup ${total:.2f}). AIPAC/corporate '
                  f'columns unaffected (transaction-level).')
+    if any(e.get('extend_to_columns_6_9') for e in entries):
+        # Curtis 2024 extension: the dropped copy is also zeroed for the
+        # topline columns (see the recorded flag on the dedup entry).
+        notes[pk] += (' Topline extension (Nov 12, 2026): the dropped 2024 House copy '
+                      '(H8UT03238) is also zeroed for total receipts, transfers from/to '
+                      'authorized committees, and total disbursements — kept-minus-dropped is '
+                      '$107,207.83 exactly on receipts, transfers-from-auth, and disbursements, '
+                      'and the dropped transfers-to is $3,300.00; the dropped row is a strict '
+                      'subset of the kept Senate row.')
 
 with open(ROOT / CFG['paths']['money_per_cycle'], 'w') as f:
     json.dump(mpc, f, indent=1)
