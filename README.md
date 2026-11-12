@@ -30,14 +30,15 @@ python3 work/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `pull_money` → `pull_udp` → `apply_dedup` → `compute_opposition` →
+→ `pull_money` → `pull_udp` → `apply_dedup` → `pull_self_funding` →
+`pull_other_committees` → `pull_all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
 `work/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
 It fails fast with a clear message if the FEC bulk data isn't staged.
 Verified Nov 12, 2026: a fresh clone with staged bulk data rebuilds the
 committed dataset **byte-identically** (both files, same md5s), and
-`verify_dataset.py` passes all 37 standing audits.
+`verify_dataset.py` passes all 93 standing audits.
 
 Prerequisite: the FEC bulk files staged under `work/bulk/` — the scripts
 read them, they don't download them. See `work/bulk-inventory.md` for the
@@ -58,14 +59,28 @@ What each step does (each script documents its own rules in its header):
 - `pull_udp.py` — UDP independent-expenditure support; also writes the
   per-cycle breakdown `work/money_udp_per_cycle.json`.
 - `apply_dedup.py` — applies the recorded weball double-count dedup
-  (`work/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups);
+  (`work/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
+  plus the Curtis 2024 extension to weball cols 6–9);
   writes `work/dedup-notes.json`.
+- `pull_self_funding.py` — self-funding + topline from weball
+  (candidate contributions/loans, loan repayments, debts owed by,
+  total receipts/disbursements, transfers, cash on hand);
+  writes `work/self_funding_per_cycle.json` / `work/self_funding.csv`.
+- `pull_other_committees.py` — other-committee contributions from
+  pas2 + cm (party, leadership, labor, trade, membership, cooperative,
+  unclassified + earmark breakouts); writes
+  `work/other_committees_per_cycle.json` / `work/other_committees.csv`
+  / `work/other_committees_diagnostics.json`.
+- `pull_all_ie.py` — ALL independent expenditures 2022–2026 (every
+  registered committee, not just UDP), plus top 5 committees per person;
+  writes `work/all_ie_per_cycle.json` / `work/all_ie.csv` /
+  `work/all_ie_top_committees.json`.
 - `compute_opposition.py` — UDP opposition credit (exactly-one-backed
   rule); runs before the merge so its sanity check reads the current
   dataset.
 - `merge_dataset.py` — roster + money + opposition → base dataset
   (collapses the duplicate Kristen McDonald Rivet rows).
-- `compute_ranking.py` — total accepted + seven rank columns.
+- `compute_ranking.py` — total accepted + twelve rank columns.
 - `compute_2026.py` — the 2026 columns, clean/dirty flags, and
   `work/primary-targets.md` (House Democrats by dirty_2026).
 - `verify_dataset.py` — the standing audits; exit non-zero on any
@@ -76,6 +91,30 @@ Options: `python3 work/rebuild.py --with-fec-lookup` runs the live
 OpenFEC lookup instead of the committed results (needs `FEC_API_KEY`;
 default is the committed file, so no API key is needed to rebuild).
 `--skip-verify` skips the final audit run.
+
+## Freshness — new money since bulk coverage
+
+The bulk rebuild is the canonical dataset; it only moves when the bulk
+files move. Between bulk pulls, `work/pull_freshness.py` reports late money
+(Form 6 48-Hour Notices, F24 24/48-hour independent expenditures, and the
+candidate-totals refresh) into `work/freshness_snapshot.json` — labeled by
+source and date, **never merged into the dataset totals**. See
+`methodology.md` §16 for the routes, the cadence (daily in the final 20
+days before an election, weekly in-cycle, event-driven after deadlines),
+and the verification run (Constantino's $1M Oct-29 loan; UDP vs El-Sayed
+F24 $20,903,437.57).
+
+```sh
+# Limited spot check (DEMO_KEY-friendly, ~9 calls):
+python3 work/pull_freshness.py --person anthonyconstantinonyhouse \
+    --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
+```
+
+A full refresh is ~1,300+ API calls; DEMO_KEY (~30/hr) is spot-checks
+only and the driver refuses `--all` on it. Production needs a registered
+api.data.gov key (1,000 req/hr) via the `FEC_API_KEY` environment variable
+(`config.yaml` `fec_api`, default `DEMO_KEY`). No registered key exists in
+the repo yet.
 
 ## Configuration
 
