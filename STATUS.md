@@ -33,6 +33,25 @@
   14, 2026; independent expenditures through Oct 31, 2026) plus the build
   time — checked by `verify_site.py`.
 
+- **Landing-first redesign — DONE Nov 12.** The default view is now a calm front
+  door (one column, max 680px): dirtiest in 2026 top 5 first (Stevens $31,025,889.44 —
+  more than the next four combined, ~2.04× — computed at render, the comparison line
+  only if it holds), then the clean story (74 of 535, 64 House + 10 Senate), then the
+  find-your-member finder, one freshness line, one "Explore the full data" button.
+  `#explore` in the URL opens the full-data workspace (six tabs, filters, table,
+  methodology) with the story and finder removed from above the table; no URL state
+  for filters/tabs (Change 2, queued). Stat cards and the totals strip now live in
+  the workspace only — the front door carries no repeated totals. Person marks on
+  every surface (front-door lists, finder results, drill-down headers, leaderboards,
+  clean table, full table): party chip (D blue, R red, I gray, other stored labels
+  gray with the label shown, always letter + color) and outcome label (Won / Uncalled
+  / Not returning, derived from `in_120th`; "Not returning" is not "Lost" — see
+  methodology §8 item 15). Verifier + smoke test cover the front-door figures (with
+  a negative test), the mode hash, and the marks (spot-checks Stevens D / Not
+  returning, El-Sayed D / Won, Guthrie R / Won, Hernández PPD / Won). Dataset
+  byte-identical through the build (csv md5 2e93fa51f148865a9003a75996830bea, json
+  md5 10a5b0018f315e9f9894ba4f5d3f1479).
+
 - **Automation (GitHub Actions) — DONE Nov 12; workflows in
   `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
   on push + pull request to `master`: download bulk → `src/rebuild.py` →
