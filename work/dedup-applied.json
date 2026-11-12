@@ -1,0 +1,992 @@
+[
+ {
+  "person_key": "B001230",
+  "name": "Tammy Baldwin",
+  "cycle": 2012,
+  "kept_id": "S2WI00219",
+  "dropped_ids": [
+   "H8WI00018"
+  ],
+  "amount": "13477549.03",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "B001299",
+  "name": "Jim Banks",
+  "cycle": 2026,
+  "kept_id": "S4IN00196",
+  "dropped_ids": [
+   "H6IN03229"
+  ],
+  "amount": "1135451.66",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001324",
+  "name": "Wesley Bell",
+  "cycle": 2024,
+  "kept_id": "H4MO01134",
+  "dropped_ids": [
+   "S4MO00250"
+  ],
+  "amount": "5136025.24",
+  "reason": "chamber after cycle (House); first House ID"
+ },
+ {
+  "person_key": "B001324",
+  "name": "Wesley Bell",
+  "cycle": 2026,
+  "kept_id": "H4MO01134",
+  "dropped_ids": [
+   "S4MO00250"
+  ],
+  "amount": "3221101.71",
+  "reason": "chamber after cycle (House); first House ID"
+ },
+ {
+  "person_key": "B001243",
+  "name": "Marsha Blackburn",
+  "cycle": 2018,
+  "kept_id": "S8TN00337",
+  "dropped_ids": [
+   "H2TN06030"
+  ],
+  "amount": "9763518.28",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001243",
+  "name": "Marsha Blackburn",
+  "cycle": 2020,
+  "kept_id": "S8TN00337",
+  "dropped_ids": [
+   "H2TN06030"
+  ],
+  "amount": "1386678.19",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001243",
+  "name": "Marsha Blackburn",
+  "cycle": 2022,
+  "kept_id": "S8TN00337",
+  "dropped_ids": [
+   "H2TN06030"
+  ],
+  "amount": "516078.76",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001243",
+  "name": "Marsha Blackburn",
+  "cycle": 2024,
+  "kept_id": "S8TN00337",
+  "dropped_ids": [
+   "H2TN06030"
+  ],
+  "amount": "3874099.59",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001243",
+  "name": "Marsha Blackburn",
+  "cycle": 2026,
+  "kept_id": "S8TN00337",
+  "dropped_ids": [
+   "H2TN06030"
+  ],
+  "amount": "254699.40",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001305",
+  "name": "Ted Budd",
+  "cycle": 2024,
+  "kept_id": "S2NC00505",
+  "dropped_ids": [
+   "H6NC13129"
+  ],
+  "amount": "1267904.19",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "B001305",
+  "name": "Ted Budd",
+  "cycle": 2026,
+  "kept_id": "S2NC00505",
+  "dropped_ids": [
+   "H6NC13129"
+  ],
+  "amount": "1060837.22",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001103",
+  "name": "Earl L. \"Buddy\" Carter",
+  "cycle": 2026,
+  "kept_id": "S6GA00374",
+  "dropped_ids": [
+   "H4GA01039"
+  ],
+  "amount": "1944348.93",
+  "reason": "shared principal committee is Senate-designated (C00543967 BUDDY CARTER FOR SENATE, API)"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2014,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "10892504.11",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2016,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "678477.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2018,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "1083748.08",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2022,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "3356793.15",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2024,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "1537499.24",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001095",
+  "name": "Tom Cotton",
+  "cycle": 2026,
+  "kept_id": "S4AR00103",
+  "dropped_ids": [
+   "H2AR04083"
+  ],
+  "amount": "3589862.47",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001096",
+  "name": "Kevin Cramer",
+  "cycle": 2018,
+  "kept_id": "S8ND00120",
+  "dropped_ids": [
+   "H0ND01026"
+  ],
+  "amount": "3721721.43",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001096",
+  "name": "Kevin Cramer",
+  "cycle": 2020,
+  "kept_id": "S8ND00120",
+  "dropped_ids": [
+   "H0ND01026"
+  ],
+  "amount": "168736.60",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001096",
+  "name": "Kevin Cramer",
+  "cycle": 2022,
+  "kept_id": "S8ND00120",
+  "dropped_ids": [
+   "H0ND01026"
+  ],
+  "amount": "279914.67",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001096",
+  "name": "Kevin Cramer",
+  "cycle": 2024,
+  "kept_id": "S8ND00120",
+  "dropped_ids": [
+   "H0ND01026"
+  ],
+  "amount": "2647741.19",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001096",
+  "name": "Kevin Cramer",
+  "cycle": 2026,
+  "kept_id": "S8ND00120",
+  "dropped_ids": [
+   "H0ND01026"
+  ],
+  "amount": "1013668.83",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001114",
+  "name": "John R. Curtis",
+  "cycle": 2024,
+  "kept_id": "S4UT00282",
+  "dropped_ids": [
+   "H8UT03238"
+  ],
+  "amount": "2319425.97",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "C001114",
+  "name": "John R. Curtis",
+  "cycle": 2026,
+  "kept_id": "S4UT00282",
+  "dropped_ids": [
+   "H8UT03238"
+  ],
+  "amount": "407490.81",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "D000618",
+  "name": "Steve Daines",
+  "cycle": 2012,
+  "kept_id": "H2MT01060",
+  "dropped_ids": [
+   "S2MT00096"
+  ],
+  "amount": "1310254.51",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "D000618",
+  "name": "Steve Daines",
+  "cycle": 2022,
+  "kept_id": "S2MT00096",
+  "dropped_ids": [
+   "H2MT01060"
+  ],
+  "amount": "1007168.04",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "D000618",
+  "name": "Steve Daines",
+  "cycle": 2024,
+  "kept_id": "S2MT00096",
+  "dropped_ids": [
+   "H2MT01060"
+  ],
+  "amount": "588963.55",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "D000618",
+  "name": "Steve Daines",
+  "cycle": 2026,
+  "kept_id": "S2MT00096",
+  "dropped_ids": [
+   "H2MT01060"
+  ],
+  "amount": "1375089.88",
+  "reason": "sitting Senator in the 119th; 2026 is a Senate cycle"
+ },
+ {
+  "person_key": "D000563",
+  "name": "Richard J. Durbin",
+  "cycle": 1996,
+  "kept_id": "S6IL00151",
+  "dropped_ids": [
+   "H2IL20026"
+  ],
+  "amount": "3337700.00",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "G000574",
+  "name": "Ruben Gallego",
+  "cycle": 2024,
+  "kept_id": "S4AZ00139",
+  "dropped_ids": [
+   "H4AZ07043"
+  ],
+  "amount": "59385707.27",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "G000574",
+  "name": "Ruben Gallego",
+  "cycle": 2026,
+  "kept_id": "S4AZ00139",
+  "dropped_ids": [
+   "H4AZ07043"
+  ],
+  "amount": "3893440.24",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "G000555",
+  "name": "Kirsten E. Gillibrand",
+  "cycle": 2010,
+  "kept_id": "S0NY00410",
+  "dropped_ids": [
+   "H6NY20167"
+  ],
+  "amount": "10880702.00",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "H001096",
+  "name": "Harriet M. Hageman",
+  "cycle": 2026,
+  "kept_id": "S6WY00209",
+  "dropped_ids": [
+   "H2WY00166"
+  ],
+  "amount": "1473761.71",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001102",
+  "name": "Mark Harris",
+  "cycle": 2026,
+  "kept_id": "H6NC09200",
+  "dropped_ids": [
+   "H4NC08066"
+  ],
+  "amount": "897255.50",
+  "reason": "chamber after cycle (House); first House ID"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2012,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "5323972.50",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2014,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "389775.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2016,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "1024553.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2018,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "3944623.76",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2020,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "350320.06",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2022,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "1240039.95",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2024,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "8100492.64",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001046",
+  "name": "Martin Heinrich",
+  "cycle": 2026,
+  "kept_id": "S2NM00088",
+  "dropped_ids": [
+   "H8NM01224"
+  ],
+  "amount": "1182401.34",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "H001042",
+  "name": "Mazie K. Hirono",
+  "cycle": 2012,
+  "kept_id": "S2HI00106",
+  "dropped_ids": [
+   "H6HI02251"
+  ],
+  "amount": "4136454.00",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "H001095",
+  "name": "Wesley Hunt",
+  "cycle": 2026,
+  "kept_id": "S6TX00511",
+  "dropped_ids": [
+   "H0TX07170"
+  ],
+  "amount": "1452679.26",
+  "reason": "shared principal committee is Senate-designated (C00701003 HUNT FOR SENATE, API)"
+ },
+ {
+  "person_key": "K000394",
+  "name": "Andy Kim",
+  "cycle": 2024,
+  "kept_id": "S4NJ00466",
+  "dropped_ids": [
+   "H8NJ03206"
+  ],
+  "amount": "11094385.53",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "K000394",
+  "name": "Andy Kim",
+  "cycle": 2026,
+  "kept_id": "S4NJ00466",
+  "dropped_ids": [
+   "H8NJ03206"
+  ],
+  "amount": "1571170.46",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2014,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "3251455.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2016,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "1816699.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2018,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "323453.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2020,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "305815.22",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2022,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "3279385.05",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2024,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "390441.98",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000575",
+  "name": "James Lankford",
+  "cycle": 2026,
+  "kept_id": "S4OK00232",
+  "dropped_ids": [
+   "H0OK05114"
+  ],
+  "amount": "471596.46",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000570",
+  "name": "Ben Ray Luj\u00e1n",
+  "cycle": 2020,
+  "kept_id": "S0NM00058",
+  "dropped_ids": [
+   "H8NM03196"
+  ],
+  "amount": "7409333.28",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000570",
+  "name": "Ben Ray Luj\u00e1n",
+  "cycle": 2022,
+  "kept_id": "S0NM00058",
+  "dropped_ids": [
+   "H8NM03196"
+  ],
+  "amount": "1065302.92",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000570",
+  "name": "Ben Ray Luj\u00e1n",
+  "cycle": 2024,
+  "kept_id": "S0NM00058",
+  "dropped_ids": [
+   "H8NM03196"
+  ],
+  "amount": "1072144.28",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000570",
+  "name": "Ben Ray Luj\u00e1n",
+  "cycle": 2026,
+  "kept_id": "S0NM00058",
+  "dropped_ids": [
+   "H8NM03196"
+  ],
+  "amount": "3372600.60",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000571",
+  "name": "Cynthia M. Lummis",
+  "cycle": 2022,
+  "kept_id": "S0WY00137",
+  "dropped_ids": [
+   "H8WY00148"
+  ],
+  "amount": "190264.81",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000571",
+  "name": "Cynthia M. Lummis",
+  "cycle": 2024,
+  "kept_id": "S0WY00137",
+  "dropped_ids": [
+   "H8WY00148"
+  ],
+  "amount": "268912.20",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "L000571",
+  "name": "Cynthia M. Lummis",
+  "cycle": 2026,
+  "kept_id": "S0WY00137",
+  "dropped_ids": [
+   "H8WY00148"
+  ],
+  "amount": "402561.34",
+  "reason": "sitting Senator in the 119th; 2026 is a Senate cycle"
+ },
+ {
+  "person_key": "M001198",
+  "name": "Roger Marshall",
+  "cycle": 2022,
+  "kept_id": "S0KS00315",
+  "dropped_ids": [
+   "H6KS01179"
+  ],
+  "amount": "415447.40",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "M001198",
+  "name": "Roger Marshall",
+  "cycle": 2024,
+  "kept_id": "S0KS00315",
+  "dropped_ids": [
+   "H6KS01179"
+  ],
+  "amount": "368718.18",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "M001198",
+  "name": "Roger Marshall",
+  "cycle": 2026,
+  "kept_id": "S0KS00315",
+  "dropped_ids": [
+   "H6KS01179"
+  ],
+  "amount": "2514153.97",
+  "reason": "sitting Senator in the 119th; 2026 is a Senate cycle"
+ },
+ {
+  "person_key": "M001196",
+  "name": "Seth Moulton",
+  "cycle": 2026,
+  "kept_id": "S6MA00296",
+  "dropped_ids": [
+   "H4MA06090"
+  ],
+  "amount": "6292010.46",
+  "reason": "shared principal committee is Senate-designated (C00547240 SETH FOR MASSACHUSETTS, INC, API)"
+ },
+ {
+  "person_key": "O000177",
+  "name": "Robert F. Onder, Jr.",
+  "cycle": 2024,
+  "kept_id": "H8MO09146",
+  "dropped_ids": [
+   "H4MO03221"
+  ],
+  "amount": "654649.56",
+  "reason": "chamber after cycle (House); first House ID"
+ },
+ {
+  "person_key": "O000177",
+  "name": "Robert F. Onder, Jr.",
+  "cycle": 2026,
+  "kept_id": "H8MO09146",
+  "dropped_ids": [
+   "H4MO03221"
+  ],
+  "amount": "552456.81",
+  "reason": "chamber after cycle (House); first House ID"
+ },
+ {
+  "person_key": "P000614",
+  "name": "Chris Pappas",
+  "cycle": 2026,
+  "kept_id": "S6NH00141",
+  "dropped_ids": [
+   "H8NH01210"
+  ],
+  "amount": "21080102.32",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2014,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "7612861.09",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2016,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "394183.97",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2018,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "918506.31",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2020,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "45404376.66",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2022,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "3273190.97",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2024,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "2239335.24",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "P000595",
+  "name": "Gary C. Peters",
+  "cycle": 2026,
+  "kept_id": "S4MI00355",
+  "dropped_ids": [
+   "H8MI09068"
+  ],
+  "amount": "18622.32",
+  "reason": "sitting Senator in the 119th; 2026 is a Senate cycle"
+ },
+ {
+  "person_key": "R000122",
+  "name": "Jack Reed",
+  "cycle": 1996,
+  "kept_id": "S6RI00163",
+  "dropped_ids": [
+   "H0RI02071"
+  ],
+  "amount": "1511660.00",
+  "reason": "election-result marker (W) on that ID only"
+ },
+ {
+  "person_key": "R000608",
+  "name": "Jacky Rosen",
+  "cycle": 2018,
+  "kept_id": "S8NV00156",
+  "dropped_ids": [
+   "H6NV03139"
+  ],
+  "amount": "22909611.89",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "R000608",
+  "name": "Jacky Rosen",
+  "cycle": 2020,
+  "kept_id": "S8NV00156",
+  "dropped_ids": [
+   "H6NV03139"
+  ],
+  "amount": "1110573.10",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "R000608",
+  "name": "Jacky Rosen",
+  "cycle": 2022,
+  "kept_id": "S8NV00156",
+  "dropped_ids": [
+   "H6NV03139"
+  ],
+  "amount": "4660191.57",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "R000608",
+  "name": "Jacky Rosen",
+  "cycle": 2024,
+  "kept_id": "S8NV00156",
+  "dropped_ids": [
+   "H6NV03139"
+  ],
+  "amount": "33769624.63",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "R000608",
+  "name": "Jacky Rosen",
+  "cycle": 2026,
+  "kept_id": "S8NV00156",
+  "dropped_ids": [
+   "H6NV03139"
+  ],
+  "amount": "1268623.25",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "S001150",
+  "name": "Adam B. Schiff",
+  "cycle": 2024,
+  "kept_id": "S4CA00555",
+  "dropped_ids": [
+   "H0CA27085"
+  ],
+  "amount": "45110628.66",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "S001150",
+  "name": "Adam B. Schiff",
+  "cycle": 2026,
+  "kept_id": "S4CA00555",
+  "dropped_ids": [
+   "H0CA27085"
+  ],
+  "amount": "8455437.56",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "S001188",
+  "name": "Marlin A. Stutzman",
+  "cycle": 2016,
+  "kept_id": "S0IN00095",
+  "dropped_ids": [
+   "H0IN03198"
+  ],
+  "amount": "2061718.00",
+  "reason": "shared principal committee is Senate-designated (C00484683 STUTZMAN FOR SENATE, API); 2016 was the Senate run"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2016,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "7285947.00",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2018,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "367049.20",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2020,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "1602863.70",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2022,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "5580066.12",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2024,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "661649.75",
+  "reason": "chamber after cycle (Senate)"
+ },
+ {
+  "person_key": "Y000064",
+  "name": "Todd Young",
+  "cycle": 2026,
+  "kept_id": "S6IN00191",
+  "dropped_ids": [
+   "H0IN09070"
+  ],
+  "amount": "1365004.56",
+  "reason": "chamber after cycle (Senate)"
+ }
+]
