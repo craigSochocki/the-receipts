@@ -60,11 +60,27 @@ def api_get(path, params):
 
 
 def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_form=None):
-    """All Schedule E rows matching the filters, paginated."""
+    """All Schedule E rows matching the filters, paginated.
+
+    Cursor pagination: the Schedule E endpoint IGNORES the `page`
+    query parameter and advertises its cursor in
+    `pagination.last_indexes` (observed live Nov 12, 2026: keys
+    `last_index` + `last_expenditure_date`). The first fetch sends no
+    cursor; each later fetch passes the previous response's
+    `last_indexes` entries as query params. A page returning fewer
+    than `per_page` rows (or zero) ends the sweep. Same-page safety
+    net: if a page's rows are identical (by sub_id, falling back to
+    the dedup key) to the previous page's, abort with a clear error
+    naming the filters — the endpoint is repeating instead of
+    advancing, and must never be looped to the page guard.
+    """
     rows = []
+    cursor = {}
     page = 1
+    prev_page_key = None
     while True:
-        params = {'per_page': 100, 'page': page}
+        params = {'per_page': 100}
+        params.update(cursor)
         if committee_id:
             params['committee_id'] = committee_id
         if candidate_id:
@@ -77,9 +93,27 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
         results = data.get('results', [])
         if not results:
             break
+        sub_ids = [r.get('sub_id') for r in results]
+        page_key = (tuple(sub_ids) if all(s is not None for s in sub_ids)
+                    else tuple(dedup_key(r) for r in results))
+        if page_key == prev_page_key:
+            raise SystemExit(
+                'Schedule E sweep: endpoint repeated the same page '
+                f'(committee={committee_id} candidate={candidate_id} '
+                f'cycle={cycle} filing_form={filing_form} page {page}); '
+                'refusing to continue')
+        prev_page_key = page_key
         rows.extend(results)
         if len(results) < 100:
             break
+        cursor = dict(data.get('pagination', {}).get('last_indexes') or {})
+        if not cursor:
+            raise SystemExit(
+                'Schedule E sweep: full page returned but no '
+                'pagination.last_indexes cursor to advance with '
+                f'(committee={committee_id} candidate={candidate_id} '
+                f'cycle={cycle} filing_form={filing_form} page {page}); '
+                'refusing to continue')
         page += 1
         if page > 100:
             raise SystemExit('Schedule E sweep: too many pages (over 100); refusing to continue')
