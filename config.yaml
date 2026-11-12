@@ -78,6 +78,40 @@ fec_api:
   request_timeout_seconds: 30
   sleep_between_requests_seconds: 0.4
 
+freshness:
+  # F24 committee sweeps (24/48-hour independent expenditures, cycle 2026
+  # only): a bare `pull_freshness.py --all` — the form the scheduled
+  # refresh runs — sweeps each committee below committee-wide (every
+  # candidate it targeted, roster or not) and attributes rows to roster
+  # people by candidate_id. The five are the top 5 by 2026
+  # roster-targeted IE (data/intermediate/all_ie_per_cycle.json ->
+  # per_cycle_summaries.2026.top_committees_roster_targeted, 2026 totals
+  # through Oct 31); UDP is #10 by total but included by design:
+  # AIPAC-affiliated, and the source of the $20.9M vs El-Sayed F24
+  # finding. The dollar figures in the notes are those same 2026
+  # roster-targeted totals (S support / O oppose), recorded here for
+  # the record — no script reads them.
+  f24_committee_sweep_cycle: 2026
+  f24_committee_sweep:
+    - committee_id: "C00960435"
+      committee_name: "NO GOING BACK PAC INC."
+      note: "#1 by 2026 roster-targeted IE: $227,177,570.85 (S $24,666,812.45 / O $202,510,758.40)"
+    - committee_id: "C00865444"
+      committee_name: "WinSenate"
+      note: "#2 by 2026 roster-targeted IE: $166,050,827.13 (S $34,946,905.85 / O $131,103,921.28)"
+    - committee_id: "C00495028"
+      committee_name: "HMP"
+      note: "#3 by 2026 roster-targeted IE: $150,884,797.72 (S $4,146,002.09 / O $146,738,795.63)"
+    - committee_id: "C00960211"
+      committee_name: "TEXAS PAC"
+      note: "#4 by 2026 roster-targeted IE: $112,153,741.90 (all oppose)"
+    - committee_id: "C00836221"
+      committee_name: "DEFEND AMERICAN JOBS"
+      note: "#5 by 2026 roster-targeted IE: $90,387,313.50 (S $70,681,048.37 / O $19,706,265.13)"
+    - committee_id: "C00799031"
+      committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
+      note: "#10 by 2026 roster-targeted IE: $43,620,238.47 (S $17,497,693.29 / O $26,122,545.18); included by design (AIPAC-affiliated; source of the $20.9M vs El-Sayed F24 finding)"
+
 party_codes:
   # Roster party label -> FEC API party code (used by fec_lookup.py).
   Democrat: DEM
