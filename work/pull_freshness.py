@@ -21,7 +21,7 @@ Legs, per person (all through the FEC API, DEMO_KEY for spot checks):
    reconciliation and residual rows.
 
 Committee IDs come from /v1/candidate/{id}/committees/?cycle=2026
-(designation H = principal campaign committee).
+(designation P = principal campaign committee).
 
 Usage:
     # Limited spot check (DEMO_KEY-friendly, ~5 calls):
@@ -76,11 +76,11 @@ def api_get(path, params):
 
 
 def principal_committees(candidate_id, cycle=2026):
-    """Principal campaign committee IDs (designation H) for a candidate."""
+    """Principal campaign committee IDs (designation P) for a candidate."""
     data = api_get(f'/candidate/{candidate_id}/committees/',
                    {'cycle': cycle, 'per_page': 100})
     return [c['committee_id'] for c in data.get('results', [])
-            if c.get('designation') == 'H']
+            if c.get('designation') == 'P']
 
 
 def totals_refresh(candidate_id, cycle=2026):
@@ -98,10 +98,13 @@ def totals_refresh(candidate_id, cycle=2026):
         return {'candidate_id': candidate_id, 'cycle': cycle, 'found': False}
     row = rows[0]
     coverage_end = row.get('coverage_end_date')
+    # coverage_end_date comes back as a timestamp ('2026-10-14T00:00:00');
+    # compare the date part only, or the longer string always wins.
+    coverage_date = (coverage_end or '')[:10]
     return {
         'candidate_id': candidate_id, 'cycle': cycle, 'found': True,
         'coverage_end_date': coverage_end,
-        'newer_than_bulk': bool(coverage_end and coverage_end > BULK_WEBALL_END),
+        'newer_than_bulk': bool(coverage_date and coverage_date > BULK_WEBALL_END),
         'total_receipts': row.get('receipts'),
         'total_disbursements': row.get('disbursements'),
         'candidate_contributions': row.get('candidate_contribution'),
