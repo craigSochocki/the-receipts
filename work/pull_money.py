@@ -3,7 +3,7 @@
 
 Rules (see pull-log-a.md for evidence):
 - Individual: weball TTL_INDIV_CONTRIB (col 18, 1-indexed), summed per CAND_ID per cycle.
-- AIPAC PAC direct: pas2 rows CMTE_ID='C00797670', TRANSACTION_TP in (24K,24P).
+- AIPAC PAC direct: pas2 rows CMTE_ID=<config committees.aipac_pac>, TRANSACTION_TP in (24K,24P).
   24Z in-kind rows excluded per spec (2 rows / $5,000 in 2024 only).
 - Corporate PAC: pas2 rows TRANSACTION_TP in (24K,24P) where the contributing
   committee (same-cycle cm join) has CMTE_TP in (Q,N) and ORG_TP in (C,W).
@@ -39,10 +39,15 @@ import json, csv, os
 from decimal import Decimal
 from collections import defaultdict
 
-WORK = os.path.expanduser('~/workspace/user/congress-money-tracker/work')
-BULK = os.path.join(WORK, 'bulk')
-CYCLES = list(range(1980, 2027, 2))
-AIPAC = 'C00797670'
+from config import load_config
+
+CFG = load_config()
+ROOT = CFG['_root']
+WORK = str(ROOT / CFG['paths']['work'])
+BULK = str(ROOT / CFG['paths']['bulk'])
+CYCLES = list(range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2))
+CURRENT_CYCLE = CFG['cycles']['current']
+AIPAC = CFG['committees']['aipac_pac']
 
 def cents(s):
     s = (s or '').strip()
@@ -89,10 +94,10 @@ for cy in CYCLES:
                 matched += 1
                 had_weball.add(cid)
                 indiv[(cid, cy)] += cents(p[17])
-            if cy == 2026 and len(p) > 27 and p[27] > cvg_max:
+            if cy == CURRENT_CYCLE and len(p) > 27 and p[27] > cvg_max:
                 cvg_max = p[27]
     per_cycle_diag.append({'cycle': cy, 'weball_rows': rows, 'weball_matched': matched,
-                           'weball_bad_fields': bad, 'weball_2026_max_cvg_end': cvg_max if cy == 2026 else ''})
+                           'weball_bad_fields': bad, f'weball_{CURRENT_CYCLE}_max_cvg_end': cvg_max if cy == CURRENT_CYCLE else ''})
 
 # ---------------- pas2 + cm ----------------
 for cy in CYCLES:
@@ -199,7 +204,7 @@ for cy in CYCLES:
                 earmark_corp_c += amt
     # committees in pas2 matched rows missing from this cycle's cm (recompute cheaply)
     # NOTE: skipped here — cm coverage measured separately below
-    d = per_cycle_diag[(cy - 1980)//2]
+    d = per_cycle_diag[(cy - CFG['cycles']['career_start'])//2]
     d.update({'cm_rows': cm_rows, 'cm_bad_fields': cm_bad, 'cm_blank_org_tp': cm_blank_org,
               'corp_pacs': len(corp_set), 'pas2_rows': rows, 'pas2_bad_fields': bad,
               'pas2_matched_roster': matched, 'pas2_neg_rows': neg_n, 'pas2_neg_cents': neg_c,
@@ -338,4 +343,4 @@ print('TOTAL corp rows kept:', sum(d['corp_rows_kept'] for d in per_cycle_diag))
 print('TOTAL aipac rows kept:', sum(d['aipac_rows_kept'] for d in per_cycle_diag))
 json.dump({'per_cycle': per_cycle_diag, 'cm_missing': missing_stats},
           open(os.path.join(WORK, 'pull-diagnostics.json'), 'w'), indent=1)
-print('2026 max CVG_END_DT:', [d.get('weball_2026_max_cvg_end') for d in per_cycle_diag if d['cycle'] == 2026])
+print(f'{CURRENT_CYCLE} max CVG_END_DT:', [d.get(f'weball_{CURRENT_CYCLE}_max_cvg_end') for d in per_cycle_diag if d['cycle'] == CURRENT_CYCLE])
