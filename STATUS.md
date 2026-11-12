@@ -97,8 +97,8 @@
   the generalized clean rule, 2026 columns, opposition, dedup,
   CSV↔JSON agreement, row order). Verified in a fresh clone with staged
   bulk data: the rebuild reproduces the committed dataset **byte-identically**
-  (csv md5 1462a44e2910f27659d7b2239319853e, json md5
-  a04a1549dad9882f319d9bf819edc154), every intermediate byte-identical, all
+  (csv md5 f346fca949d1c160317f2f1b45100273, json md5
+  48c2a2146523ef9aa1c4f11ac3d361a7), every intermediate byte-identical, all
   93 audits passing. The verifier checks the dataset against its own
   definitions — it cannot catch a missing money dimension (see the
   self-funding blind spot below).
