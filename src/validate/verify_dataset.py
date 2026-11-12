@@ -336,6 +336,27 @@ def main():
                            + r['corporate_pac_career']
                            + r['aipac_pac_direct_career'], 2) != r['total_accepted_career'])
     check('total_accepted recomputes exactly', ta_mism == 0, f'{ta_mism} mismatches')
+    # (c2) dirty_career recomputes exactly: corporate PAC + AIPAC
+    # direct + UDP total benefit, career. Null only for Armstrong
+    # (money unknown, not zero).
+    dc_mism = 0
+    for r in records:
+        parts = [r['corporate_pac_career'], r['aipac_pac_direct_career'],
+                 r['udp_ie_total_benefit_career']]
+        want = (round(sum(parts), 2)
+                if all(is_num(v) for v in parts) else None)
+        if r['dirty_career'] != want:
+            dc_mism += 1
+    check('dirty_career recomputes exactly (corp + AIPAC + UDP benefit)',
+          dc_mism == 0, f'{dc_mism} mismatches')
+    check('dirty_career is null only for Armstrong',
+          [r['person_key'] for r in records if r['dirty_career'] is None]
+          == ['A000383'])
+    check('Stevens dirty_career $36,864,670.88 is the career dirty #1',
+          by_key['S001215']['dirty_career'] == 36864670.88
+          and by_key['S001215']['dirty_career']
+          == max(r['dirty_career'] for r in records if is_num(r['dirty_career'])),
+          f"got {by_key['S001215']['dirty_career']}")
     for rank_col, val_col in rank_defs:
         ranks = competition_ranks(records, val_col)
         mism = sum(1 for r in records if r[rank_col] != ranks[r['person_key']])

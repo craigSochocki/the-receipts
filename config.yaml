@@ -173,6 +173,7 @@ verification:
     udp_ie_support_career: 42415003.76
     udp_ie_opposing_opponents_career: 48421886.44
     udp_ie_total_benefit_career: 90836890.20
+    dirty_career: 1070633247.20
     # Complete-financial-picture columns (664 distinct persons; Rivet
     # counted once). Self-funding / topline are Curtis-corrected
     # (decision: receipts -$5,640,855.75, disbursements -$5,239,012.32,
@@ -322,6 +323,7 @@ dataset:
     - udp_opp_credit_2026
     - udp_benefit_2026
     - dirty_2026
+    - dirty_career
     - clean_2026
     - unopposed_2026
     - dep_share_2026
@@ -415,6 +417,7 @@ dataset:
     - udp_opp_credit_2026
     - udp_benefit_2026
     - dirty_2026
+    - dirty_career
     - clean_2026
     - unopposed_2026
     - dep_share_2026
