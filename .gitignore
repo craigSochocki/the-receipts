@@ -1,6 +1,17 @@
-work/bulk/
+# Staged FEC bulk data (~5.6 GB, re-downloadable from the FEC;
+# see research/bulk-inventory.md for the download list)
+data/raw/
+# Regenerable pipeline staging files — rebuild.py recreates every
+# file in data/intermediate/ from data/source/ + data/raw/, so
+# nothing in there is committed. The one exception was
+# fec_lookup_results.json, which is NOT regenerable without an API
+# key; it lives in data/source/ instead and stays committed.
+data/intermediate/
+# Rebuild backups written into data/snapshots/ (the committed
+# pre-* dataset snapshots stay tracked)
+data/snapshots/congress-money-tracker-pre-rebuild-*
 *.zip
 
-# Python bytecode (created when any work/*.py script imports config)
+# Python bytecode
 __pycache__/
 *.pyc
