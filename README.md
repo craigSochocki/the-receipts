@@ -114,7 +114,7 @@ python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
     --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
 ```
 
-A full refresh is ~1,500+ keyed API calls (recounted Nov 12, 2026; see
+A full refresh is ~2,200–2,350 keyed API calls (recounted Nov 12, 2026; see
 `methodology.md` §16 and the driver's docstring); DEMO_KEY (~30/hr) is spot-checks
 only and the driver refuses `--all` on it. A bare `--all` also runs
 committee-only F24 sweeps for the six config-listed spender committees
@@ -199,7 +199,7 @@ timestamp-only rebuild commits nothing and a no-change run is a no-op.
 **No cache of the bulk data.** CI and the scheduled refresh do not cache the FEC bulk data: every run re-downloads it fresh with ./download_bulk.sh. The 2026 bulk files are updated in place by the FEC under the same cycle-named URLs as new filings arrive, so any cache keyed on something other than the files' own content (workflow file hash, runner OS, date) could silently serve stale filings — and the byte-identical rebuild gate would not catch it, because it verifies the rebuild against the committed dataset, not the filings against the FEC. A content-aware cache (keyed on per-file ETag / Last-Modified) would be safe, but ./download_bulk.sh has no such mechanism; until one exists, a fresh ~315 MB download per run is the price of correctness.
 
 **FEC API key (`FEC_API_KEY` secret) — optional.** The freshness step
-(`python3 src/ingest/pull_freshness.py --all`, ~30–45 minutes for ~1,500+
+(`python3 src/ingest/pull_freshness.py --all`, ~45–60+ minutes for ~2,200–2,350
 keyed API calls at an effective 1.0 s/call) runs **only** when the
 `FEC_API_KEY` repository secret is set. When it runs, the snapshot
 (`data/intermediate/freshness_snapshot.json`) is uploaded as a workflow

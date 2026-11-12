@@ -35,23 +35,25 @@ Usage:
     # Committee sweeps only, no per-person refresh (registered key
     # required — DEMO_KEY is refused; see the guard below):
     python3 src/ingest/pull_freshness.py --f24-committee-sweep
-    # Full refresh (registered key REQUIRED — ~1,500+ keyed API calls):
+    # Full refresh (registered key REQUIRED — ~2,200-2,350 keyed API calls):
     FEC_API_KEY=<registered key> python3 src/ingest/pull_freshness.py --all
 
 Call count for --all (recounted Nov 12, 2026; the old "~1,300+" predates
 the sweeps and undercounted the per-person legs). Per-person legs, for
 the 664 roster persons' 754 candidate IDs: 754 candidate-totals calls
 + 754 committee-lookup calls = 1,508, plus one F6 discovery call per
-principal campaign committee (paginated; the docquery CSV fetches that
-follow need no key and are not counted here). Committee sweeps: 6
-committees x 2 paginated fetches each (F24-only + unfiltered
+principal campaign committee (~664-754 keyed calls; the docquery CSV
+fetches that follow need no key and are not counted here). Committee
+sweeps: 6 committees x 2 paginated fetches each (F24-only + unfiltered
 reconciliation) = 12 calls minimum; upper bound 94, from each
 committee's 2026 bulk IE row count at 100 rows/page (18+5+19+1+2+2
 pages per fetch x 2) — realistically near the low end, since F24 rows
-are a small subset of a committee's IE rows (UDP's live sweep was 2
-calls for 34 rows). Total: ~1,520-1,600+ keyed API calls. At the 1.0 s
-effective sleep that is ~25-27 min of sleep alone; the scheduled
-workflow allows 90 min.
+are a small subset of a committee's IE rows (the candidate-scoped
+UDP-vs-El-Sayed sweep was 2 calls for 34 rows; the committee-wide UDP
+sweep is ~6). Total: ~2,200-2,350 keyed API calls. At the 1.0 s
+effective sleep that is ~37-39 min of sleep alone; a realistic --all
+run is ~45-60+ min. The scheduled workflow allows 90 min, ~1.5x
+headroom.
 
 Cadence: final 20 days before an election daily; cycle in progress
 outside the final 20 days weekly; after each filing deadline
@@ -306,7 +308,7 @@ def main():
     if args.all and API_KEY == CFG['fec_api']['api_key_default']:
         sys.exit('ERROR: --all needs a registered api.data.gov key '
                  '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
-                 'the ~1,500+ calls a full refresh needs.')
+                 'the ~2,200-2,350 calls a full refresh needs.')
     dataset = json.load(open(ROOT / CFG['paths']['dataset_json']))
     by_key = {r['person_key']: r for r in dataset}
     by_candidate = {cid: r for r in dataset

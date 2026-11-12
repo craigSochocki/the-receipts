@@ -1019,11 +1019,13 @@ unexplained F24 residual: $0.
 
 **Cadence and keys.** Final 20 days before an election: daily. Cycle in progress
 outside the final 20 days: weekly. After each filing deadline (Dec 3 post-general,
-Jan 31 year-end): event-driven. A full refresh is ~1,500+ keyed API calls
+Jan 31 year-end): event-driven. A full refresh is ~2,200–2,350 keyed API calls
 (recounted Nov 12, 2026 — the old "~1,300+" predated the sweeps and undercounted
 the per-person legs: 754 totals + 754 committee lookups for the roster's 754
-candidate IDs, one F6 discovery call per principal committee, plus 12–94 for the
-six committee sweeps, 2 paginated fetches each; see the driver's docstring);
+candidate IDs, ~664–754 F6 discovery calls (one per principal committee), plus 12–94 for the
+six committee sweeps, 2 paginated fetches each; sleep alone is ~37–39 min at the
+1.0 s effective sleep, and a realistic run is ~45–60+ min against the workflow's
+90-min step timeout — ~1.5× headroom; see the driver's docstring);
 DEMO_KEY (~30/hr, shared) is spot-checks only — the driver refuses `--all` on DEMO_KEY.
 Production needs a registered api.data.gov key (1,000 req/hr) via the `FEC_API_KEY`
 environment variable (wired in `config.yaml`, default `DEMO_KEY`). No registered key
