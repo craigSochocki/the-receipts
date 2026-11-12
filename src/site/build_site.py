@@ -211,6 +211,11 @@ td.name{font-weight:600;white-space:normal;min-width:150px}
 .badge.dirty{background:#fdeede;color:var(--warn)}
 .badge.unver{background:#f3f3f3;color:var(--muted)}
 .badge.unopp{background:#fff3d6;color:#7a5b00}
+.pchip{display:inline-block;min-width:1.35em;text-align:center;padding:0 6px;border-radius:999px;font-size:.8rem;font-weight:700;line-height:1.55;vertical-align:1px}
+.pchip.d{background:#dbeafe;color:#1e40af}
+.pchip.r{background:#fee2e2;color:#991b1b}
+.pchip.o{background:#e5e7eb;color:#374151}
+.ostatus{color:var(--muted);font-size:.85rem;white-space:nowrap}
 footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);font-size:.85rem}
 .foot-totals{font-size:.9rem;color:var(--ink);margin-bottom:8px}
 .detail{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:50}
@@ -421,6 +426,28 @@ function place(p){
   return p.state+(d!==''&&d!=null ? '-'+d : '');
 }
 function party(p){ return p.party_120||p.party_119||'—'; }
+/* ---- person marks: party chip + election outcome ----
+   Party: prefer party_120, else party_119; no party known -> no chip
+   (never invented). Democrat D blue, Republican R red, Independent I
+   gray; any other stored label (e.g. PPD) gets a gray chip showing the
+   stored label. Always letter + color, never color alone.
+   Outcome: in_120th 'yes' -> Won, 'unknown' -> Uncalled, 'no' ->
+   Not returning. "Not returning" is deliberately NOT "Lost": the
+   dataset cannot separate lost re-election from retired / didn't run /
+   left early; that split is Phase 2 outcomes work. */
+function partyName(p){ return p.party_120||p.party_119||''; }
+function partyChip(p){
+  const name = partyName(p);
+  if(!name) return '';
+  const map = {Democrat:['D','d'], Republican:['R','r'], Independent:['I','o']};
+  const m = map[name] || [name, 'o'];
+  return '<span class="pchip '+m[1]+'" title="'+esc(name)+'">'+esc(m[0])+'</span>';
+}
+function outcomeLabel(p){
+  if(p.in_120th==='yes') return 'Won';
+  if(p.in_120th==='unknown') return 'Uncalled';
+  return 'Not returning';
+}
 function chamber(p){ return p.chamber_120||p.chamber_119||'—'; }
 function congressLabel(p){
   if(p.in_119th==='yes'&&p.in_120th==='yes') return '119th + 120th';
@@ -439,6 +466,7 @@ const VIEWS = {
     {k:'full_name',label:'Name',type:'name'},
     {k:'place',label:'State / Dist.',type:'place'},
     {k:'party',label:'Party',type:'party'},
+    {k:'outcome',label:'Outcome',type:'outcome'},
     {k:'chamber',label:'Chamber',type:'chamber'},
     {k:'congress',label:'Congress',type:'congress'},
     {k:'individual_contribution_total_career',label:'Individual (career)',type:'money'},
@@ -547,6 +575,8 @@ function cellHtml(p, col){
   const v = getVal(p, col.k);
   switch(col.type){
     case 'name': return esc(v);
+    case 'party': return partyChip(p) || '—';
+    case 'outcome': return outcomeLabel(p);
     case 'money': {
       const t = fmtMoney(v);
       return '<span title="'+esc(t)+'">'+fmtCompact(v)+'</span>';
@@ -632,7 +662,7 @@ function renderDirtiest(){
   document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
     '<li><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
     + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
-    + '<span class="pl">'+esc(place(p))+' · '+esc(party(p))+'</span></span>'
+    + '<span class="pl">'+partyChip(p)+' '+esc(place(p))+' · '+outcomeLabel(p)+'</span></span>'
     + '<span class="amt">'+fmtMoney(p.dirty_2026)+'</span></button></li>').join('');
   document.querySelectorAll('#dirtiest-list .dirty-row').forEach(b=>{
     b.addEventListener('click', ()=>openDetail(b.getAttribute('data-key')));
@@ -714,7 +744,7 @@ function initFinder(){
     }
     person.innerHTML = people.map(p=>
       '<button type="button" class="btn person-btn" data-key="'+p.person_key+'">'
-      + esc(p.full_name)+' · '+esc(party(p))+' '+fmtClean(p)+'</button>').join(' ');
+      + partyChip(p)+' '+esc(p.full_name)+' · '+outcomeLabel(p)+' '+fmtClean(p)+'</button>').join(' ');
     person.querySelectorAll('button').forEach(b=>{
       b.addEventListener('click', ()=>findPerson(b.getAttribute('data-key')));
     });
@@ -763,7 +793,7 @@ function openDetail(key){
   const leader = [p.leadership_119, (p.leadership_120 && p.leadership_120!=='TBD') ? p.leadership_120 : null].filter(Boolean).join('; ');
   let h = '<button class="btn ghost close" id="detail-close" type="button">Close ✕</button>';
   h += '<h2>'+esc(p.full_name)+'</h2>';
-  h += '<p class="meta">'+esc(party(p))+' · '+esc(chamber(p))+' · '+esc(place(p))+' · '+esc(congressLabel(p))
+  h += '<p class="meta">'+partyChip(p)+' '+esc(party(p))+' · '+esc(chamber(p))+' · '+esc(place(p))+' · '+outcomeLabel(p)+' · '+esc(congressLabel(p))
     + (leader ? ' · '+esc(leader) : '') + ' · FEC ID'+(p.fec_candidate_ids.length>1?'s':'')+': '
     + esc(p.fec_candidate_ids.join(', ')||'none') + '</p>';
   h += '<h3>Career money</h3><div class="kv">'
@@ -856,12 +886,12 @@ function closeDetail(){ document.getElementById('detail').classList.remove('open
 function topByRank(rankKey, amountKey, n){
   return PEOPLE.filter(p=>num(p[rankKey])!==null)
     .sort((a,b)=>a[rankKey]-b[rankKey]).slice(0,n)
-    .map(p=>({name:p.full_name, who:party(p)+' · '+place(p), amount:p[amountKey]}));
+    .map(p=>({name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
 }
 function boardHtml(title, sub, entries){
   let h = '<h3>'+esc(title)+'</h3><p style="color:var(--muted);font-size:.9rem">'+esc(sub)+'</p><ol class="leader">';
   entries.forEach((e,i)=>{
-    h += '<li><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+esc(e.who)+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></li>';
+    h += '<li><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+e.who+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></li>';
   });
   return h + '</ol>';
 }
@@ -901,7 +931,7 @@ function renderClean(){
   const tbody = document.querySelector('#clean-table tbody');
   thead.innerHTML = '<tr><th>Name</th><th>State / Dist.</th><th>Party</th><th>Chamber</th><th>Incoming 120th?</th><th class="num">Corp PAC (career)</th><th class="num">AIPAC (career)</th><th class="num">UDP support (career)</th><th class="num">Dirty 2026</th><th>Career-clean?</th></tr>';
   const rows = clean.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name));
-  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td class="num">'+fmtCompact(p.corporate_pac_career)+'</td><td class="num">'+fmtCompact(p.aipac_pac_direct_career)+'</td><td class="num">'+fmtCompact(p.udp_ie_support_career)+'</td><td class="num">'+fmtCompact(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
+  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td class="num">'+fmtCompact(p.corporate_pac_career)+'</td><td class="num">'+fmtCompact(p.aipac_pac_direct_career)+'</td><td class="num">'+fmtCompact(p.udp_ie_support_career)+'</td><td class="num">'+fmtCompact(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
   tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
