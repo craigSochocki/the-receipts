@@ -82,18 +82,30 @@ not harder.
   `pull_money.py` re-run byte-identical to the original script's output,
   `compute_opposition.py` re-run byte-identical, `build_roster.py` re-run in
   a copied checkout identical except for post-build enrichment (see below).
-- Known reproducibility gap (not fixed by the config refactor): the pipeline
-  is not yet fully re-runnable from scripts alone. The weball double-count
-  dedup ($451,776,015.34; 32 persons, 90 groups) lives in
-  `work/dedup-applied.json` and was applied downstream of `pull_money.py`,
-  not inside it — a bare re-run of `pull_money.py` reproduces the
-  pre-dedup totals. Likewise `roster_intermediate.json` on disk is
-  `build_roster.py` output **plus** `fec_lookup.py` results **plus** manual
-  FEC-ID additions (7 rows, `_fec_source: fec-api-2026-manual`) and one
-  manual note. The merge, ranking, and 2026-column steps have no saved
-  script yet. Codifying those steps is the next cleanup task; until then,
-  the deduped intermediates and the final dataset are the record, and any
-  re-run must be diffed against them, not blindly trusted.
+- Reproducibility gap — CLOSED Nov 12, 2026. Every step that used to live
+  only in the builder's head is now a script, and one command runs them
+  all: `python3 work/rebuild.py` (build_roster → apply_fec_lookup →
+  pull_money → pull_udp → apply_dedup → compute_opposition → merge_dataset
+  → compute_ranking → compute_2026 → verify_dataset). The weball
+  double-count dedup is applied by `work/apply_dedup.py`, which reads the
+  kept/dropped decisions from `work/dedup-applied.json` as data (it does
+  not re-derive them). The roster enrichment is `work/apply_fec_lookup.py`
+  (committed lookup results + the 7 recorded manual notes in
+  `work/manual_roster_notes.json`); the live lookup is optional
+  (`--with-fec-lookup`) and restores the manual entries afterwards. The
+  merge (`work/merge_dataset.py`), ranking (`work/compute_ranking.py`),
+  and 2026 columns (`work/compute_2026.py`, including the primary-target
+  list) are scripted, and `work/verify_dataset.py` runs the standing
+  audits. Verified Nov 12, 2026: a fresh clone with staged bulk data
+  rebuilds the committed dataset byte-identically (csv md5
+  1462a44e2910f27659d7b2239319853e, json md5
+  a04a1549dad9882f319d9bf819edc154), all intermediates byte-identical,
+  all 37 audits passing. Two judgment calls are recorded as data, not
+  re-derived: the dedup decisions (`dedup-applied.json`) and the manual
+  roster notes (`manual_roster_notes.json`); the Rivet roster collapse and
+  the Luria unverified-clean rule are hardcoded constants in the merge and
+  2026 scripts with their exact committed text, and both scripts fail
+  loudly if the data stops matching those constants.
 
 ## 2. Stable keys — join on IDs, never on names
 - Person = `person_key` (Bioguide ID from the legislators dataset — the
