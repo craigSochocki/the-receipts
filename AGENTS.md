@@ -93,7 +93,9 @@ the-receipts/
 │   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
 │   └── evidence/              # one-off API dumps from spot checks
 ├── research/                  # pull logs, verification notes, source research
-└── docs/                      # RESERVED for the static site (not created yet)
+└── docs/                      # the generated static site (index.html,
+                               # from src/site/build_site.py; never hand-edited)
+                               # — live on GitHub Pages since Nov 12, 2026
 ```
 
 - The dataset (`congress-money-tracker.csv` / `.json`) stays at the repo
@@ -183,10 +185,12 @@ A change to data or pipeline is not done until it passes this gate:
 
 ## 6. Hard no's
 
-- **Nothing goes public without Craig's explicit go-ahead.** The
-  tracker page and the intro page stay private; do not share them, do
-  not enable GitHub Pages, do not publish anything derived from the
-  repo. Public launch is his call, in his words.
+- **Nothing goes public without Craig's explicit go-ahead.** The live
+  site (GitHub Pages, publishing source `docs/` on `master`, enabled by
+  Craig Nov 12, 2026) is the one public surface; nothing BEYOND it goes
+  public — do not share or publish anything else derived from the repo,
+  do not enable any other publishing. The intro page stays private.
+  Public launch beyond the live site is his call, in his words.
 - **Nothing goes out under Craig's name without his approval** — no
   emails, posts, or submissions.
 - **No invented figures. No guessed URLs.** If a value isn't in a
@@ -211,7 +215,58 @@ Every build reports back with evidence, not adjectives:
   says, and what happens next — and stop. Do not retry a blocked step
   through another tool or agent.
 
-## 8. Human workflow (Craig in VS Code)
+## 8. Automation (GitHub Actions)
+
+Two workflows in `.github/workflows/` (see `README.md`, "Automation
+(GitHub Actions)", for the operator-facing version):
+
+- **`ci.yml`** — push + pull request to `master`. Checkout, Python 3.12,
+  `pip install -r requirements.txt`, `./download_bulk.sh`,
+  `python3 src/rebuild.py`, then **fail unless the rebuild reproduces the
+  committed dataset byte-identically** (`git diff --exit-code` on
+  `congress-money-tracker.csv` / `.json`), then `build_site.py` +
+  `verify_site.py`. No deploy step — GitHub Pages serves `docs/` on
+  `master` automatically. `permissions: contents: read`. Needs no secrets,
+  so it is safe on PRs from forks.
+- **`scheduled-refresh.yml`** — cron `0 9 * * 0` (Sunday 09:00 UTC) +
+  `workflow_dispatch` (manual refresh, e.g. right after the Dec 3
+  post-general deadline). Same pipeline, then the freshness step, then a
+  commit + push back to `master` as `github-actions[bot]`
+  (`data: refresh from FEC bulk <YYYY-MM-DD>`). `permissions:
+  contents: write`. Job timeout 180 min (freshness step 90 min).
+
+**Commit-back rule (scheduled refresh only).** Commit and push only if
+the dataset changed OR the site changed apart from its generation
+timestamp — the timestamp line is ignored via `git diff -I`, the same
+pattern `verify_site.py` strips. A timestamp-only rebuild commits
+nothing. A failed rebuild/verify commits and pushes nothing (commit step
+gated on `success()`). The bot's push triggers CI, which re-verifies.
+
+**No cache of the bulk data.** Every run re-downloads fresh with
+`./download_bulk.sh` (~315 MB). The 2026 bulk files are updated in place
+by the FEC under the same cycle-named URLs, so any cache keyed on
+something other than the files' own content could silently serve stale
+filings — and the byte-identical gate would not catch it, because it
+verifies the rebuild against the committed dataset, not the filings
+against the FEC. A content-aware cache (per-file ETag / Last-Modified)
+would be safe, but `./download_bulk.sh` has no such mechanism. Do not
+add caching to either workflow without one.
+
+**FEC API key.** The freshness step (`pull_freshness.py --all`) runs only
+when the `FEC_API_KEY` repository secret is set; the snapshot is uploaded
+as a workflow artifact (90-day retention), never merged into dataset
+totals, never committed. When the secret is absent the step logs a skip
+line and the run continues. The key was added Nov 12, 2026 (Craig
+registered at api.data.gov); the first scheduled run will confirm it by
+logging whether freshness ran or skipped. Rotate it in repo Settings →
+Secrets and variables → Actions if it ever leaks or expires. Known gap: bare `--all`
+runs no F24 sweeps (see `STATUS.md`, Open questions).
+
+**Workflow files change like any other code** — one change per commit
+(§2), and a workflow change is its own commit, never bundled with a data
+or pipeline change.
+
+## 9. Human workflow (Craig in VS Code)
 
 Craig works on this repo in VS Code on a local clone. The same rules
 apply, in human form:
