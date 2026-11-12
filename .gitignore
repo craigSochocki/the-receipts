@@ -15,3 +15,6 @@ data/snapshots/congress-money-tracker-pre-rebuild-*
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Local virtualenv (created by ./init.sh)
+.venv/

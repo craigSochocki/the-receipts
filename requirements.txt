@@ -1,0 +1,5 @@
+# Python dependencies for The Receipts.
+# Install with: pip install -r requirements.txt
+# (./init.sh creates a venv and installs these for you.)
+pyyaml>=6.0
+pandas>=2.0

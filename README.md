@@ -19,8 +19,10 @@ GitHub Pages once Craig enables it) is generated from that dataset — see
 git clone https://github.com/craigSochocki/the-receipts.git
 cd the-receipts
 python3 --version   # 3.10+, tested on 3.12
-pip install pyyaml  # the only dependency
+pip install -r requirements.txt  # pyyaml + pandas
 ```
+
+Or run `./init.sh` — it does the venv, the bulk download, the rebuild, and the site in one go.
 
 ## Rebuild from scratch
 
