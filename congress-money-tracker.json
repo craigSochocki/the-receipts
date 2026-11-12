@@ -38595,7 +38595,7 @@
   "corporate_earmark_transmitted_career": 0.0,
   "udp_ie_support_career": 0.0,
   "data_as_of": "2026-11-12",
-  "data_notes": "No UDP support spending found in 2022/2024/2026 IE files. | 2026 DATA GAP: no 2026 per-cycle data found under the roster's linked candidate ID (returning former member; 2026 committee ID not linked) \u2014 clean_2026=True reflects absence of data, NOT verified zero fundraising; do not present as confirmed clean.",
+  "data_notes": "No UDP support spending found in 2022/2024/2026 IE files. | 2026 DATA GAP: no 2026 per-cycle data found under the roster's linked candidate ID (returning former member; 2026 committee ID not linked) \u2014 clean_2026=True reflects absence of data, NOT verified zero fundraising; do not present as confirmed clean. | 2026 clean status UNVERIFIED \u2014 no 2026 per-cycle data under linked candidate ID (returning former member; 2026 committee ID not linked). Not counted as verified-clean.",
   "per_cycle": [
    {
     "cycle": 2018,
@@ -38643,7 +38643,7 @@
   "udp_opp_credit_2026": 0.0,
   "udp_benefit_2026": 0.0,
   "dirty_2026": 0.0,
-  "clean_2026": true,
+  "clean_2026": null,
   "dep_share_2026": null
  },
  {
