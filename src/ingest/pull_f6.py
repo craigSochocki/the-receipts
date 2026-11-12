@@ -41,10 +41,11 @@ import sys
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.api_retry import (DOCQUERY_RATE_LIMIT_NOTE, open_with_retry,
+                                  retry_settings)
 from src.common.config import load_config
 
 CFG = load_config()
@@ -52,6 +53,7 @@ ROOT = CFG['_root']
 API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
 API_BASE = 'https://api.open.fec.gov/v1'
 SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
+RETRY = retry_settings(CFG)
 
 
 def api_get(path, params):
@@ -60,7 +62,8 @@ def api_get(path, params):
     url = API_BASE + path + '?' + urllib.parse.urlencode(params)
     time.sleep(SLEEP)
     try:
-        with urllib.request.urlopen(url, timeout=CFG['fec_api']['request_timeout_seconds']) as resp:
+        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
+                             retry=RETRY, label=f'FEC API {path}') as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
         raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {url})')
@@ -94,11 +97,18 @@ def discover_f6(committee_id, since=None):
 
 
 def fetch_f6_csv(file_number):
-    """Fetch one filing's docquery CSV (no API key). Returns raw text."""
+    """Fetch one filing's docquery CSV (no API key). Returns raw text.
+
+    Same 429 retry as the API paths (src/common/api_retry.py): docquery
+    needs no key, so the api.data.gov 1,000/hr limit does not apply
+    here, but a 429 from docquery would kill a run the same way.
+    """
     last3 = str(file_number)[-3:]
     url = f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv'
     try:
-        with urllib.request.urlopen(url, timeout=CFG['fec_api']['request_timeout_seconds']) as resp:
+        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
+                             retry=RETRY, label='docquery CSV',
+                             limit_note=DOCQUERY_RATE_LIMIT_NOTE) as resp:
             return resp.read().decode('utf-8', errors='replace')
     except urllib.error.HTTPError as e:
         raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})')

@@ -69,13 +69,13 @@ import sys
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 from datetime import datetime, timezone
 
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.ingest import pull_f24, pull_f6
+from src.common.api_retry import open_with_retry, retry_settings
 from src.common.config import load_config
 
 CFG = load_config()
@@ -83,6 +83,7 @@ ROOT = CFG['_root']
 API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
 API_BASE = 'https://api.open.fec.gov/v1'
 SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
+RETRY = retry_settings(CFG)
 WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
 BULK_WEBALL_END = str(CFG['verification']['coverage_end']['weball'])
 F24_SWEEP_CYCLE = CFG['freshness']['f24_committee_sweep_cycle']
@@ -95,7 +96,8 @@ def api_get(path, params):
     url = API_BASE + path + '?' + urllib.parse.urlencode(params)
     time.sleep(SLEEP)
     try:
-        with urllib.request.urlopen(url, timeout=CFG['fec_api']['request_timeout_seconds']) as resp:
+        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
+                             retry=RETRY, label=f'FEC API {path}') as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
         raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {url})')

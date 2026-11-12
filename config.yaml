@@ -77,6 +77,22 @@ fec_api:
   api_key_default: "DEMO_KEY"      # demo key: rate-limited, lookup only
   request_timeout_seconds: 30
   sleep_between_requests_seconds: 0.4
+  # HTTP 429 retry (src/common/api_retry.py, used by the api_get helpers
+  # in pull_f6 / pull_f24 / pull_freshness and by pull_f6's docquery CSV
+  # fetch). A standard registered api.data.gov key allows 1,000
+  # requests/hour; a full freshness --all run makes ~2,200-2,350 keyed
+  # calls, so it hits 429 part-way through. On a 429 the wait is the
+  # Retry-After header when present, else exponential backoff
+  # (backoff_base_seconds * 2**(attempt-1), capped at
+  # backoff_cap_seconds). max_attempts bounds the retries; if a
+  # projected wait would push the total waited for one request past
+  # max_wait_seconds, the run fails loudly instead of sleeping it out.
+  # Non-429 HTTP errors are NOT retried (immediate SystemExit, as before).
+  retry:
+    max_attempts: 5                # total attempts per request (1 + 4 retries)
+    backoff_base_seconds: 2.0      # first backoff wait; then 4s, 8s, 16s (capped)
+    backoff_cap_seconds: 300.0     # longest single backoff wait (5 min)
+    max_wait_seconds: 900.0        # longest total wait for one request (15 min)
 
 freshness:
   # F24 committee sweeps (24/48-hour independent expenditures, cycle 2026
