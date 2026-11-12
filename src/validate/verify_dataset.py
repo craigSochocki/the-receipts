@@ -10,14 +10,15 @@ Checks (exit non-zero on any mismatch, printing every failure):
       cent (Armstrong's "unknown" money excluded from every sum).
   (c) all twelve rank columns recompute exactly (competition ranking:
       rank = 1 + count of strictly greater values).
-  (d) clean counts match config verification.clean_2026 (True 84 /
-      False 579 / None 1; 120th House clean 67 — 63 D, 4 R;
+  (d) clean counts match config verification.clean_2026 (True 81 /
+      False 579 / None 4; 120th House clean 64 — 61 D, 3 R;
       career-clean 120th House 53 — 50 D, 3 R; 2026-clean but not
-      career-clean 14).
-  (e) the nineteen 2026 columns, the clean rule, and dep_share
+      career-clean 11).
+  (e) the twenty 2026 columns, the clean rule, and dep_share
       recompute exactly (including the Luria unverified case, the
-      generalized linkage rule, and the int/float split on empty 2026
-      sums).
+      generalized linkage rule, the unopposed_2026 flag recomputed
+      from weball26, the unopposed nulling of would-be-clean verdicts,
+      and the int/float split on empty 2026 sums).
   (f) the opposition career columns recompute from
       opposition-computed.json.
   (g) dedup audit: the dropped per-cycle entries in dedup-applied.json
@@ -46,7 +47,12 @@ Checks (exit non-zero on any mismatch, printing every failure):
       2026 linkage evidence (self-funding 2026 loans $14.4M, coverage
       10/14/2026); Luria stays null — her linked ID's 2026 weball row
       covers only through 07/15/2025 while her real 2026 campaign
-      (H6VA02198, $8,044,063.94 receipts) is unlinked.
+      (H6VA02198, $8,044,063.94 receipts) is unlinked. Unopposed
+      exclusion: Pressley (MA-07), Jacobs (CA-51) and Radewagen (AS)
+      ran unopposed in 2026, so they are null, not clean; King-Hinds
+      faced a funded opponent (MP district 01, Deleon Guerrero
+      $31,476.11) and stays verified-clean; nine people ran unopposed
+      in total, six of them dirty.
 
 Caveat (methodology §13): this verifies the dataset against its own
 definitions. It cannot catch a missing dimension — e.g. the
@@ -94,6 +100,36 @@ def competition_ranks(records, col):
 def cycle_sum(entries, field):
     vals = [e[field] for e in entries if e['cycle'] == CURRENT]
     return round(sum(vals), 2) if vals else 0
+
+
+def load_weball_2026_races():
+    """2026 races from the FEC all-candidates file (weball26).
+
+    Same rule as compute_2026.py, recomputed independently here:
+    race_map maps (office, state, district) to [(candidate_id, total
+    receipts)]; by_cid maps candidate_id to its race. weball is
+    pipe-delimited, 30 fields, no header: p[0] candidate ID (H/S/P
+    prefix = office), p[5] total receipts, p[18] state, p[19]
+    district. The race comes from the filing's own row, not the
+    roster district (MP delegate race is filed under district 01).
+    """
+    yy = f"{CURRENT % 100:02d}"
+    path = ROOT / CFG['paths']['bulk'] / 'weball' / f'weball{yy}.txt'
+    race_map = {}
+    by_cid = {}
+    with open(path) as f:
+        for line in f:
+            p = line.rstrip('\n').split('|')
+            if len(p) != 30:
+                continue
+            try:
+                receipts = float(p[5] or 0)
+            except ValueError:
+                receipts = 0.0
+            race = (p[0][0], p[18], p[19])
+            race_map.setdefault(race, []).append((p[0], receipts))
+            by_cid[p[0]] = race
+    return race_map, by_cid
 
 
 def main():
@@ -315,7 +351,7 @@ def main():
               f"got {counts[key]}")
     house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
     house_clean = [r for r in house120 if r['clean_2026'] is True]
-    check('120th House clean == 67', len(house_clean) == exp['house_120th_verified_clean'],
+    check('120th House clean == 64', len(house_clean) == exp['house_120th_verified_clean'],
           f"got {len(house_clean)}")
     for party in ('Democrat', 'Republican'):
         n = sum(1 for r in house_clean if r['party_120'] == party)
@@ -332,11 +368,12 @@ def main():
               n == exp[f'house_120th_career_clean_{party.lower()}'], f'got {n}')
     career_keys = {r['person_key'] for r in career_clean}
     not_career = sum(1 for r in house_clean if r['person_key'] not in career_keys)
-    check('2026-clean but not career-clean (120th House) == 14',
+    check('2026-clean but not career-clean (120th House) == 11',
           not_career == exp['house_120th_clean_2026_not_career_clean'], f'got {not_career}')
 
     # (e) 2026 columns, clean rule, dep_share
     opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
+    race_map, by_cid = load_weball_2026_races()
     credit_2026 = {}
     for race, pk, _name, amount, _detail in opp['credit_detail']:
         if race[0] == CURRENT and not pk.startswith('__nonroster__'):
@@ -388,7 +425,21 @@ def main():
                        or any(e['cycle'] == CURRENT
                               and str(e.get('coverage_end_date', '')).endswith('/2026')
                               for e in r['self_funding_per_cycle']))
+        # Unopposed rule (see compute_2026.py): every 2026 race the
+        # person filed in has no OTHER candidate with receipts over $0.
+        # False when they filed no 2026 candidacy at all.
+        ids = set(r['fec_candidate_ids'] or [])
+        races = sorted({by_cid[cid] for cid in ids if cid in by_cid})
+        expect['unopposed_2026'] = bool(races) and all(
+            not any(cid not in ids and receipts > 0
+                    for cid, receipts in race_map.get(race, []))
+            for race in races)
         if r['in_120th'] == 'yes' and not has_linkage:
+            expect['clean_2026'] = None
+        elif (expect['unopposed_2026'] and expect['corp_2026'] == 0
+                and expect['aipac_direct_2026'] == 0
+                and expect['udp_support_2026'] == 0
+                and expect['udp_opp_credit_2026'] == 0):
             expect['clean_2026'] = None
         else:
             expect['clean_2026'] = (expect['corp_2026'] == 0
@@ -427,6 +478,27 @@ def main():
           luria['other_committees_total_2026'] == 85610.00
           and luria['all_ie_support_2026'] == 685786.28,
           f"OC {luria['other_committees_total_2026']} / AIE {luria['all_ie_support_2026']}")
+
+    # (m) unopposed exclusion spot cases.
+    for key, name, race in [('J000305', 'Jacobs', 'CA-51'),
+                            ('P000617', 'Pressley', 'MA-07'),
+                            ('R000600', 'Radewagen', 'AS-00')]:
+        p = by_key[key]
+        check(f'{name} unopposed in 2026 ({race}) — null, not clean',
+              p['clean_2026'] is None and p['unopposed_2026'] is True
+              and 'UNOPPOSED' in p['data_notes']
+              and race in p['data_notes'],
+              f"clean={p['clean_2026']} unopposed={p['unopposed_2026']}")
+    king_hinds = by_key['K000404']
+    check('King-Hinds contested, not unopposed — MP race is district 01',
+          king_hinds['clean_2026'] is True
+          and king_hinds['unopposed_2026'] is False
+          and 'UNOPPOSED' not in king_hinds['data_notes'],
+          f"clean={king_hinds['clean_2026']} "
+          f"unopposed={king_hinds['unopposed_2026']}")
+    n_unopposed = sum(1 for r in records if r['unopposed_2026'] is True)
+    check('unopposed in 2026 == 9 (3 clean-nulls + 6 dirty)',
+          n_unopposed == 9, f'got {n_unopposed}')
 
     # (f) opposition career columns
     mism = 0
