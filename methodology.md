@@ -488,9 +488,16 @@ total still 535.
 
 ## 8. Known limitations — read before using these numbers
 
-1. **2026 cycle is partial.** Pulled Nov 12, 2026. The UDP IE file's latest dissemination
-   date is Oct 31, 2026; weball26 coverage runs into fall 2026. Re-pull after the cycle
-   closes; expect 2026 totals to rise and some amounts to be amended.
+1. **2026 cycle is partial — and the cutoff date differs by column family.**
+   Pulled Nov 12, 2026. Committee-money columns (corporate, AIPAC, other-committee —
+   all pas2-derived) run through **Sep 30, 2026** (the staged pas2 2026 zip effectively
+   ends then; only 991 October rows). Weball-derived columns (individual, self-funding,
+   topline) run through **Oct 14, 2026**. All-IE columns (UDP too) run through **Oct 31,
+   2026**. So a 2026 figure from one family is not directly comparable to a 2026 figure
+   from another — e.g. a candidate's October corporate PAC money is missing while their
+   October individual money is present. Re-pull after the cycle closes (planned: mid-Dec
+   2026 after the Dec 3 post-general deadline, and Feb 2027 after the Jan 31 year-end
+   deadline); expect 2026 totals to rise and some amounts to be amended.
 2. **120th results are media calls, uncertified** (see §1); 5 seats are still TBD/uncalled.
 3. **AIPAC PAC first filed Dec 2021; UDP first filed Jan 2022.** No pre-2022 figures exist
    for those two columns. Earlier cycles are $0 by construction, not missing data.
@@ -585,10 +592,50 @@ total still 535.
     $107,207.83 of transfers from authorized committees); both IDs share principal
     committee `C00647339` JOHN CURTIS FOR UTAH, whose own 2024 individual total is the
     single $2,319,425.97 — so it was de-duplicated like the rest.
+    **Extension (same date) — the Curtis 2024 dropped copy is now zeroed for the
+    financial columns too, not just the individual column.** Re-verified from the staged
+    `work/bulk/weball/weball24.txt`: Curtis's two 2024 rows are `H8UT03238` (dropped) and
+    `S4UT00282` (kept); cols 10–18 are byte-identical, and kept-minus-dropped is
+    **$107,207.83 exactly** for receipts ($5,748,063.58 vs $5,640,855.75),
+    transfers-from-auth ($1,369,004.86 vs $1,261,797.03) and disbursements
+    ($5,346,220.15 vs $5,239,012.32) — the dropped row is a strict subset of the kept
+    row, so counting both double-counts the House row's activity. The extension zeroes
+    the dropped copy for weball cols 6–9 as well as 10–18 (recorded in
+    `work/dedup-applied.json` as `extend_to_columns_6_9` with the expected cents;
+    `work/pull_self_funding.py` fails loudly if the arithmetic ever stops matching).
+    Effect on roster totals vs the pre-extension figures: receipts −$5,640,855.75,
+    disbursements −$5,239,012.32, transfers-from-auth −$1,261,797.03, transfers-to-auth
+    −$3,300.00. Only Curtis's row changed; the four dedup-partial flags are gone.
 16. **Roster-notes scope reminder:** the roster is "current members + 120th incoming,"
     not "everyone who served in the 119th" (§1, 16 excluded). Jasmine Clark (GA-13) is
     counted as 120th-only pending confirmation of whether she is seated before Jan 3,
     2027 (Wikipedia says she was elected in a special election to replace David Scott).
+17. **Lamb 2026 other-committee total is pending reconciliation.** Mark Lamb's 2026
+    other-committee total from the staged pas2 file is **$96,500** (leadership $43,000;
+    labor $5,000 ALPA; trade $6,000 incl. ABC $5,000 + NSSF $1,000; membership $8,000;
+    other_unclassified $34,500; party $0; cooperative $0), but his weball col 26 figure
+    for 2026 is **$129,150** — a **$32,650 residual** that the pas2-derived classes
+    cannot account for. The gap is consistent with the pas2 Sep-30 staleness (item 1):
+    the missing $32,650 is presumably October committee money not yet in the staged
+    pas2 file. Recorded as `PENDING RECONCILIATION` in Lamb's `data_notes`; no figure
+    was adjusted to force a match. The mid-Dec re-pull settles it.
+18. **Scalise-type negative residual (other-committee reconciliation).** For a handful
+    of people the pas2-derived other-committee total plus corporate plus AIPAC does not
+    reconcile against the weball col 26 figure, leaving a negative residual the classes
+    cannot explain. The mechanism is unresolved (leading hypothesis: joint-fundraising-
+    committee / transfer reporting, which needs the `oth` bulk file or F3 line-item work
+    — neither is staged). Documented, not adjusted.
+19. **Congressional Leadership Fund blank-`cand_id` rows are excluded from the
+    all-IE totals.** CLF files `cand_id` blank systematically, so its spending cannot be
+    attributed by ID under the all-IE filter (registered committee + identified
+    candidate). Its roster-resolved-by-name amounts — 2024 $105.5M, 2026 $199.2M — are
+    excluded from the published all-IE totals, and the validation targets exclude them
+    too. This is a filter consequence, not a judgment that the spending did not happen;
+    name-based attribution for CLF is a follow-up, not this build.
+20. **All-IE "career" means 2022–2026 only.** The 2010–2020 IE bulk files exist on the
+    FEC server but are NOT staged and were not pulled. Every all-IE career figure in
+    this dataset is a 2022+2024+2026 figure; do not describe it as a lifetime total.
+    Downloading the earlier cycles is a follow-up.
 
 ---
 
