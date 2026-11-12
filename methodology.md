@@ -898,3 +898,93 @@ figures understate reality:
   other-committee 2026 $19,500), so he counts among the 67 verified-clean —
   the count returns to **67 House / 77 total**, correcting the 66 / 76 figures
   recorded in MEMORY.md and the intro page (the dataset itself always said 67).
+
+---
+
+## 15. Coverage end dates by column family — and the re-pull plan
+
+The bulk files behind this dataset do not all end on the same date (see §8.1).
+The authoritative cutoffs, also recorded in `config.yaml` (`verification.coverage_end`):
+
+| Column family | Source | Coverage ends |
+|---|---|---|
+| Individual, self-funding, topline | weball | **2026-10-14** |
+| Corporate PAC, AIPAC, other-committee | pas2 | **2026-09-30** |
+| UDP + all independent expenditures | IE bulk files | **2026-10-31** |
+
+**Re-pull plan.** Mid-Dec 2026 (after the Dec 3 post-general filing deadline) and
+Feb 2027 (after the Jan 31 year-end deadline): re-download the bulk files, re-run the
+pulls, re-run the merge, update `data_as_of`. The freshness layer (§16) covers the gap
+between Oct 14 and each re-pull; after each re-pull, reconcile its snapshot sums
+against the new report and start a fresh snapshot — never carry freshness figures
+forward into the dataset.
+
+---
+
+## 16. Freshness layer — new money since bulk coverage (Oct 14)
+
+The bulk rebuild is the canonical dataset, and it only moves when the bulk files move.
+Between bulk pulls, late money arrives through three API routes that the bulk files
+cannot see yet. The freshness layer (`work/pull_freshness.py`, with
+`work/pull_f6.py` and `work/pull_f24.py`) reports that money in
+`work/freshness_snapshot.json` — labeled by source and date, **never merged into the
+dataset totals**. Full research in `work/freshness-research.md`.
+
+**The three routes (all verified live, Nov 12, 2026, on DEMO_KEY):**
+
+1. **Candidate totals** — `GET /v1/candidate/{id}/totals/?cycle=2026`. Only as fresh
+   as the latest processed report: on Nov 12 it still ended Oct 14 (PRE-GENERAL) for
+   both test candidates. **Trap:** `election_full=true` returns only the aggregate
+   row (`cycle: null`) — for Constantino that is the 2024+2026 aggregate (receipts
+   $17,064,951.19, loans $17,000,000.00), NOT a 2026 figure. The driver uses the
+   per-cycle row and flags `newer_than_bulk` only when its `coverage_end_date`
+   passes Oct 14. The totals row also carries `last_debts_owed_to_committee` — the
+   follow-up route for the `debts_owed_to_career` nulls (§2).
+2. **Form 6 (48-Hour Notices)** — discovery via
+   `GET /v1/filings/?form_type=F6&committee_id={id}` (metadata only; `candidate_id`
+   is null on F6 rows), line items via the per-filing docquery CSV
+   (`https://docquery.fec.gov/csv/{last3}/{file_number}.csv`, no key needed; F6N/F6A
+   headers, F65 line items). There is NO F6 bulk file. **Blocker:** `min_date` is
+   silently ignored on `/v1/filings/` — the pull pages with `sort=-receipt_date` and
+   filters client-side. **Amendment chains:** the endpoint returns both an original
+   and its amended version, and amended filings carry an `F6A` header (same field
+   positions as `F6N`); the pull drops any filing whose file number appears in
+   another filing's `amendment_chain` and keeps only the latest version of each
+   chain. **Live proof:** a $1,000,000 Constantino candidate loan, Oct 29 (file
+   2044138), invisible to the totals endpoint and to Schedule A.
+3. **24/48-hour independent expenditures (F24)** —
+   `GET /v1/schedules/schedule_e/?filing_form=F24&committee_id=&candidate_id=
+   &cycle=2026`. The F24-only filter is load-bearing: the endpoint double-returns
+   (each expenditure once under its original F3X filing and again under the F24),
+   so the unfiltered sum roughly doubles the true amount (UDP vs El-Sayed 2026:
+   naive $41.04M vs true $20.90M). **The $1,004.53 residual is reconciled, not
+   open:** the deduped-unfiltered total ($20,904,442.10) exceeds the F24-only total
+   ($20,903,437.57) by exactly one row — a UDP $1,004.53 GOTV expenditure dated
+   Aug 3, 2026, filed Sep 19 on an F3X monthly report (file 2014027). It predates
+   the 24/48-hour window and was never an F24, so it belongs in the deduped total
+   but not the F24-only total. The pull classifies residual rows accordingly
+   (explained = `filing_form != F24`; unexplained = `filing_form == F24`, which
+   should be $0). Form 5 needs no leg: it covers only unregistered spenders, and
+   registered committees file zero F5s.
+
+**Weball-vs-API gap, with Constantino as the test case.** The bulk weball file says
+Constantino's 2026 loans are $14.4M through Oct 14; the API totals endpoint agrees
+(per-cycle row) — but the $1M Oct-29 loan exists ONLY as a Form 6 notice. Neither
+the totals endpoint nor Schedule A sees it, and no bulk file carries it yet. That is
+the gap the freshness layer exists to close: bulk says $14.4M, the truth on Nov 12
+was $15.4M, and only the F6 leg finds the difference.
+
+**First live run (Nov 12, 2026, DEMO_KEY, 2 persons)** — in
+`work/freshness_snapshot.json`: Constantino F6 $1,000,000.00 candidate loan (1 filing);
+El-Sayed F6 $1,953,368.64 in late contributions (16 filings after amendment-chain
+dedup — 2 superseded originals dropped, $351,042.26); UDP vs El-Sayed F24
+$20,903,437.57 (34 rows, latest expenditure Oct 29); totals newer than bulk: none;
+unexplained F24 residual: $0.
+
+**Cadence and keys.** Final 20 days before an election: daily. Cycle in progress
+outside the final 20 days: weekly. After each filing deadline (Dec 3 post-general,
+Jan 31 year-end): event-driven. A full refresh is ~1,300+ API calls; DEMO_KEY
+(~30/hr, shared) is spot-checks only — the driver refuses `--all` on DEMO_KEY.
+Production needs a registered api.data.gov key (1,000 req/hr) via the `FEC_API_KEY`
+environment variable (wired in `config.yaml`, default `DEMO_KEY`). No registered key
+exists in the repo yet.
