@@ -179,10 +179,11 @@ A change to data or pipeline is not done until it passes this gate:
    dedup → self-funding → other-committees → all-IE → opposition →
    merge → ranking → 2026 → verify), backing the current dataset up
    to `data/snapshots/` first, and fails fast if `data/raw/` isn't
-   staged. Verified Nov 12, 2026: a fresh clone with staged bulk data
-   rebuilds the committed dataset byte-identically (CSV md5
-   `f346fca949d1c160317f2f1b45100273`, JSON md5
-   `48c2a2146523ef9aa1c4f11ac3d361a7`).
+   staged. Verified Nov 12, 2026 (after the phase-split opposition-credit
+   rebuild): a fresh clone with staged bulk data rebuilds the committed
+   dataset byte-identically (CSV md5
+   `9a0b36243240934fb5c32284e83c0805`, JSON md5
+   `993d6366bf2ac630a6e60e177dfc0d19`).
 2. **All audits in `src/validate/verify_dataset.py` pass** (93 standing
    audits: per-cycle sums for every column family, roster totals vs
    methodology, all 12 rank columns, clean counts and the generalized
