@@ -215,6 +215,18 @@ commit-back — works without it. The scheduled run covers the F24 leg via
 the six committee sweeps (`config.yaml`, `freshness.f24_committee_sweep`);
 the first live confirmation is the Sunday Nov 15, 2026 run.
 
+**Rate limit — the freshness step can fail on 429, and that no longer blocks the
+deploy.** A standard registered api.data.gov key allows 1,000 requests/hour, but a
+full `--all` freshness run makes ~2,200–2,350 calls in ~45–60 minutes, so it hits
+HTTP 429 (`OVER_RATE_LIMIT`) roughly 25 minutes in. The fetch helpers retry a 429 —
+honoring `Retry-After` when present, otherwise exponential backoff up to a cap —
+and fail loudly naming the limit and the raise path if the wait exceeds budget. A
+raise to 120 calls/min (7,200/hour) has been requested from apiinfo@fec.gov and is
+pending, not granted. In the scheduled workflow the freshness step is non-blocking
+(`continue-on-error`): if it fails, the dataset/site rebuild and commit-back still
+proceed, and that run's freshness snapshot is simply absent or partial. See
+`methodology.md` §16 for the full account.
+
 **Where to watch runs:** the repo's Actions tab —
 https://github.com/craigSochocki/the-receipts/actions.
 

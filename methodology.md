@@ -1041,3 +1041,29 @@ Production needs a registered api.data.gov key (1,000 req/hr) via the `FEC_API_K
 environment variable (wired in `config.yaml`, default `DEMO_KEY`). A registered key
 was added Nov 12, 2026 by Craig as the `FEC_API_KEY` repository secret; the first
 scheduled run will confirm it by logging whether freshness ran or skipped.
+
+**Rate limit — a full `--all` run will hit it, and what happens then (added Nov 12,
+2026).** A standard registered api.data.gov key is limited to **1,000 requests/hour**.
+A full refresh makes ~2,200–2,350 keyed API calls in ~45–60 minutes, so it will hit
+the limit — HTTP 429 (`OVER_RATE_LIMIT`) — roughly 25 minutes in, well before the run
+finishes. The fetch helpers retry a 429: they honor the `Retry-After` header when the
+API sends one, otherwise they back off exponentially up to a cap. The 1.0 s sleep
+floor between requests and the call-count structure are unchanged — the retry only
+buys time within the run, it does not make the run fit under the limit. If the wait
+the limit demands exceeds the practical budget for the run, the freshness step fails
+loudly: the error names the 1,000/hour limit and the raise path below, rather than
+failing silently or emitting a partial snapshot as if it were complete.
+
+**The raise path (requested, pending).** The documented raise is to **120
+calls/minute (7,200/hour)**, requested by email to apiinfo@fec.gov. Until it is
+granted, a full `--all` run cannot complete inside one hourly window on a standard
+key; a granted raise would put the ~2,200–2,350 calls comfortably inside the limit.
+The request is pending — the raise is not granted yet, and no run should assume it.
+
+**A freshness failure does not block the data deploy.** In the scheduled workflow
+the freshness step is non-blocking (`continue-on-error`): if it fails — including
+on the rate limit — the rebuild, the site build, and the commit-back of the dataset
+and site still proceed. The freshness snapshot for that run is simply absent or
+partial (uploaded as a workflow artifact when one exists); the dataset itself is
+unaffected, because freshness is an overlay that is never merged into dataset
+totals.
