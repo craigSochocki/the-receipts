@@ -50,6 +50,19 @@ documented is not done.
   GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -o ProxyCommand='nc -X connect -x 198.19.0.1:3128 %h %p'" git push
   ```
 
+- **SSH home-dir split (Nov 12, 2026):** the shell's `$HOME` is
+  `/home/hatch` but ssh resolves `~` from the passwd entry, which is
+  `/root` — so ssh reads `known_hosts` from `/root/.ssh/known_hosts`,
+  NOT `~/.ssh/known_hosts`. If a push fails with "Host key
+  verification failed" even though `~/.ssh/known_hosts` is populated,
+  copy it over (`cp ~/.ssh/known_hosts /root/.ssh/known_hosts`) and
+  retry; the server key is GitHub's published Ed25519
+  (`SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU`) — verify with
+  `ssh-keygen -lf` before trusting it. A push that prints
+  `28b390f..xxxx master -> master` and then fails on the `ls-remote`
+  verify with "Connection reset" has already succeeded — just retry
+  the `ls-remote` alone.
+
 - After pushing, verify remote master = local HEAD:
 
   ```sh
