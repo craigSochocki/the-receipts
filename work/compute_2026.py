@@ -12,6 +12,17 @@ and the 2026 opposition credit in `opposition-computed.json`:
   credit (float, `0.0` when none).
 - `udp_benefit_2026` = support + credit; `dirty_2026` = corp + AIPAC
   direct + benefit. Individual contributions are NOT dirty money.
+- `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
+  `total_receipts_2026`, `total_disbursements_2026` — the 2026
+  `self_funding_per_cycle` sums, same int-0-when-empty rule.
+  `cash_on_hand_2026` — the 2026 `self_funding_per_cycle` cash on
+  hand (a stock, not a sum); null when the person has no 2026
+  self-funding entry.
+- `other_committees_total_2026` — the 2026
+  `other_committees_per_cycle` total (all seven classes), same rule.
+- `all_ie_support_2026`, `all_ie_oppose_2026`, `all_ie_total_2026` —
+  the 2026 `all_ie_per_cycle` sums (total includes blank-direction
+  rows), same rule.
 - `dep_share_2026` = round((corp + AIPAC) / (individual + corp +
   AIPAC), 4) when the denominator is positive, else null. (The
   denominator is zero for people with no 2026 data, and negative for
@@ -21,11 +32,30 @@ and the 2026 opposition credit in `opposition-computed.json`:
 - `clean_2026` — True when corp, AIPAC direct, UDP support, and UDP
   opposition credit are ALL zero in 2026. Individual contributions
   are ALLOWED: a candidate can raise millions from individuals and
-  still be clean. A person is clean ONLY when a 2026 committee
-  linkage exists — absence of linkage means UNVERIFIED (null), never
-  clean by absence of data. In practice: null iff in_120th == 'yes'
-  AND no 2026 per-cycle entry AND no 2026 UDP entry AND a pre-2026
-  per-cycle entry exists. That is exactly one person (Elaine Luria).
+  still be clean. A person is clean ONLY when 2026 linkage exists —
+  absence of linkage means UNVERIFIED (null), never clean by absence
+  of data. Linkage evidence is a 2026 entry in a committee-money
+  source: a tracked `per_cycle` / `udp_per_cycle` 2026 entry, or a
+  `self_funding_per_cycle` 2026 entry whose coverage end date falls
+  in calendar 2026 (the candidate's own committee filed a 2026-cycle
+  report covering 2026 activity). Other-committee and all-IE 2026
+  entries do NOT establish linkage on their own: they are third-party
+  reports about a race and can be filed under a stale candidate ID —
+  the proof case is Elaine Luria (see below), whose linked ID carries
+  $85,610 of other-committee money and $685,786 of all-IE support in
+  2026 while her real 2026 campaign (H6VA02198, $8,044,063.94
+  receipts, coverage through 10/14/2026) is unlinked. Her linked ID's
+  2026 weball row covers only through 07/15/2025 (a dormant committee
+  winding down, $590.89 receipts), so she stays null. Anthony
+  Constantino is the positive case: his tracked 2026 $0s are real —
+  his self-funding 2026 entry (loans $14,400,000, coverage
+  10/14/2026) plus all-IE support $459,491.94 / oppose $3,721,257.82
+  prove the committee is linked — so he is verified clean=True WITH
+  evidence (his True used to rest on having no per-cycle entries at
+  all, which the old has_pre_2026 guard could not catch). In
+  practice the generalized rule leaves the counts where they are:
+  exactly one null (Luria); True 84 / False 579; 120th House clean
+  67 (63 D, 4 R).
 
 Gap notes appended to `data_notes` (exact committed text):
 - corp_2026 > 0 and individual_2026 == 0: the $0 individual figure is
@@ -82,9 +112,27 @@ def cycle_sum(entries, field):
     return round(sum(vals), 2) if vals else 0
 
 
+def has_2026_linkage(r):
+    """2026 committee linkage evidence (see module docstring).
+
+    True when the person's 2026 campaign committee is verifiably
+    linked: a tracked per_cycle / udp_per_cycle 2026 entry, or a
+    self-funding 2026 entry whose coverage end date falls in calendar
+    2026. Other-committee and all-IE 2026 entries do not count on
+    their own (third-party reports; Luria's stale-ID case).
+    """
+    if any(e['cycle'] == CFG['cycles']['current'] for e in r['per_cycle']):
+        return True
+    if any(e['cycle'] == CFG['cycles']['current'] for e in r['udp_per_cycle']):
+        return True
+    for e in r['self_funding_per_cycle']:
+        if (e['cycle'] == CFG['cycles']['current']
+                and str(e.get('coverage_end_date', '')).endswith('/2026')):
+            return True
+    return False
+
+
 for r in records:
-    pc26 = [e for e in r['per_cycle'] if e['cycle'] == CFG['cycles']['current']]
-    udp26 = [e for e in r['udp_per_cycle'] if e['cycle'] == CFG['cycles']['current']]
     r['individual_2026'] = cycle_sum(r['per_cycle'], 'individual')
     r['corp_2026'] = cycle_sum(r['per_cycle'], 'corporate_pac')
     r['aipac_direct_2026'] = cycle_sum(r['per_cycle'], 'aipac_pac_direct')
@@ -96,11 +144,30 @@ for r in records:
     r['dep_share_2026'] = (round((r['corp_2026'] + r['aipac_direct_2026']) / denom, 4)
                            if denom > 0 else None)
 
+    # New 2026 columns (complete-financial-picture build).
+    sf26 = [e for e in r['self_funding_per_cycle'] if e['cycle'] == CFG['cycles']['current']]
+    r['self_funding_2026'] = (round(sum(e['candidate_contributions'] + e['candidate_loans']
+                                        for e in sf26), 2) if sf26 else 0)
+    r['cand_loans_2026'] = cycle_sum(r['self_funding_per_cycle'], 'candidate_loans')
+    r['cand_contrib_2026'] = cycle_sum(r['self_funding_per_cycle'], 'candidate_contributions')
+    r['total_receipts_2026'] = cycle_sum(r['self_funding_per_cycle'], 'total_receipts')
+    r['total_disbursements_2026'] = cycle_sum(r['self_funding_per_cycle'], 'total_disbursements')
+    r['cash_on_hand_2026'] = (round(sum(e['cash_on_hand'] for e in sf26), 2)
+                              if sf26 else None)
+    oc26 = [e for e in r['other_committees_per_cycle'] if e['cycle'] == CFG['cycles']['current']]
+    r['other_committees_total_2026'] = (
+        round(sum(sum(e[b] for b in ('party_committees', 'leadership_pacs', 'labor_pacs',
+                                     'trade_pacs', 'membership_pacs', 'cooperative_pacs',
+                                     'other_unclassified')) for e in oc26), 2) if oc26 else 0)
+    aie26 = [e for e in r['all_ie_per_cycle'] if e['cycle'] == CFG['cycles']['current']]
+    r['all_ie_support_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_support')
+    r['all_ie_oppose_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_oppose')
+    r['all_ie_total_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_total')
+
     # Clean rule (methodology §14): all four dirty components zero,
-    # and only when a 2026 linkage exists.
-    has_2026 = bool(pc26 or udp26)
-    has_pre_2026 = any(e['cycle'] < CFG['cycles']['current'] for e in r['per_cycle'])
-    if r['in_120th'] == 'yes' and not has_2026 and has_pre_2026:
+    # and only when 2026 linkage exists (generalized Nov 12, 2026 —
+    # the old rule hardcoded the Luria exception via has_pre_2026).
+    if r['in_120th'] == 'yes' and not has_2026_linkage(r):
         r['clean_2026'] = None
         r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
     else:
