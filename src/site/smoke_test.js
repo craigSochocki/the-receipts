@@ -14,7 +14,9 @@
  * Also covers the landing-first front door (dirtiest top 5 + headline
  * comparison, clean story, default front-door mode, #explore switching)
  * and the person marks (party chips + outcome labels) on the front-door
- * lists, finder results, drill-down header, and full table.
+ * lists, finder results, drill-down header, and full table; the
+ * dirty-first leaderboards and Dirty-2026 default sort; and the
+ * composition hemicycles (dot counts per party/status category).
  */
 "use strict";
 const fs = require("fs");
@@ -92,8 +94,8 @@ assert.ok(statsHtml.includes("74"), "stats mention 74 verified clean");
 const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
 assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
 assert.ok(
-  tbodyHtml.indexOf("Warnock") < tbodyHtml.indexOf("Ossoff"),
-  "default sort is total accepted desc (Warnock before Ossoff)");
+  tbodyHtml.indexOf("Stevens") < tbodyHtml.indexOf("Boafo"),
+  "default sort is Dirty 2026 desc (Stevens before Boafo)");
 assert.ok(
   document.getElementById("totals").innerHTML.includes("Total accepted"),
   "totals strip rendered");
@@ -142,10 +144,52 @@ assert.ok(
 
 showTab("leaders");
 const leadersHtml = document.getElementById("leaders").innerHTML;
+assert.ok(leadersHtml.includes("Top 20 — dirtiest in 2026"), "first board is dirtiest 2026");
+assert.ok(
+  leadersHtml.indexOf("dirtiest in 2026") < leadersHtml.indexOf("dirtiest, career") &&
+  leadersHtml.indexOf("dirtiest, career") < leadersHtml.indexOf("total accepted (career)"),
+  "leaderboards lead with dirty, total accepted after");
+assert.ok(leadersHtml.includes("$36,864,670.88"), "career dirty board shows Stevens $36.86M");
+assert.ok(leadersHtml.includes("Hoyer"), "career dirty board has Hoyer");
 assert.ok(leadersHtml.includes("Warnock"), "leaderboard has Warnock");
 assert.ok(leadersHtml.includes("Stevens"), "UDP-benefit board has Stevens");
 assert.ok(leadersHtml.includes("Rick Scott"), "self-funding board has Rick Scott");
 assert.ok(leadersHtml.includes("Talarico"), "all-IE board has Talarico");
+
+/* ---- composition charts (hemicycles): one dot per seat ---- */
+const compHtml = document.getElementById("composition").innerHTML;
+assert.ok(compHtml.includes("House — 435 voting seats"), "House chart captioned 435");
+assert.ok(compHtml.includes("Senate — 100 seats"), "Senate chart captioned 100");
+assert.ok(compHtml.includes(">435<"), "House total in the middle");
+assert.ok(compHtml.includes(">100<"), "Senate total in the middle");
+const countDots = (html, cls, party) =>
+  (html.match(new RegExp('class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
+// The House svg sits before its figcaption; the Senate svg sits after the
+// House figcaption and before its own, so split on the captions.
+const housePart = compHtml.split("House — 435 voting seats")[0];
+const senPart = compHtml.split("House — 435 voting seats")[1].split("Senate — 100 seats")[0];
+assert.strictEqual((housePart.match(/<circle/g) || []).length, 435, "House chart has 435 dots");
+assert.strictEqual(countDots(housePart, "dirty", "D"), 198, "House Dirty D 198");
+assert.strictEqual(countDots(housePart, "clean", "D"), 58, "House Clean D 58");
+assert.strictEqual(countDots(housePart, "dirty", "R"), 169, "House Dirty R 169");
+assert.strictEqual(countDots(housePart, "clean", "R"), 2, "House Clean R 2");
+assert.strictEqual(countDots(housePart, "unopposed", "D"), 2, "House Unopposed 2");
+assert.strictEqual(countDots(housePart, "unverified", "D"), 1, "House Unverified 1");
+assert.strictEqual(countDots(housePart, "uncalled", ""), 5, "House Uncalled 5");
+assert.strictEqual((senPart.match(/<circle/g) || []).length, 100, "Senate chart has 100 dots");
+assert.strictEqual(countDots(senPart, "dirty", "D"), 44, "Senate Dirty D 44");
+assert.strictEqual(countDots(senPart, "clean", "D"), 9, "Senate Clean D 9");
+assert.strictEqual(countDots(senPart, "dirty", "R"), 44, "Senate Dirty R 44");
+assert.strictEqual(countDots(senPart, "clean", "R"), 0, "Senate Clean R 0");
+assert.strictEqual(countDots(senPart, "dirty", "I"), 1, "Senate Dirty I 1");
+assert.strictEqual(countDots(senPart, "clean", "I"), 1, "Senate Clean I 1");
+assert.strictEqual(countDots(senPart, "uncalled", ""), 1, "Senate Uncalled 1");
+assert.ok(compHtml.includes("Dirty D 198"), "House legend shows Dirty D 198");
+assert.ok(compHtml.includes("Uncalled 5"), "House legend shows Uncalled 5");
+assert.ok(compHtml.includes("Dirty D 44"), "Senate legend shows Dirty D 44");
+assert.ok(compHtml.includes("Not shown: 6 non-voting delegates"), "delegate note present");
+assert.ok(compHtml.includes("Clean D 3"), "delegate note shows Clean D 3");
+assert.ok(compHtml.includes("Dirty PPD 1"), "delegate note shows Dirty PPD 1");
 
 showTab("clean");
 assert.ok(

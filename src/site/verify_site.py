@@ -14,7 +14,11 @@ Checks:
     top-10 total-accepted names; 192 primary targets; 53 career-clean
     incoming House members; dirtiest top 5 in 2026 with the #1-vs-next-
     four comparison; party/outcome derivation (535 Won / 124 Not
-    returning / 5 Uncalled, every row with a party source).
+    returning / 5 Uncalled, every row with a party source);
+    leaderboards lead with dirty (2026, then career) and the default
+    table sort is Dirty 2026; dirty_career recomputes and Stevens is
+    the career dirty #1; composition charts reconcile to 435 / 100
+    with per-category counts matching the dataset exactly.
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
@@ -249,6 +253,85 @@ def main():
     check("Stevens headline row is MI-11 and not in the 120th",
           dirty[0]["in_120th"] == "no" and dirty[0]["state"] == "MI"
           and dirty[0]["district_119"] == "11")
+
+    # ---- leaderboards lead with dirty; default sort is Dirty 2026 ----
+    check("leaderboard order: dirtiest 2026, dirtiest career, total accepted",
+          html.index("Top 20 — dirtiest in 2026")
+          < html.index("Top 20 — dirtiest, career")
+          < html.index("Top 20 — total accepted (career)"))
+    check("leaderboards intro frames dirty first",
+          "Dirty money leads" in html
+          and "Individual contributions are not dirty money" in html)
+    check("default table sort is Dirty 2026 desc",
+          "sortKey:'dirty_2026'" in html
+          and "sortKey:'total_accepted_career'" not in html)
+    dc_top = sorted([r for r in decoded
+                     if isinstance(r["dirty_career"], (int, float))],
+                    key=lambda r: -r["dirty_career"])[:3]
+    check("career dirty top 3: Stevens, Hoyer, Latimer",
+          [r["full_name"] for r in dc_top]
+          == ["Haley M. Stevens", "Steny H. Hoyer", "George Latimer"],
+          f"got {[r['full_name'] for r in dc_top]}")
+    check("dirty_career is null only for Armstrong",
+          [r["full_name"] for r in decoded if r["dirty_career"] is None]
+          == ["Alan Armstrong"])
+
+    # ---- composition charts (hemicycles): reconcile to 435 / 100 ----
+    check("composition section exists on the front door",
+          'id="composition"' in html and "renderComposition" in html
+          and "hemicycleSVG" in html and "compositionSeats" in html)
+    check("composition sits after the clean story, before the finder",
+          html.index('id="landing-story"') < html.index('id="composition"')
+          < html.index('id="finder"'))
+    COMP_LITERALS = ["Dirty D 198", "Clean D 58", "Dirty R 169",
+                     "Clean R 2", "Dirty D 44", "Clean D 9", "Dirty R 44",
+                     "Clean I 1", "Dirty I 1", "Unopposed 2",
+                     "Unverified 1", "Uncalled 5"]
+    check("composition counts are computed, not hardcoded",
+          not any(lit in prose for lit in COMP_LITERALS),
+          "a literal composition count survives in the built page")
+    TERR = {"AS", "GU", "MP", "PR", "VI", "DC"}
+    def party_letter(r):
+        p = r["party_120"] or r["party_119"] or "?"
+        return {"Democrat": "D", "Republican": "R",
+                "Independent": "I"}.get(p, p)
+    def seat_status(r):
+        if r["clean_2026"] is True:
+            return "clean"
+        if r["clean_2026"] is False:
+            return "dirty"
+        return "unopposed" if r["unopposed_2026"] is True else "unverified"
+    from collections import Counter as _Counter
+    house_voting = [r for r in incoming if r["chamber_120"] == "House"
+                    and r["state"] not in TERR]
+    sen = [r for r in incoming if r["chamber_120"] == "Senate"]
+    h_counts = _Counter((party_letter(r), seat_status(r))
+                        for r in house_voting)
+    s_counts = _Counter((party_letter(r), seat_status(r)) for r in sen)
+    check("House composition reconciles: 430 named voting + 5 uncalled = 435",
+          len(house_voting) == 430 and 435 - len(house_voting) == 5,
+          f"named {len(house_voting)}")
+    check("House chart counts: Dirty D 198, Clean D 58, Dirty R 169, Clean R 2, Unopposed 2, Unverified 1",
+          h_counts == {("D", "dirty"): 198, ("D", "clean"): 58,
+                       ("D", "unopposed"): 2, ("D", "unverified"): 1,
+                       ("R", "dirty"): 169, ("R", "clean"): 2},
+          f"got {dict(h_counts)}")
+    check("Senate composition reconciles: 99 named + 1 uncalled = 100",
+          len(sen) == 99 and 100 - len(sen) == 1, f"named {len(sen)}")
+    check("Senate chart counts: Dirty D 44, Clean D 9, Dirty R 44, Dirty I 1, Clean I 1",
+          s_counts == {("D", "dirty"): 44, ("D", "clean"): 9,
+                       ("R", "dirty"): 44, ("I", "dirty"): 1,
+                       ("I", "clean"): 1},
+          f"got {dict(s_counts)}")
+    delegates = [r for r in incoming if r["chamber_120"] == "House"
+                 and r["state"] in TERR]
+    d_counts = _Counter((party_letter(r), seat_status(r))
+                        for r in delegates)
+    check("delegates not plotted: 6 (Clean D 3, Clean R 1, Unopposed R 1, Dirty PPD 1)",
+          len(delegates) == 6
+          and d_counts == {("D", "clean"): 3, ("R", "clean"): 1,
+                           ("R", "unopposed"): 1, ("PPD", "dirty"): 1},
+          f"got {dict(d_counts)}")
 
     # ---- party chips + outcome labels (person marks) ----
     # The chips render in JS at runtime (asserted in the smoke test);
