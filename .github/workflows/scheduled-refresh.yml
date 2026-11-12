@@ -25,6 +25,11 @@
 #   - A FAILED rebuild/verify commits NOTHING and pushes NOTHING: the
 #     commit step is gated on the earlier steps succeeding (the default
 #     for steps after a failure, plus an explicit `if: success()`).
+#   - A FAILED freshness step does NOT block the deploy: it is
+#     continue-on-error by design — a 429 mid-run is expected (a
+#     registered key allows 1,000 requests/hour; --all makes
+#     ~2,200-2,350 calls) — but it stays LOUD: the step shows failed
+#     and emits a ::error:: annotation. See the freshness section below.
 #
 # CACHE DECISION: NO cache of the bulk data — fresh ./download_bulk.sh
 # every run. The 2026 bulk files are updated IN PLACE by the FEC as new
@@ -105,8 +110,20 @@ jobs:
       # Nov 12, 2026; if the secret is ever removed, this step logs a
       # skip line and the run continues without it. The snapshot is an
       # overlay: it is NEVER merged into dataset totals.
+      # NON-BLOCKING BY DESIGN (continue-on-error): a registered
+      # api.data.gov key is rate-limited to 1,000 requests/hour, but
+      # --all makes ~2,200-2,350 calls, so a 429 mid-run is EXPECTED,
+      # not exceptional. That failure must never block the dataset/site
+      # deploy. With continue-on-error, a failed step's conclusion is
+      # recorded as 'success', so success() in the commit step still
+      # passes; only a rebuild/verify failure (no continue-on-error)
+      # blocks the commit. LOUD, NOT SILENT: the step still shows as
+      # failed in the run (outcome: failure) and the run block below
+      # emits an explicit ::error:: annotation naming the step and
+      # pointing at the log / artifact.
       - name: Freshness refresh (registered key only)
         if: ${{ secrets.FEC_API_KEY != '' }}
+        continue-on-error: true
         env:
           FEC_API_KEY: ${{ secrets.FEC_API_KEY }}
         # Timeout math: config.yaml sets fec_api.sleep_between_requests_
@@ -118,15 +135,39 @@ jobs:
         # gives ~1.5x headroom; a slow API day fails loudly instead of
         # hanging until the job timeout.
         timeout-minutes: 90
-        run: python3 src/ingest/pull_freshness.py --all
+        run: |
+          # continue-on-error is on this step: a failure here must NOT
+          # block the deploy, but it must NOT be silent either. The
+          # || { ...; exit $rc; } form preserves the driver's non-zero
+          # exit code (so GitHub records outcome: failure) while
+          # printing an explicit error annotation first.
+          python3 src/ingest/pull_freshness.py --all || {
+            rc=$?
+            echo "::error::Freshness refresh (registered key only) FAILED with exit code $rc — the freshness snapshot may be missing or partial. The dataset/site deploy is NOT blocked by this failure (see continue-on-error above), but freshness data is stale: check the run log above and the freshness-snapshot artifact (if one was uploaded) for the failing call."
+            exit "$rc"
+          }
 
+      # if: always() (not success()): with continue-on-error on the
+      # freshness step, a failed run may still have produced a partial
+      # snapshot worth keeping — and the upload must run even after a
+      # freshness failure so the failure stays inspectable.
+      # if-no-files-found: warn (NOT error), deliberately: a failed
+      # freshness run often leaves NO snapshot file. With 'error', the
+      # upload step itself would fail — and since it has no
+      # continue-on-error, that would make success() false at the
+      # commit step and silently re-block the deploy through the back
+      # door, defeating the non-blocking design above. 'warn' keeps
+      # the upload from ever failing the job; the freshness step's own
+      # failure (outcome: failure + ::error:: annotation) is the one
+      # loud signal, and a missing snapshot shows as a warning in the
+      # upload step's log.
       - name: Upload freshness snapshot artifact
-        if: ${{ success() && secrets.FEC_API_KEY != '' }}
+        if: ${{ always() && secrets.FEC_API_KEY != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: freshness-snapshot-${{ github.run_number }}
           path: data/intermediate/freshness_snapshot.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
 
       - name: Freshness skipped (no FEC API key)
