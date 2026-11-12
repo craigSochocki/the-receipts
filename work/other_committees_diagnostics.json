@@ -1,0 +1,2902 @@
+{
+ "per_cycle": [
+  {
+   "cycle": 1980,
+   "cm_rows": 7884,
+   "cm_bad_fields": 0,
+   "pas2_rows": 132147,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 1345,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 4292800,
+    "leadership_pacs": 0,
+    "labor_pacs": 10687800,
+    "trade_pacs": 25241500,
+    "membership_pacs": 14032500,
+    "cooperative_pacs": 1885000,
+    "other_unclassified": 1050000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 46297700,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 850000,
+    "candidate_committees": 200000
+   }
+  },
+  {
+   "cycle": 1982,
+   "cm_rows": 8291,
+   "cm_bad_fields": 0,
+   "pas2_rows": 167410,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 1600,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 6187900,
+    "leadership_pacs": 0,
+    "labor_pacs": 41812800,
+    "trade_pacs": 22352000,
+    "membership_pacs": 18614000,
+    "cooperative_pacs": 2055000,
+    "other_unclassified": 3307500
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 19295700,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 3292500,
+    "qn_blank_org": 15000
+   }
+  },
+  {
+   "cycle": 1984,
+   "cm_rows": 8465,
+   "cm_bad_fields": 0,
+   "pas2_rows": 198674,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 2300,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 4821600,
+    "leadership_pacs": 0,
+    "labor_pacs": 36676200,
+    "trade_pacs": 41047700,
+    "membership_pacs": 20342400,
+    "cooperative_pacs": 4550000,
+    "other_unclassified": 22398800
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 39744300,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 21392300,
+    "qn_blank_org": 1006500
+   }
+  },
+  {
+   "cycle": 1986,
+   "cm_rows": 8518,
+   "cm_bad_fields": 0,
+   "pas2_rows": 213355,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 3079,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 3257400,
+    "leadership_pacs": 0,
+    "labor_pacs": 40646700,
+    "trade_pacs": 66784900,
+    "membership_pacs": 21279100,
+    "cooperative_pacs": 5605000,
+    "other_unclassified": 3945000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 80660100,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 2395000,
+    "qn_blank_org": 1550000
+   }
+  },
+  {
+   "cycle": 1988,
+   "cm_rows": 9218,
+   "cm_bad_fields": 0,
+   "pas2_rows": 214008,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 3189,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 3196800,
+    "leadership_pacs": 0,
+    "labor_pacs": 95773100,
+    "trade_pacs": 68566000,
+    "membership_pacs": 25457500,
+    "cooperative_pacs": 3190000,
+    "other_unclassified": 4433000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 53861300,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 3264600,
+    "qn_blank_org": 1168400
+   }
+  },
+  {
+   "cycle": 1990,
+   "cm_rows": 9134,
+   "cm_bad_fields": 0,
+   "pas2_rows": 199434,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 4873,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 3339800,
+    "leadership_pacs": 0,
+    "labor_pacs": 139765700,
+    "trade_pacs": 129607800,
+    "membership_pacs": 47751700,
+    "cooperative_pacs": 5815000,
+    "other_unclassified": 7054000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 136626600,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 3209000,
+    "candidate_committees": 3845000
+   }
+  },
+  {
+   "cycle": 1992,
+   "cm_rows": 10759,
+   "cm_bad_fields": 0,
+   "pas2_rows": 228783,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 7701,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 10118600,
+    "leadership_pacs": 0,
+    "labor_pacs": 252558700,
+    "trade_pacs": 223261700,
+    "membership_pacs": 52878800,
+    "cooperative_pacs": 9805000,
+    "other_unclassified": 20829600
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 200357000,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 9416900,
+    "qn_blank_org": 11412700
+   }
+  },
+  {
+   "cycle": 1994,
+   "cm_rows": 10815,
+   "cm_bad_fields": 0,
+   "pas2_rows": 227032,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 10168,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 10083600,
+    "leadership_pacs": 0,
+    "labor_pacs": 302158200,
+    "trade_pacs": 245152700,
+    "membership_pacs": 45194600,
+    "cooperative_pacs": 14240000,
+    "other_unclassified": 35350600
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 241920000,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 14248400,
+    "qn_blank_org": 21102200
+   }
+  },
+  {
+   "cycle": 1996,
+   "cm_rows": 11075,
+   "cm_bad_fields": 0,
+   "pas2_rows": 250679,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 13278,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 29033300,
+    "leadership_pacs": 0,
+    "labor_pacs": 381870000,
+    "trade_pacs": 383725600,
+    "membership_pacs": 102991100,
+    "cooperative_pacs": 16837500,
+    "other_unclassified": 125140800
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 413667700,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 75568700,
+    "qn_blank_org": 49472100,
+    "other_types": 100000
+   }
+  },
+  {
+   "cycle": 1998,
+   "cm_rows": 9976,
+   "cm_bad_fields": 0,
+   "pas2_rows": 229613,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 14937,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 17982400,
+    "leadership_pacs": 0,
+    "labor_pacs": 446971000,
+    "trade_pacs": 467551700,
+    "membership_pacs": 93991800,
+    "cooperative_pacs": 19005000,
+    "other_unclassified": 155934500
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 469340100,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 56803400,
+    "qn_blank_org": 99131100
+   }
+  },
+  {
+   "cycle": 2000,
+   "cm_rows": 9577,
+   "cm_bad_fields": 0,
+   "pas2_rows": 247340,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 15365,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 16537700,
+    "leadership_pacs": 0,
+    "labor_pacs": 480037100,
+    "trade_pacs": 481838300,
+    "membership_pacs": 77792900,
+    "cooperative_pacs": 19575000,
+    "other_unclassified": 165246000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 535384300,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 41324800,
+    "qn_blank_org": 123862800,
+    "joint_fundraisers": 58400
+   }
+  },
+  {
+   "cycle": 2002,
+   "cm_rows": 9103,
+   "cm_bad_fields": 0,
+   "pas2_rows": 237106,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 22660,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 0,
+   "dedup_dropped_cents": 0,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 75796800,
+    "leadership_pacs": 0,
+    "labor_pacs": 681201000,
+    "trade_pacs": 815106100,
+    "membership_pacs": 150038500,
+    "cooperative_pacs": 23350000,
+    "other_unclassified": 410562000
+   },
+   "kept_earmark_cents": {},
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 1030785000,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 63949200,
+    "qn_blank_org": 344146200,
+    "joint_fundraisers": 2466600
+   }
+  },
+  {
+   "cycle": 2004,
+   "cm_rows": 9322,
+   "cm_bad_fields": 0,
+   "pas2_rows": 245668,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 25449,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 158,
+   "dedup_dropped_cents": 36531700,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 21146400,
+    "leadership_pacs": 0,
+    "labor_pacs": 758843700,
+    "trade_pacs": 1030902800,
+    "membership_pacs": 162150700,
+    "cooperative_pacs": 34275900,
+    "other_unclassified": 458974200
+   },
+   "kept_earmark_cents": {
+    "party_committees": 274300,
+    "trade_pacs": 10000,
+    "other_unclassified": 25000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 1339066100,
+   "kept_corporate_earmark_cents": 215000,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 71206100,
+    "qn_blank_org": 387668100,
+    "joint_fundraisers": 100000
+   }
+  },
+  {
+   "cycle": 2006,
+   "cm_rows": 9282,
+   "cm_bad_fields": 0,
+   "pas2_rows": 266703,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 27475,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 18,
+   "dedup_dropped_cents": 3150000,
+   "void_earmark_rows": 4,
+   "void_earmark_cents": -75000,
+   "kept_cents": {
+    "party_committees": 57664100,
+    "leadership_pacs": 100000,
+    "labor_pacs": 928214700,
+    "trade_pacs": 1185486700,
+    "membership_pacs": 144448200,
+    "cooperative_pacs": 50960000,
+    "other_unclassified": 689881300
+   },
+   "kept_earmark_cents": {
+    "trade_pacs": 50000,
+    "other_unclassified": 520000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 1442635300,
+   "kept_corporate_earmark_cents": 20000,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 478187500,
+    "candidate_committees": 211172500,
+    "joint_fundraisers": 521300
+   }
+  },
+  {
+   "cycle": 2008,
+   "cm_rows": 10017,
+   "cm_bad_fields": 0,
+   "pas2_rows": 305735,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 46388,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 10,
+   "dedup_dropped_cents": 1870000,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 33495200,
+    "leadership_pacs": 70276900,
+    "labor_pacs": 1130728200,
+    "trade_pacs": 1398702500,
+    "membership_pacs": 1144890100,
+    "cooperative_pacs": 122274200,
+    "other_unclassified": 1235080400
+   },
+   "kept_earmark_cents": {
+    "party_committees": 450000,
+    "other_unclassified": 150000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 3223168500,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 427029300,
+    "qn_blank_org": 794330300,
+    "other_types": 129500,
+    "joint_fundraisers": 13591300
+   }
+  },
+  {
+   "cycle": 2010,
+   "cm_rows": 11138,
+   "cm_bad_fields": 0,
+   "pas2_rows": 325095,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 55387,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 8,
+   "dedup_dropped_cents": 1900000,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 64975000,
+    "leadership_pacs": 635521900,
+    "labor_pacs": 1408408300,
+    "trade_pacs": 1721152800,
+    "membership_pacs": 1261889200,
+    "cooperative_pacs": 111496600,
+    "other_unclassified": 618231400
+   },
+   "kept_earmark_cents": {
+    "trade_pacs": 150000,
+    "other_unclassified": 100000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 3910074800,
+   "kept_corporate_earmark_cents": 150000,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 227466800,
+    "qn_blank_org": 381544000,
+    "joint_fundraisers": 9220600
+   }
+  },
+  {
+   "cycle": 2012,
+   "cm_rows": 14455,
+   "cm_bad_fields": 0,
+   "pas2_rows": 395069,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 63988,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 7,
+   "dedup_dropped_cents": 5260000,
+   "void_earmark_rows": 3,
+   "void_earmark_cents": -1500,
+   "kept_cents": {
+    "party_committees": 47520400,
+    "leadership_pacs": 800289200,
+    "labor_pacs": 1641804700,
+    "trade_pacs": 1987526200,
+    "membership_pacs": 1417798700,
+    "cooperative_pacs": 137655000,
+    "other_unclassified": 805422400
+   },
+   "kept_earmark_cents": {
+    "trade_pacs": 475000,
+    "membership_pacs": 25000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 4643516600,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 303071500,
+    "qn_blank_org": 424579400,
+    "joint_fundraisers": 6411500,
+    "hybrid_pacs": 71360000
+   }
+  },
+  {
+   "cycle": 2014,
+   "cm_rows": 14905,
+   "cm_bad_fields": 0,
+   "pas2_rows": 350272,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 90524,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 73,
+   "dedup_dropped_cents": 13027800,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 52838800,
+    "leadership_pacs": 1349341300,
+    "labor_pacs": 1810609000,
+    "trade_pacs": 2928243000,
+    "membership_pacs": 1897668500,
+    "cooperative_pacs": 185002500,
+    "other_unclassified": 1828807600
+   },
+   "kept_earmark_cents": {
+    "trade_pacs": 895000,
+    "membership_pacs": 150000,
+    "other_unclassified": 35000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 7122458100,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 718831300,
+    "candidate_committees": 999677700,
+    "hybrid_pacs": 53802500,
+    "super_pacs": 120000,
+    "joint_fundraisers": 56376100
+   }
+  },
+  {
+   "cycle": 2016,
+   "cm_rows": 17651,
+   "cm_bad_fields": 0,
+   "pas2_rows": 516385,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 103472,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 20,
+   "dedup_dropped_cents": 6375000,
+   "void_earmark_rows": 0,
+   "void_earmark_cents": 0,
+   "kept_cents": {
+    "party_committees": 52400300,
+    "leadership_pacs": 1432612700,
+    "labor_pacs": 1906979600,
+    "trade_pacs": 3439642400,
+    "membership_pacs": 2222341000,
+    "cooperative_pacs": 219020000,
+    "other_unclassified": 1404184400
+   },
+   "kept_earmark_cents": {
+    "party_committees": 50000,
+    "leadership_pacs": 4680000,
+    "trade_pacs": 350000,
+    "membership_pacs": 20415600,
+    "other_unclassified": 2955000
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 8068134600,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 316975500,
+    "qn_blank_org": 968795800,
+    "hybrid_pacs": 96404600,
+    "joint_fundraisers": 21758500,
+    "super_pacs": 250000
+   }
+  },
+  {
+   "cycle": 2018,
+   "cm_rows": 19022,
+   "cm_bad_fields": 0,
+   "pas2_rows": 349820,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 125946,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 33,
+   "dedup_dropped_cents": 5819000,
+   "void_earmark_rows": 3,
+   "void_earmark_cents": -44600,
+   "kept_cents": {
+    "party_committees": 67801800,
+    "leadership_pacs": 2387251300,
+    "labor_pacs": 2576946700,
+    "trade_pacs": 4254655300,
+    "membership_pacs": 1477123600,
+    "cooperative_pacs": 268327500,
+    "other_unclassified": 2937121200
+   },
+   "kept_earmark_cents": {
+    "trade_pacs": 1791000,
+    "membership_pacs": 18959100,
+    "other_unclassified": 1077400
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 9164260100,
+   "kept_corporate_earmark_cents": 50000,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 2116777000,
+    "candidate_committees": 537082500,
+    "hybrid_pacs": 240048500,
+    "joint_fundraisers": 33158200,
+    "super_pacs": 10055000
+   }
+  },
+  {
+   "cycle": 2020,
+   "cm_rows": 18286,
+   "cm_bad_fields": 0,
+   "pas2_rows": 887829,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 259893,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 33,
+   "dedup_dropped_cents": 6700000,
+   "void_earmark_rows": 4,
+   "void_earmark_cents": -7500,
+   "kept_cents": {
+    "party_committees": 159711900,
+    "leadership_pacs": 3066879500,
+    "labor_pacs": 2860214700,
+    "trade_pacs": 5147105200,
+    "membership_pacs": 2327181400,
+    "cooperative_pacs": 330110000,
+    "other_unclassified": 4178614700
+   },
+   "kept_earmark_cents": {
+    "leadership_pacs": 2660000,
+    "trade_pacs": 2800000,
+    "membership_pacs": 9867500,
+    "other_unclassified": 2144700
+   },
+   "kept_winred_cents": 556556500,
+   "kept_corporate_cents": 11523793200,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 0,
+   "kept_aipac_earmark_cents": 0,
+   "unclassified_composition_cents": {
+    "candidate_committees": 667097000,
+    "qn_blank_org": 2430979800,
+    "hybrid_pacs": 470960600,
+    "joint_fundraisers": 52253200,
+    "winred_conduit": 556556500,
+    "super_pacs": 767600
+   }
+  },
+  {
+   "cycle": 2022,
+   "cm_rows": 19792,
+   "cm_bad_fields": 0,
+   "pas2_rows": 749163,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 369968,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 137,
+   "dedup_dropped_cents": 36565300,
+   "void_earmark_rows": 23,
+   "void_earmark_cents": -1580500,
+   "kept_cents": {
+    "party_committees": 154338300,
+    "leadership_pacs": 3931289900,
+    "labor_pacs": 3538303800,
+    "trade_pacs": 6204557300,
+    "membership_pacs": 2709154600,
+    "cooperative_pacs": 432212400,
+    "other_unclassified": 3994373100
+   },
+   "kept_earmark_cents": {
+    "party_committees": 200000,
+    "leadership_pacs": 50650000,
+    "trade_pacs": 1680000,
+    "membership_pacs": 4246100,
+    "other_unclassified": 2102500
+   },
+   "kept_winred_cents": -513267700,
+   "kept_corporate_cents": 12359057300,
+   "kept_corporate_earmark_cents": 0,
+   "kept_aipac_cents": 215530000,
+   "kept_aipac_earmark_cents": 50000,
+   "unclassified_composition_cents": {
+    "candidate_committees": 851761200,
+    "hybrid_pacs": 710685600,
+    "qn_blank_org": 2866468400,
+    "super_pacs": 470400,
+    "joint_fundraisers": 78255200,
+    "winred_conduit": -513267700
+   }
+  },
+  {
+   "cycle": 2024,
+   "cm_rows": 20937,
+   "cm_bad_fields": 0,
+   "pas2_rows": 703163,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 443351,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 59,
+   "dedup_dropped_cents": 14025000,
+   "void_earmark_rows": 1016,
+   "void_earmark_cents": -55714700,
+   "kept_cents": {
+    "party_committees": 118211600,
+    "leadership_pacs": 4598491000,
+    "labor_pacs": 4167348500,
+    "trade_pacs": 7884770600,
+    "membership_pacs": 3418006400,
+    "cooperative_pacs": 520336600,
+    "other_unclassified": 5491971200
+   },
+   "kept_earmark_cents": {
+    "party_committees": 900000,
+    "leadership_pacs": 15327500,
+    "labor_pacs": 79000,
+    "trade_pacs": 6210000,
+    "membership_pacs": 134543100,
+    "other_unclassified": 64540500
+   },
+   "kept_winred_cents": -566927700,
+   "kept_corporate_cents": 15650723000,
+   "kept_corporate_earmark_cents": 200000,
+   "kept_aipac_cents": 275781000,
+   "kept_aipac_earmark_cents": 2141000,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 3655218400,
+    "hybrid_pacs": 933283600,
+    "candidate_committees": 1088626900,
+    "joint_fundraisers": 374782500,
+    "winred_conduit": -566927700,
+    "super_pacs": 6787500,
+    "other_types": 200000
+   }
+  },
+  {
+   "cycle": 2026,
+   "cm_rows": 21057,
+   "cm_bad_fields": 0,
+   "pas2_rows": 239201,
+   "pas2_bad_fields": 0,
+   "pas2_matched_roster": 195911,
+   "cm_missing_committees": 0,
+   "cm_missing_rows": 0,
+   "dedup_dropped_rows": 48,
+   "dedup_dropped_cents": 12555500,
+   "void_earmark_rows": 322,
+   "void_earmark_cents": -5004200,
+   "kept_cents": {
+    "party_committees": 230447500,
+    "leadership_pacs": 4983546800,
+    "labor_pacs": 3727306600,
+    "trade_pacs": 7485600300,
+    "membership_pacs": 3205018300,
+    "cooperative_pacs": 475878400,
+    "other_unclassified": 5698915400
+   },
+   "kept_earmark_cents": {
+    "leadership_pacs": 5360400,
+    "trade_pacs": 31224200,
+    "membership_pacs": 59780400,
+    "other_unclassified": 89694100
+   },
+   "kept_winred_cents": 0,
+   "kept_corporate_cents": 15508031000,
+   "kept_corporate_earmark_cents": 2050000,
+   "kept_aipac_cents": 265466300,
+   "kept_aipac_earmark_cents": 16966300,
+   "unclassified_composition_cents": {
+    "qn_blank_org": 3430256700,
+    "hybrid_pacs": 1211828300,
+    "joint_fundraisers": 165621500,
+    "candidate_committees": 890908900,
+    "super_pacs": 300000
+   }
+  }
+ ],
+ "unclassified_composition_career_cents": {
+  "super_pacs": 18750500,
+  "other_types": 429500,
+  "qn_blank_org": 19310562700,
+  "hybrid_pacs": 3788373700,
+  "joint_fundraisers": 814574900,
+  "winred_conduit": -523638900,
+  "candidate_committees": 6887776700
+ },
+ "roster_totals_cents": {
+  "party_committees": 1246220300,
+  "leadership_pacs": 23304425500,
+  "labor_pacs": 29409716800,
+  "trade_pacs": 47662800200,
+  "membership_pacs": 22087917800,
+  "cooperative_pacs": 3017086600,
+  "other_unclassified": 30367381200
+ },
+ "roster_earmark_transmitted_cents": {
+  "party_committees": 1874300,
+  "leadership_pacs": 78677900,
+  "labor_pacs": 79000,
+  "trade_pacs": 45635200,
+  "membership_pacs": 258695400,
+  "cooperative_pacs": 0,
+  "other_unclassified": 165064200
+ },
+ "roster_winred_included_cents": -523638900,
+ "cross_checks_vs_methodology": {
+  "corporate_pac_career": {
+   "recomputed_cents": 97222858400,
+   "methodology_cents": 97222858400,
+   "match": true
+  },
+  "corporate_earmark_transmitted_career": {
+   "recomputed_cents": 2685000,
+   "methodology_cents": 2685000,
+   "match": true
+  },
+  "aipac_pac_direct_career": {
+   "recomputed_cents": 756777300,
+   "methodology_cents": 756777300,
+   "match": true
+  },
+  "aipac_earmark_transmitted_career": {
+   "recomputed_cents": 19157300,
+   "methodology_cents": 19157300,
+   "match": true
+  }
+ },
+ "reconciliation_vs_weball_col26": [
+  {
+   "cycle": 1980,
+   "candidates_with_weball_or_pas2": 6,
+   "weball_other_pol_total_cents": 0,
+   "weball_corrected_total_cents": 0,
+   "pas2_nonparty_gross_cents": 103487300,
+   "pas2_nonparty_net_of_earmarks_cents": 103487300,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": -103487300,
+   "residual_weball_corrected_minus_pas2_gross_cents": -103487300,
+   "residual_weball_corrected_minus_pas2_net_cents": -103487300,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H6MA07101",
+     "residual_cents": -2512500,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 2512500
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -3768100,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 3768100
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -4914500,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 4914500
+    },
+    {
+     "candidate_id": "H0OR03026",
+     "residual_cents": -7279900,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 7279900
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -11398000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 11398000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -73614300,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 73614300
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -11398000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 11398000
+    },
+    {
+     "candidate_id": "H0OR03026",
+     "residual_cents": -7279900,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 7279900
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -4914500,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 4914500
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -3768100,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 3768100
+    }
+   ]
+  },
+  {
+   "cycle": 1982,
+   "candidates_with_weball_or_pas2": 10,
+   "weball_other_pol_total_cents": 0,
+   "weball_corrected_total_cents": 0,
+   "pas2_nonparty_gross_cents": 113624900,
+   "pas2_nonparty_net_of_earmarks_cents": 113624900,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": -113624900,
+   "residual_weball_corrected_minus_pas2_gross_cents": -113624900,
+   "residual_weball_corrected_minus_pas2_net_cents": -113624900,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -400000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 400000
+    },
+    {
+     "candidate_id": "H6MA07101",
+     "residual_cents": -6875000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 6875000
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -6972500,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 6972500
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -7342500,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 7342500
+    },
+    {
+     "candidate_id": "H0OR03026",
+     "residual_cents": -7763600,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 7763600
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H2MD05155",
+     "residual_cents": -22098300,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 22098300
+    },
+    {
+     "candidate_id": "H2IL20026",
+     "residual_cents": -20779000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 20779000
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -18652000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 18652000
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -11865000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 11865000
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": -10877000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 10877000
+    }
+   ]
+  },
+  {
+   "cycle": 1984,
+   "candidates_with_weball_or_pas2": 12,
+   "weball_other_pol_total_cents": 0,
+   "weball_corrected_total_cents": 0,
+   "pas2_nonparty_gross_cents": 169581000,
+   "pas2_nonparty_net_of_earmarks_cents": 169581000,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": -169581000,
+   "residual_weball_corrected_minus_pas2_gross_cents": -169581000,
+   "residual_weball_corrected_minus_pas2_net_cents": -169581000,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H4CA23011",
+     "residual_cents": -40000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 40000
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -5552800,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 5552800
+    },
+    {
+     "candidate_id": "H6MA07101",
+     "residual_cents": -7117700,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 7117700
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -8185000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 8185000
+    },
+    {
+     "candidate_id": "H2MD05155",
+     "residual_cents": -12763900,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 12763900
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -29348200,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 29348200
+    },
+    {
+     "candidate_id": "H2IL20026",
+     "residual_cents": -23542400,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 23542400
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": -21100200,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 21100200
+    },
+    {
+     "candidate_id": "H0OR03026",
+     "residual_cents": -16993300,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 16993300
+    },
+    {
+     "candidate_id": "S4MA00028",
+     "residual_cents": -16073900,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 16073900
+    }
+   ]
+  },
+  {
+   "cycle": 1986,
+   "candidates_with_weball_or_pas2": 16,
+   "weball_other_pol_total_cents": 232011300,
+   "weball_corrected_total_cents": 232011300,
+   "pas2_nonparty_gross_cents": 222178200,
+   "pas2_nonparty_net_of_earmarks_cents": 222178200,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 9833100,
+   "residual_weball_corrected_minus_pas2_gross_cents": 9833100,
+   "residual_weball_corrected_minus_pas2_net_cents": 9833100,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": 8820000,
+     "weball_corrected_cents": 24585000,
+     "pas2_net_cents": 15765000
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": 1179700,
+     "weball_corrected_cents": 97969200,
+     "pas2_net_cents": 96789500
+    },
+    {
+     "candidate_id": "H6MD07020",
+     "residual_cents": 513300,
+     "weball_corrected_cents": 6152300,
+     "pas2_net_cents": 5639000
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": 416500,
+     "weball_corrected_cents": 18570600,
+     "pas2_net_cents": 18154100
+    },
+    {
+     "candidate_id": "H6CA21135",
+     "residual_cents": 350000,
+     "weball_corrected_cents": 700000,
+     "pas2_net_cents": 350000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -735500,
+     "weball_corrected_cents": 9885000,
+     "pas2_net_cents": 10620500
+    },
+    {
+     "candidate_id": "H2IL20026",
+     "residual_cents": -677600,
+     "weball_corrected_cents": 16877400,
+     "pas2_net_cents": 17555000
+    },
+    {
+     "candidate_id": "S4MA00028",
+     "residual_cents": -200000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 200000
+    },
+    {
+     "candidate_id": "H4IL07037",
+     "residual_cents": -180000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 180000
+    },
+    {
+     "candidate_id": "H4CA23011",
+     "residual_cents": -125000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 125000
+    }
+   ]
+  },
+  {
+   "cycle": 1988,
+   "candidates_with_weball_or_pas2": 20,
+   "weball_other_pol_total_cents": 256169000,
+   "weball_corrected_total_cents": 256169000,
+   "pas2_nonparty_gross_cents": 254477700,
+   "pas2_nonparty_net_of_earmarks_cents": 254477700,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 1691300,
+   "residual_weball_corrected_minus_pas2_gross_cents": 1691300,
+   "residual_weball_corrected_minus_pas2_net_cents": 1691300,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H8CA05035",
+     "residual_cents": 1971500,
+     "weball_corrected_cents": 54881500,
+     "pas2_net_cents": 52910000
+    },
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": 1527200,
+     "weball_corrected_cents": 43773900,
+     "pas2_net_cents": 42246700
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": 816400,
+     "weball_corrected_cents": 2588900,
+     "pas2_net_cents": 1772500
+    },
+    {
+     "candidate_id": "H8OH05036",
+     "residual_cents": 716300,
+     "weball_corrected_cents": 2246300,
+     "pas2_net_cents": 1530000
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": 374000,
+     "weball_corrected_cents": 20174000,
+     "pas2_net_cents": 19800000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -1393900,
+     "weball_corrected_cents": 12478100,
+     "pas2_net_cents": 13872000
+    },
+    {
+     "candidate_id": "H6MD07020",
+     "residual_cents": -752000,
+     "weball_corrected_cents": 7225000,
+     "pas2_net_cents": 7977000
+    },
+    {
+     "candidate_id": "H4IL07037",
+     "residual_cents": -510700,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 510700
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -415000,
+     "weball_corrected_cents": 6956600,
+     "pas2_net_cents": 7371600
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -320000,
+     "weball_corrected_cents": 13732500,
+     "pas2_net_cents": 14052500
+    }
+   ]
+  },
+  {
+   "cycle": 1990,
+   "candidates_with_weball_or_pas2": 21,
+   "weball_other_pol_total_cents": 473798900,
+   "weball_corrected_total_cents": 473798900,
+   "pas2_nonparty_gross_cents": 469960600,
+   "pas2_nonparty_net_of_earmarks_cents": 469960600,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 3838300,
+   "residual_weball_corrected_minus_pas2_gross_cents": 3838300,
+   "residual_weball_corrected_minus_pas2_net_cents": 3838300,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": 3260900,
+     "weball_corrected_cents": 39446400,
+     "pas2_net_cents": 36185500
+    },
+    {
+     "candidate_id": "H0CT03072",
+     "residual_cents": 1959600,
+     "weball_corrected_cents": 40180500,
+     "pas2_net_cents": 38220900
+    },
+    {
+     "candidate_id": "H0RI02071",
+     "residual_cents": 1537600,
+     "weball_corrected_cents": 30221600,
+     "pas2_net_cents": 28684000
+    },
+    {
+     "candidate_id": "H4CA23011",
+     "residual_cents": 1480000,
+     "weball_corrected_cents": 21117200,
+     "pas2_net_cents": 19637200
+    },
+    {
+     "candidate_id": "H0OR03026",
+     "residual_cents": 1043800,
+     "weball_corrected_cents": 34124200,
+     "pas2_net_cents": 33080400
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -5860700,
+     "weball_corrected_cents": 107602900,
+     "pas2_net_cents": 113463600
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": -4314500,
+     "weball_corrected_cents": 11483000,
+     "pas2_net_cents": 15797500
+    },
+    {
+     "candidate_id": "H6MA07101",
+     "residual_cents": -550000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 550000
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": -95400,
+     "weball_corrected_cents": 11312600,
+     "pas2_net_cents": 11408000
+    },
+    {
+     "candidate_id": "H4IL07037",
+     "residual_cents": -50000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 50000
+    }
+   ]
+  },
+  {
+   "cycle": 1992,
+   "candidates_with_weball_or_pas2": 35,
+   "weball_other_pol_total_cents": 765557700,
+   "weball_corrected_total_cents": 765557700,
+   "pas2_nonparty_gross_cents": 769809400,
+   "pas2_nonparty_net_of_earmarks_cents": 769809400,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": -4251700,
+   "residual_weball_corrected_minus_pas2_gross_cents": -4251700,
+   "residual_weball_corrected_minus_pas2_net_cents": -4251700,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H6CA21135",
+     "residual_cents": 1898500,
+     "weball_corrected_cents": 18073500,
+     "pas2_net_cents": 16175000
+    },
+    {
+     "candidate_id": "H2NY00010",
+     "residual_cents": 1770000,
+     "weball_corrected_cents": 15390000,
+     "pas2_net_cents": 13620000
+    },
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": 1496600,
+     "weball_corrected_cents": 53107900,
+     "pas2_net_cents": 51611300
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": 1412400,
+     "weball_corrected_cents": 11095800,
+     "pas2_net_cents": 9683400
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": 1195000,
+     "weball_corrected_cents": 990000,
+     "pas2_net_cents": -205000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -9624600,
+     "weball_corrected_cents": 96310500,
+     "pas2_net_cents": 105935100
+    },
+    {
+     "candidate_id": "H2SC02042",
+     "residual_cents": -3009000,
+     "weball_corrected_cents": 10171000,
+     "pas2_net_cents": 13180000
+    },
+    {
+     "candidate_id": "H6VA01117",
+     "residual_cents": -1800000,
+     "weball_corrected_cents": 18625000,
+     "pas2_net_cents": 20425000
+    },
+    {
+     "candidate_id": "H2FL14053",
+     "residual_cents": -1185900,
+     "weball_corrected_cents": 7564000,
+     "pas2_net_cents": 8749900
+    },
+    {
+     "candidate_id": "H2CA43245",
+     "residual_cents": -781300,
+     "weball_corrected_cents": 11208700,
+     "pas2_net_cents": 11990000
+    }
+   ]
+  },
+  {
+   "cycle": 1994,
+   "candidates_with_weball_or_pas2": 41,
+   "weball_other_pol_total_cents": 899787300,
+   "weball_corrected_total_cents": 899787300,
+   "pas2_nonparty_gross_cents": 894099700,
+   "pas2_nonparty_net_of_earmarks_cents": 894099700,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 5687600,
+   "residual_weball_corrected_minus_pas2_gross_cents": 5687600,
+   "residual_weball_corrected_minus_pas2_net_cents": 5687600,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": 4095000,
+     "weball_corrected_cents": 28238000,
+     "pas2_net_cents": 24143000
+    },
+    {
+     "candidate_id": "H2NY00010",
+     "residual_cents": 2767700,
+     "weball_corrected_cents": 21747000,
+     "pas2_net_cents": 18979300
+    },
+    {
+     "candidate_id": "H4TX10028",
+     "residual_cents": 1570100,
+     "weball_corrected_cents": 24180100,
+     "pas2_net_cents": 22610000
+    },
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": 1479700,
+     "weball_corrected_cents": 47175300,
+     "pas2_net_cents": 45695600
+    },
+    {
+     "candidate_id": "H2WA01054",
+     "residual_cents": 1136400,
+     "weball_corrected_cents": 49193900,
+     "pas2_net_cents": 48057500
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H2SC02042",
+     "residual_cents": -5914500,
+     "weball_corrected_cents": 13485500,
+     "pas2_net_cents": 19400000
+    },
+    {
+     "candidate_id": "H2CA37023",
+     "residual_cents": -3271000,
+     "weball_corrected_cents": 26003800,
+     "pas2_net_cents": 29274800
+    },
+    {
+     "candidate_id": "H4MS01078",
+     "residual_cents": -2584600,
+     "weball_corrected_cents": 19060200,
+     "pas2_net_cents": 21644800
+    },
+    {
+     "candidate_id": "H6VA01117",
+     "residual_cents": -1167200,
+     "weball_corrected_cents": 13885000,
+     "pas2_net_cents": 15052200
+    },
+    {
+     "candidate_id": "S2WA00189",
+     "residual_cents": -1083500,
+     "weball_corrected_cents": 6790000,
+     "pas2_net_cents": 7873500
+    }
+   ]
+  },
+  {
+   "cycle": 1996,
+   "candidates_with_weball_or_pas2": 56,
+   "weball_other_pol_total_cents": 1611468300,
+   "weball_corrected_total_cents": 1386731300,
+   "pas2_nonparty_gross_cents": 1453266000,
+   "pas2_nonparty_net_of_earmarks_cents": 1453266000,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 158202300,
+   "residual_weball_corrected_minus_pas2_gross_cents": -66534700,
+   "residual_weball_corrected_minus_pas2_net_cents": -66534700,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 3,
+   "exact_matches_corrected_net": 3,
+   "dedup_dropped_ids_zeroed": 2,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S6IL00151",
+     "residual_cents": 3266500,
+     "weball_corrected_cents": 121867100,
+     "pas2_net_cents": 118600600
+    },
+    {
+     "candidate_id": "H6KS01096",
+     "residual_cents": 1497800,
+     "weball_corrected_cents": 12742800,
+     "pas2_net_cents": 11245000
+    },
+    {
+     "candidate_id": "H4TX10028",
+     "residual_cents": 1330000,
+     "weball_corrected_cents": 24192500,
+     "pas2_net_cents": 22862500
+    },
+    {
+     "candidate_id": "H8VT01016",
+     "residual_cents": 1308800,
+     "weball_corrected_cents": 22743800,
+     "pas2_net_cents": 21435000
+    },
+    {
+     "candidate_id": "H2GA02031",
+     "residual_cents": 1176200,
+     "weball_corrected_cents": 37322400,
+     "pas2_net_cents": 36146200
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S6OR00110",
+     "residual_cents": -48756600,
+     "weball_corrected_cents": 92349900,
+     "pas2_net_cents": 141106500
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -12420200,
+     "weball_corrected_cents": 118860600,
+     "pas2_net_cents": 131280800
+    },
+    {
+     "candidate_id": "H2TX03126",
+     "residual_cents": -4401000,
+     "weball_corrected_cents": 28219100,
+     "pas2_net_cents": 32620100
+    },
+    {
+     "candidate_id": "H6AL04098",
+     "residual_cents": -3497500,
+     "weball_corrected_cents": 17656600,
+     "pas2_net_cents": 21154100
+    },
+    {
+     "candidate_id": "H6TX02079",
+     "residual_cents": -2783000,
+     "weball_corrected_cents": 6707000,
+     "pas2_net_cents": 9490000
+    }
+   ]
+  },
+  {
+   "cycle": 1998,
+   "candidates_with_weball_or_pas2": 59,
+   "weball_other_pol_total_cents": 1633870500,
+   "weball_corrected_total_cents": 1633870500,
+   "pas2_nonparty_gross_cents": 1670776500,
+   "pas2_nonparty_net_of_earmarks_cents": 1670776500,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": -36906000,
+   "residual_weball_corrected_minus_pas2_gross_cents": -36906000,
+   "residual_weball_corrected_minus_pas2_net_cents": -36906000,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H2SC02042",
+     "residual_cents": 11469300,
+     "weball_corrected_cents": 18415000,
+     "pas2_net_cents": 6945700
+    },
+    {
+     "candidate_id": "S8NY00082",
+     "residual_cents": 3784600,
+     "weball_corrected_cents": 59574600,
+     "pas2_net_cents": 55790000
+    },
+    {
+     "candidate_id": "S6OR00110",
+     "residual_cents": 2438700,
+     "weball_corrected_cents": 101940300,
+     "pas2_net_cents": 99501600
+    },
+    {
+     "candidate_id": "H8WI00018",
+     "residual_cents": 2387000,
+     "weball_corrected_cents": 33937600,
+     "pas2_net_cents": 31550600
+    },
+    {
+     "candidate_id": "H2MD05155",
+     "residual_cents": 2309500,
+     "weball_corrected_cents": 71612000,
+     "pas2_net_cents": 69302500
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S8ID00027",
+     "residual_cents": -27409900,
+     "weball_corrected_cents": 79471500,
+     "pas2_net_cents": 106881400
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -8035400,
+     "weball_corrected_cents": 133885700,
+     "pas2_net_cents": 141921100
+    },
+    {
+     "candidate_id": "H6WA09025",
+     "residual_cents": -7329200,
+     "weball_corrected_cents": 31693300,
+     "pas2_net_cents": 39022500
+    },
+    {
+     "candidate_id": "H0NY16010",
+     "residual_cents": -6367500,
+     "weball_corrected_cents": 1795000,
+     "pas2_net_cents": 8162500
+    },
+    {
+     "candidate_id": "H8ID02064",
+     "residual_cents": -4588500,
+     "weball_corrected_cents": 44911500,
+     "pas2_net_cents": 49500000
+    }
+   ]
+  },
+  {
+   "cycle": 2000,
+   "candidates_with_weball_or_pas2": 62,
+   "weball_other_pol_total_cents": 1801107100,
+   "weball_corrected_total_cents": 1801107100,
+   "pas2_nonparty_gross_cents": 1776411300,
+   "pas2_nonparty_net_of_earmarks_cents": 1776411300,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 24695800,
+   "residual_weball_corrected_minus_pas2_gross_cents": 24695800,
+   "residual_weball_corrected_minus_pas2_net_cents": 24695800,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H0MO06073",
+     "residual_cents": 11122600,
+     "weball_corrected_cents": 71017800,
+     "pas2_net_cents": 59895200
+    },
+    {
+     "candidate_id": "H0CA27085",
+     "residual_cents": 6264500,
+     "weball_corrected_cents": 75688200,
+     "pas2_net_cents": 69423700
+    },
+    {
+     "candidate_id": "H0CA31087",
+     "residual_cents": 4219900,
+     "weball_corrected_cents": 29808500,
+     "pas2_net_cents": 25588600
+    },
+    {
+     "candidate_id": "H2SC02042",
+     "residual_cents": 3245000,
+     "weball_corrected_cents": 31475000,
+     "pas2_net_cents": 28230000
+    },
+    {
+     "candidate_id": "S8NY00082",
+     "residual_cents": 2448700,
+     "weball_corrected_cents": 54855000,
+     "pas2_net_cents": 52406300
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H2TX03126",
+     "residual_cents": -3774300,
+     "weball_corrected_cents": 83356900,
+     "pas2_net_cents": 87131200
+    },
+    {
+     "candidate_id": "H6AL04098",
+     "residual_cents": -3116200,
+     "weball_corrected_cents": 64696900,
+     "pas2_net_cents": 67813100
+    },
+    {
+     "candidate_id": "H2OH13033",
+     "residual_cents": -2366100,
+     "weball_corrected_cents": 54595600,
+     "pas2_net_cents": 56961700
+    },
+    {
+     "candidate_id": "H4MS02068",
+     "residual_cents": -1985000,
+     "weball_corrected_cents": 25990000,
+     "pas2_net_cents": 27975000
+    },
+    {
+     "candidate_id": "H2OH09031",
+     "residual_cents": -1394500,
+     "weball_corrected_cents": 25165000,
+     "pas2_net_cents": 26559500
+    }
+   ]
+  },
+  {
+   "cycle": 2002,
+   "candidates_with_weball_or_pas2": 80,
+   "weball_other_pol_total_cents": 3220410626,
+   "weball_corrected_total_cents": 3220410626,
+   "pas2_nonparty_gross_cents": 3186839400,
+   "pas2_nonparty_net_of_earmarks_cents": 3186839400,
+   "pas2_earmark_transmitted_cents": 0,
+   "residual_weball_raw_minus_pas2_gross_cents": 33571226,
+   "residual_weball_corrected_minus_pas2_gross_cents": 33571226,
+   "residual_weball_corrected_minus_pas2_net_cents": 33571226,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H2TX23082",
+     "residual_cents": 21681500,
+     "weball_corrected_cents": 48146500,
+     "pas2_net_cents": 26465000
+    },
+    {
+     "candidate_id": "H2OH03067",
+     "residual_cents": 14645744,
+     "weball_corrected_cents": 58163444,
+     "pas2_net_cents": 43517700
+    },
+    {
+     "candidate_id": "H2CA39078",
+     "residual_cents": 8447629,
+     "weball_corrected_cents": 49948129,
+     "pas2_net_cents": 41500500
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": 7783725,
+     "weball_corrected_cents": 45864025,
+     "pas2_net_cents": 38080300
+    },
+    {
+     "candidate_id": "H8NJ04014",
+     "residual_cents": 5768366,
+     "weball_corrected_cents": 24080366,
+     "pas2_net_cents": 18312000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S2SD00068",
+     "residual_cents": -30115400,
+     "weball_corrected_cents": 131213000,
+     "pas2_net_cents": 161328400
+    },
+    {
+     "candidate_id": "H2MA09072",
+     "residual_cents": -10170000,
+     "weball_corrected_cents": 38740000,
+     "pas2_net_cents": 48910000
+    },
+    {
+     "candidate_id": "S6ME00159",
+     "residual_cents": -8978500,
+     "weball_corrected_cents": 151133200,
+     "pas2_net_cents": 160111700
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -8361000,
+     "weball_corrected_cents": 119288800,
+     "pas2_net_cents": 127649800
+    },
+    {
+     "candidate_id": "H2AL03032",
+     "residual_cents": -7807939,
+     "weball_corrected_cents": 76726761,
+     "pas2_net_cents": 84534700
+    }
+   ]
+  },
+  {
+   "cycle": 2004,
+   "candidates_with_weball_or_pas2": 90,
+   "weball_other_pol_total_cents": 3824751218,
+   "weball_corrected_total_cents": 3824751218,
+   "pas2_nonparty_gross_cents": 3805359800,
+   "pas2_nonparty_net_of_earmarks_cents": 3804835500,
+   "pas2_earmark_transmitted_cents": 524300,
+   "residual_weball_raw_minus_pas2_gross_cents": 19391418,
+   "residual_weball_corrected_minus_pas2_gross_cents": 19391418,
+   "residual_weball_corrected_minus_pas2_net_cents": 19915718,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S2WA00189",
+     "residual_cents": 7993700,
+     "weball_corrected_cents": 169158700,
+     "pas2_net_cents": 161165000
+    },
+    {
+     "candidate_id": "H4WI04183",
+     "residual_cents": 5076887,
+     "weball_corrected_cents": 33077887,
+     "pas2_net_cents": 28001000
+    },
+    {
+     "candidate_id": "H2TN06030",
+     "residual_cents": 3769041,
+     "weball_corrected_cents": 40299241,
+     "pas2_net_cents": 36530200
+    },
+    {
+     "candidate_id": "S8NY00082",
+     "residual_cents": 3739300,
+     "weball_corrected_cents": 92859800,
+     "pas2_net_cents": 89120500
+    },
+    {
+     "candidate_id": "H6WA09025",
+     "residual_cents": 3673582,
+     "weball_corrected_cents": 37554382,
+     "pas2_net_cents": 33880800
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S4AK00099",
+     "residual_cents": -8004300,
+     "weball_corrected_cents": 199167700,
+     "pas2_net_cents": 207172000
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -6763900,
+     "weball_corrected_cents": 214213500,
+     "pas2_net_cents": 220977400
+    },
+    {
+     "candidate_id": "S8ID00027",
+     "residual_cents": -5950900,
+     "weball_corrected_cents": 124198800,
+     "pas2_net_cents": 130149700
+    },
+    {
+     "candidate_id": "H2NY17071",
+     "residual_cents": -5438500,
+     "weball_corrected_cents": 23696000,
+     "pas2_net_cents": 29134500
+    },
+    {
+     "candidate_id": "H0KY05015",
+     "residual_cents": -5342310,
+     "weball_corrected_cents": 29830090,
+     "pas2_net_cents": 35172400
+    }
+   ]
+  },
+  {
+   "cycle": 2006,
+   "candidates_with_weball_or_pas2": 109,
+   "weball_other_pol_total_cents": 4521691051,
+   "weball_corrected_total_cents": 4521691051,
+   "pas2_nonparty_gross_cents": 4499390300,
+   "pas2_nonparty_net_of_earmarks_cents": 4498800300,
+   "pas2_earmark_transmitted_cents": 590000,
+   "residual_weball_raw_minus_pas2_gross_cents": 22300751,
+   "residual_weball_corrected_minus_pas2_gross_cents": 22300751,
+   "residual_weball_corrected_minus_pas2_net_cents": 22890751,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H6CA05195",
+     "residual_cents": 27744666,
+     "weball_corrected_cents": 105476666,
+     "pas2_net_cents": 77732000
+    },
+    {
+     "candidate_id": "H2CT02112",
+     "residual_cents": 11240483,
+     "weball_corrected_cents": 61746183,
+     "pas2_net_cents": 50505700
+    },
+    {
+     "candidate_id": "H2CA39078",
+     "residual_cents": 7917705,
+     "weball_corrected_cents": 35352605,
+     "pas2_net_cents": 27434900
+    },
+    {
+     "candidate_id": "H6FL09070",
+     "residual_cents": 7807915,
+     "weball_corrected_cents": 60978415,
+     "pas2_net_cents": 53170500
+    },
+    {
+     "candidate_id": "H6CT05124",
+     "residual_cents": 5528100,
+     "weball_corrected_cents": 56865600,
+     "pas2_net_cents": 51337500
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": -77438000,
+     "weball_corrected_cents": 67670000,
+     "pas2_net_cents": 145108000
+    },
+    {
+     "candidate_id": "S6MN00267",
+     "residual_cents": -27657700,
+     "weball_corrected_cents": 90505800,
+     "pas2_net_cents": 118163500
+    },
+    {
+     "candidate_id": "H8VT01016",
+     "residual_cents": -6950000,
+     "weball_corrected_cents": 10000,
+     "pas2_net_cents": 6960000
+    },
+    {
+     "candidate_id": "H2AL03032",
+     "residual_cents": -6369481,
+     "weball_corrected_cents": 59088219,
+     "pas2_net_cents": 65457700
+    },
+    {
+     "candidate_id": "S6OH00163",
+     "residual_cents": -6169000,
+     "weball_corrected_cents": 147196800,
+     "pas2_net_cents": 153365800
+    }
+   ]
+  },
+  {
+   "cycle": 2008,
+   "candidates_with_weball_or_pas2": 132,
+   "weball_other_pol_total_cents": 8195099833,
+   "weball_corrected_total_cents": 8195099833,
+   "pas2_nonparty_gross_cents": 8358616000,
+   "pas2_nonparty_net_of_earmarks_cents": 8358016000,
+   "pas2_earmark_transmitted_cents": 600000,
+   "residual_weball_raw_minus_pas2_gross_cents": -163516167,
+   "residual_weball_corrected_minus_pas2_gross_cents": -163516167,
+   "residual_weball_corrected_minus_pas2_net_cents": -162916167,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 0,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H8OH05036",
+     "residual_cents": 32515140,
+     "weball_corrected_cents": 104089540,
+     "pas2_net_cents": 71574400
+    },
+    {
+     "candidate_id": "S8MS00196",
+     "residual_cents": 20302100,
+     "weball_corrected_cents": 177943600,
+     "pas2_net_cents": 157641500
+    },
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": 11298010,
+     "weball_corrected_cents": 125529710,
+     "pas2_net_cents": 114231700
+    },
+    {
+     "candidate_id": "H2CT02112",
+     "residual_cents": 8258209,
+     "weball_corrected_cents": 89305809,
+     "pas2_net_cents": 81047600
+    },
+    {
+     "candidate_id": "H2NY00010",
+     "residual_cents": 7445700,
+     "weball_corrected_cents": 85839500,
+     "pas2_net_cents": 78393800
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H6KS01096",
+     "residual_cents": -240312990,
+     "weball_corrected_cents": 60804210,
+     "pas2_net_cents": 301117200
+    },
+    {
+     "candidate_id": "H2FL25018",
+     "residual_cents": -14998806,
+     "weball_corrected_cents": 78000894,
+     "pas2_net_cents": 92999700
+    },
+    {
+     "candidate_id": "H4MS01078",
+     "residual_cents": -13350000,
+     "weball_corrected_cents": 11930000,
+     "pas2_net_cents": 25280000
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -7749700,
+     "weball_corrected_cents": 375433100,
+     "pas2_net_cents": 383182800
+    },
+    {
+     "candidate_id": "S8OR00207",
+     "residual_cents": -5200200,
+     "weball_corrected_cents": 70804000,
+     "pas2_net_cents": 76004200
+    }
+   ]
+  },
+  {
+   "cycle": 2010,
+   "candidates_with_weball_or_pas2": 164,
+   "weball_other_pol_total_cents": 10003657676,
+   "weball_corrected_total_cents": 9764717476,
+   "pas2_nonparty_gross_cents": 9731750000,
+   "pas2_nonparty_net_of_earmarks_cents": 9731350000,
+   "pas2_earmark_transmitted_cents": 400000,
+   "residual_weball_raw_minus_pas2_gross_cents": 271907676,
+   "residual_weball_corrected_minus_pas2_gross_cents": 32967476,
+   "residual_weball_corrected_minus_pas2_net_cents": 33367476,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 1,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S0KS00091",
+     "residual_cents": 35637900,
+     "weball_corrected_cents": 143986400,
+     "pas2_net_cents": 108348500
+    },
+    {
+     "candidate_id": "S8MS00196",
+     "residual_cents": 12830000,
+     "weball_corrected_cents": 39946700,
+     "pas2_net_cents": 27116700
+    },
+    {
+     "candidate_id": "S0NY00410",
+     "residual_cents": 8180200,
+     "weball_corrected_cents": 238940200,
+     "pas2_net_cents": 230760000
+    },
+    {
+     "candidate_id": "H8NV03036",
+     "residual_cents": 6705503,
+     "weball_corrected_cents": 100098003,
+     "pas2_net_cents": 93392500
+    },
+    {
+     "candidate_id": "H0WA02080",
+     "residual_cents": 5925943,
+     "weball_corrected_cents": 111980543,
+     "pas2_net_cents": 106054600
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S0AR00150",
+     "residual_cents": -33034000,
+     "weball_corrected_cents": 58056300,
+     "pas2_net_cents": 91090300
+    },
+    {
+     "candidate_id": "H6KS01096",
+     "residual_cents": -32500000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 32500000
+    },
+    {
+     "candidate_id": "S0IA00028",
+     "residual_cents": -19081100,
+     "weball_corrected_cents": 259840500,
+     "pas2_net_cents": 278921600
+    },
+    {
+     "candidate_id": "S0ND00093",
+     "residual_cents": -18897200,
+     "weball_corrected_cents": 123760300,
+     "pas2_net_cents": 142657500
+    },
+    {
+     "candidate_id": "S0KY00156",
+     "residual_cents": -16553000,
+     "weball_corrected_cents": 50351200,
+     "pas2_net_cents": 66904200
+    }
+   ]
+  },
+  {
+   "cycle": 2012,
+   "candidates_with_weball_or_pas2": 210,
+   "weball_other_pol_total_cents": 11756451616,
+   "weball_corrected_total_cents": 11383136719,
+   "pas2_nonparty_gross_cents": 11481533200,
+   "pas2_nonparty_net_of_earmarks_cents": 11481033200,
+   "pas2_earmark_transmitted_cents": 500000,
+   "residual_weball_raw_minus_pas2_gross_cents": 274918416,
+   "residual_weball_corrected_minus_pas2_gross_cents": -98396481,
+   "residual_weball_corrected_minus_pas2_net_cents": -97896481,
+   "exact_matches_raw": 3,
+   "exact_matches_corrected": 3,
+   "exact_matches_corrected_net": 3,
+   "dedup_dropped_ids_zeroed": 4,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H6MA07101",
+     "residual_cents": 43422825,
+     "weball_corrected_cents": 43422825,
+     "pas2_net_cents": 0
+    },
+    {
+     "candidate_id": "S2CT00132",
+     "residual_cents": 10474000,
+     "weball_corrected_cents": 170085400,
+     "pas2_net_cents": 159611400
+    },
+    {
+     "candidate_id": "S2NM00088",
+     "residual_cents": 10145370,
+     "weball_corrected_cents": 117101070,
+     "pas2_net_cents": 106955700
+    },
+    {
+     "candidate_id": "H8NV03036",
+     "residual_cents": 8962973,
+     "weball_corrected_cents": 55247973,
+     "pas2_net_cents": 46285000
+    },
+    {
+     "candidate_id": "H6IL06141",
+     "residual_cents": 6766390,
+     "weball_corrected_cents": 72799090,
+     "pas2_net_cents": 66032700
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H2TX33040",
+     "residual_cents": -108744137,
+     "weball_corrected_cents": 27812063,
+     "pas2_net_cents": 136556200
+    },
+    {
+     "candidate_id": "S6RI00221",
+     "residual_cents": -22459300,
+     "weball_corrected_cents": 101920700,
+     "pas2_net_cents": 124380000
+    },
+    {
+     "candidate_id": "S6WY00068",
+     "residual_cents": -20251500,
+     "weball_corrected_cents": 173981900,
+     "pas2_net_cents": 194233400
+    },
+    {
+     "candidate_id": "H6CT05124",
+     "residual_cents": -19360000,
+     "weball_corrected_cents": 8650000,
+     "pas2_net_cents": 28010000
+    },
+    {
+     "candidate_id": "S8MS00196",
+     "residual_cents": -18892100,
+     "weball_corrected_cents": 153427000,
+     "pas2_net_cents": 172319100
+    }
+   ]
+  },
+  {
+   "cycle": 2014,
+   "candidates_with_weball_or_pas2": 248,
+   "weball_other_pol_total_cents": 16980065453,
+   "weball_corrected_total_cents": 16458270212,
+   "pas2_nonparty_gross_cents": 17174968800,
+   "pas2_nonparty_net_of_earmarks_cents": 17173888800,
+   "pas2_earmark_transmitted_cents": 1080000,
+   "residual_weball_raw_minus_pas2_gross_cents": -194903347,
+   "residual_weball_corrected_minus_pas2_gross_cents": -716698588,
+   "residual_weball_corrected_minus_pas2_net_cents": -715618588,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 4,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S2MT00096",
+     "residual_cents": 68240554,
+     "weball_corrected_cents": 191400954,
+     "pas2_net_cents": 123160400
+    },
+    {
+     "candidate_id": "S4MA00028",
+     "residual_cents": 49548600,
+     "weball_corrected_cents": 218536100,
+     "pas2_net_cents": 168987500
+    },
+    {
+     "candidate_id": "S4MI00355",
+     "residual_cents": 40787646,
+     "weball_corrected_cents": 215633446,
+     "pas2_net_cents": 174845800
+    },
+    {
+     "candidate_id": "S4OK00232",
+     "residual_cents": 40349000,
+     "weball_corrected_cents": 102269000,
+     "pas2_net_cents": 61920000
+    },
+    {
+     "candidate_id": "S4AR00103",
+     "residual_cents": 31914895,
+     "weball_corrected_cents": 185316795,
+     "pas2_net_cents": 153401900
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "S6NJ00263",
+     "residual_cents": -331745300,
+     "weball_corrected_cents": 13120000,
+     "pas2_net_cents": 344865300
+    },
+    {
+     "candidate_id": "S4LA00107",
+     "residual_cents": -228876100,
+     "weball_corrected_cents": 187579200,
+     "pas2_net_cents": 416455300
+    },
+    {
+     "candidate_id": "H2MT01060",
+     "residual_cents": -69020000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 69020000
+    },
+    {
+     "candidate_id": "S0MA00083",
+     "residual_cents": -65571300,
+     "weball_corrected_cents": 21500700,
+     "pas2_net_cents": 87072000
+    },
+    {
+     "candidate_id": "H8NJ03073",
+     "residual_cents": -62400000,
+     "weball_corrected_cents": 111025000,
+     "pas2_net_cents": 173425000
+    }
+   ]
+  },
+  {
+   "cycle": 2016,
+   "candidates_with_weball_or_pas2": 294,
+   "weball_other_pol_total_cents": 18970387192,
+   "weball_corrected_total_cents": 18469797464,
+   "pas2_nonparty_gross_cents": 18745315000,
+   "pas2_nonparty_net_of_earmarks_cents": 18716864400,
+   "pas2_earmark_transmitted_cents": 28450600,
+   "residual_weball_raw_minus_pas2_gross_cents": 225072192,
+   "residual_weball_corrected_minus_pas2_gross_cents": -275517536,
+   "residual_weball_corrected_minus_pas2_net_cents": -247066936,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 6,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S0IN00095",
+     "residual_cents": 24987600,
+     "weball_corrected_cents": 33923700,
+     "pas2_net_cents": 8936100
+    },
+    {
+     "candidate_id": "S4OK00232",
+     "residual_cents": 23380100,
+     "weball_corrected_cents": 111914600,
+     "pas2_net_cents": 88534500
+    },
+    {
+     "candidate_id": "S6IN00191",
+     "residual_cents": 17976600,
+     "weball_corrected_cents": 222844300,
+     "pas2_net_cents": 204867700
+    },
+    {
+     "candidate_id": "S4SC00240",
+     "residual_cents": 14770200,
+     "weball_corrected_cents": 285003900,
+     "pas2_net_cents": 270233700
+    },
+    {
+     "candidate_id": "S6MD03441",
+     "residual_cents": 12493300,
+     "weball_corrected_cents": 142770400,
+     "pas2_net_cents": 130277100
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -181798314,
+     "weball_corrected_cents": 48984986,
+     "pas2_net_cents": 230783300
+    },
+    {
+     "candidate_id": "H0IN09070",
+     "residual_cents": -79121600,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 79121600
+    },
+    {
+     "candidate_id": "S4AK00099",
+     "residual_cents": -43738000,
+     "weball_corrected_cents": 184281300,
+     "pas2_net_cents": 228019300
+    },
+    {
+     "candidate_id": "H0OK05114",
+     "residual_cents": -30950100,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 30950100
+    },
+    {
+     "candidate_id": "H0IN03198",
+     "residual_cents": -20315000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 20315000
+    }
+   ]
+  },
+  {
+   "cycle": 2018,
+   "candidates_with_weball_or_pas2": 371,
+   "weball_other_pol_total_cents": 23744520548,
+   "weball_corrected_total_cents": 22877040903,
+   "pas2_nonparty_gross_cents": 23133487500,
+   "pas2_nonparty_net_of_earmarks_cents": 23111610000,
+   "pas2_earmark_transmitted_cents": 21877500,
+   "residual_weball_raw_minus_pas2_gross_cents": 611033048,
+   "residual_weball_corrected_minus_pas2_gross_cents": -256446597,
+   "residual_weball_corrected_minus_pas2_net_cents": -234569097,
+   "exact_matches_raw": 3,
+   "exact_matches_corrected": 3,
+   "exact_matches_corrected_net": 3,
+   "dedup_dropped_ids_zeroed": 8,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S8TN00337",
+     "residual_cents": 101031917,
+     "weball_corrected_cents": 258190117,
+     "pas2_net_cents": 157158200
+    },
+    {
+     "candidate_id": "S8ND00120",
+     "residual_cents": 86102321,
+     "weball_corrected_cents": 144398621,
+     "pas2_net_cents": 58296300
+    },
+    {
+     "candidate_id": "H6NC09200",
+     "residual_cents": 33002689,
+     "weball_corrected_cents": 37792689,
+     "pas2_net_cents": 4790000
+    },
+    {
+     "candidate_id": "S8NV00156",
+     "residual_cents": 18581899,
+     "weball_corrected_cents": 127158799,
+     "pas2_net_cents": 108576900
+    },
+    {
+     "candidate_id": "S6OH00163",
+     "residual_cents": 17207950,
+     "weball_corrected_cents": 255287950,
+     "pas2_net_cents": 238080000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -205184900,
+     "weball_corrected_cents": 14053000,
+     "pas2_net_cents": 219237900
+    },
+    {
+     "candidate_id": "H2TN06030",
+     "residual_cents": -108998400,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 108998400
+    },
+    {
+     "candidate_id": "H0ND01026",
+     "residual_cents": -87020000,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 87020000
+    },
+    {
+     "candidate_id": "H8OH12180",
+     "residual_cents": -50673985,
+     "weball_corrected_cents": 102198715,
+     "pas2_net_cents": 152872700
+    },
+    {
+     "candidate_id": "H2FL25018",
+     "residual_cents": -38090203,
+     "weball_corrected_cents": 133141297,
+     "pas2_net_cents": 171231500
+    }
+   ]
+  },
+  {
+   "cycle": 2020,
+   "candidates_with_weball_or_pas2": 424,
+   "weball_other_pol_total_cents": 30154041290,
+   "weball_corrected_total_cents": 29475383174,
+   "pas2_nonparty_gross_cents": 29593610600,
+   "pas2_nonparty_net_of_earmarks_cents": 29576138400,
+   "pas2_earmark_transmitted_cents": 17472200,
+   "residual_weball_raw_minus_pas2_gross_cents": 560430690,
+   "residual_weball_corrected_minus_pas2_gross_cents": -118227426,
+   "residual_weball_corrected_minus_pas2_net_cents": -100755226,
+   "exact_matches_raw": 2,
+   "exact_matches_corrected": 2,
+   "exact_matches_corrected_net": 2,
+   "dedup_dropped_ids_zeroed": 8,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H2MT01060",
+     "residual_cents": 317662725,
+     "weball_corrected_cents": 325162725,
+     "pas2_net_cents": 7500000
+    },
+    {
+     "candidate_id": "H2AR04083",
+     "residual_cents": 115477000,
+     "weball_corrected_cents": 117177000,
+     "pas2_net_cents": 1700000
+    },
+    {
+     "candidate_id": "H6KS01179",
+     "residual_cents": 111789200,
+     "weball_corrected_cents": 203457000,
+     "pas2_net_cents": 91667800
+    },
+    {
+     "candidate_id": "S0KS00315",
+     "residual_cents": 80808100,
+     "weball_corrected_cents": 203457000,
+     "pas2_net_cents": 122648900
+    },
+    {
+     "candidate_id": "H8WY00148",
+     "residual_cents": 73497550,
+     "weball_corrected_cents": 80757550,
+     "pas2_net_cents": 7260000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -223998700,
+     "weball_corrected_cents": 6095000,
+     "pas2_net_cents": 230093700
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -120432343,
+     "weball_corrected_cents": 360274757,
+     "pas2_net_cents": 480707100
+    },
+    {
+     "candidate_id": "S6ME00159",
+     "residual_cents": -108287364,
+     "weball_corrected_cents": 252826836,
+     "pas2_net_cents": 361114200
+    },
+    {
+     "candidate_id": "S2TX00106",
+     "residual_cents": -86158657,
+     "weball_corrected_cents": 262778843,
+     "pas2_net_cents": 348937500
+    },
+    {
+     "candidate_id": "S4IA00129",
+     "residual_cents": -66616047,
+     "weball_corrected_cents": 272305853,
+     "pas2_net_cents": 338921900
+    }
+   ]
+  },
+  {
+   "cycle": 2022,
+   "candidates_with_weball_or_pas2": 495,
+   "weball_other_pol_total_cents": 34966903583,
+   "weball_corrected_total_cents": 34199569146,
+   "pas2_nonparty_gross_cents": 33538816700,
+   "pas2_nonparty_net_of_earmarks_cents": 33479888100,
+   "pas2_earmark_transmitted_cents": 58928600,
+   "residual_weball_raw_minus_pas2_gross_cents": 1428086883,
+   "residual_weball_corrected_minus_pas2_gross_cents": 660752446,
+   "residual_weball_corrected_minus_pas2_net_cents": 719681046,
+   "exact_matches_raw": 1,
+   "exact_matches_corrected": 1,
+   "exact_matches_corrected_net": 1,
+   "dedup_dropped_ids_zeroed": 12,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H6NC13129",
+     "residual_cents": 129492709,
+     "weball_corrected_cents": 144092709,
+     "pas2_net_cents": 14600000
+    },
+    {
+     "candidate_id": "H4MT01041",
+     "residual_cents": 64545265,
+     "weball_corrected_cents": 83480265,
+     "pas2_net_cents": 18935000
+    },
+    {
+     "candidate_id": "S4SC00240",
+     "residual_cents": 52403002,
+     "weball_corrected_cents": 301257802,
+     "pas2_net_cents": 248854800
+    },
+    {
+     "candidate_id": "S4LA00065",
+     "residual_cents": 48527568,
+     "weball_corrected_cents": 133206468,
+     "pas2_net_cents": 84678900
+    },
+    {
+     "candidate_id": "S2PA00661",
+     "residual_cents": 37526400,
+     "weball_corrected_cents": 10290000,
+     "pas2_net_cents": -27236400
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -135161900,
+     "weball_corrected_cents": 27990000,
+     "pas2_net_cents": 163151900
+    },
+    {
+     "candidate_id": "S2KY00012",
+     "residual_cents": -47142600,
+     "weball_corrected_cents": 48044000,
+     "pas2_net_cents": 95186600
+    },
+    {
+     "candidate_id": "H0TN03254",
+     "residual_cents": -25905250,
+     "weball_corrected_cents": 19144750,
+     "pas2_net_cents": 45050000
+    },
+    {
+     "candidate_id": "H0CO03165",
+     "residual_cents": -25877550,
+     "weball_corrected_cents": 10919450,
+     "pas2_net_cents": 36797000
+    },
+    {
+     "candidate_id": "S2MO00544",
+     "residual_cents": -23304000,
+     "weball_corrected_cents": 67214300,
+     "pas2_net_cents": 90518300
+    }
+   ]
+  },
+  {
+   "cycle": 2024,
+   "candidates_with_weball_or_pas2": 572,
+   "weball_other_pol_total_cents": 44369235752,
+   "weball_corrected_total_cents": 42469220256,
+   "pas2_nonparty_gross_cents": 42125639900,
+   "pas2_nonparty_net_of_earmarks_cents": 41901698800,
+   "pas2_earmark_transmitted_cents": 223941100,
+   "residual_weball_raw_minus_pas2_gross_cents": 2243595852,
+   "residual_weball_corrected_minus_pas2_gross_cents": 343580356,
+   "residual_weball_corrected_minus_pas2_net_cents": 567521456,
+   "exact_matches_raw": 0,
+   "exact_matches_corrected": 0,
+   "exact_matches_corrected_net": 0,
+   "dedup_dropped_ids_zeroed": 19,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "S4UT00282",
+     "residual_cents": 113171396,
+     "weball_corrected_cents": 204772296,
+     "pas2_net_cents": 91600900
+    },
+    {
+     "candidate_id": "H6IN03229",
+     "residual_cents": 106999306,
+     "weball_corrected_cents": 143209306,
+     "pas2_net_cents": 36210000
+    },
+    {
+     "candidate_id": "S4SC00240",
+     "residual_cents": 89307200,
+     "weball_corrected_cents": 73040000,
+     "pas2_net_cents": -16267200
+    },
+    {
+     "candidate_id": "S2TX00312",
+     "residual_cents": 79958007,
+     "weball_corrected_cents": 126252007,
+     "pas2_net_cents": 46294000
+    },
+    {
+     "candidate_id": "H4MT01041",
+     "residual_cents": 57874256,
+     "weball_corrected_cents": 129071756,
+     "pas2_net_cents": 71197500
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -177368100,
+     "weball_corrected_cents": 18700000,
+     "pas2_net_cents": 196068100
+    },
+    {
+     "candidate_id": "H8UT03238",
+     "residual_cents": -115010200,
+     "weball_corrected_cents": 0,
+     "pas2_net_cents": 115010200
+    },
+    {
+     "candidate_id": "S2PA00661",
+     "residual_cents": -111819763,
+     "weball_corrected_cents": 101354437,
+     "pas2_net_cents": 213174200
+    },
+    {
+     "candidate_id": "S8FL00273",
+     "residual_cents": -40007293,
+     "weball_corrected_cents": 99122307,
+     "pas2_net_cents": 139129600
+    },
+    {
+     "candidate_id": "H0TN03254",
+     "residual_cents": -36350000,
+     "weball_corrected_cents": 31125000,
+     "pas2_net_cents": 67475000
+    }
+   ]
+  },
+  {
+   "cycle": 2026,
+   "candidates_with_weball_or_pas2": 718,
+   "weball_other_pol_total_cents": 47764779128,
+   "weball_corrected_total_cents": 46092770270,
+   "pas2_nonparty_gross_cents": 41580210600,
+   "pas2_nonparty_net_of_earmarks_cents": 41375135200,
+   "pas2_earmark_transmitted_cents": 205075400,
+   "residual_weball_raw_minus_pas2_gross_cents": 6184568528,
+   "residual_weball_corrected_minus_pas2_gross_cents": 4512559670,
+   "residual_weball_corrected_minus_pas2_net_cents": 4717635070,
+   "exact_matches_raw": 2,
+   "exact_matches_corrected": 5,
+   "exact_matches_corrected_net": 5,
+   "dedup_dropped_ids_zeroed": 26,
+   "dedup_dropped_ids_col26_mismatch": 0,
+   "largest_positive_residuals": [
+    {
+     "candidate_id": "H0IA01174",
+     "residual_cents": 167830007,
+     "weball_corrected_cents": 265980007,
+     "pas2_net_cents": 98150000
+    },
+    {
+     "candidate_id": "H0KY06104",
+     "residual_cents": 140241754,
+     "weball_corrected_cents": 248954854,
+     "pas2_net_cents": 108713100
+    },
+    {
+     "candidate_id": "S6KY00286",
+     "residual_cents": 128960754,
+     "weball_corrected_cents": 248954854,
+     "pas2_net_cents": 119994100
+    },
+    {
+     "candidate_id": "S6OH00163",
+     "residual_cents": 83064573,
+     "weball_corrected_cents": 105578273,
+     "pas2_net_cents": 22513700
+    },
+    {
+     "candidate_id": "S6GA00374",
+     "residual_cents": 68732500,
+     "weball_corrected_cents": 111477500,
+     "pas2_net_cents": 42745000
+    }
+   ],
+   "largest_negative_residuals": [
+    {
+     "candidate_id": "H0LA01087",
+     "residual_cents": -158759600,
+     "weball_corrected_cents": 20750000,
+     "pas2_net_cents": 179509600
+    },
+    {
+     "candidate_id": "S6ME00159",
+     "residual_cents": -105065925,
+     "weball_corrected_cents": 159345375,
+     "pas2_net_cents": 264411300
+    },
+    {
+     "candidate_id": "H6LA04138",
+     "residual_cents": -104384901,
+     "weball_corrected_cents": 209301699,
+     "pas2_net_cents": 313686600
+    },
+    {
+     "candidate_id": "H0TX11230",
+     "residual_cents": -91857500,
+     "weball_corrected_cents": 21500000,
+     "pas2_net_cents": 113357500
+    },
+    {
+     "candidate_id": "H0TN03254",
+     "residual_cents": -57475100,
+     "weball_corrected_cents": 14525000,
+     "pas2_net_cents": 72000100
+    }
+   ]
+  }
+ ],
+ "lamb_validation": {
+  "candidate_id": "H6AZ05265",
+  "cycle": 2026,
+  "pas2_breakdown_cents": {
+   "party_committees": 0,
+   "leadership_pacs": 4300000,
+   "labor_pacs": 500000,
+   "trade_pacs": 600000,
+   "membership_pacs": 800000,
+   "cooperative_pacs": 0,
+   "other_unclassified": 3450000
+  },
+  "pas2_earmark_transmitted_cents": {
+   "membership_pacs": 700000
+  },
+  "pas2_total_cents": 9650000,
+  "pas2_corporate_cents": 0,
+  "pas2_aipac_cents": 0,
+  "weball_other_pol_cmte_contrib_cents": 12915000,
+  "weball_minus_pas2_cents": 3265000
+ },
+ "dedup_applied_finding": "dedup-applied.json corrects the WEBALL double-count (identical TTL_INDIV_CONTRIB repeated under a chamber-switcher's House and Senate IDs). It does NOT change any pas2-derived column in this script: pas2 is transaction-level, so per-ID amounts differ and there is no duplicate copy to drop \u2014 the same finding apply_dedup.py records for AIPAC/corporate. It DOES affect the weball side of the reconciliation: col 26 (OTHER_POL_CMTE_CONTRIB) is duplicated under both IDs the same way, so the reconciliation zeroes the dropped IDs' col-26 copies (guarded by the same equality check apply_dedup.py uses) and reports raw vs corrected residuals separately. No correction was invented for these columns."
+}
