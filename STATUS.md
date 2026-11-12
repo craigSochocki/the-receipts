@@ -1,8 +1,30 @@
 # Congress Money Tracker — Status Snapshot
 
-**As of: Thursday, November 12, 2026, ~10:40 AM EST**
+**As of: Thursday, November 12, 2026, ~12:15 PM EST**
 
 ## What is built
+
+- **Static site — DONE Nov 12.** `docs/index.html` is generated from the
+  canonical dataset by `src/site/build_site.py` (one command regenerates
+  it; `src/site/verify_site.py` checks it). Single self-contained page, no
+  external dependencies, dataset embedded in a compact positional encoding
+  (1.6 MB for 664 rows). Content parity with the private tracker artifact
+  (v6): search; filters (Congress, chamber, party, state, leadership-only,
+  clean-in-2026); sort by every money column; totals strip + footer;
+  per-person drill-down (FEC IDs, cycle-by-cycle tables, UDP-by-cycle,
+  ranks, notes, self-funding/topline/other-committee/all-IE); leaderboards
+  (Top 20 total accepted, Top 10 UDP benefit, Top 10 self-funding, Top 10
+  all-IE); party-by-chamber breakdown; clean-money view (77 verified clean:
+  67 House + 10 Senate; Luria the one unverified); 2026 primary-target list
+  (192 House Democrats); methodology section; CSV download from the same
+  embedded figures. The 14 complete-picture columns are switchable views,
+  not one 25-column table. Verification: embedded data round-trips exactly
+  (0 mismatched fields), all headline figures recomputed from the embedded
+  data match, page JS parses, local serve returns 200, Node runtime smoke
+  test passes (table + every tab render, drill-down, CSV), generator
+  deterministic apart from the timestamp. **Not public yet:** GitHub Pages
+  is the publishing source (`docs/`); Craig enables Pages in repo Settings
+  → Pages. Never hand-edit `docs/index.html` — edit the generator.
 
 - **Roster: 664 people** — union of the 119th Congress (540 served) and the
   incoming 120th (535 named): 411 in both, 124 in the 119th only, 124 in the
@@ -133,12 +155,11 @@
    (6) transfers between authorized committees. New columns shown
    separately, never blended into total_accepted. Re-pull bulk mid-Dec
    (post-general, due Dec 3) and Feb (year-end, due Jan 31, 2027).
-2. **Static site — APPROVED, after the complete-picture build.** Build
-   the tracker page as a static site in `docs/` (generated from the
-   canonical dataset) so GitHub Pages can serve it — a link that works on
-   iPhone/Android. Craig then enables GitHub Pages in repo Settings →
-   Pages. The tracker artifact stays the private version until he says to
-   publish.
+2. **Static site — DONE Nov 12.** `docs/index.html` generated from the
+   canonical dataset (see "What is built"). **Craig's step: enable GitHub
+   Pages in repo Settings → Pages** (publishing source `docs/`), then verify
+   the live link. The tracker artifact stays the private version until he
+   says to publish.
 3. **Ad spending — research DONE Nov 12; Google build BLOCKED on GCP
    access.** Google first (BigQuery public dataset
    `bigquery-public-data.google_political_ads`, no approvals; join is
