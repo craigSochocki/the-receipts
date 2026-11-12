@@ -135,10 +135,16 @@ the-receipts/
     are shown separately.
 - **Clean rule (generalized, methodology §14).** A 120th member is
   `unverified` (`clean_2026 = null`) only if they have **no 2026 entries
-  in ANY money source**. Verified-clean in 2026: **77 total (67 House +
-  10 Senate)**. Elaine Luria is the one null — her real 2026 campaign
-  (H6VA02198, $8.04M receipts) is not linked in the roster; linking it
-  is a roster change, not something to do unilaterally.
+  in ANY money source**. A member who ran unopposed in 2026
+  (`unopposed_2026` — no other candidate in the race with receipts over
+  $0 in weball26; the race comes from the filing's own row, not the
+  roster district) is also null, not clean. Verified-clean in 2026:
+  **74 total (64 House + 10 Senate)**. Nulls: Elaine Luria (unverified
+  — her real 2026 campaign H6VA02198, $8.04M receipts, is not linked in
+  the roster; linking it is a roster change, not something to do
+  unilaterally) plus three unopposed (Pressley MA-07, Jacobs CA-51,
+  Radewagen AS). Career-clean is derived from career money columns only
+  and is untouched by the unopposed rule.
 - **Cutoffs differ by data family and must be labeled everywhere.**
   Committee money (pas2) through **Sep 30, 2026**; weball-derived
   figures (individual, self-funding, topline) through **Oct 14, 2026**;
@@ -182,8 +188,8 @@ A change to data or pipeline is not done until it passes this gate:
    staged. Verified Nov 12, 2026 (after the phase-split opposition-credit
    rebuild): a fresh clone with staged bulk data rebuilds the committed
    dataset byte-identically (CSV md5
-   `9a0b36243240934fb5c32284e83c0805`, JSON md5
-   `993d6366bf2ac630a6e60e177dfc0d19`).
+   `2e93fa51f148865a9003a75996830bea`, JSON md5
+   `10a5b0018f315e9f9894ba4f5d3f1479`).
 2. **All audits in `src/validate/verify_dataset.py` pass** (93 standing
    audits: per-cycle sums for every column family, roster totals vs
    methodology, all 12 rank columns, clean counts and the generalized
