@@ -9,9 +9,8 @@ the method for every column is written down in `methodology.md`.
 The finished dataset is already here: `congress-money-tracker.csv` /
 `.json` — 664 people (the 119th Congress plus the incoming 120th), career
 money, rankings, and 2026-cycle clean/dirty flags. You don't need to build
-anything to explore it. The static site (`docs/index.html`, served by
-GitHub Pages once Craig enables it) is generated from that dataset — see
-"Static site" below.
+anything to explore it. The static site (`docs/index.html`) is generated from that dataset — see
+"Static site" below — and is live at https://craigsochocki.github.io/the-receipts/ (GitHub Pages, publishing source `docs/` on `master`, enabled by Craig Nov 12, 2026).
 
 ## Quick start
 
@@ -118,8 +117,10 @@ python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
 A full refresh is ~1,300+ API calls; DEMO_KEY (~30/hr) is spot-checks
 only and the driver refuses `--all` on it. Production needs a registered
 api.data.gov key (1,000 req/hr) via the `FEC_API_KEY` environment variable
-(`config.yaml` `fec_api`, default `DEMO_KEY`). No registered key exists in
-the repo yet.
+(`config.yaml` `fec_api`, default `DEMO_KEY`). A registered key is set as
+the `FEC_API_KEY` repository secret (added by Craig Nov 12, 2026; the
+first scheduled run will confirm it by logging whether freshness ran or
+skipped).
 
 ## Static site
 
@@ -148,9 +149,70 @@ exercises the CSV path), and checks the generator is deterministic apart
 from the generation timestamp. Any failure exits non-zero.
 
 To preview locally: `python3 -m http.server --directory docs 8000`, then
-open http://localhost:8000. GitHub Pages is the publishing source
-(`docs/`); enabling Pages in repo Settings → Pages is Craig's step — the
-site is not public until he does that.
+open http://localhost:8000. The site is live on GitHub Pages (publishing
+source `docs/` on `master`). The page carries a visible "Data as of" stamp
+— coverage end dates from `config.yaml` plus the build time — checked by
+`verify_site.py`.
+
+## Automation (GitHub Actions)
+
+Two workflows in `.github/workflows/`:
+
+- **`ci.yml` — CI on push and pull request to `master`.** Checks out the
+  repo, sets up Python 3.12, installs `requirements.txt`, stages the FEC
+  bulk data (`./download_bulk.sh`), runs `python3 src/rebuild.py`, then
+  **fails unless the rebuild reproduces the committed dataset
+  byte-identically** (`git diff --exit-code` on
+  `congress-money-tracker.csv` / `.json`), then builds and verifies the
+  site (`python3 src/site/build_site.py` + `python3 src/site/verify_site.py`).
+  No deploy step — GitHub Pages serves `docs/` on `master` automatically.
+  `permissions: contents: read`. It needs no secrets (the rebuild uses the
+  committed `fec_lookup_results.json`, not a live FEC lookup), so it is safe
+  to run on pull requests, including PRs from forks.
+- **`scheduled-refresh.yml` — weekly refresh + manual dispatch.** Runs
+  Sundays at 09:00 UTC (off-hours US time) and on manual
+  `workflow_dispatch` — e.g. an on-demand refresh right after the Dec 3
+  post-general deadline instead of waiting for Sunday. Weekly cadence
+  catches late FEC filings between the quarterly / post-general (Dec 3) /
+  year-end (Jan 31) deadlines. Same pipeline as CI, then the freshness
+  step (below), then — only if something changed — a commit + push back
+  to `master` as `github-actions[bot]` with the message `data: refresh
+  from FEC bulk <YYYY-MM-DD>`. `permissions: contents: write`. Job
+  timeout 180 minutes (freshness step 90 minutes).
+
+**Failure behavior.** A failed rebuild or verify commits nothing and
+pushes nothing: the commit step is gated on the earlier steps succeeding
+(`if: success()`), so a bad run leaves the committed dataset and site
+untouched. In CI the same failure fails the run. A refresh commit that
+does land triggers CI, which re-verifies it.
+
+**Commit gate (scheduled refresh only).** The dataset counts on any diff.
+The site counts only on a content change: the generation timestamp line
+("Generated YYYY-MM-DD HH:MM UTC") is ignored via `git diff -I`, using
+the same pattern `verify_site.py` strips in its determinism check — so a
+timestamp-only rebuild commits nothing and a no-change run is a no-op.
+
+**No cache of the bulk data.** CI and the scheduled refresh do not cache the FEC bulk data: every run re-downloads it fresh with ./download_bulk.sh. The 2026 bulk files are updated in place by the FEC under the same cycle-named URLs as new filings arrive, so any cache keyed on something other than the files' own content (workflow file hash, runner OS, date) could silently serve stale filings — and the byte-identical rebuild gate would not catch it, because it verifies the rebuild against the committed dataset, not the filings against the FEC. A content-aware cache (keyed on per-file ETag / Last-Modified) would be safe, but ./download_bulk.sh has no such mechanism; until one exists, a fresh ~315 MB download per run is the price of correctness.
+
+**FEC API key (`FEC_API_KEY` secret) — optional.** The freshness step
+(`python3 src/ingest/pull_freshness.py --all`, ~30–45 minutes for ~1,300+
+API calls at an effective 1.0 s/call) runs **only** when the
+`FEC_API_KEY` repository secret is set. When it runs, the snapshot
+(`data/intermediate/freshness_snapshot.json`) is uploaded as a workflow
+artifact (90-day retention) — it is never merged into dataset totals and
+never committed. When the secret is absent, the step logs `SKIP: freshness
+refresh not run — FEC_API_KEY secret is not set.` and the run continues
+without it. The key is set: Craig registered at api.data.gov and added it
+as the `FEC_API_KEY` repository secret Nov 12, 2026 (repo Settings →
+Secrets and variables → Actions; rotate it there if it ever leaks or
+expires). The first scheduled run will confirm it by logging whether
+freshness ran or skipped. Everything else — CI, the scheduled rebuild, the
+commit-back — works without it. Known gap: the
+scheduled freshness run does not cover the F24 leg (see `STATUS.md`, Open
+questions).
+
+**Where to watch runs:** the repo's Actions tab —
+https://github.com/craigSochocki/the-receipts/actions.
 
 ## Configuration
 
