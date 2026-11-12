@@ -73,7 +73,7 @@ not harder.
   key from `FEC_API_KEY` with `DEMO_KEY` fallback, timeout, request delay),
   party-code map, verification constants (prior UDP cycle totals), and
   reporting thresholds.
-- `work/config.py` loads it; every script resolves paths from the repo root
+- `src/common/config.py` loads it; every script resolves paths from the repo root
   (derived from the script's own location), never from an absolute path and
   never from the current working directory. The repo runs from any checkout
   location. No script may re-hardcode a value from `config.yaml`; a new
@@ -84,23 +84,24 @@ not harder.
   a copied checkout identical except for post-build enrichment (see below).
 - Reproducibility gap — CLOSED Nov 12, 2026. Every step that used to live
   only in the builder's head is now a script, and one command runs them
-  all: `python3 work/rebuild.py` (build_roster → apply_fec_lookup →
-  pull_money → pull_udp → apply_dedup → compute_opposition → merge_dataset
-  → compute_ranking → compute_2026 → verify_dataset). The weball
-  double-count dedup is applied by `work/apply_dedup.py`, which reads the
-  kept/dropped decisions from `work/dedup-applied.json` as data (it does
-  not re-derive them). The roster enrichment is `work/apply_fec_lookup.py`
+  all: `python3 src/rebuild.py` (build_roster → apply_fec_lookup →
+  pull_money → pull_udp → apply_dedup → pull_self_funding →
+  pull_other_committees → pull_all_ie → compute_opposition →
+  merge_dataset → compute_ranking → compute_2026 → verify_dataset). The weball
+  double-count dedup is applied by `src/transform/apply_dedup.py`, which reads the
+  kept/dropped decisions from `data/source/dedup-applied.json` as data (it does
+  not re-derive them). The roster enrichment is `src/transform/apply_fec_lookup.py`
   (committed lookup results + the 7 recorded manual notes in
-  `work/manual_roster_notes.json`); the live lookup is optional
+  `data/source/manual_roster_notes.json`); the live lookup is optional
   (`--with-fec-lookup`) and restores the manual entries afterwards. The
-  merge (`work/merge_dataset.py`), ranking (`work/compute_ranking.py`),
-  and 2026 columns (`work/compute_2026.py`, including the primary-target
-  list) are scripted, and `work/verify_dataset.py` runs the standing
+  merge (`src/transform/merge_dataset.py`), ranking (`src/transform/compute_ranking.py`),
+  and 2026 columns (`src/transform/compute_2026.py`, including the primary-target
+  list) are scripted, and `src/validate/verify_dataset.py` runs the standing
   audits. Verified Nov 12, 2026: a fresh clone with staged bulk data
   rebuilds the committed dataset byte-identically (csv md5
-  1462a44e2910f27659d7b2239319853e, json md5
-  a04a1549dad9882f319d9bf819edc154), all intermediates byte-identical,
-  all 37 audits passing. Two judgment calls are recorded as data, not
+  f346fca949d1c160317f2f1b45100273, json md5
+  48c2a2146523ef9aa1c4f11ac3d361a7), all intermediates byte-identical,
+  all 93 audits passing. Two judgment calls are recorded as data, not
   re-derived: the dedup decisions (`dedup-applied.json`) and the manual
   roster notes (`manual_roster_notes.json`); the Rivet roster collapse and
   the Luria unverified-clean rule are hardcoded constants in the merge and
@@ -164,9 +165,22 @@ Money stays exact: cents as integers in the store; ad estimates as
 min/max/mid with an `is_estimate` flag. Versioned snapshots become a
 `dataset_versions` table plus `as_of` on every row.
 
+## 2b. Future direction — data lives outside the repo (Craig, Nov 12, 2026)
+
+Eventually the data does not live in git at all: the tables above live in
+a database, and the repo holds code, config, and the published dataset
+only. That move is NOT built yet. The Nov 12, 2026 restructure prepares
+for it: every script reads and writes data through the `config.yaml`
+paths layer (`src/common/config.py`), never through hardcoded repo-relative
+file paths, so pointing the pipeline at a database-backed store is a
+config change, not a rewrite of every script. Until then, the on-disk
+layout mirrors the future tables — `data/source/` (inputs),
+`data/intermediate/` (regenerable staging, gitignored),
+`data/snapshots/` (versions), `data/raw/` (immutable bulk, gitignored).
+
 ## 3. Layered pipeline (bronze → silver → gold)
 - **Raw (bronze):** FEC bulk dumps and API responses, stored as received under
-  `work/bulk/`, immutable, dated. Never edited in place.
+  `data/raw/`, immutable, dated. Never edited in place.
 - **Staging (silver):** deduped, typed, joined tables (`money_pas2_weball.csv`,
   `money_per_cycle.json`, `opposition-computed.json`,
   `self_funding_per_cycle.json`, `other_committees_per_cycle.json`,
@@ -175,7 +189,7 @@ min/max/mid with an `is_estimate` flag. Versioned snapshots become a
 - **Marts (gold):** the per-person dataset (career + per-cycle). Every column
   is produced by a script. No manual edits to the JSON/CSV, ever.
 - **Freshness (overlay):** `freshness_snapshot.json`, produced by a separate
-  entry point (`work/pull_freshness.py`) on its own cadence. It is not part
+  entry point (`src/ingest/pull_freshness.py`) on its own cadence. It is not part
   of the rebuild pipeline and never feeds the mart.
 - **Presentation:** the artifact. It reads the mart; it computes nothing that
   the mart doesn't already contain (except display sorting/filtering).
@@ -187,7 +201,7 @@ min/max/mid with an `is_estimate` flag. Versioned snapshots become a
   different dataset.
 
 ## 5. Versioned snapshots
-- Before each change, back up the current JSON/CSV to `work/` with a dated,
+- Before each change, back up the current JSON/CSV to `data/snapshots/` with a dated,
   descriptive name (`congress-money-tracker-pre-<change>.csv/.json` — the
   existing convention). Every dataset carries a `data_as_of` date, and the
   methodology is updated in the same change, never later.

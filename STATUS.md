@@ -88,10 +88,10 @@
   rows). The $1,004.53 F24 residual reconciled (Aug 3 F3X row, pre-window).
 - **Codification — DONE Nov 12, ~10:40 AM EST.** The whole pipeline is
   scripted and one command rebuilds the dataset: `python3
-  work/rebuild.py` (build_roster → apply_fec_lookup → pull_money →
+  src/rebuild.py` (build_roster → apply_fec_lookup → pull_money →
   pull_udp → apply_dedup → pull_self_funding → pull_other_committees →
   pull_all_ie → compute_opposition → merge_dataset →
-  compute_ranking → compute_2026 → verify_dataset). `work/verify_dataset.py`
+  compute_ranking → compute_2026 → verify_dataset). `src/validate/verify_dataset.py`
   runs 93 standing audits (per-cycle sums for every column family,
   roster totals vs methodology, all 12 rank columns, clean counts and
   the generalized clean rule, 2026 columns, opposition, dedup,
@@ -102,6 +102,17 @@
   93 audits passing. The verifier checks the dataset against its own
   definitions — it cannot catch a missing money dimension (see the
   self-funding blind spot below).
+- **Repo restructure — DONE Nov 12.** Staged `src/` (`common/` config
+  loader, `ingest/` pulls, `transform/` roster/dedup/merge/ranking/2026,
+  `validate/` audits, `src/rebuild.py`); `data/` (`raw/` gitignored bulk,
+  `source/` committed inputs, `intermediate/` gitignored regenerable
+  staging, `snapshots/` dataset states, `evidence/` one-off API dumps);
+  `research/` for notes and logs; `docs/` reserved for the static site;
+  dataset stays at the repo root. Full rebuild after the move reproduces
+  the dataset **byte-identically** (same md5s as above), all 93 audits
+  pass. Future direction (not built): data eventually lives outside the
+  repo in a database, not in git — all data access goes through the
+  `config.yaml` paths layer so that move is a config change.
 
 ## Running / next, in order
 
