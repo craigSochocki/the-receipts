@@ -826,9 +826,11 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
   ID's entry is zero).
 - `udp_support_2026` — summed from `udp_per_cycle` entries with `cycle == 2026`.
 - `udp_opp_credit_2026` — the person's share of the §13 opposition credit for
-  cycle 2026 only. Only two roster people have any: Wesley Bell $2,457,791.53
-  and Ed Gallrein $3,576,968.08. The other two 2026 credited races (CA-14,
-  IL-07) went to people not in the tracker.
+  cycle 2026 only. Three roster people have any: Haley Stevens
+  $20,139,904.21 (primary phase, MI Senate), Wesley Bell $2,457,791.53, and
+  Ed Gallrein $3,576,968.08. The other three 2026 credited races (CA-14 open
+  primary, IL-07 primary, MI Senate general) went to people not in the
+  tracker.
 - `udp_benefit_2026` — `udp_support_2026` + `udp_opp_credit_2026`.
 - `dirty_2026` — `corp_2026` + `aipac_direct_2026` + `udp_benefit_2026`. All
   money that came from corporate PACs, AIPAC's PAC, or UDP spending for the
@@ -856,9 +858,23 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
   2026. Other-committee and all-IE 2026 entries do NOT establish linkage on their
   own (they are third-party reports filed under a possibly stale ID). A person
   with linkage and all-zero dirty columns is verified clean **with evidence**;
-  a person with linkage and nonzero dirty columns is dirty. The rule is
-  implemented in `src/transform/compute_2026.py` (`has_2026_linkage`) and re-verified in
-  `src/validate/verify_dataset.py` (checks (e) and (m)).
+  a person with linkage and nonzero dirty columns is dirty. **Unopposed
+  exclusion (Nov 12, 2026):** a member who ran unopposed in 2026
+  (`unopposed_2026`) and whose four dirty columns are all zero is **null, not
+  clean** — $0 dirty money in a race with no opponent is a structural zero,
+  not a verified-clean campaign. A dirty unopposed member stays dirty. The
+  rule is implemented in `src/transform/compute_2026.py` (`has_2026_linkage`)
+  and re-verified in `src/validate/verify_dataset.py` (checks (e) and (m)).
+- `unopposed_2026` — true when the person ran unopposed in 2026: every 2026
+  candidate ID of theirs in weball26 sits in a race where no OTHER candidate
+  has total receipts over $0. A filed opponent with $0 receipts does not make
+  the race contested; a write-in opponent who never filed does not appear. The
+  race is taken from the filing's own weball row (office prefix + state +
+  district), NOT the roster district — see the unopposed subsection below.
+  An unopposed member whose four dirty columns are all zero is **null, not
+  clean** (see the `clean_2026` rule below); an unopposed member with dirty
+  money stays dirty. `unopposed_2026` is a race fact, independent of the clean
+  verdict — nine people ran unopposed in 2026, six of them dirty.
 - `dep_share_2026` — `(corp_2026 + aipac_direct_2026) / (individual_2026 +
   corp_2026 + aipac_direct_2026)`, the share of the candidate's own 2026
   fundraising (individual + corporate PAC + AIPAC direct) that came from
@@ -866,12 +882,40 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
   and denominator — it was never given to the campaign. Null when the
   denominator is 0.
 
-**Headline — incoming House, 2026 cycle (partial): 67 of 436 verified-clean (63
-Democrats, 4 Republicans).** The four clean Republicans are Kimberlyn
-King-Hinds, Aumua Amata Coleman Radewagen, Mark Lamb, and Anthony Constantino
+**Unopposed in 2026 — excluded from verified-clean (Nov 12, 2026).** A $0
+dirty-money total in a race with no opponent is not evidence of a clean
+campaign — it is a structural zero. Three members who would otherwise be
+verified-clean ran unopposed in 2026 and are therefore null, not clean:
+
+- **Ayanna Pressley (MA-07)** — no other candidate filed.
+- **Sara Jacobs (CA-51)** — one opponent filed, $0 receipts.
+- **Aumua Amata Coleman Radewagen (AS delegate)** — no other candidate filed.
+
+Six more members ran unopposed but took dirty money, so they stay
+clean=False: Joyce Beatty, Brendan Boyle, Debbie Dingell, Jim McGovern,
+Gregory Meeks, and Mike Quigley. Nine unopposed in total. The site renders
+these as **Unopposed**, distinct from **Unverified** (Luria, whose 2026
+committee ID is not linked — a data gap, not a race fact).
+
+**The race comes from the filing, not the roster.** The contested test keys
+each race from the candidate's own weball26 row (office prefix + state +
+district). An early roster-district lookup wrongly read Kimberlyn King-Hinds
+as unopposed: the roster lists her district as 0, and the stale H8 IDs under
+district 00 (Sablan, Gonzales — both $0, dormant) looked like her only
+opponents. The FEC files the live 2026 Northern Mariana Islands delegate race
+under district **01**: King-Hinds (H4MP01022, $103,385.97 receipts) vs Galvin
+Deleon Guerrero (H6MP01027, $31,476.11; 36.3% of the vote Nov 3, 2026).
+King-Hinds is contested and stays verified-clean — and because career-clean
+is derived from career money columns only, an unopposed run could never have
+cost her career-clean status anyway. She is the proof case that the rule uses
+the filings.
+
+**Headline — incoming House, 2026 cycle (partial): 64 of 436 verified-clean (61
+Democrats, 3 Republicans).** The three clean Republicans are Kimberlyn
+King-Hinds, Mark Lamb, and Anthony Constantino
 (Constantino's zero is verified — FEC activity found, all totals zero). The
 nearest miss is Paul Gosar (R), $4,250 in corporate PAC money in 2026. All 53
-career-clean incoming House members are also clean in 2026; 14 more are
+career-clean incoming House members are also clean in 2026; 11 more are
 2026-clean but not career-clean. For the Senate, 10 of 99 incoming senators
 are clean in 2026 (9 Democrats, 1 independent, 0 Republicans).
 
@@ -899,7 +943,7 @@ figures understate reality:
   real zero. Do not present their $0 individual_2026 as fact.
 - Elaine Luria has no 2026 per-cycle data at all under the roster's linked
   candidate ID, so her `clean_2026` is null (unverified), NOT true. She is
-  excluded from the 67 verified-clean count above. Do not present Luria as
+  excluded from the 64 verified-clean count above. Do not present Luria as
   confirmed clean — or as dirty — until her 2026 committee ID is linked and
   her 2026 figures are pulled. **Correction to the original premise (Nov 12,
   2026):** the earlier note said she had "no 2026 entries in any source." That
@@ -918,9 +962,12 @@ figures understate reality:
   states the evidence. Constantino is the mirror case: his tracked 2026 $0s
   are now verified WITH evidence (self-funding 2026 loans $14,400,000, coverage
   10/14/2026; all-IE 2026 support $459,491.94 / oppose $3,721,257.82;
-  other-committee 2026 $19,500), so he counts among the 67 verified-clean —
+  other-committee 2026 $19,500), so he counts among the 64 verified-clean —
   the count returns to **67 House / 77 total**, correcting the 66 / 76 figures
   recorded in MEMORY.md and the intro page (the dataset itself always said 67).
+  A later change (Nov 12, 2026) excludes members who ran unopposed in 2026
+  from verified-clean — see the unopposed subsection above — bringing the
+  count to **64 House / 74 total**.
 
 ---
 
