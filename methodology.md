@@ -345,6 +345,27 @@ The points that matter for interpreting the numbers:
 | Corporate PAC | $972,228,584.00 | $972,722,564.00 | −$493,980.00 | Rivet counted once, not twice |
 | Corporate earmark transmitted | $26,850.00 | $26,850.00 | $0.00 | — |
 | UDP IE support | $42,415,003.76 | $42,415,003.76 | $0.00 | Rivet's UDP total is $0 |
+| Candidate contributions | **$127,959,956.91** | $127,967,614.21 | −$7,657.30 | Rivet counted once, not twice |
+| Candidate loans | $325,314,576.77 | $325,314,576.77 | $0.00 | Rivet's loans are $0 |
+| Self-funding (contrib + loans) | **$453,274,533.68** | $453,282,190.98 | −$7,657.30 | Rivet counted once, not twice |
+| Loan repayments | $117,267,525.92 | $117,267,525.92 | $0.00 | — |
+| Total receipts | **$13,123,758,383.28** | $13,142,389,149.63 | −$18,630,766.35 | Rivet counted once (−$12,989,910.60) **plus the Curtis 2024 extension, §8.15 (−$5,640,855.75)** |
+| Total disbursements | **$12,119,674,234.67** | $12,135,228,288.49 | −$15,554,053.82 | Rivet counted once (−$10,315,041.50) **plus the Curtis extension (−$5,239,012.32)** |
+| Transfers from auth | **$1,084,116,950.90** | $1,086,095,264.80 | −$1,978,313.90 | Rivet counted once (−$716,516.87) **plus the Curtis extension (−$1,261,797.03)** |
+| Transfers to auth | **$196,548,621.70** | $196,551,921.70 | −$3,300.00 | **Curtis extension only** (Rivet's transfers-to are $0) |
+| Cash on hand (latest-cycle sum) | **$1,011,890,622.93** | $1,014,565,492.03 | −$2,674,869.10 | Rivet counted once, not twice |
+| Debts owed by (latest-cycle sum) | $191,691,118.19 | $191,691,118.19 | $0.00 | Rivet's debts are $0 |
+| Party committees | $12,452,000.00 | $12,462,203.00 | −$10,203.00 | Rivet counted once, not twice |
+| Leadership PACs | $232,556,005.00 | $233,044,255.00 | −$488,250.00 | Rivet counted once, not twice |
+| Labor PACs | $293,658,668.00 | $294,097,168.00 | −$438,500.00 | Rivet counted once, not twice |
+| Trade PACs | $476,385,811.00 | $476,628,002.00 | −$242,191.00 | Rivet counted once, not twice |
+| Membership PACs | $220,580,356.00 | $220,879,178.00 | −$298,822.00 | Rivet counted once, not twice |
+| Cooperative PACs | $30,134,616.00 | $30,170,866.00 | −$36,250.00 | Rivet counted once, not twice |
+| Other unclassified | $302,968,291.00 | $303,673,812.00 | −$705,521.00 | Rivet counted once, not twice |
+| Other-committee total | **$1,568,735,747.00** | $1,570,955,484.00 | −$2,219,737.00 | Rivet counted once, not twice |
+| All-IE support (2022–2026) | **$1,490,363,373.56** | $1,491,815,311.74 | −$1,451,938.18 | Rivet counted once, not twice |
+| All-IE oppose (2022–2026) | **$2,351,872,876.19** | $2,353,373,730.49 | −$1,500,854.30 | Rivet counted once, not twice |
+| All-IE total (2022–2026) | **$3,842,257,481.18** | $3,845,210,273.66 | −$2,952,792.48 | Rivet counted once, not twice (the pull-file sum is the total column; see the $21,231.43 note in §4) |
 | UDP IE opposing opponents (new, §13) | **$28,281,982.23** | — | — | Credited opposition spending, roster persons only; non-roster backed candidates received a further $11,010,009.25 (not in any tracker row) |
 | UDP IE total benefit (new, §13) | **$70,696,985.99** | — | — | Support + opposing-opponents credit, roster persons only |
 
@@ -379,6 +400,21 @@ record (person, cycle, amount, kept/dropped candidate ID) is saved as
   all 664 persons) and the per-cycle UDP S+O totals match pull-log-b exactly in all
   three cycles ($26,107,515.77 / $38,044,932.69 / $54,322,881.51, $0.00 difference).
   CSV ↔ JSON agreement on the four new columns verified (0 mismatches).
+- Complete-picture merge (Nov 12, 2026): `self_funding_per_cycle`,
+  `other_committees_per_cycle` and `all_ie_per_cycle` each sum to their career columns
+  with **0 mismatches**; the seven other-committee classes sum to
+  `other_committees_total_career` with 0 mismatches; the stock columns (cash on hand,
+  debts owed by) equal their latest cycle's value with 0 mismatches. The other-committee
+  pull re-derives corporate ($972,228,584), corporate earmark ($26,850), AIPAC direct
+  ($7,567,773) and AIPAC earmark ($191,573) **to the cent**. The all-IE pull reproduces
+  UDP 2024 deduped $38,044,932.69 **exactly**; roster cycle totals $635,983,318.22 /
+  $957,619,902.44 / $2,248,654,260.52. CSV ↔ JSON agreement covers all new columns
+  (0 mismatches), including the three new per-cycle lists compared by repr; the
+  JSON-only `all_ie_top_committees` lists are sorted, split correctly, max 5 per person.
+  Named spot cases verified exact: Constantino self-funding $17,000,000.00, Rick Scott
+  $89,994,251.12, Ricketts $19,442,012.33, Thanedar $17,456,074.00, McClain Delaney
+  $14,873,000.00, Jacobs $11,551,385.89, Cisneros $9,807,843.10, Shreve $7,943,000.00.
+  All 93 standing audits in `work/verify_dataset.py` pass.
 
 ### Spot-checks against independent sources (all run Nov 12, 2026)
 
