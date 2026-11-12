@@ -532,6 +532,46 @@ for p in roster:
                      'all_ie_total_2026': f"{c26['total']:.2f}",
                      'data_notes': note})
 
+# ---------- 6b. Top 5 committees per person (career) ----------
+# Aggregate cand_by_cmte across the person's candidate IDs and the
+# covered cycles (2022+2024+2026). Grouped by committee_id: the same
+# committee sometimes files under different name casings
+# (e.g. 'ROLLING SEA ACTION FUND' vs 'Rolling Sea Action Fund'), so the
+# name carried is the one attached to that committee's largest single
+# (candidate, cycle) total. Merged into the dataset JSON by
+# merge_dataset.py (JSON only, not the CSV). Persons with no FEC IDs
+# get null (unknown, not zero); persons with IDs but no spending get [].
+top_by_person = {}
+for p in roster:
+    pk = p['person_key']
+    ids = list(dict.fromkeys(p.get('fec_candidate_ids') or []))
+    if not ids:
+        top_by_person[pk] = None
+        continue
+    agg = collections.defaultdict(lambda: [0.0, 0.0, 0, '', 0.0])
+    for (cid, cy), by_cmte in cand_by_cmte.items():
+        if cid not in ids:
+            continue
+        for (sid, snam), (s, o, n) in by_cmte.items():
+            a = agg[sid]
+            a[0] += s
+            a[1] += o
+            a[2] += n
+            # Name from the largest single (candidate, cycle) total.
+            if s + o > a[4]:
+                a[3] = snam
+                a[4] = s + o
+    ranked = sorted(agg.items(), key=lambda kv: -(kv[1][0] + kv[1][1]))[:5]
+    top_by_person[pk] = [{'committee_id': sid, 'committee_name': a[3],
+                          'support': r2(a[0]), 'oppose': r2(a[1]),
+                          'total': r2(a[0] + a[1]), 'rows': a[2]}
+                         for sid, a in ranked]
+with open(f"{WORK}/all_ie_top_committees.json", 'w') as f:
+    json.dump(top_by_person, f, indent=1)
+print(f"wrote work/all_ie_top_committees.json "
+      f"({sum(1 for v in top_by_person.values() if v)} persons with spending, "
+      f"{sum(1 for v in top_by_person.values() if v is None)} unknown)")
+
 with open(f"{WORK}/all_ie.csv", 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=['person_key', 'full_name', 'fec_candidate_ids',
                                       'all_ie_support_career', 'all_ie_oppose_career',
