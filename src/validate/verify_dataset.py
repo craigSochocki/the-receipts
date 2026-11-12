@@ -340,7 +340,9 @@ def main():
     credit_2026 = {}
     for race, pk, _name, amount, _detail in opp['credit_detail']:
         if race[0] == CURRENT and not pk.startswith('__nonroster__'):
-            credit_2026[pk] = round(float(amount), 2)
+            # Sum across phases: one person can now be credited in two phases
+            # of the same race (the race key includes ele_type).
+            credit_2026[pk] = round(credit_2026.get(pk, 0.0) + float(amount), 2)
     oc_buckets_e = ['party_committees', 'leadership_pacs', 'labor_pacs', 'trade_pacs',
                     'membership_pacs', 'cooperative_pacs', 'other_unclassified']
     mism = 0
