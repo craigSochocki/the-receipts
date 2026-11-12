@@ -189,6 +189,26 @@ def main():
           and "64 House (61 D, 3 R)" in html
           and "77 verified clean" not in html
           and "67 House (63 D, 4 R)" not in html)
+
+    # ---- landing story + finder (Change 1): computed, never hardcoded ----
+    # The story headline is rendered by JavaScript from the embedded
+    # dataset, so no "<N> of <M> incoming members" literal may appear in
+    # the built page at all: if one does, somebody typed the figure into
+    # the template and the next data change will strand it stale. The
+    # prose below is the page with the JSON payloads stripped, so raw
+    # data numbers cannot trip the check.
+    check("landing story block exists",
+          'id="landing-story"' in html and 'id="story-clean-link"' in html)
+    check("finder controls exist",
+          all(x in html for x in ('id="find-state"', 'id="find-district"',
+                                  'id="find-person"', 'Find your member')))
+    prose = re.sub(
+        r'<script id="(receipts-cols|receipts-data|opp-data)" '
+        r'type="application/json">.*?</script>', "", html, flags=re.DOTALL)
+    check("story headline figure is computed, not hardcoded",
+          re.search(r"\d+ of \d+ incoming members", prose) is None
+          and re.search(r"\d+ House \+ \d+ Senate", prose) is None,
+          "a literal story figure survives in the built page")
     const = [r for r in decoded if "Constantino" in r["full_name"]]
     check("Constantino verified clean",
           len(const) == 1 and const[0]["clean_2026"] is True
@@ -253,7 +273,8 @@ def main():
             check("local serve returns 200", status == 200, f"got {status}")
             for needle in ["The Receipts", "receipts-data", "Methodology",
                            "primary targets", "Clean money", "Leaderboards",
-                           "Data as of"]:
+                           "Data as of", "Find your member",
+                           "took no dirty money in 2026"]:
                 check(f"served page contains {needle!r}", needle in body)
             check("served page size matches file",
                   len(body.encode("utf-8")) == html_path.stat().st_size)

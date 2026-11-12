@@ -143,4 +143,38 @@ closeDetail();
 
 downloadCsv(); // must not throw (Blob + object URL path)
 
-console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV work.");
+/* ---- landing story + finder (Change 1) ---- */
+const incoming120 = PEOPLE.filter((p) => p.in_120th === "yes");
+const clean120 = incoming120.filter((p) => p.clean_2026 === true).length;
+const storyHtml = document.getElementById("landing-story").innerHTML;
+assert.ok(
+  storyHtml.includes(clean120 + " of " + incoming120.length),
+  "story renders the computed clean count: " + storyHtml);
+assert.ok(storyHtml.includes("story-clean-link"), "story links to the clean list");
+const findStateHtml = document.getElementById("find-state").innerHTML;
+assert.ok(findStateHtml.includes("Michigan"), "finder state list has Michigan");
+assert.ok(findStateHtml.includes("American Samoa"), "finder state list has American Samoa");
+assert.strictEqual(finderSeats("MI")[0].value, "senate", "MI first seat is Senate");
+assert.strictEqual(
+  finderSeats("MI").filter((s) => s.value !== "senate").length, 13,
+  "MI has 13 House districts");
+assert.deepStrictEqual(
+  finderSeats("MP").map((s) => s.label), ["At-large — Delegate"],
+  "MP is a delegate seat, no Senate");
+assert.deepStrictEqual(
+  finderSeats("PR").map((s) => s.label), ["At-large — Resident Commissioner"],
+  "PR is a Resident Commissioner seat");
+assert.strictEqual(
+  finderPeople("MI", "11")[0].full_name, "Jeremy Moss", "MI-11 is Moss");
+assert.strictEqual(finderPeople("MI", "senate").length, 2, "MI has two senators");
+const elSayedKey = PEOPLE.find((p) => p.full_name.includes("El-Sayed")).person_key;
+findPerson(elSayedKey);
+assert.ok(
+  document.getElementById("detail-sheet").innerHTML.includes("El-Sayed"),
+  "finder opens the El-Sayed drill-down");
+assert.strictEqual(
+  document.getElementById("q").value, "Abdul El-Sayed",
+  "finder sets the search box to the person");
+closeDetail();
+
+console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work.");
