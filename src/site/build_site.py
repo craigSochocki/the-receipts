@@ -232,6 +232,15 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .method table{min-width:0}
 .method th{cursor:default}
 .callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.landing{margin:0 0 14px}
+.story{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;font-size:1.05rem;margin:0 0 10px}
+.story b{font-size:1.2rem}
+.linklike{background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.finder label{font-weight:600;font-size:.95rem}
+.finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
+.finder .person-btn{white-space:normal;text-align:left}
+@media(max-width:560px){.finder select{flex:1 1 100%}.finder label{flex:1 1 100%}}
 </style>
 </head>
 <body>
@@ -254,6 +263,9 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 """
 TEMPLATE_BODY = """
 <section id="tab-tracker">
+<div class="landing" id="landing">
+<div class="story" id="landing-story"></div>
+</div>
 <div class="controls">
 <input type="search" id="q" placeholder="Search by name…" aria-label="Search by name">
 <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
@@ -559,6 +571,20 @@ function renderViewBtns(){
     b.addEventListener('click', ()=>{ state.view=b.getAttribute('data-view'); renderViewBtns(); renderTable(); });
   });
 }
+/* ---- landing story: the one finding, computed from the data ---- */
+/* The counts below are computed from PEOPLE at render time, exactly
+   like renderStats — no figure is ever typed into this template, so
+   a data change cannot strand a stale number on the landing. */
+function renderLanding(){
+  const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
+  const hClean = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
+  const sClean = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
+  document.getElementById('landing-story').innerHTML =
+    '<b>'+(hClean+sClean)+' of '+incoming.length+'</b> incoming members took no dirty money in 2026 — '
+    + hClean+' House + '+sClean+' Senate. '
+    + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
+  document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
+}
 </script>
 """
 
@@ -838,7 +864,7 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderViewBtns(); renderTable();
+  renderStats(); renderLanding(); renderViewBtns(); renderTable();
   state.rendered.tracker = true;
   document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; renderTable(); });
   document.getElementById('f-congress').addEventListener('change', e=>{ state.congress=e.target.value; renderTable(); });
