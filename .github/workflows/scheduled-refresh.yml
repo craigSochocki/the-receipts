@@ -101,8 +101,8 @@ jobs:
 
       # ---- Freshness overlay (late money since bulk coverage) ----
       # Runs ONLY when the FEC_API_KEY secret is set. With DEMO_KEY the
-      # driver REFUSES --all (it exits with an error), and no registered
-      # key exists yet — so until the secret is added this step logs a
+      # driver REFUSES --all (it exits with an error). The key was added
+      # Nov 12, 2026; if the secret is ever removed, this step logs a
       # skip line and the run continues without it. The snapshot is an
       # overlay: it is NEVER merged into dataset totals.
       - name: Freshness refresh (registered key only)
