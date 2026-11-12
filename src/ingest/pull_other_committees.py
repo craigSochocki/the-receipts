@@ -8,8 +8,8 @@ party committees, leadership PACs, labor PACs, or trade-association PACs show $0
 there. This script fills that hole with SEPARATE columns, never blended into
 total_accepted (individual + corporate PAC + AIPAC direct — that definition is
 unchanged). It reads the staged pas2 + cm bulk files (cycles 1980-2026) and
-produces work/other_committees_per_cycle.json (per person, per cycle, by class)
-and work/other_committees.csv (per person, career totals by class).
+produces data/intermediate/other_committees_per_cycle.json (per person, per cycle, by class)
+and data/intermediate/other_committees.csv (per person, career totals by class).
 
 Classification — derived from the data, verified Nov 12, 2026 (see evidence below).
 Every contributing committee is classified from its SAME-CYCLE cm record
@@ -129,11 +129,15 @@ import json, csv, os, sys
 from decimal import Decimal
 from collections import defaultdict
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+SRC = str(ROOT / CFG['paths']['source'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 BULK = str(ROOT / CFG['paths']['bulk'])
 CYCLES = list(range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2))
 AIPAC = CFG['committees']['aipac_pac']
@@ -171,7 +175,7 @@ def classify(cmte, tp, org, dsgn):
         return 'cooperative_pacs'
     return 'other_unclassified'
 
-roster = json.load(open(os.path.join(WORK, 'roster.json')))
+roster = json.load(open(os.path.join(IM, 'roster.json')))
 cand_to_persons = defaultdict(list)
 for p in roster:
     for cid in (p.get('fec_candidate_ids') or []):
@@ -340,7 +344,7 @@ checks = {
 # the same whole-summary duplication affects col 26. It is NOT applied to these
 # pas2 columns (transaction-level); it is applied here ONLY to the weball side
 # of the reconciliation, guarded by the same equality check apply_dedup.py uses.
-dedup_applied = json.load(open(os.path.join(WORK, 'dedup-applied.json')))
+dedup_applied = json.load(open(os.path.join(SRC, 'dedup-applied.json')))
 drop_by_cycle = defaultdict(set)   # cycle -> dropped cand ids
 for e in dedup_applied:
     for did in e['dropped_ids']:
@@ -501,12 +505,12 @@ csv_fields = (['person_key', 'full_name', 'fec_candidate_ids']
               + ['other_committees_total_career']
               + [f'{b}_earmark_transmitted_career' for b in BUCKETS]
               + ['data_notes'])
-with open(os.path.join(WORK, 'other_committees.csv'), 'w', newline='') as f:
+with open(os.path.join(IM, 'other_committees.csv'), 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=csv_fields)
     w.writeheader()
     w.writerows(out_rows)
 
-with open(os.path.join(WORK, 'other_committees_per_cycle.json'), 'w') as f:
+with open(os.path.join(IM, 'other_committees_per_cycle.json'), 'w') as f:
     json.dump(per_cycle, f, indent=1)
 
 # Lamb validation (2026, candidate H6AZ05265): pas2-derived vs weball col 26
@@ -555,7 +559,7 @@ diag = {'per_cycle': per_cycle_diag,
             'zeroes the dropped IDs\' col-26 copies (guarded by the same '
             'equality check apply_dedup.py uses) and reports raw vs corrected '
             'residuals separately. No correction was invented for these columns.')}
-with open(os.path.join(WORK, 'other_committees_diagnostics.json'), 'w') as f:
+with open(os.path.join(IM, 'other_committees_diagnostics.json'), 'w') as f:
     json.dump(diag, f, indent=1)
 
 print('persons:', len(out_rows))
@@ -585,4 +589,4 @@ for r in recon:
 ok = all(a == b for a, b in checks.values())
 if not ok:
     sys.exit('CROSS-CHECK FAILED: recomputed corporate/AIPAC totals do not match methodology totals')
-print('wrote work/other_committees.csv, work/other_committees_per_cycle.json, work/other_committees_diagnostics.json')
+print('wrote data/intermediate/other_committees.csv, data/intermediate/other_committees_per_cycle.json, data/intermediate/other_committees_diagnostics.json')

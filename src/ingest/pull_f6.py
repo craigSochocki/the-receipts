@@ -4,7 +4,7 @@
 Form 6 is filed by candidate committees for contributions/loans of $1,000+
 received in the final 20 days before an election. It is the freshness
 layer's route to late candidate money that no totals endpoint and no bulk
-file can see yet (see work/freshness-research.md §2).
+file can see yet (see research/freshness-research.md §2).
 
 Two steps, two different access routes:
 1. Discovery: GET /v1/filings/?form_type=F6&committee_id={id} — returns
@@ -21,13 +21,13 @@ Two steps, two different access routes:
 The F65 contributor-type code identifies candidate loans (`CAN`) vs
 contributions from others; the amounts are split accordingly and are
 NEVER blended into the dataset totals — this script writes a JSON
-report only. The freshness driver (work/pull_freshness.py) folds it
-into work/freshness_snapshot.json.
+report only. The freshness driver (src/ingest/pull_freshness.py) folds it
+into data/intermediate/freshness_snapshot.json.
 
 Usage:
-    python3 work/pull_f6.py --committee C00892737 [--since 2026-10-15]
-                             [--out work/f6_<committee>.json]
-    python3 work/pull_f6.py --file-number 2044138   # fetch + parse one filing
+    python3 src/ingest/pull_f6.py --committee C00892737 [--since 2026-10-15]
+                             [--out data/intermediate/f6_<committee>.json]
+    python3 src/ingest/pull_f6.py --file-number 2044138   # fetch + parse one filing
 
 API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
 Docquery CSV fetches need no key. Sleeps >=1s between API calls.
@@ -43,7 +43,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from config import load_config
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']

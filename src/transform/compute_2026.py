@@ -67,7 +67,7 @@ Gap notes appended to `data_notes` (exact committed text):
   is preserved verbatim) and the later UNVERIFIED note that records
   the fix. Both are appended, in that order.
 
-Also writes `work/primary-targets.md`: House Democrats in the 120th
+Also writes `data/intermediate/primary-targets.md`: House Democrats in the 120th
 with dirty_2026 > 0, ranked by dirty_2026 descending — the
 primary-challenge research list (public-facing use needs Craig's
 explicit go-ahead; see STATUS.md).
@@ -83,7 +83,10 @@ import json
 
 import pandas as pd
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']

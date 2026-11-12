@@ -1,12 +1,21 @@
 # The Receipts — single source of truth for values shared across pipeline scripts.
 #
 # Rules:
-# - Every script loads this file through work/config.py (load_config()).
+# - Every script loads this file through src/common/config.py (load_config()).
 # - All paths are relative to the repo root (the directory containing this file).
 # - Scripts resolve paths from the repo root, never from an absolute path and
 #   never from the current working directory.
 # - Do not re-hardcode any value from this file in a script. If a new script
 #   needs a shared value, add it here first.
+# - Layout (Nov 12, 2026 restructure): code in src/ (common / ingest /
+#   transform / validate), staged bulk in data/raw/ (gitignored),
+#   committed inputs in data/source/, regenerable staging files in
+#   data/intermediate/ (gitignored), dataset snapshots in data/snapshots/,
+#   one-off API evidence in data/evidence/, research notes in research/.
+#   The dataset itself stays at the repo root. Long term, data moves out
+#   of the repo into a database (see architecture.md); until then, every
+#   path a script touches comes from this file, so the move is a config
+#   change, not a code change.
 
 committees:
   # FEC committee IDs, verified by direct FEC API lookup (see methodology.md).
@@ -20,30 +29,36 @@ cycles:
   current: 2026            # current / most recent cycle, used for diagnostics and FEC lookups
 
 paths:
-  work: work
-  bulk: work/bulk
-  ie: work/bulk/ie
-  roster: work/roster.json
-  roster_intermediate: work/roster_intermediate.json
-  fec_lookup_results: work/fec_lookup_results.json
-  manual_roster_notes: work/manual_roster_notes.json
-  money_per_cycle: work/money_per_cycle.json
-  money_pas2_weball: work/money_pas2_weball.csv
-  money_udp: work/money_udp.csv
-  money_udp_per_cycle: work/money_udp_per_cycle.json
-  self_funding_per_cycle: work/self_funding_per_cycle.json
-  self_funding_csv: work/self_funding.csv
-  other_committees_per_cycle: work/other_committees_per_cycle.json
-  other_committees_csv: work/other_committees.csv
-  other_committees_diagnostics: work/other_committees_diagnostics.json
-  all_ie_per_cycle: work/all_ie_per_cycle.json
-  all_ie_csv: work/all_ie.csv
-  all_ie_top_committees: work/all_ie_top_committees.json
-  freshness_snapshot: work/freshness_snapshot.json
-  dedup_applied: work/dedup-applied.json
-  dedup_notes: work/dedup-notes.json
-  primary_targets: work/primary-targets.md
-  opposition_computed: work/opposition-computed.json
+  src: src
+  raw: data/raw
+  bulk: data/raw
+  ie: data/raw/ie
+  source: data/source
+  intermediate: data/intermediate
+  snapshots: data/snapshots
+  evidence: data/evidence
+  research: research
+  roster: data/intermediate/roster.json
+  roster_intermediate: data/intermediate/roster_intermediate.json
+  fec_lookup_results: data/source/fec_lookup_results.json
+  manual_roster_notes: data/source/manual_roster_notes.json
+  money_per_cycle: data/intermediate/money_per_cycle.json
+  money_pas2_weball: data/intermediate/money_pas2_weball.csv
+  money_udp: data/intermediate/money_udp.csv
+  money_udp_per_cycle: data/intermediate/money_udp_per_cycle.json
+  self_funding_per_cycle: data/intermediate/self_funding_per_cycle.json
+  self_funding_csv: data/intermediate/self_funding.csv
+  other_committees_per_cycle: data/intermediate/other_committees_per_cycle.json
+  other_committees_csv: data/intermediate/other_committees.csv
+  other_committees_diagnostics: data/intermediate/other_committees_diagnostics.json
+  all_ie_per_cycle: data/intermediate/all_ie_per_cycle.json
+  all_ie_csv: data/intermediate/all_ie.csv
+  all_ie_top_committees: data/intermediate/all_ie_top_committees.json
+  freshness_snapshot: data/intermediate/freshness_snapshot.json
+  dedup_applied: data/source/dedup-applied.json
+  dedup_notes: data/intermediate/dedup-notes.json
+  primary_targets: data/intermediate/primary-targets.md
+  opposition_computed: data/intermediate/opposition-computed.json
   dataset_csv: congress-money-tracker.csv
   dataset_json: congress-money-tracker.json
 

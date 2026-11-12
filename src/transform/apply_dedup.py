@@ -4,13 +4,13 @@
 The FEC weball file repeats the identical `TTL_INDIV_CONTRIB` under both
 a chamber-switcher's House and Senate candidate IDs in the same cycle —
 one principal committee's summary reported under two IDs. The correction
-record is `work/dedup-applied.json`: 90 (person, cycle) groups across 32
+record is `data/source/dedup-applied.json`: 90 (person, cycle) groups across 32
 persons, $451,776,015.34 in total. Each entry records the judgment call
 already made (which ID's copy to keep, which to drop, and why); this
 script APPLIES those decisions as data. It does NOT re-derive them:
 re-deriving would re-open the per-group judgment calls (election-result
 `W` marker, chamber after the cycle, shared-committee designation,
-first-House-ID fallback) that `work/verification-log.md` documents.
+first-House-ID fallback) that `research/verification-log.md` documents.
 
 What it does, per dedup entry (person, cycle, kept_id, dropped_ids,
 amount):
@@ -26,7 +26,7 @@ amount):
   (deduped) per-cycle `individual` values. Guard: the recomputed value
   must differ from the current value by exactly the person's dedup total
   (fresh pull) or by $0.00 (already applied) — anything else fails.
-- Writes `work/dedup-notes.json`: {person_key: note}, the per-person
+- Writes `data/intermediate/dedup-notes.json`: {person_key: note}, the per-person
   correction note the merge appends to `data_notes` (space-separated,
   after the UDP note):
   `Individual total corrected Nov 12, 2026 (verification): FEC weball
@@ -46,7 +46,10 @@ import csv, json
 from collections import defaultdict
 from decimal import Decimal
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']

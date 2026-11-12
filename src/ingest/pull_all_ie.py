@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """All-independent-expenditures pull for the Congress money tracker.
 
-Reads the staged bulk IE files (`work/bulk/ie/<cycle>/
+Reads the staged bulk IE files (`data/raw/ie/<cycle>/
 independent_expenditure_<cycle>.csv`, cycles 2022/2024/2026 from config
 `cycles.udp`) and produces:
-- `work/all_ie_per_cycle.json` — per candidate, per-cycle support/oppose
+- `data/intermediate/all_ie_per_cycle.json` — per candidate, per-cycle support/oppose
   totals for ALL identified candidates (not just roster members), plus a
   per-committee breakdown of the top spenders.
-- `work/all_ie.csv` — one row per roster person with career all-IE
+- `data/intermediate/all_ie.csv` — one row per roster person with career all-IE
   support, oppose and total, plus the same for the latest cycle (2026).
   "Career" here means the covered cycles (2022+2024+2026) only: no IE
   files are staged for earlier cycles, so these are NOT full-career
@@ -29,13 +29,13 @@ Filter rules (applied in this order, per cycle, on deduped rows):
    Within one committee (UDP) the two keys coincide, which is why the
    UDP pull's tran_id-only dedup was correct there.
 2. REGISTERED committee: `spe_id` must be present in the same-cycle
-   committee master (`work/bulk/cm/<cycle>/cm.txt`, col 1). This kills
+   committee master (`data/raw/cm/<cycle>/cm.txt`, col 1). This kills
    the bogus billions: "Committee of 300" C00800508, C00874586,
    C00785352, "Warren Buffet" C00946087, C00944025, etc. are in no cm
    file for their cycle.
 3. IDENTIFIED candidate: non-blank `cand_id` that resolves to a real
    candidate — present in ANY staged weball file (all cycles
-   1980-2026, `work/bulk/weball/weball*.txt`) OR one of the roster's
+   1980-2026, `data/raw/weball/weball*.txt`) OR one of the roster's
    FEC candidate IDs. Same-cycle weball alone is NOT a valid test: real
    roster IDs are missing from every weball file (Glenn Ivey H2MD04315,
    Laura Gillen H4NY04158), while the bogus IDs (Akhlaghy H2NY05118 /
@@ -98,11 +98,14 @@ pre-2010 cycles have no such file.
 import csv, glob, json, collections
 from datetime import datetime
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 IE_DIR = str(ROOT / CFG['paths']['ie'])
 BULK_DIR = str(ROOT / CFG['paths']['bulk'])
 UDP = CFG['committees']['udp']
@@ -566,13 +569,13 @@ for p in roster:
                           'support': r2(a[0]), 'oppose': r2(a[1]),
                           'total': r2(a[0] + a[1]), 'rows': a[2]}
                          for sid, a in ranked]
-with open(f"{WORK}/all_ie_top_committees.json", 'w') as f:
+with open(f"{IM}/all_ie_top_committees.json", 'w') as f:
     json.dump(top_by_person, f, indent=1)
-print(f"wrote work/all_ie_top_committees.json "
+print(f"wrote data/intermediate/all_ie_top_committees.json "
       f"({sum(1 for v in top_by_person.values() if v)} persons with spending, "
       f"{sum(1 for v in top_by_person.values() if v is None)} unknown)")
 
-with open(f"{WORK}/all_ie.csv", 'w', newline='') as f:
+with open(f"{IM}/all_ie.csv", 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=['person_key', 'full_name', 'fec_candidate_ids',
                                       'all_ie_support_career', 'all_ie_oppose_career',
                                       'all_ie_total_career', 'all_ie_support_2026',
@@ -580,7 +583,7 @@ with open(f"{WORK}/all_ie.csv", 'w', newline='') as f:
                                       'data_notes'])
     w.writeheader()
     w.writerows(out_rows)
-print(f"wrote work/all_ie.csv ({len(out_rows)} rows, roster order)")
+print(f"wrote data/intermediate/all_ie.csv ({len(out_rows)} rows, roster order)")
 
 # ---------- 7. Validation report (printed + saved in the JSON) ----------
 validation = {'udp_2024_exact': {}, 'roster_totals': {}, 'top_spenders_2026': {},
@@ -695,7 +698,7 @@ row_sum_t = r2(sum(v['total'] for v in per_person.values() if v))
 
 out = {
     'meta': {
-        'script': 'work/pull_all_ie.py',
+        'script': 'src/ingest/pull_all_ie.py',
         'data_as_of': DATA_AS_OF,
         'cycles': list(CYCLES),
         'current_cycle': CURRENT,
@@ -705,7 +708,7 @@ out = {
         'filter_rules': [
             'dedup by (spe_id, tran_id): keep latest receipt_dat, tie-break highest file_num; '
             'blank tran_id never deduped against another row',
-            'registered committee only: spe_id in same-cycle work/bulk/cm/<cycle>/cm.txt',
+            'registered committee only: spe_id in same-cycle data/raw/cm/<cycle>/cm.txt',
             'identified candidate only: non-blank cand_id in any staged weball file (1980-2026) '
             'OR a roster FEC candidate ID; blank cand_id rows excluded from published totals',
             'support and oppose summed separately, never netted; blank sup_opp rows count in total only',
@@ -756,9 +759,9 @@ out = {
             'total': r2(row_sum_t - over_t)},
     },
 }
-with open(f'{WORK}/all_ie_per_cycle.json', 'w') as f:
+with open(f'{IM}/all_ie_per_cycle.json', 'w') as f:
     json.dump(out, f, indent=1)
-print(f"wrote work/all_ie_per_cycle.json ({len(per_candidate)} per-candidate entries)")
+print(f"wrote data/intermediate/all_ie_per_cycle.json ({len(per_candidate)} per-candidate entries)")
 print(f"roster career all-IE (2022+2024+2026): S ${out['roster_career_totals']['support']:,.2f} / "
       f"O ${out['roster_career_totals']['oppose']:,.2f} / total "
       f"${out['roster_career_totals']['total']:,.2f}; "

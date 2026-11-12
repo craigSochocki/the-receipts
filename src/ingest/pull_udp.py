@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """UDP independent-expenditure pull for the Congress money tracker.
 
-Reads the staged bulk IE files (`work/bulk/ie/<cycle>/
+Reads the staged bulk IE files (`data/raw/ie/<cycle>/
 independent_expenditure_<cycle>.csv`, cycles from config `cycles.udp`)
 and produces, per roster person:
-- `work/money_udp.csv` — career UDP support total + `data_notes`
+- `data/intermediate/money_udp.csv` — career UDP support total + `data_notes`
   (665 rows, roster order).
-- `work/money_udp_per_cycle.json` — per-cycle UDP support breakdown
+- `data/intermediate/money_udp_per_cycle.json` — per-cycle UDP support breakdown
   (the input `merge_dataset.py` reads for `udp_per_cycle`).
 
-This is the script the original UDP pull (see `work/pull-log-b.md`) never
+This is the script the original UDP pull (see `research/pull-log-b.md`) never
 had saved: methodology §6 records that the merge independently recomputed
 these figures from the staged IE files with the same rules and reproduced
 `money_udp.csv` exactly (0 mismatches). The rules, all from pull-log-b:
@@ -59,11 +59,13 @@ candidates). If an old `money_udp.csv` is present it is compared
 import csv, json, collections
 from datetime import datetime
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
 IE_DIR = str(ROOT / CFG['paths']['ie'])
 UDP = CFG['committees']['udp']
 AIPAC = CFG['committees']['aipac_pac']

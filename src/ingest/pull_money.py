@@ -39,11 +39,14 @@ import json, csv, os
 from decimal import Decimal
 from collections import defaultdict
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 BULK = str(ROOT / CFG['paths']['bulk'])
 CYCLES = list(range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2))
 CURRENT_CYCLE = CFG['cycles']['current']
@@ -58,7 +61,7 @@ def cents(s):
 def fmt(c):
     return f"{c/100:.2f}"
 
-roster = json.load(open(os.path.join(WORK, 'roster.json')))
+roster = json.load(open(os.path.join(IM, 'roster.json')))
 cand_to_persons = defaultdict(list)
 for p in roster:
     for cid in (p.get('fec_candidate_ids') or []):
@@ -293,7 +296,7 @@ for p in roster:
                                 'corporate_earmark_transmitted': fmt(cem)})
     per_cycle[pk] = {'person_key': pk, 'full_name': p['full_name'], 'per_cycle': entries}
 
-with open(os.path.join(WORK, 'money_pas2_weball.csv'), 'w', newline='') as f:
+with open(os.path.join(IM, 'money_pas2_weball.csv'), 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=['person_key', 'full_name', 'fec_candidate_ids',
         'individual_contribution_total_career', 'aipac_pac_direct_career',
         'aipac_earmark_transmitted_career', 'corporate_pac_career',
@@ -301,7 +304,7 @@ with open(os.path.join(WORK, 'money_pas2_weball.csv'), 'w', newline='') as f:
     w.writeheader()
     w.writerows(out_rows)
 
-with open(os.path.join(WORK, 'money_per_cycle.json'), 'w') as f:
+with open(os.path.join(IM, 'money_per_cycle.json'), 'w') as f:
     json.dump(per_cycle, f, indent=1)
 
 # coverage counts
@@ -342,5 +345,5 @@ print('TOTAL pas2 matched rows:', sum(d['pas2_matched_roster'] for d in per_cycl
 print('TOTAL corp rows kept:', sum(d['corp_rows_kept'] for d in per_cycle_diag))
 print('TOTAL aipac rows kept:', sum(d['aipac_rows_kept'] for d in per_cycle_diag))
 json.dump({'per_cycle': per_cycle_diag, 'cm_missing': missing_stats},
-          open(os.path.join(WORK, 'pull-diagnostics.json'), 'w'), indent=1)
+          open(os.path.join(IM, 'pull-diagnostics.json'), 'w'), indent=1)
 print(f'{CURRENT_CYCLE} max CVG_END_DT:', [d.get(f'weball_{CURRENT_CYCLE}_max_cvg_end') for d in per_cycle_diag if d['cycle'] == CURRENT_CYCLE])

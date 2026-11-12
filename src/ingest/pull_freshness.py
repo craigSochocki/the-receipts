@@ -2,9 +2,9 @@
 """Freshness refresh driver: new money since bulk coverage (Oct 14).
 
 Runs the three freshness legs for a set of roster persons and writes
-work/freshness_snapshot.json — new money found since bulk coverage,
-labeled by source and date, NEVER merged into the dataset totals.
-See methodology.md §16 and work/freshness-research.md.
+data/intermediate/freshness_snapshot.json — new money found since bulk
+coverage, labeled by source and date, NEVER merged into the dataset totals.
+See methodology.md §16 and research/freshness-research.md.
 
 Legs, per person (all through the FEC API, DEMO_KEY for spot checks):
 1. Candidate totals refresh — /v1/candidate/{id}/totals/?cycle=2026.
@@ -25,10 +25,10 @@ Committee IDs come from /v1/candidate/{id}/committees/?cycle=2026
 
 Usage:
     # Limited spot check (DEMO_KEY-friendly, ~5 calls):
-    python3 work/pull_freshness.py --person anthonyconstantinonyhouse \\
-        --f24-committee C00799031 --f24-candidate abdul-elsayed-misenate
+    python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \\
+        --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
     # Full refresh (registered key REQUIRED — ~1,300+ calls):
-    FEC_API_KEY=<registered key> python3 work/pull_freshness.py --all
+    FEC_API_KEY=<registered key> python3 src/ingest/pull_freshness.py --all
 
 Cadence: final 20 days before an election daily; cycle in progress
 outside the final 20 days weekly; after each filing deadline
@@ -47,12 +47,11 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-# Imported as a script from work/ (sys.path[0] is work/); the pulls live
-# next to this driver.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import pull_f24
-import pull_f6
-from config import load_config
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.ingest import pull_f24, pull_f6
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -164,7 +163,7 @@ def main():
                     help='roster person_key as F24 target (repeatable; '
                          'defaults to the --person list)')
     ap.add_argument('--out', default=None,
-                    help='snapshot path (default work/freshness_snapshot.json)')
+                    help='snapshot path (default data/intermediate/freshness_snapshot.json)')
     args = ap.parse_args()
     if args.all and API_KEY == CFG['fec_api']['api_key_default']:
         sys.exit('ERROR: --all needs a registered api.data.gov key '
@@ -213,7 +212,8 @@ def main():
         'entries': entries,
         'summary': summarize(entries),
     }
-    out = args.out or str(ROOT / 'work' / 'freshness_snapshot.json')
+    out = args.out or str(ROOT / CFG['paths']['freshness_snapshot'])
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, 'w') as f:
         json.dump(snapshot, f, indent=1)
     s = snapshot['summary']

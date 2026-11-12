@@ -12,7 +12,7 @@ Primary/general conflation: the race key does NOT include ele_type, so backing
 different candidates in the primary vs the general within one cycle+race counts as
 two backed candidates -> nothing credited. This is a documented limitation.
 
-Sources: staged bulk IE files work/bulk/ie/<cycle>/independent_expenditure_<cycle>.csv
+Sources: staged bulk IE files data/raw/ie/<cycle>/independent_expenditure_<cycle>.csv
 (cycles from config cycles.udp). Dedup by tran_id, keep latest receipt_dat, tie-break
 highest file_num (same rule as the UDP support pull). AIPAC PAC (see config
 committees.aipac_pac) has ZERO Schedule E rows in all three cycles, so no AIPAC
@@ -21,7 +21,10 @@ opposition column is built.
 import csv, json, collections
 from datetime import datetime
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -293,4 +296,4 @@ json.dump({
     'unresolved_blank_rows': len(unresolved),
     'aipac_schedule_e_rows': len(aipac_rows),
 }, open(ROOT / CFG['paths']['opposition_computed'], 'w'), indent=1)
-print('\nwrote work/opposition-computed.json')
+print('\nwrote data/intermediate/opposition-computed.json')

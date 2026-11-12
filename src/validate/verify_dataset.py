@@ -2,7 +2,7 @@
 """Standing audits for the Congress money tracker dataset.
 
 Usage:
-    python3 work/verify_dataset.py [--dataset-csv PATH] [--dataset-json PATH]
+    python3 src/validate/verify_dataset.py [--dataset-csv PATH] [--dataset-json PATH]
 
 Checks (exit non-zero on any mismatch, printing every failure):
   (a) per-cycle sums reproduce every career column (0 mismatches).
@@ -63,7 +63,9 @@ from decimal import Decimal
 
 import pandas as pd
 
-from config import load_config
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']

@@ -3,7 +3,7 @@
 
 The freshness layer's route to independent expenditures filed in the
 last 20 days before an election, before any bulk file carries them
-(see work/freshness-research.md §3).
+(see research/freshness-research.md §3).
 
 Route: GET /v1/schedules/schedule_e/?filing_form=F24&committee_id=
 &candidate_id=&cycle= — with the F24-only filter. The filter matters:
@@ -18,12 +18,12 @@ Form 5 covers only unregistered spenders; registered committees (UDP
 included) file zero F5s, so no F5 leg is needed for the roster.
 
 The output is a JSON report only — NEVER merged into the dataset
-totals; the freshness driver (work/pull_freshness.py) folds it into
-work/freshness_snapshot.json.
+totals; the freshness driver (src/ingest/pull_freshness.py) folds it into
+data/intermediate/freshness_snapshot.json.
 
 Usage:
-    python3 work/pull_f24.py --committee C00799031 --candidate S6MI00418 --cycle 2026
-    python3 work/pull_f24.py --committee C00799031 --cycle 2026   # committee-only sweep
+    python3 src/ingest/pull_f24.py --committee C00799031 --candidate S6MI00418 --cycle 2026
+    python3 src/ingest/pull_f24.py --committee C00799031 --cycle 2026   # committee-only sweep
 
 API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
 Sleeps >=1s between API calls.
@@ -37,7 +37,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from config import load_config
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])

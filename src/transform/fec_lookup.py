@@ -6,11 +6,15 @@ office + state + district + party; stops on rate limiting and leaves the
 rest empty rather than guessing."""
 import json, time, urllib.request, urllib.parse, unicodedata, re, os
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+SRC = str(ROOT / CFG['paths']['source'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 API = CFG['fec_api']['base_url']
 API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
 CURRENT_ELECTION_YEAR = CFG['cycles']['current']
@@ -20,7 +24,7 @@ def norm(s):
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
     return re.sub(r'[^a-z ]', '', s.lower()).strip()
 
-rows = json.load(open(f'{WORK}/roster_intermediate.json'))
+rows = json.load(open(f'{IM}/roster_intermediate.json'))
 missing = [r for r in rows if not r['fec_candidate_ids']]
 print('rows missing FEC IDs:', len(missing))
 
@@ -86,7 +90,7 @@ for i, r in enumerate(missing):
         break
     time.sleep(CFG['fec_api']['sleep_between_requests_seconds'])
 
-json.dump(results, open(f'{WORK}/fec_lookup_results.json', 'w'), indent=1)
-json.dump(rows, open(f'{WORK}/roster_intermediate.json', 'w'), indent=1)
+json.dump(results, open(f'{SRC}/fec_lookup_results.json', 'w'), indent=1)
+json.dump(rows, open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
 found = sum(1 for v in results.values() if v['status'] == 'found')
 print(f"found {found} of {len(results)} attempted")

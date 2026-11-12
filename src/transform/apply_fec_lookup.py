@@ -34,11 +34,13 @@ note appends already present are skipped).
 """
 import json
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
 CURRENT = CFG['cycles']['current']
 
 rows = json.load(open(ROOT / CFG['paths']['roster_intermediate']))

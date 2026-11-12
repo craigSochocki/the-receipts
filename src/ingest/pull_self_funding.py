@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Congress money tracker — self-funding + topline + transfers columns from FEC weball.
 
-Reads the staged bulk weball files (work/bulk/weball/weballYY.txt, cycles
+Reads the staged bulk weball files (data/raw/weball/weballYY.txt, cycles
 1980-2026) and produces:
-  - work/self_funding_per_cycle.json — per person_key, per-cycle entries
-  - work/self_funding.csv — one row per person, career totals + 2026 values
+  - data/intermediate/self_funding_per_cycle.json — per person_key, per-cycle entries
+  - data/intermediate/self_funding.csv — one row per person, career totals + 2026 values
 
 The tracker's definition of total_accepted (individual + corporate PAC +
 AIPAC direct) is UNCHANGED. The columns built here are separate and are
@@ -73,7 +73,7 @@ FLOWS vs STOCKS (career aggregation):
     weball row (no report), not zero.
 
 DEDUP (chamber-switchers with two candidate IDs in the same cycle):
-  work/dedup-applied.json records 90 (person, cycle) groups where weball
+  data/source/dedup-applied.json records 90 (person, cycle) groups where weball
   repeats the identical TTL_INDIV_CONTRIB under both IDs. Checked here
   against the raw weball rows: in 89 of the 90 groups the dropped copy is
   identical to the kept copy on EVERY financial column (6-18, 26, 27, 29,
@@ -116,11 +116,15 @@ import os
 from collections import defaultdict
 from decimal import Decimal
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+SRC = str(ROOT / CFG['paths']['source'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 BULK = str(ROOT / CFG['paths']['bulk'])
 CYCLES = list(range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2))
 CURRENT_CYCLE = CFG['cycles']['current']
@@ -163,7 +167,7 @@ def fmt_json(c):
     return f"{c / 100:.2f}"
 
 
-roster = json.load(open(os.path.join(WORK, 'roster.json')))
+roster = json.load(open(os.path.join(IM, 'roster.json')))
 cand_to_persons = defaultdict(list)
 for p in roster:
     for cid in (p.get('fec_candidate_ids') or []):
@@ -195,7 +199,7 @@ for cy in CYCLES:
                 cvg[(cid, cy)] = p[COL_CVG_END]
 
 # ---------------- dedup (column-level) ----------------
-dedup = json.load(open(os.path.join(WORK, 'dedup-applied.json')))
+dedup = json.load(open(os.path.join(SRC, 'dedup-applied.json')))
 dedup_flags = []  # (person_key, name, cycle, kept_id, dropped_id, col, kept, dropped)
 n_dedup_groups = 0
 n_cells_zeroed = 0
@@ -395,13 +399,13 @@ CSV_FIELDS = (['person_key', 'full_name', 'fec_candidate_ids']
                   'transfers_to_auth', 'self_funding']]
               + ['data_notes'])
 
-with open(os.path.join(WORK, 'self_funding.csv'), 'w', newline='') as f:
+with open(os.path.join(IM, 'self_funding.csv'), 'w', newline='') as f:
     w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
     w.writeheader()
     w.writerows(csv_rows)
 
 meta = {
-    'source': 'staged bulk weball files work/bulk/weball/weballYY.txt, cycles 1980-2026',
+    'source': 'staged bulk weball files data/raw/weball/weballYY.txt, cycles 1980-2026',
     'data_as_of': CFG.get('data_as_of'),
     'column_map_1indexed': {
         'total_receipts': 6, 'transfers_from_auth': 7, 'total_disbursements': 8,
@@ -432,7 +436,7 @@ meta = {
     'weball_bad_field_count_rows': weball_bad,
 }
 
-with open(os.path.join(WORK, 'self_funding_per_cycle.json'), 'w') as f:
+with open(os.path.join(IM, 'self_funding_per_cycle.json'), 'w') as f:
     json.dump({'meta': meta, 'persons': per_cycle}, f, indent=1)
 
 # ---------------- validation ----------------

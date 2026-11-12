@@ -4,14 +4,17 @@ Every script loads config.yaml (repo root) through load_config() and
 resolves paths relative to the repo root, so the repo runs from any
 checkout location and from any working directory.
 
-Usage in a script (work/*.py):
-    from config import load_config
+Usage in a script (src/**/*.py):
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+    from src.common.config import load_config
     CFG = load_config()
     ROOT = CFG["_root"]            # pathlib.Path to the repo root
-    WORK = str(ROOT / CFG["paths"]["work"])
+    IM = str(ROOT / CFG["paths"]["intermediate"])
 
-`import config` works from any cwd because Python puts the script's own
-directory (work/) first on sys.path when a script is run by path.
+`load_config()` finds the root from this file's own location
+(src/common/ -> parents[2]), never from the working directory.
 """
 from pathlib import Path
 
@@ -19,8 +22,9 @@ import yaml
 
 
 def repo_root():
-    """Repo root = parent of the work/ directory holding this file."""
-    return Path(__file__).resolve().parents[1]
+    """Repo root = two levels above src/common/ (the directory holding
+    config.yaml)."""
+    return Path(__file__).resolve().parents[2]
 
 
 def load_config():

@@ -9,11 +9,15 @@ Sources:
 import json, re, unicodedata, csv, collections
 import yaml
 
-from config import load_config
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+from src.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
-WORK = str(ROOT / CFG['paths']['work'])
+SRC = str(ROOT / CFG['paths']['source'])
+IM = str(ROOT / CFG['paths']['intermediate'])
 
 def norm(s):
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
@@ -89,7 +93,7 @@ def slug(first, last, state, extra=''):
     return re.sub(r'[^a-z0-9]+', '-', base).strip('-')
 
 # ---------- 119th base ----------
-cur = yaml.safe_load(open(f'{WORK}/legislators-current.yaml'))
+cur = yaml.safe_load(open(f'{SRC}/legislators-current.yaml'))
 rows = {}  # bioguide -> row dict
 for p in cur:
     bg = p['id'].get('bioguide')
@@ -115,7 +119,7 @@ by_state_last = collections.defaultdict(list)
 for bg, r in rows.items():
     by_state_last[(r['state'], norm(r['last_name']))].append(r)
 
-hist = json.load(open(f'{WORK}/historical_lookup.json'))
+hist = json.load(open(f'{SRC}/historical_lookup.json'))
 
 def first_agrees(entry_first, row):
     """Nickname-aware first-name agreement, using the repo's nickname and
@@ -160,7 +164,7 @@ def match_hist(entry_name, state):
     return None
 
 # ---------- 120th roster ----------
-r120 = json.load(open(f'{WORK}/120th_roster.json'))
+r120 = json.load(open(f'{SRC}/120th_roster.json'))
 entries = []
 for s in r120['senate']:
     entries.append({'name': s['name'], 'state': s['state'], 'district': None,
@@ -345,7 +349,7 @@ for k, r in rows.items():
             if new_sens:
                 add_note(k, f"Not in 120th; new senator(s) from {r['state']} in the 120th: {', '.join(new_sens)}.")
 
-json.dump(list(rows.values()), open(f'{WORK}/roster_intermediate.json', 'w'), indent=1)
+json.dump(list(rows.values()), open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
 print('total rows:', len(rows))
 print('in 119th:', sum(1 for r in rows.values() if r['in_119th'] == 'yes'))
 print('in 120th:', sum(1 for r in rows.values() if r['in_120th'] == 'yes'))
