@@ -2,15 +2,20 @@
 """
 Opposition-credit computation for the Congress money tracker.
 
-Rule (conservative, per task): for each committee and race (FEC cycle + office +
-state + district), determine the committee's backed candidate(s) from its own IE
-SUPPORT rows in that race. If it backed EXACTLY ONE candidate, credit all of that
-committee's IE spending OPPOSING other candidates in the same race to that one
-backed candidate. If it backed zero or two or more, credit NOTHING for that race.
+Rule (conservative, per task): for each committee and race phase (FEC cycle +
+office + state + district + election phase), determine the committee's backed
+candidate(s) from its own IE SUPPORT rows in that phase. If it backed EXACTLY
+ONE candidate, credit all of that committee's IE spending OPPOSING other
+candidates in the same phase to that one backed candidate. If it backed zero
+or two or more, credit NOTHING for that phase.
 
-Primary/general conflation: the race key does NOT include ele_type, so backing
-different candidates in the primary vs the general within one cycle+race counts as
-two backed candidates -> nothing credited. This is a documented limitation.
+The phase is the filing's `ele_type` (P primary, G general, O other), already
+parsed on every row. Expenditure dates cannot be used instead: the date is
+blank on 100% of UDP rows in all three cycles. Each ele_type code is its own
+phase, O included — no special-casing. Backing different candidates in the
+primary and the general therefore credits each phase's opposition spending to
+that phase's backed candidate (MI-Sen 2026: Stevens in the primary, Rogers in
+the general).
 
 Sources: staged bulk IE files data/raw/ie/<cycle>/independent_expenditure_<cycle>.csv
 (cycles from config cycles.udp). Dedup by tran_id, keep latest receipt_dat, tie-break
@@ -198,7 +203,7 @@ races = collections.defaultdict(lambda: {'backed': set(), 'backed_names': {}, 'o
                                          'oppose_rows': 0, 'support_total': 0.0, 'opposed_names': collections.Counter(),
                                          'self_oppose_total': 0.0, 'self_oppose_rows': []})
 for r in udp_rows:
-    key = (r['cycle'], r['office'], r['state'], r['district'])
+    key = (r['cycle'], r['office'], r['state'], r['district'], r['ele_type'])
     rec = races[key]
     if r['sup_opp'] == 'S':
         if r['cand_id']:
@@ -225,7 +230,7 @@ for key, rec in sorted(races.items()):
         backed_name = rec['backed_names'][bid].upper()
         self_opp = 0.0
         for r in udp_rows:
-            if (r['cycle'], r['office'], r['state'], r['district']) != key or r['sup_opp'] != 'O':
+            if (r['cycle'], r['office'], r['state'], r['district'], r['ele_type']) != key or r['sup_opp'] != 'O':
                 continue
             if r['cand_id'] == bid or (not r['cand_id'] and r['cand_name'].upper() == backed_name):
                 self_opp += r['amount']
@@ -254,20 +259,20 @@ for key, n, names, opp, opposed in sorted(no_credit, key=lambda x: -x[3]):
 
 print('\n--- TEST 1: NY-16 2024 (House, NY, 16) ---')
 for key, rec in sorted(races.items()):
-    if key == (2024, 'H', 'NY', '16'):
-        print('  backed:', [(b, rec['backed_names'][b]) for b in sorted(rec['backed'])])
-        print('  support total: $', f"{rec['support_total']:,.2f}")
-        print('  oppose total (all): $', f"{rec['oppose_total']:,.2f}")
-        print('  self-opposition excluded: $', f"{rec['self_oppose_total']:,.2f}", rec['self_oppose_rows'])
-        print('  creditable oppose: $', f"{rec['oppose_total'] - rec['self_oppose_total']:,.2f}")
-        print('  opposed:', dict(rec['opposed_names']))
+    if key[:4] == (2024, 'H', 'NY', '16'):
+        print(f"  phase {key[4]}: backed:", [(b, rec['backed_names'][b]) for b in sorted(rec['backed'])])
+        print('    support total: $', f"{rec['support_total']:,.2f}")
+        print('    oppose total (all): $', f"{rec['oppose_total']:,.2f}")
+        print('    self-opposition excluded: $', f"{rec['self_oppose_total']:,.2f}", rec['self_oppose_rows'])
+        print('    creditable oppose: $', f"{rec['oppose_total'] - rec['self_oppose_total']:,.2f}")
+        print('    opposed:', dict(rec['opposed_names']))
 print('--- TEST 2: MI-Sen 2026 (Senate, MI, 00) ---')
 for key, rec in sorted(races.items()):
-    if key == (2026, 'S', 'MI', '00'):
-        print('  backed:', [(b, rec['backed_names'][b]) for b in sorted(rec['backed'])])
-        print('  support total: $', f"{rec['support_total']:,.2f}")
-        print('  oppose total: $', f"{rec['oppose_total']:,.2f}")
-        print('  opposed:', dict(rec['opposed_names']))
+    if key[:4] == (2026, 'S', 'MI', '00'):
+        print(f"  phase {key[4]}: backed:", [(b, rec['backed_names'][b]) for b in sorted(rec['backed'])])
+        print('    support total: $', f"{rec['support_total']:,.2f}")
+        print('    oppose total: $', f"{rec['oppose_total']:,.2f}")
+        print('    opposed:', dict(rec['opposed_names']))
 
 # Latimer + Rogers/Stevens/El-Sayed person figures
 for name in ('George Latimer', 'Mike Rogers', 'Haley Stevens', 'Abdul El-Sayed'):
