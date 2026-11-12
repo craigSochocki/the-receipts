@@ -52,10 +52,31 @@ and the 2026 opposition credit in `opposition-computed.json`:
   10/14/2026) plus all-IE support $459,491.94 / oppose $3,721,257.82
   prove the committee is linked — so he is verified clean=True WITH
   evidence (his True used to rest on having no per-cycle entries at
-  all, which the old has_pre_2026 guard could not catch). In
-  practice the generalized rule leaves the counts where they are:
-  exactly one null (Luria); True 84 / False 579; 120th House clean
-  67 (63 D, 4 R).
+  all, which the old has_pre_2026 guard could not catch).
+- `unopposed_2026` — True when the person ran unopposed in 2026: every
+  2026 candidate ID of theirs in weball26 sits in a race where no OTHER
+  candidate has total receipts over $0. A filed opponent with $0
+  receipts does not make the race contested; a write-in opponent who
+  never filed does not appear. The race comes from the filing's own
+  weball row (office prefix + state + district), NOT the roster
+  district — the two disagree for the Northern Mariana Islands
+  delegate (roster district 0; the FEC files the 2026 MP race under
+  district 01, with two stale H8 IDs under district 00). Kimberlyn
+  King-Hinds faced Galvin Deleon Guerrero (IND, $31,476.11 receipts;
+  36.3% of the vote Nov 3, 2026), so she is contested and stays
+  verified-clean — an early roster-district lookup wrongly read her as
+  unopposed. Three people are unopposed and therefore null, not clean:
+  Ayanna Pressley (MA-07, no opponent filed), Sara Jacobs (CA-51, one
+  $0 opponent), Aumua Amata Coleman Radewagen (AS, no opponent filed).
+  Six more ran unopposed but took dirty money, so they stay
+  clean=False — `unopposed_2026` is a race fact, independent of the
+  clean verdict. Career-clean is untouched by this rule: it is derived
+  from career money columns only, so a career-clean member who runs
+  unopposed keeps career-clean status (King-Hinds is the proof case:
+  career-clean AND contested-clean in 2026).
+  In practice the rule leaves: exactly four nulls (Luria unverified +
+  three unopposed); True 81 / False 579; 120th House clean 64
+  (61 D, 3 R).
 
 Gap notes appended to `data_notes` (exact committed text):
 - corp_2026 > 0 and individual_2026 == 0: the $0 individual figure is
@@ -110,6 +131,63 @@ LURIA_GAP = (' | 2026 DATA GAP: no 2026 per-cycle data found under the roster\'s
 LURIA_UNVERIFIED = (' | 2026 clean status UNVERIFIED — no 2026 per-cycle data under linked candidate ID '
                     '(returning former member; 2026 committee ID not linked). '
                     'Not counted as verified-clean.')
+UNOPPOSED_NOTE = (' | 2026 clean status UNOPPOSED — ran unopposed in 2026 ({race}): '
+                  'no opponent with receipts over $0, so $0 dirty money reflects no contest, '
+                  'not a verified-clean campaign. Not counted as verified-clean.')
+
+
+def load_weball_2026_races():
+    """2026 races from the FEC all-candidates file (weball26).
+
+    Returns (race_map, by_cid): race_map maps (office, state, district)
+    to [(candidate_id, total_receipts)]; by_cid maps candidate_id to
+    its (office, state, district). weball is pipe-delimited, 30 fields,
+    no header: p[0] candidate ID (H/S/P prefix = office), p[5] total
+    receipts, p[18] state, p[19] district. The race comes from the
+    filing's own row, not the roster district (see module docstring —
+    the MP delegate race is filed under district 01, not the roster's 0).
+    """
+    yy = f"{CFG['cycles']['current'] % 100:02d}"
+    path = ROOT / CFG['paths']['bulk'] / 'weball' / f'weball{yy}.txt'
+    race_map = {}
+    by_cid = {}
+    with open(path) as f:
+        for line in f:
+            p = line.rstrip('\n').split('|')
+            if len(p) != 30:
+                continue
+            try:
+                receipts = float(p[5] or 0)
+            except ValueError:
+                receipts = 0.0
+            race = (p[0][0], p[18], p[19])
+            race_map.setdefault(race, []).append((p[0], receipts))
+            by_cid[p[0]] = race
+    return race_map, by_cid
+
+
+def unopposed_2026_races(r, race_map, by_cid):
+    """The person's 2026 races, and the subset with no funded opponent.
+
+    Returns (races, unopposed): races is every (office, state,
+    district) race behind a 2026 candidate ID of theirs in weball26;
+    unopposed is the subset in which no OTHER candidate has total
+    receipts over $0. Both are empty when they filed no 2026
+    candidacy at all. A filed opponent with $0 receipts does not
+    contest the race; a write-in opponent who never filed does not
+    appear.
+    """
+    ids = set(r['fec_candidate_ids'] or [])
+    races = sorted({by_cid[cid] for cid in ids if cid in by_cid})
+    unopposed = [race for race in races
+                 if not any(cid not in ids and receipts > 0
+                            for cid, receipts in race_map.get(race, []))]
+    return races, unopposed
+
+
+def format_race(race):
+    office, state, district = race
+    return f'{state} Senate' if office == 'S' else f'{state}-{district}'
 
 
 def cycle_sum(entries, field):
@@ -136,6 +214,8 @@ def has_2026_linkage(r):
             return True
     return False
 
+
+race_map, by_cid = load_weball_2026_races()
 
 for r in records:
     r['individual_2026'] = cycle_sum(r['per_cycle'], 'individual')
@@ -169,12 +249,27 @@ for r in records:
     r['all_ie_oppose_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_oppose')
     r['all_ie_total_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_total')
 
+    # Unopposed in 2026 (methodology §14): a race with no funded
+    # opponent is not a clean campaign — $0 dirty money there reflects
+    # no contest. Unopposed is a race fact for everyone (nine people
+    # ran unopposed, six of them dirty); only a would-be-clean
+    # unopposed verdict becomes null. Career-clean is derived from
+    # career money columns only and is untouched by this rule.
+    races_2026, unopp_races = unopposed_2026_races(r, race_map, by_cid)
+    r['unopposed_2026'] = bool(races_2026) and len(unopp_races) == len(races_2026)
+
     # Clean rule (methodology §14): all four dirty components zero,
     # and only when 2026 linkage exists (generalized Nov 12, 2026 —
     # the old rule hardcoded the Luria exception via has_pre_2026).
+    # An unopposed would-be-clean verdict is null, not True.
     if r['in_120th'] == 'yes' and not has_2026_linkage(r):
         r['clean_2026'] = None
         r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
+    elif (r['unopposed_2026'] and r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
+            and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0):
+        r['clean_2026'] = None
+        race_label = ', '.join(format_race(race) for race in unopp_races)
+        r['data_notes'] = r['data_notes'] + UNOPPOSED_NOTE.format(race=race_label)
     else:
         r['clean_2026'] = (r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
                            and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0)
@@ -221,6 +316,7 @@ if not_career != exp['house_120th_clean_2026_not_career_clean']:
                      f"{exp['house_120th_clean_2026_not_career_clean']}")
 print(f"clean_2026: True {counts['true_total']}, False {counts['false_total']}, "
       f"None {counts['null_total']}; "
+      f"unopposed_2026 True {sum(1 for r in records if r['unopposed_2026'])}; "
       f"120th House clean {len(house_clean)} "
       f"({by_party['Democrat']} D, {by_party['Republican']} R); "
       f"career-clean 120th House {len(career_clean)}")
