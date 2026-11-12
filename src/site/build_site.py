@@ -265,6 +265,12 @@ TEMPLATE_BODY = """
 <section id="tab-tracker">
 <div class="landing" id="landing">
 <div class="story" id="landing-story"></div>
+<div class="finder" id="finder">
+<label for="find-state">Find your member</label>
+<select id="find-state" aria-label="Your state"><option value="">Choose your state…</option></select>
+<select id="find-district" aria-label="District" disabled><option value="">Choose a district…</option></select>
+<span id="find-person"></span>
+</div>
 </div>
 <div class="controls">
 <input type="search" id="q" placeholder="Search by name…" aria-label="Search by name">
@@ -585,6 +591,88 @@ function renderLanding(){
     + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
 }
+/* ---- find-your-member finder (120th Congress only, no URL state) ----
+   State -> seat -> person. The table is filtered to that person and
+   their drill-down opens in-page. Seats come from the 120th members
+   present in the data, so a seat with no named incoming member simply
+   does not appear. District '0'/'' is at-large; territories have a
+   single at-large delegate (PR: Resident Commissioner), never a
+   numbered district, whatever the filing's district value says. */
+const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',DC:'District of Columbia',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',AS:'American Samoa',GU:'Guam',MP:'Northern Mariana Islands',PR:'Puerto Rico',VI:'U.S. Virgin Islands'};
+const TERRITORIES = new Set(['AS','GU','MP','PR','VI','DC']);
+function finderSeats(stateCode){
+  const members = PEOPLE.filter(p=>p.in_120th==='yes'&&p.state===stateCode);
+  const seats = [];
+  if(members.some(p=>p.chamber_120==='Senate')) seats.push({value:'senate', label:'U.S. Senate — statewide'});
+  const districts = [...new Set(members.filter(p=>p.chamber_120==='House').map(p=>p.district_120||'0'))]
+    .sort((a,b)=>parseInt(a,10)-parseInt(b,10));
+  districts.forEach(d=>{
+    let label;
+    if(!d||d==='0'){
+      label = stateCode==='PR' ? 'At-large — Resident Commissioner' : (TERRITORIES.has(stateCode) ? 'At-large — Delegate' : 'At-large');
+    } else {
+      label = 'District '+parseInt(d,10);
+    }
+    seats.push({value:d||'0', label});
+  });
+  return seats;
+}
+function finderPeople(stateCode, seat){
+  const members = PEOPLE.filter(p=>p.in_120th==='yes'&&p.state===stateCode);
+  if(seat==='senate') return members.filter(p=>p.chamber_120==='Senate');
+  return members.filter(p=>p.chamber_120==='House'&&(p.district_120||'0')===seat);
+}
+function initFinder(){
+  const sel = document.getElementById('find-state');
+  const states = [...new Set(PEOPLE.filter(p=>p.in_120th==='yes').map(p=>p.state))]
+    .sort((a,b)=>(STATE_NAMES[a]||a).localeCompare(STATE_NAMES[b]||b));
+  sel.innerHTML = '<option value="">Choose your state…</option>'
+    + states.map(s=>'<option value="'+esc(s)+'">'+esc(STATE_NAMES[s]||s)+'</option>').join('');
+  sel.addEventListener('change', ()=>{
+    const dist = document.getElementById('find-district');
+    const person = document.getElementById('find-person');
+    person.innerHTML = '';
+    if(!sel.value){ dist.innerHTML = '<option value="">Choose a district…</option>'; dist.disabled = true; return; }
+    const seats = finderSeats(sel.value);
+    dist.innerHTML = '<option value="">Choose a district…</option>'
+      + seats.map(s=>'<option value="'+esc(s.value)+'">'+esc(s.label)+'</option>').join('');
+    dist.disabled = false;
+    if(!seats.some(s=>s.value!=='senate')){
+      person.innerHTML = '<span style="color:var(--muted);font-size:.9rem">House seat uncalled — no incoming member named yet.</span>';
+    }
+  });
+  document.getElementById('find-district').addEventListener('change', e=>{
+    const person = document.getElementById('find-person');
+    const seat = e.target.value;
+    person.innerHTML = '';
+    if(!seat) return;
+    const people = finderPeople(sel.value, seat);
+    if(!people.length){
+      person.innerHTML = '<span style="color:var(--muted);font-size:.9rem">No incoming member listed for this seat yet.</span>';
+      return;
+    }
+    person.innerHTML = people.map(p=>
+      '<button type="button" class="btn person-btn" data-key="'+p.person_key+'">'
+      + esc(p.full_name)+' · '+esc(party(p))+' '+fmtClean(p)+'</button>').join(' ');
+    person.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>findPerson(b.getAttribute('data-key')));
+    });
+  });
+}
+function findPerson(key){
+  const p = BY_KEY[key]; if(!p) return;
+  state.q = p.full_name; state.congress = '120'; state.chamber = 'all';
+  state.party = 'all'; state.state = 'all'; state.leadership = false; state.clean = false;
+  document.getElementById('q').value = p.full_name;
+  document.getElementById('f-congress').value = '120';
+  document.getElementById('f-chamber').value = 'all';
+  document.getElementById('f-party').value = 'all';
+  document.getElementById('f-state').value = 'all';
+  document.getElementById('f-leader').checked = false;
+  document.getElementById('f-clean').checked = false;
+  renderTable();
+  openDetail(key);
+}
 </script>
 """
 
@@ -864,7 +952,7 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderLanding(); renderViewBtns(); renderTable();
+  renderStats(); renderLanding(); initFinder(); renderViewBtns(); renderTable();
   state.rendered.tracker = true;
   document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; renderTable(); });
   document.getElementById('f-congress').addEventListener('change', e=>{ state.congress=e.target.value; renderTable(); });
