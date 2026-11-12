@@ -76,7 +76,7 @@ SCALARS = [
     "rank_all_ie_oppose", "rank_all_ie_total", "rank_other_committees_total",
     "corp_2026", "aipac_direct_2026", "individual_2026", "udp_support_2026",
     "udp_opp_credit_2026", "udp_benefit_2026", "dirty_2026", "clean_2026",
-    "dep_share_2026", "self_funding_2026", "cand_loans_2026",
+    "unopposed_2026", "dep_share_2026", "self_funding_2026", "cand_loans_2026",
     "cand_contrib_2026", "total_receipts_2026", "total_disbursements_2026",
     "cash_on_hand_2026", "other_committees_total_2026",
     "all_ie_support_2026", "all_ie_oppose_2026", "all_ie_total_2026",
@@ -203,6 +203,7 @@ td.name{font-weight:600;white-space:normal;min-width:150px}
 .badge.clean{background:var(--accent-soft);color:var(--accent)}
 .badge.dirty{background:#fdeede;color:var(--warn)}
 .badge.unver{background:#f3f3f3;color:var(--muted)}
+.badge.unopp{background:#fff3d6;color:#7a5b00}
 footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);font-size:.85rem}
 .foot-totals{font-size:.9rem;color:var(--ink);margin-bottom:8px}
 .detail{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:50}
@@ -354,6 +355,7 @@ function fmtPct(v){ if(v===null||v===undefined) return '—'; return (v*100).toF
 function fmtRank(v){ return (v===null||v===undefined)?'—':'#'+v; }
 function fmtClean(p){
   if(p.clean_2026===true) return '<span class="badge clean">Clean</span>';
+  if(p.unopposed_2026===true) return '<span class="badge unopp">Unopposed</span>';
   if(p.clean_2026===null) return '<span class="badge unver">Unverified</span>';
   return '<span class="badge dirty">Not clean</span>';
 }
@@ -624,6 +626,7 @@ function openDetail(key){
   }
   h += '<h3>2026 cycle (partial)</h3><div class="kv">'
     + kvRow('Clean in 2026', fmtClean(p))
+    + kvRow('Unopposed in 2026', p.unopposed_2026===true?'Yes — no opponent with receipts over $0':'No')
     + kvRow('Dirty 2026', fmtMoney(p.dirty_2026))
     + kvRow('Individual 2026', fmtMoney(p.individual_2026))
     + kvRow('Corporate PAC 2026', fmtMoney(p.corp_2026))
@@ -706,16 +709,18 @@ function renderClean(){
   const hSen = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true);
   const careerCleanHouse = incoming.filter(p=>p.chamber_120==='House'&&isCareerClean(p));
   const clean = PEOPLE.filter(p=>p.clean_2026===true);
-  const unver = PEOPLE.filter(p=>p.clean_2026===null);
+  const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
+  const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
   document.getElementById('clean-stats').innerHTML =
     '<div class="stats">'
     + '<div class="stat"><b>'+hHouse.length+' of 436</b>incoming House verified clean in 2026</div>'
     + '<div class="stat"><b>'+hSen.length+' of 99</b>incoming Senate verified clean in 2026</div>'
     + '<div class="stat"><b>'+(hHouse.length+hSen.length)+' total</b>verified clean in the incoming 120th</div>'
     + '<div class="stat"><b>'+careerCleanHouse.length+'</b>career-clean incoming House members</div>'
+    + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0, so not counted clean: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+unver.length+' unverified</b>'+esc(unver.map(p=>p.full_name).join(', '))+'</div>'
     + '</div>'
-    + '<p style="color:var(--muted)">'+clean.length+' people in the whole tracker are clean in 2026 — the 77 above plus '
+    + '<p style="color:var(--muted)">'+clean.length+' people in the whole tracker are clean in 2026 — the '+(hHouse.length+hSen.length)+' above plus '
     + (clean.length-hHouse.length-hSen.length) + ' outgoing 119th-only members. Click a row for the full breakdown.</p>';
   const thead = document.querySelector('#clean-table thead');
   const tbody = document.querySelector('#clean-table tbody');
@@ -802,10 +807,12 @@ function renderStats(){
   const cleanH = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
   const cleanS = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
   const sum = k => PEOPLE.reduce((s,p)=>s+(num(p[k])||0),0);
-  const unver = PEOPLE.filter(p=>p.clean_2026===null);
+  const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
+  const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
   document.getElementById('stats').innerHTML =
     '<div class="stat"><b>'+PEOPLE.length+'</b>people tracked</div>'
     + '<div class="stat"><b>'+(cleanH+cleanS)+' verified clean</b>in 2026 — '+cleanH+' House + '+cleanS+' Senate</div>'
+    + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+unver.length+' unverified</b>'+esc(unver.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+fmtCompact(sum('individual_contribution_total_career'))+'</b>individual contributions, career</div>'
     + '<div class="stat"><b>'+fmtCompact(sum('all_ie_total_career'))+'</b>outside spending, 2022–2026</div>'
@@ -866,7 +873,7 @@ METHOD_HTML = """
 <li><b>All independent expenditures</b> — every registered committee’s spending for/against the person, 2022–2026 only (the 2010–2020 IE files are not staged). Career total $3,842,257,481 (support $1.49B / oppose $2.35B). Filtered to registered committees + identified candidates: IE files contain tens of billions in bogus filings, and the excluded amounts are documented in methodology.md §4/§8.</li>
 </ul>
 <h3>Clean in 2026</h3>
-<p>Zero corporate PAC money, zero AIPAC PAC direct money, and zero UDP benefit in the 2026 cycle. <b>77 verified clean in the incoming 120th: 67 House (63 D, 4 R) + 10 Senate (9 D, 1 I, 0 R).</b> The four clean House Republicans are Anthony Constantino, Mark Lamb, Kimberlyn King-Hinds, and Amata Radewagen. A member is <b>unverified</b> only if they have no 2026 entries in <i>any</i> money source — Elaine Luria is the one unverified member; her real 2026 campaign is not linked in the roster yet. 53 incoming House members are career-clean (no corporate PAC, AIPAC direct, UDP support, or UDP opposition credit in any cycle).</p>
+<p>Zero corporate PAC money, zero AIPAC PAC direct money, and zero UDP benefit in the 2026 cycle. <b>%%CLEAN_TOTAL_120%% verified clean in the incoming 120th: %%HOUSE_CLEAN%% House (%%HOUSE_CLEAN_D%% D, %%HOUSE_CLEAN_R%% R) + %%SEN_CLEAN%% Senate (%%SEN_CLEAN_D%% D, %%SEN_CLEAN_I%% I, %%SEN_CLEAN_R%% R).</b> %%CLEAN_HOUSE_R_SENTENCE%% A member is <b>unverified</b> only if they have no 2026 entries in <i>any</i> money source — %%UNVERIFIED_SENTENCE%% %%UNOPPOSED_SENTENCE%% %%CAREER_CLEAN_HOUSE%% incoming House members are career-clean (no corporate PAC, AIPAC direct, UDP support, or UDP opposition credit in any cycle).</p>
 <h3>Coverage end dates</h3>
 <table><thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead><tbody>
 <tr><td>Individual, self-funding, topline</td><td>weball</td><td>Oct 14, 2026</td></tr>
@@ -890,6 +897,79 @@ METHOD_HTML = """
 <h3>Sources &amp; reproducibility</h3>
 <p>FEC bulk files are the source of truth for every figure; the FEC API was used for spot-checks; OpenSecrets is a cross-check only. The full method, reconciliation tables, and every limitation are in <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>. The pipeline that builds this dataset is scripted (<code>python3 src/rebuild.py</code>) and reproduces the committed dataset byte-identically; this page is generated from that dataset (plus the race-level opposition-credit record in <code>data/intermediate/opposition-computed.json</code>, shown in the drill-down) by <code>src/site/build_site.py</code> — never hand-edited.</p>
 """
+
+
+def human_list(names):
+    names = sorted(names)
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f'{names[0]} and {names[1]}'
+    return ', '.join(names[:-1]) + f', and {names[-1]}'
+
+
+def is_career_clean(r):
+    """Same four-component rule as the site's isCareerClean."""
+    return (r['corporate_pac_career'] == 0 and r['aipac_pac_direct_career'] == 0
+            and r['udp_ie_support_career'] == 0
+            and r['udp_ie_opposing_opponents_career'] == 0)
+
+
+def clean_method_html(dataset):
+    """The methodology clean paragraph, computed from the dataset.
+
+    Every figure in the paragraph is computed here — never hardcoded —
+    so a data change cannot strand stale numbers in the live page.
+    Tokens are replaced in main(); verify_site.py fails the build if
+    any %%TOKEN%% survives unreplaced.
+    """
+    incoming = [r for r in dataset if r['in_120th'] == 'yes']
+    house = [r for r in incoming if r['chamber_120'] == 'House']
+    sen = [r for r in incoming if r['chamber_120'] == 'Senate']
+    h_clean = [r for r in house if r['clean_2026'] is True]
+    s_clean = [r for r in sen if r['clean_2026'] is True]
+    h_r = [r['full_name'] for r in h_clean if r['party_120'] == 'Republican']
+    if h_r:
+        n = len(h_r)
+        r_sentence = (f"The {n} clean House Republican{'s are' if n > 1 else ' is'} "
+                      f"{human_list(h_r)}.")
+    else:
+        r_sentence = "No House Republican is verified clean."
+    unver = [r['full_name'] for r in dataset
+             if r['clean_2026'] is None and not r['unopposed_2026']]
+    if len(unver) == 1:
+        unver_sentence = f"{unver[0]} is the one unverified member."
+    elif unver:
+        unver_sentence = f"{len(unver)} members are unverified: {human_list(unver)}."
+    else:
+        unver_sentence = "No member is unverified."
+    excluded = [r['full_name'] for r in dataset
+                if r['unopposed_2026'] and r['clean_2026'] is None]
+    if excluded:
+        n = len(excluded)
+        unopp_sentence = (f"{n} {'members ran' if n > 1 else 'member ran'} unopposed in 2026 — "
+                          f"no opponent with receipts over $0 — so $0 dirty money there is not "
+                          f"counted as verified-clean: {human_list(excluded)}.")
+    else:
+        unopp_sentence = "No member ran unopposed in 2026."
+    tokens = {
+        '%%CLEAN_TOTAL_120%%': str(len(h_clean) + len(s_clean)),
+        '%%HOUSE_CLEAN%%': str(len(h_clean)),
+        '%%HOUSE_CLEAN_D%%': str(sum(1 for r in h_clean if r['party_120'] == 'Democrat')),
+        '%%HOUSE_CLEAN_R%%': str(len(h_r)),
+        '%%SEN_CLEAN%%': str(len(s_clean)),
+        '%%SEN_CLEAN_D%%': str(sum(1 for r in s_clean if r['party_120'] == 'Democrat')),
+        '%%SEN_CLEAN_I%%': str(sum(1 for r in s_clean if r['party_120'] == 'Independent')),
+        '%%SEN_CLEAN_R%%': str(sum(1 for r in s_clean if r['party_120'] == 'Republican')),
+        '%%CLEAN_HOUSE_R_SENTENCE%%': r_sentence,
+        '%%UNVERIFIED_SENTENCE%%': unver_sentence,
+        '%%UNOPPOSED_SENTENCE%%': unopp_sentence,
+        '%%CAREER_CLEAN_HOUSE%%': str(sum(1 for r in house if is_career_clean(r))),
+    }
+    html = METHOD_HTML
+    for token, value in tokens.items():
+        html = html.replace(token, value)
+    return html
 
 
 def main():
@@ -930,7 +1010,7 @@ def main():
         f"2026 is partial. Generated {generated_at}."
     )
     html = TEMPLATE_HEAD + TEMPLATE_BODY + TEMPLATE_JS2
-    html = html.replace("%%METHOD_HTML%%", METHOD_HTML)
+    html = html.replace("%%METHOD_HTML%%", clean_method_html(dataset))
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
     html = html.replace("%%OPP_JSON%%", safe_json(opp_payload))

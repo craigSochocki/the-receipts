@@ -83,7 +83,7 @@ vm.runInThisContext(appScripts[1], { filename: "site-app-2.js" });
 assert.strictEqual(PEOPLE.length, 664, "PEOPLE.length");
 const statsHtml = document.getElementById("stats").innerHTML;
 assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
-assert.ok(statsHtml.includes("77"), "stats mention 77 verified clean");
+assert.ok(statsHtml.includes("74"), "stats mention 74 verified clean");
 const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
 assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
 assert.ok(
@@ -102,8 +102,8 @@ assert.ok(leadersHtml.includes("Talarico"), "all-IE board has Talarico");
 
 showTab("clean");
 assert.ok(
-  document.getElementById("clean-stats").innerHTML.includes("67 of 436"),
-  "clean stats show 67 of 436 House");
+  document.getElementById("clean-stats").innerHTML.includes("64 of 436"),
+  "clean stats show 64 of 436 House");
 assert.ok(
   document.querySelector("#clean-table tbody").innerHTML.includes("Constantino"),
   "clean table contains Constantino");

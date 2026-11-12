@@ -7,10 +7,12 @@ Checks:
  2. The embedded compact payload decodes back to the dataset exactly —
     every field of every row, including nested per-cycle lists.
  3. Headline figures recomputed from the embedded data match the dataset:
-    664 rows; clean True 84 / None 1; incoming House clean 67 (63 D, 4 R);
-    incoming Senate clean 10; Constantino verified clean; Luria null;
-    Armstrong "unknown" money cells; top-10 total-accepted names;
-    192 primary targets; 53 career-clean incoming House members.
+    664 rows; clean True 81 / None 4 (Luria unverified + 3 unopposed);
+    incoming House clean 64 (61 D, 3 R); incoming Senate clean 10;
+    Constantino verified clean; Luria null; King-Hinds verified clean
+    and contested; 9 ran unopposed; Armstrong "unknown" money cells;
+    top-10 total-accepted names; 192 primary targets; 53 career-clean
+    incoming House members.
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
@@ -154,19 +156,39 @@ def main():
 
     clean_true = [r for r in decoded if r["clean_2026"] is True]
     clean_none = [r for r in decoded if r["clean_2026"] is None]
-    check("clean True = 84", len(clean_true) == 84, f"got {len(clean_true)}")
-    check("clean None = 1 (Luria)",
-          len(clean_none) == 1 and clean_none[0]["full_name"] == "Elaine Luria")
+    check("clean True = 81", len(clean_true) == 81, f"got {len(clean_true)}")
+    unopp_none = [r for r in clean_none if r["unopposed_2026"] is True]
+    unver_none = [r for r in clean_none if r["unopposed_2026"] is not True]
+    check("clean None = 4 (Luria unverified + 3 unopposed)",
+          len(clean_none) == 4
+          and len(unopp_none) == 3
+          and sorted(r["full_name"] for r in unopp_none)
+          == ["Aumua Amata Coleman Radewagen", "Ayanna Pressley", "Sara Jacobs"]
+          and len(unver_none) == 1
+          and unver_none[0]["full_name"] == "Elaine Luria",
+          f"got {len(clean_none)}")
+    check("unopposed in 2026 = 9",
+          sum(1 for r in decoded if r["unopposed_2026"] is True) == 9,
+          f"got {sum(1 for r in decoded if r['unopposed_2026'] is True)}")
+    king_hinds = [r for r in decoded if "King-Hinds" in r["full_name"]]
+    check("King-Hinds verified clean and contested (MP district 01)",
+          len(king_hinds) == 1 and king_hinds[0]["clean_2026"] is True
+          and king_hinds[0]["unopposed_2026"] is False)
     incoming = [r for r in decoded if r["in_120th"] == "yes"]
     h_clean = [r for r in incoming
                if r["chamber_120"] == "House" and r["clean_2026"] is True]
     s_clean = [r for r in incoming
                if r["chamber_120"] == "Senate" and r["clean_2026"] is True]
-    check("incoming House clean = 67 (63 D, 4 R)", len(h_clean) == 67
-          and sum(1 for r in h_clean if r["party_120"] == "Democrat") == 63
-          and sum(1 for r in h_clean if r["party_120"] == "Republican") == 4,
+    check("incoming House clean = 64 (61 D, 3 R)", len(h_clean) == 64
+          and sum(1 for r in h_clean if r["party_120"] == "Democrat") == 61
+          and sum(1 for r in h_clean if r["party_120"] == "Republican") == 3,
           f"got {len(h_clean)}")
     check("incoming Senate clean = 10", len(s_clean) == 10, f"got {len(s_clean)}")
+    check("methodology clean paragraph is computed, not stale",
+          "74 verified clean in the incoming 120th" in html
+          and "64 House (61 D, 3 R)" in html
+          and "77 verified clean" not in html
+          and "67 House (63 D, 4 R)" not in html)
     const = [r for r in decoded if "Constantino" in r["full_name"]]
     check("Constantino verified clean",
           len(const) == 1 and const[0]["clean_2026"] is True
