@@ -248,6 +248,14 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
 .frontdoor h2{font-size:1.05rem;letter-spacing:.02em;margin:32px 0 6px}
 .frontdoor h2:first-child{margin-top:12px}
+.comp{display:flex;flex-wrap:wrap;gap:8px 24px}
+.comp figure{flex:1 1 300px;margin:0;min-width:0}
+.comp svg{width:100%;height:auto;display:block}
+.comp figcaption{text-align:center;font-weight:600;margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
+.legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
 .headline{font-size:1.3rem;line-height:1.5;margin:6px 0 4px}
 .dirtiest{list-style:none;margin:6px 0 0;padding:0}
 .dirtiest li{border-bottom:1px solid #ececec}
@@ -347,6 +355,10 @@ TEMPLATE_BODY = """
 <section aria-label="Clean money">
 <h2>Clean money</h2>
 <div class="story" id="landing-story"></div>
+</section>
+<section aria-label="Composition of Congress">
+<h2>Who sits in the 120th</h2>
+<div id="composition"></div>
 </section>
 <section aria-label="Find your member">
 <h2>Find your member</h2>
@@ -681,6 +693,134 @@ function renderCleanStory(){
     + hClean+' House + '+sClean+' Senate. '
     + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
+}
+/* ---- front door: House + Senate composition charts (hemicycles) ----
+   One dot per seat, chamber total in the middle. Computed from PEOPLE
+   at render time — no count is ever typed into this template.
+   Encoding (see methodology §17): color = party, the party-chip
+   palette (Democrat blue, Republican red, Independent/other gray);
+   fill = dirtiness in 2026: solid = took dirty money, hollow ring =
+   verified clean, gray hollow ring = not judged (unopposed or
+   unverified), dashed gray ring = uncalled, no named member yet.
+   House plots the 435 voting seats; the 6 non-voting delegates are
+   listed under the chart, not plotted. Dots are grouped by party then
+   status, filled outermost row first, left to right, so each party
+   reads as one block like the reference parliament chart. */
+const PARTY_DOT_COLOR = {Democrat:'#1e40af', Republican:'#991b1b'};
+function dotColor(name){ return PARTY_DOT_COLOR[name] || '#374151'; }
+function seatLetter(p){
+  const n = partyName(p);
+  return {Democrat:'D', Republican:'R', Independent:'I'}[n] || n || '?';
+}
+function seatStatus(p){
+  if(p.clean_2026===true) return 'clean';
+  if(p.clean_2026===false) return 'dirty';
+  return p.unopposed_2026===true ? 'unopposed' : 'unverified';
+}
+function compositionSeats(chamber){
+  // Named voting members of the incoming 120th in this chamber.
+  const named = PEOPLE.filter(p=>p.in_120th==='yes' && p.chamber_120===chamber
+    && !(chamber==='House' && TERRITORIES.has(p.state)));
+  const total = chamber==='House' ? 435 : 100;
+  const seats = named.map(p=>({party:partyName(p), letter:seatLetter(p),
+    status:seatStatus(p), name:p.full_name}));
+  const partyRank = {Democrat:0, Republican:1, Independent:2};
+  const statusRank = {dirty:0, clean:1, unopposed:2, unverified:3};
+  seats.sort((a,b)=>(partyRank[a.party] ?? 3) - (partyRank[b.party] ?? 3)
+    || statusRank[a.status] - statusRank[b.status]);
+  while(seats.length < total)
+    seats.push({party:null, letter:'', status:'uncalled', name:'Uncalled seat'});
+  return {seats, total, named: named.length};
+}
+function dotSVG(s, x, y, r){
+  const label = {dirty:'took dirty money in 2026',
+    clean:'verified clean in 2026',
+    unopposed:'ran unopposed — not judged',
+    unverified:'unverified — not judged',
+    uncalled:'no named member yet'}[s.status];
+  const title = s.status==='uncalled' ? 'Uncalled seat — no named member yet'
+    : s.name+' · '+(s.party||'')+' · '+label;
+  const cls = 'dot '+s.status;
+  const c = dotColor(s.party);
+  const attrs = s.status==='dirty' ? 'fill="'+c+'"'
+    : s.status==='clean' ? 'fill="#fff" stroke="'+c+'" stroke-width="1.6"'
+    : (s.status==='unopposed' || s.status==='unverified')
+      ? 'fill="#fff" stroke="#9ca3af" stroke-width="1.6"'
+      : 'fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"';
+  return '<circle class="'+cls+'" data-party="'+esc(s.letter)+'" cx="'+x.toFixed(1)
+    +'" cy="'+y.toFixed(1)+'" r="'+r+'" '+attrs+'><title>'+esc(title)+'</title></circle>';
+}
+function hemicycleSVG(seats, total, rows, dotR, width, height){
+  const cx = width/2, cy = height - 8;
+  const rOuter = width/2 - dotR - 4, rInner = 46;
+  const step = rows > 1 ? (rOuter - rInner)/(rows-1) : 0;
+  const radii = [];
+  for(let j=0;j<rows;j++) radii.push(rInner + j*step);
+  // Dots per row, proportional to radius; largest remainder so the
+  // row counts sum to exactly the seat total.
+  const wsum = radii.reduce((a,b)=>a+b,0);
+  const counts = radii.map(r=>Math.floor(total*r/wsum));
+  let rem = total - counts.reduce((a,b)=>a+b,0);
+  const frac = radii.map((r,i)=>({i, f: total*r/wsum - counts[i]}))
+    .sort((a,b)=>b.f-a.f);
+  for(let k=0;k<rem;k++) counts[frac[k].i]++;
+  let idx = 0, circles = '';
+  for(let j=rows-1;j>=0;j--){
+    const n = counts[j], r = radii[j];
+    for(let k=0;k<n;k++){
+      const a = Math.PI * (1 - (k+0.5)/n);
+      circles += dotSVG(seats[idx++], cx + r*Math.cos(a), cy - r*Math.sin(a), dotR);
+    }
+  }
+  return '<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'
+    + total + ' seats: ' + total + ' dots, one per seat">'
+    + circles
+    + '<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-size="30" font-weight="700" fill="var(--ink)">'+total+'</text>'
+    + '</svg>';
+}
+function legendSwatch(kind, color){
+  if(kind==='solid') return 'background:'+color;
+  if(kind==='hollow') return 'background:#fff;border:2px solid '+color;
+  if(kind==='gray') return 'background:#fff;border:2px solid #9ca3af';
+  return 'background:#fff;border:2px dashed #d1d5db';
+}
+function legendHTML(seats){
+  const count = (letter, status)=>seats.filter(s=>s.letter===letter && s.status===status).length;
+  const parties = [...new Set(seats.filter(s=>s.letter).map(s=>s.letter))];
+  const items = [];
+  parties.forEach(L=>{
+    const party = seats.find(s=>s.letter===L).party;
+    const c = dotColor(party);
+    items.push({label:'Dirty '+L, n:count(L,'dirty'), sw:legendSwatch('solid', c)});
+    items.push({label:'Clean '+L, n:count(L,'clean'), sw:legendSwatch('hollow', c)});
+  });
+  const unopp = seats.filter(s=>s.status==='unopposed').length;
+  const unver = seats.filter(s=>s.status==='unverified').length;
+  const unc = seats.filter(s=>s.status==='uncalled').length;
+  if(unopp) items.push({label:'Unopposed', n:unopp, sw:legendSwatch('gray')});
+  if(unver) items.push({label:'Unverified', n:unver, sw:legendSwatch('gray')});
+  if(unc) items.push({label:'Uncalled', n:unc, sw:legendSwatch('dashed')});
+  return '<div class="legend">'+items.map(e=>'<span class="lg"><i style="'+e.sw+'"></i>'+esc(e.label)+' '+e.n+'</span>').join('')+'</div>';
+}
+function renderComposition(){
+  const h = compositionSeats('House'), s = compositionSeats('Senate');
+  const delegates = PEOPLE.filter(p=>p.in_120th==='yes' && p.chamber_120==='House'
+    && TERRITORIES.has(p.state));
+  const dCount = {};
+  delegates.forEach(p=>{
+    const key = (seatStatus(p)==='dirty' ? 'Dirty ' : seatStatus(p)==='clean' ? 'Clean '
+      : seatStatus(p)==='unopposed' ? 'Unopposed ' : 'Unverified ') + seatLetter(p);
+    dCount[key] = (dCount[key]||0) + 1;
+  });
+  const dNote = 'Not shown: '+delegates.length+' non-voting delegates — '
+    + Object.entries(dCount).map(([k,v])=>k+' '+v).join(' · ') + '.';
+  document.getElementById('composition').innerHTML =
+    '<div class="comp">'
+    + '<figure>'+hemicycleSVG(h.seats, h.total, 10, 3.6, 360, 205)
+    + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats)+'</figure>'
+    + '<figure>'+hemicycleSVG(s.seats, s.total, 5, 5.5, 360, 205)
+    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats)+'</figure>'
+    + '</div><p class="delegates">'+esc(dNote)+'</p>';
 }
 /* ---- find-your-member finder (120th Congress only, no URL state) ----
    State -> seat -> person. The table is filtered to that person and
@@ -1082,7 +1222,7 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderDirtiest(); renderCleanStory(); initFinder(); renderViewBtns(); renderTable();
+  renderStats(); renderDirtiest(); renderCleanStory(); renderComposition(); initFinder(); renderViewBtns(); renderTable();
   state.rendered.tracker = true;
   setMode(modeFromHash(), false);
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
