@@ -10,6 +10,11 @@
  *
  * Usage: node src/site/smoke_test.js [path/to/docs/index.html]
  * Exit non-zero on any failed assertion.
+ *
+ * Also covers the landing-first front door (dirtiest top 5 + headline
+ * comparison, clean story, default front-door mode, #explore switching)
+ * and the person marks (party chips + outcome labels) on the front-door
+ * lists, finder results, drill-down header, and full table.
  */
 "use strict";
 const fs = require("fs");
@@ -93,6 +98,48 @@ assert.ok(
   document.getElementById("totals").innerHTML.includes("Total accepted"),
   "totals strip rendered");
 
+/* ---- front door (landing-first): dirtiest, clean story, default mode ---- */
+const headlineHtml = document.getElementById("dirtiest-headline").innerHTML;
+assert.ok(headlineHtml.includes("Stevens"), "headline leads with Stevens: " + headlineHtml);
+assert.ok(headlineHtml.includes("$31.03M"), "headline shows Stevens $31.03M");
+assert.ok(headlineHtml.includes("next four combined"), "headline compares #1 to next four");
+assert.ok(headlineHtml.includes("2.04"), "headline ratio is about 2.04x");
+assert.ok(headlineHtml.includes("$15.21M"), "headline shows next-four total $15.21M");
+const dirtiestHtml = document.getElementById("dirtiest-list").innerHTML;
+["Stevens", "Boafo", "Gallrein", "Bell", "Guthrie"].forEach((n) =>
+  assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));
+assert.ok(
+  dirtiestHtml.indexOf("Stevens") < dirtiestHtml.indexOf("Boafo") &&
+  dirtiestHtml.indexOf("Boafo") < dirtiestHtml.indexOf("Gallrein") &&
+  dirtiestHtml.indexOf("Gallrein") < dirtiestHtml.indexOf("Bell") &&
+  dirtiestHtml.indexOf("Bell") < dirtiestHtml.indexOf("Guthrie"),
+  "dirtiest list is in dirty-2026 order");
+assert.ok(dirtiestHtml.includes("Not returning"), "Stevens row says Not returning");
+assert.ok(dirtiestHtml.includes("pchip d"), "dirtiest rows carry party chips");
+assert.strictEqual(
+  document.getElementById("front-door").hidden, false,
+  "default mode is the front door (no hash)");
+assert.strictEqual(
+  document.getElementById("main").hidden, true,
+  "full-data workspace hidden in front-door mode");
+assert.strictEqual(
+  document.getElementById("explore-head").hidden, true,
+  "stat cards hidden in front-door mode");
+setMode("explore");
+assert.strictEqual(
+  document.getElementById("front-door").hidden, true,
+  "explore mode hides the front door");
+assert.strictEqual(
+  document.getElementById("main").hidden, false,
+  "explore mode shows the full-data workspace");
+setMode("front");
+assert.strictEqual(
+  document.getElementById("front-door").hidden, false,
+  "back to front door");
+assert.ok(
+  document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
+  "core table has an Outcome column");
+
 showTab("leaders");
 const leadersHtml = document.getElementById("leaders").innerHTML;
 assert.ok(leadersHtml.includes("Warnock"), "leaderboard has Warnock");
@@ -139,6 +186,9 @@ assert.ok(
 assert.ok(
   stevensHtml.includes("$341,792.98"),
   "Stevens detail shows the 2022 primary-phase credit");
+assert.ok(
+  stevensHtml.includes("pchip d") && stevensHtml.includes("Not returning"),
+  "Stevens drill-down header has the D chip and Not returning");
 closeDetail();
 
 downloadCsv(); // must not throw (Blob + object URL path)
@@ -172,9 +222,21 @@ findPerson(elSayedKey);
 assert.ok(
   document.getElementById("detail-sheet").innerHTML.includes("El-Sayed"),
   "finder opens the El-Sayed drill-down");
+assert.ok(
+  document.getElementById("detail-sheet").innerHTML.includes("Won"),
+  "El-Sayed drill-down header says Won");
 assert.strictEqual(
   document.getElementById("q").value, "Abdul El-Sayed",
   "finder sets the search box to the person");
 closeDetail();
+
+/* ---- finder result buttons carry party chips + outcome ---- */
+document.getElementById("find-state").value = "MI";
+document.getElementById("find-district").listeners.change.forEach((f) =>
+  f({ target: { value: "11" } }));
+const finderPersonHtml = document.getElementById("find-person").innerHTML;
+assert.ok(finderPersonHtml.includes("Jeremy Moss"), "MI-11 finder result is Moss");
+assert.ok(finderPersonHtml.includes("pchip d"), "finder result has the D chip");
+assert.ok(finderPersonHtml.includes("Won"), "finder result says Won");
 
 console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work.");
