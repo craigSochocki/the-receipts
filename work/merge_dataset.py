@@ -212,8 +212,12 @@ for r in rows:
         continue
 
     # Career money = sums over per_cycle (the standing audit: 0 mismatches).
-    sums = {dst: round(sum(e[dst] for e in per_cycle), 2) for _, dst in PER_CYCLE_MAP}
-    udp_support = round(sum(e['udp_ie_support'] for e in udp_entries), 2)
+    # NOTE: force float — round(sum([]), 2) is int 0 in Python, but the
+    # committed dataset stores every career money column as a float
+    # (0.0, not 0). The 2026 columns are the exception (int 0 when no
+    # 2026 entries) and keep their own rule in compute_2026.py.
+    sums = {dst: round(float(sum(e[dst] for e in per_cycle)), 2) for _, dst in PER_CYCLE_MAP}
+    udp_support = round(float(sum(e['udp_ie_support'] for e in udp_entries)), 2)
     rec['individual_contribution_total_career'] = sums['individual']
     rec['aipac_pac_direct_career'] = sums['aipac_pac_direct']
     rec['aipac_earmark_transmitted_career'] = sums['aipac_earmark_transmitted']
