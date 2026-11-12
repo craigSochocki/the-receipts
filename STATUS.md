@@ -77,11 +77,14 @@
   $104.7M. Five new rank columns: self-funding (Scott $89,994,251.12 #1),
   all-IE support/oppose/total (Talarico $259,873,813.32 total #1),
   other-committee total (Pallone $17,794,814 #1).
-- **UDP opposition credit:** $28,281,982.23 credited to the single UDP-backed
-  candidate in 15 races (Latimer $9.87M, Bell $5.24M+ $2.46M, Ivey $4.26M
-  top). The $20,903,437.57 spent opposing El-Sayed in MI-Sen 2026 is NOT
-  credited — UDP backed two candidates there (Stevens in the primary, Rogers
-  in the general). Total UDP benefit roster-wide: $70,696,985.99.
+- **UDP opposition credit (phase-split, Nov 12, 2026):** $48,421,886.44 credited
+  to the single UDP-backed candidate in 17 race-phases (Stevens $20.48M,
+  Latimer $9.87M, Bell $7.70M top). The $20,903,437.57 spent opposing El-Sayed
+  in MI-Sen 2026 now splits by phase: $20,139,904.21 to Stevens (primary),
+  $763,533.36 to Rogers (general, non-roster). Total UDP benefit roster-wide:
+  $90,836,890.20. Stevens is the #1 UDP beneficiary at $34,858,462.88 and the
+  dirtiest in 2026 at $31,025,889.44. Each person's drill-down on the site
+  shows the credit phase by phase.
 - **2026 layer:** per-cycle 2026 columns (individual, corporate PAC, AIPAC
   direct, UDP support, UDP opposition credit, UDP benefit, dirty, clean,
   dependence share — plus the ten new 2026 columns: self-funding, candidate
@@ -240,9 +243,6 @@
   the gate automatically); `--no-gate` forces the full run. On Sunday
   check the snapshot artifact's `gate` record: `calls_used`,
   `affected_person_keys`, and whether the state file advanced.
-- Opposition credit: split by primary vs. general phase (so anti-El-Sayed
-  spending would credit to Stevens in the primary and Rogers in the
-  general), or keep the conservative single-backer rule?
 - Add the 16 members who served in the 119th but left before Nov 2026
   (Vance, Rubio, Graham, D. Scott, Turner, Grijalva, Connolly, Green,
   Sherrill, Greene, LaMalfa, Gonzales, Swalwell, Cherfilus-McCormick,
