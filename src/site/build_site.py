@@ -23,6 +23,12 @@ Rules (see AGENTS.md):
   in the footer (dataset md5 + data_as_of are the stable identifiers).
 - Figures are never hardcoded in the template: header stats, leaderboards
   and totals are all computed from the embedded data in the browser.
+- Two modes, one page (landing-first, Nov 12, 2026): the front door is
+  the default — dirtiest in 2026, the clean story, the finder, one
+  freshness line, one "Explore the full data" button — and #explore opens
+  the full-data workspace (tabs, filters, table, methodology) with the
+  story and finder removed from above the table. Mode only lives in the
+  URL hash; filters/tabs get no URL state (Change 2, queued).
 """
 import csv
 import hashlib
@@ -179,6 +185,7 @@ h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
 .tabs button[aria-selected="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 main{max-width:1120px;margin:0 auto;padding:16px}
 section[hidden]{display:none}
+#front-door[hidden],#explore-head[hidden],#tabs-nav[hidden],main[hidden],footer[hidden]{display:none}
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
 .controls input[type="search"],.controls select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px}
 .controls input[type="search"]{flex:1 1 200px}
@@ -232,8 +239,21 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .method table{min-width:0}
 .method th{cursor:default}
 .callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
-.landing{margin:0 0 14px}
 .story{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;font-size:1.05rem;margin:0 0 10px}
+.frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
+.frontdoor h2{font-size:1.05rem;letter-spacing:.02em;margin:32px 0 6px}
+.frontdoor h2:first-child{margin-top:12px}
+.headline{font-size:1.3rem;line-height:1.5;margin:6px 0 4px}
+.dirtiest{list-style:none;margin:6px 0 0;padding:0}
+.dirtiest li{border-bottom:1px solid #ececec}
+.dirty-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%;text-align:left;background:none;border:none;padding:12px 2px;font:inherit;cursor:pointer;color:inherit}
+.dirty-row:hover{background:#f7f9f7}
+.dirty-row .nm{font-weight:600}
+.dirty-row .pl{color:var(--muted);font-size:.88rem;display:block}
+.dirty-row .amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.fine{color:var(--muted);font-size:.88rem;margin:10px 0 0}
+.fresh{color:var(--muted);font-size:.88rem;margin:28px 0 12px}
+#explore-btn{width:100%}
 .story b{font-size:1.2rem}
 .linklike{background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -247,11 +267,13 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 <header>
 <h1>The Receipts</h1>
 <p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, 2026 clean/dirty flags, self-funding, and outside spending.</p>
+<div id="explore-head">
 <p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
 <p class="cutoffs"><b>2026 is partial.</b> Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p>
+</div>
 </header>
-<nav class="tabs" role="tablist" aria-label="Views">
+<nav class="tabs" id="tabs-nav" role="tablist" aria-label="Views">
 <button role="tab" aria-selected="true" data-tab="tracker">Tracker</button>
 <button role="tab" aria-selected="false" data-tab="leaders">Leaderboards</button>
 <button role="tab" aria-selected="false" data-tab="clean">Clean money</button>
@@ -259,19 +281,10 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 <button role="tab" aria-selected="false" data-tab="targets">2026 primary targets</button>
 <button role="tab" aria-selected="false" data-tab="method">Methodology</button>
 </nav>
-<main>
+<main id="main">
 """
 TEMPLATE_BODY = """
 <section id="tab-tracker">
-<div class="landing" id="landing">
-<div class="story" id="landing-story"></div>
-<div class="finder" id="finder">
-<label for="find-state">Find your member</label>
-<select id="find-state" aria-label="Your state"><option value="">Choose your state…</option></select>
-<select id="find-district" aria-label="District" disabled><option value="">Choose a district…</option></select>
-<span id="find-person"></span>
-</div>
-</div>
 <div class="controls">
 <input type="search" id="q" placeholder="Search by name…" aria-label="Search by name">
 <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
@@ -319,6 +332,29 @@ TEMPLATE_BODY = """
 %%METHOD_HTML%%
 </section>
 </main>
+<div id="front-door" class="frontdoor">
+<section aria-label="Dirtiest in 2026">
+<h2>Dirtiest in 2026</h2>
+<p class="headline" id="dirtiest-headline"></p>
+<ol class="dirtiest" id="dirtiest-list"></ol>
+<p class="fine">Dirty money in 2026 is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. 2026 is partial; see the methodology for the coverage cutoffs.</p>
+</section>
+<section aria-label="Clean money">
+<h2>Clean money</h2>
+<div class="story" id="landing-story"></div>
+</section>
+<section aria-label="Find your member">
+<h2>Find your member</h2>
+<div class="finder" id="finder">
+<label for="find-state">Your state</label>
+<select id="find-state" aria-label="Your state"><option value="">Choose your state…</option></select>
+<select id="find-district" aria-label="District" disabled><option value="">Choose a district…</option></select>
+<span id="find-person"></span>
+</div>
+</section>
+<p class="fresh">%%FRESH_LINE%%</p>
+<p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
+</div>
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
 <footer>
 <p class="foot-totals" id="foot-totals"></p>
@@ -464,7 +500,7 @@ const SORTABLE = new Set(['individual_contribution_total_career','corporate_pac_
 /* ---- state ---- */
 const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core',
-  sortKey:'total_accepted_career', sortDir:'desc', tab:'tracker', rendered:{}};
+  sortKey:'total_accepted_career', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
 
 function getVal(p, key){
   if(key==='place') return place(p);
@@ -577,11 +613,36 @@ function renderViewBtns(){
     b.addEventListener('click', ()=>{ state.view=b.getAttribute('data-view'); renderViewBtns(); renderTable(); });
   });
 }
-/* ---- landing story: the one finding, computed from the data ---- */
-/* The counts below are computed from PEOPLE at render time, exactly
+/* ---- front door: dirtiest in 2026, computed from the data ----
+   The top five and the #1-vs-next-four comparison are computed from
+   PEOPLE at render time — no figure is ever typed into this template,
+   so a data change cannot strand a stale number on the landing. The
+   comparison line appears only if the computed comparison holds (#1
+   exceeds the next four combined). Each row opens the drill-down. */
+function renderDirtiest(){
+  const rows = PEOPLE.filter(p=>num(p.dirty_2026)>0)
+    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026)).slice(0,5);
+  const top = rows[0];
+  const next4 = rows.slice(1).reduce((s,p)=>s+num(p.dirty_2026),0);
+  let h = '<b>'+esc(top.full_name)+'</b> took <b>'+fmtCompact(top.dirty_2026)+'</b> in dirty money in 2026 — the most of anyone in Congress.';
+  if(num(top.dirty_2026) > next4){
+    h += ' That is more than the next four combined ('+fmtCompact(next4)+') — about '+(num(top.dirty_2026)/next4).toFixed(2)+'× as much.';
+  }
+  document.getElementById('dirtiest-headline').innerHTML = h;
+  document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
+    '<li><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
+    + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
+    + '<span class="pl">'+esc(place(p))+' · '+esc(party(p))+'</span></span>'
+    + '<span class="amt">'+fmtMoney(p.dirty_2026)+'</span></button></li>').join('');
+  document.querySelectorAll('#dirtiest-list .dirty-row').forEach(b=>{
+    b.addEventListener('click', ()=>openDetail(b.getAttribute('data-key')));
+  });
+}
+/* ---- front door: the clean story, computed from the data ----
+   The counts below are computed from PEOPLE at render time, exactly
    like renderStats — no figure is ever typed into this template, so
    a data change cannot strand a stale number on the landing. */
-function renderLanding(){
+function renderCleanStory(){
   const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
   const hClean = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
   const sClean = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
@@ -933,8 +994,32 @@ function renderStats(){
     + '<div class="stat"><b>'+fmtCompact(sum('self_funding_career'))+'</b>self-funding, career</div>';
 }
 
+/* ---- front door vs full-data mode (hash: #explore) ----
+   Default (no hash) is the front door; #explore opens the full-data
+   workspace. Mode only lives in the URL hash; filters/tabs get no URL
+   state (Change 2, queued). No-JS fallback shows the full-data page:
+   the hidden flags are applied by init(), never baked into the HTML. */
+function modeFromHash(){
+  let h = '';
+  try{ h = (typeof location!=='undefined' && location.hash) || ''; }catch(e){ h = ''; }
+  return h.replace(/^#/,'')==='explore' ? 'explore' : 'front';
+}
+function setMode(mode, updateHash){
+  state.mode = mode;
+  const front = mode==='front';
+  document.getElementById('front-door').hidden = !front;
+  document.getElementById('explore-head').hidden = front;
+  document.getElementById('tabs-nav').hidden = front;
+  document.getElementById('main').hidden = front;
+  document.querySelector('footer').hidden = front;
+  if(updateHash!==false){
+    try{ if(typeof location!=='undefined'){ location.hash = front ? '' : 'explore'; } }catch(e){}
+  }
+}
+
 /* ---- tabs + init ---- */
 function showTab(name){
+  if(state.mode!=='explore') setMode('explore');
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.getAttribute('data-tab')===name)));
   ['tracker','leaders','clean','breakdown','targets','method'].forEach(t=>{
@@ -952,8 +1037,13 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderLanding(); initFinder(); renderViewBtns(); renderTable();
+  renderStats(); renderDirtiest(); renderCleanStory(); initFinder(); renderViewBtns(); renderTable();
   state.rendered.tracker = true;
+  setMode(modeFromHash(), false);
+  document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
+  if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
+    window.addEventListener('hashchange', ()=>setMode(modeFromHash(), false));
+  }
   document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; renderTable(); });
   document.getElementById('f-congress').addEventListener('change', e=>{ state.congress=e.target.value; renderTable(); });
   document.getElementById('f-chamber').addEventListener('change', e=>{ state.chamber=e.target.value; renderTable(); });
@@ -1123,6 +1213,13 @@ def main():
         f"{fmt_cov(coverage['independent_expenditures'])}. "
         f"2026 is partial. Generated {generated_at}."
     )
+    # Front-door freshness line: one line, from the same config dates —
+    # the latest coverage end across families, never a typed date.
+    fresh_line = (
+        "Data through "
+        f"{fmt_cov(max(coverage.values()))}"
+        " \u2014 2026 is partial. Full coverage dates in the methodology."
+    )
     html = TEMPLATE_HEAD + TEMPLATE_BODY + TEMPLATE_JS2
     html = html.replace("%%METHOD_HTML%%", clean_method_html(dataset))
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
@@ -1131,6 +1228,7 @@ def main():
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
     html = html.replace("%%STAMP%%", stamp)
+    html = html.replace("%%FRESH_LINE%%", fresh_line)
     html = html.replace("%%GENERATED_AT%%", generated_at)
     SITE_DIR.mkdir(parents=True, exist_ok=True)
     out = SITE_DIR / "index.html"
