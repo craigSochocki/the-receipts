@@ -9,7 +9,11 @@ Sources:
 import json, re, unicodedata, csv, collections
 import yaml
 
-WORK = '/home/hatch/workspace/user/congress-money-tracker/work'
+from config import load_config
+
+CFG = load_config()
+ROOT = CFG['_root']
+WORK = str(ROOT / CFG['paths']['work'])
 
 def norm(s):
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
