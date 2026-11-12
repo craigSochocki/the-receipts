@@ -279,7 +279,8 @@ def main():
     # ---- composition charts (hemicycles): reconcile to 435 / 100 ----
     check("composition section exists on the front door",
           'id="composition"' in html and "renderComposition" in html
-          and "hemicycleSVG" in html and "compositionSeats" in html)
+          and "waffleSVG" in html and "hemicycleSVG" in html
+          and "compositionSeats" in html)
     check("composition sits after the clean story, before the finder",
           html.index('id="landing-story"') < html.index('id="composition"')
           < html.index('id="finder"'))
@@ -287,6 +288,10 @@ def main():
                      "Clean R 2", "Dirty D 44", "Clean D 9", "Dirty R 44",
                      "Clean I 1", "Dirty I 1", "Unopposed 2",
                      "Unverified 1", "Uncalled 5"]
+    check("House waffle is 15 rows x 29 columns, column-major fill",
+          "WAFFLE_ROWS = 15" in html and "WAFFLE_COLS = 29" in html
+          and "Math.floor(i/WAFFLE_ROWS)" in html,
+          "waffle geometry missing from the built page")
     check("composition counts are computed, not hardcoded",
           not any(lit in prose for lit in COMP_LITERALS),
           "a literal composition count survives in the built page")

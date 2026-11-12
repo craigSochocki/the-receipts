@@ -16,7 +16,8 @@
  * and the person marks (party chips + outcome labels) on the front-door
  * lists, finder results, drill-down header, and full table; the
  * dirty-first leaderboards and Dirty-2026 default sort; and the
- * composition hemicycles (dot counts per party/status category).
+ * composition charts: the House waffle grid and the Senate state
+ * tiles (dot/tile counts per party/status category).
  */
 "use strict";
 const fs = require("fs");
@@ -156,19 +157,25 @@ assert.ok(leadersHtml.includes("Stevens"), "UDP-benefit board has Stevens");
 assert.ok(leadersHtml.includes("Rick Scott"), "self-funding board has Rick Scott");
 assert.ok(leadersHtml.includes("Talarico"), "all-IE board has Talarico");
 
-/* ---- composition charts (hemicycles): one dot per seat ---- */
+/* ---- composition charts: House waffle grid, Senate state tiles ---- */
 const compHtml = document.getElementById("composition").innerHTML;
 assert.ok(compHtml.includes("House — 435 voting seats"), "House chart captioned 435");
 assert.ok(compHtml.includes("Senate — 100 seats"), "Senate chart captioned 100");
-assert.ok(compHtml.includes(">435<"), "House total in the middle");
 assert.ok(compHtml.includes(">100<"), "Senate total in the middle");
 const countDots = (html, cls, party) =>
-  (html.match(new RegExp('class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
+  (html.match(new RegExp('(?:<g|<circle) class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
 // The House svg sits before its figcaption; the Senate svg sits after the
 // House figcaption and before its own, so split on the captions.
 const housePart = compHtml.split("House — 435 voting seats")[0];
 const senPart = compHtml.split("House — 435 voting seats")[1].split("Senate — 100 seats")[0];
-assert.strictEqual((housePart.match(/<circle/g) || []).length, 435, "House chart has 435 dots");
+// House waffle: 15 rows x 29 cols, column-major fill, grouped
+// Clean D, Dirty D, Dirty R, Clean R, then the small categories.
+assert.ok(housePart.includes('viewBox="0 0 348 180"'), "House waffle is 29x15");
+assert.strictEqual((housePart.match(/<g class="dot/g) || []).length, 435, "House chart has 435 dots");
+assert.ok(housePart.indexOf('class="dot clean" data-party="D"') < housePart.indexOf('class="dot dirty" data-party="D"'), "waffle starts with Clean D");
+assert.ok(housePart.indexOf('class="dot dirty" data-party="D"') < housePart.indexOf('class="dot dirty" data-party="R"'), "waffle: Dirty D before Dirty R");
+assert.ok(housePart.indexOf('class="dot dirty" data-party="R"') < housePart.indexOf('class="dot clean" data-party="R"'), "waffle: Dirty R before Clean R");
+assert.ok(housePart.indexOf('class="dot clean" data-party="R"') < housePart.indexOf('class="dot uncalled"'), "waffle: small categories at the far right");
 assert.strictEqual(countDots(housePart, "dirty", "D"), 198, "House Dirty D 198");
 assert.strictEqual(countDots(housePart, "clean", "D"), 58, "House Clean D 58");
 assert.strictEqual(countDots(housePart, "dirty", "R"), 169, "House Dirty R 169");

@@ -248,8 +248,8 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
 .frontdoor h2{font-size:1.05rem;letter-spacing:.02em;margin:32px 0 6px}
 .frontdoor h2:first-child{margin-top:12px}
-.comp{display:flex;flex-wrap:wrap;gap:8px 24px}
-.comp figure{flex:1 1 300px;margin:0;min-width:0}
+.comp{display:flex;flex-direction:column;gap:18px}
+.comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}
 .comp figcaption{text-align:center;font-weight:600;margin-top:2px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
@@ -694,18 +694,21 @@ function renderCleanStory(){
     + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
 }
-/* ---- front door: House + Senate composition charts (hemicycles) ----
-   One dot per seat, chamber total in the middle. Computed from PEOPLE
-   at render time — no count is ever typed into this template.
-   Encoding (see methodology §17): color = party, the party-chip
-   palette (Democrat blue, Republican red, Independent/other gray);
-   fill = dirtiness in 2026: solid = took dirty money, hollow ring =
-   verified clean, gray hollow ring = not judged (unopposed or
-   unverified), dashed gray ring = uncalled, no named member yet.
+/* ---- front door: House waffle + Senate state tiles ----
+   House: a 15-row x 29-column waffle grid (435 dots), filled one
+   column at a time from left to right, grouped Clean D, Dirty D,
+   Dirty R, Clean R, then Unopposed / Unverified / Uncalled at the
+   far right. Senate: one tile per state, each half colored for its
+   senator. Both computed from PEOPLE at render time — no count is
+   ever typed into this template.
+   Encoding (see methodology §17): clean = solid party color
+   (Democrat blue, Republican red, Independent/other gray); dirty =
+   black with the party color inside — a single centered dot on the
+   House waffle, a dotted pattern on the Senate tiles. Unopposed and
+   unverified are gray hollow rings (not judged); uncalled is a
+   dashed gray ring / empty half (no named member yet).
    House plots the 435 voting seats; the 6 non-voting delegates are
-   listed under the chart, not plotted. Dots are grouped by party then
-   status, filled outermost row first, left to right, so each party
-   reads as one block like the reference parliament chart. */
+   listed under the chart, not plotted. */
 const PARTY_DOT_COLOR = {Democrat:'#1e40af', Republican:'#991b1b'};
 function dotColor(name){ return PARTY_DOT_COLOR[name] || '#374151'; }
 function seatLetter(p){
@@ -724,13 +727,61 @@ function compositionSeats(chamber){
   const total = chamber==='House' ? 435 : 100;
   const seats = named.map(p=>({party:partyName(p), letter:seatLetter(p),
     status:seatStatus(p), name:p.full_name}));
-  const partyRank = {Democrat:0, Republican:1, Independent:2};
-  const statusRank = {dirty:0, clean:1, unopposed:2, unverified:3};
-  seats.sort((a,b)=>(partyRank[a.party] ?? 3) - (partyRank[b.party] ?? 3)
-    || statusRank[a.status] - statusRank[b.status]);
+  // Waffle group order, left to right: Clean D, Dirty D, Dirty R,
+  // Clean R, then Clean/Dirty I, Unopposed, Unverified, Uncalled.
+  const groupRank = s=>{
+    if(s.status==='uncalled') return 8;
+    if(s.status==='unverified') return 7;
+    if(s.status==='unopposed') return 6;
+    if(s.status==='clean' && s.letter==='D') return 0;
+    if(s.status==='dirty' && s.letter==='D') return 1;
+    if(s.status==='dirty' && s.letter==='R') return 2;
+    if(s.status==='clean' && s.letter==='R') return 3;
+    if(s.status==='clean') return 4;
+    return 5;
+  };
+  seats.sort((a,b)=>groupRank(a)-groupRank(b));
   while(seats.length < total)
     seats.push({party:null, letter:'', status:'uncalled', name:'Uncalled seat'});
   return {seats, total, named: named.length};
+}
+const WAFFLE_ROWS = 15, WAFFLE_COLS = 29, WAFFLE_STEP = 12, WAFFLE_R = 5;
+function waffleDotSVG(s, x, y){
+  const label = {dirty:'took dirty money in 2026',
+    clean:'verified clean in 2026',
+    unopposed:'ran unopposed — not judged',
+    unverified:'unverified — not judged',
+    uncalled:'no named member yet'}[s.status];
+  const title = s.status==='uncalled' ? 'Uncalled seat — no named member yet'
+    : s.name+' · '+(s.party||'')+' · '+label;
+  const c = dotColor(s.party);
+  let inner;
+  if(s.status==='dirty'){
+    // Black bubble with a party-color dot in the middle.
+    inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="#111827"/>'
+      + '<circle cx="'+x+'" cy="'+y+'" r="2.1" fill="'+c+'"/>';
+  } else if(s.status==='clean'){
+    inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="'+c+'"/>';
+  } else if(s.status==='unopposed' || s.status==='unverified'){
+    inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="#fff" stroke="#9ca3af" stroke-width="1.6"/>';
+  } else {
+    inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"/>';
+  }
+  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'">'+inner
+    + '<title>'+esc(title)+'</title></g>';
+}
+function waffleSVG(seats){
+  // Column-major fill: each column top to bottom, then the next
+  // column, so the category blocks read left to right.
+  const W = WAFFLE_COLS*WAFFLE_STEP, H = WAFFLE_ROWS*WAFFLE_STEP;
+  let dots = '';
+  for(let i=0;i<seats.length;i++){
+    const col = Math.floor(i/WAFFLE_ROWS), row = i%WAFFLE_ROWS;
+    dots += waffleDotSVG(seats[i], WAFFLE_STEP/2 + col*WAFFLE_STEP,
+      WAFFLE_STEP/2 + row*WAFFLE_STEP);
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
+    + seats.length + ' seats: one dot per seat">'+dots+'</svg>';
 }
 function dotSVG(s, x, y, r){
   const label = {dirty:'took dirty money in 2026',
@@ -780,19 +831,22 @@ function hemicycleSVG(seats, total, rows, dotR, width, height){
 }
 function legendSwatch(kind, color){
   if(kind==='solid') return 'background:'+color;
-  if(kind==='hollow') return 'background:#fff;border:2px solid '+color;
+  // Black disc with one party-color dot in the middle (House waffle).
+  if(kind==='dot') return 'background:radial-gradient(circle at center,'+color+' 0 30%,#111827 31%)';
+  // Black with a party-color dotted pattern (Senate tiles).
+  if(kind==='dots') return 'background-color:#111827;background-image:radial-gradient(circle,'+color+' 1.1px,transparent 1.3px);background-size:5px 5px';
   if(kind==='gray') return 'background:#fff;border:2px solid #9ca3af';
   return 'background:#fff;border:2px dashed #d1d5db';
 }
-function legendHTML(seats){
+function legendHTML(seats, dirtyStyle){
   const count = (letter, status)=>seats.filter(s=>s.letter===letter && s.status===status).length;
   const parties = [...new Set(seats.filter(s=>s.letter).map(s=>s.letter))];
   const items = [];
   parties.forEach(L=>{
     const party = seats.find(s=>s.letter===L).party;
     const c = dotColor(party);
-    items.push({label:'Dirty '+L, n:count(L,'dirty'), sw:legendSwatch('solid', c)});
-    items.push({label:'Clean '+L, n:count(L,'clean'), sw:legendSwatch('hollow', c)});
+    items.push({label:'Dirty '+L, n:count(L,'dirty'), sw:legendSwatch(dirtyStyle, c)});
+    items.push({label:'Clean '+L, n:count(L,'clean'), sw:legendSwatch('solid', c)});
   });
   const unopp = seats.filter(s=>s.status==='unopposed').length;
   const unver = seats.filter(s=>s.status==='unverified').length;
@@ -816,10 +870,10 @@ function renderComposition(){
     + Object.entries(dCount).map(([k,v])=>k+' '+v).join(' · ') + '.';
   document.getElementById('composition').innerHTML =
     '<div class="comp">'
-    + '<figure>'+hemicycleSVG(h.seats, h.total, 10, 3.6, 360, 205)
-    + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats)+'</figure>'
+    + '<figure>'+waffleSVG(h.seats)
+    + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats,'dot')+'</figure>'
     + '<figure>'+hemicycleSVG(s.seats, s.total, 5, 5.5, 360, 205)
-    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats)+'</figure>'
+    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats,'solid')+'</figure>'
     + '</div><p class="delegates">'+esc(dNote)+'</p>';
 }
 /* ---- find-your-member finder (120th Congress only, no URL state) ----
