@@ -31,6 +31,15 @@ paths:
   money_pas2_weball: work/money_pas2_weball.csv
   money_udp: work/money_udp.csv
   money_udp_per_cycle: work/money_udp_per_cycle.json
+  self_funding_per_cycle: work/self_funding_per_cycle.json
+  self_funding_csv: work/self_funding.csv
+  other_committees_per_cycle: work/other_committees_per_cycle.json
+  other_committees_csv: work/other_committees.csv
+  other_committees_diagnostics: work/other_committees_diagnostics.json
+  all_ie_per_cycle: work/all_ie_per_cycle.json
+  all_ie_csv: work/all_ie.csv
+  all_ie_top_committees: work/all_ie_top_committees.json
+  freshness_snapshot: work/freshness_snapshot.json
   dedup_applied: work/dedup-applied.json
   dedup_notes: work/dedup-notes.json
   primary_targets: work/primary-targets.md
@@ -78,6 +87,52 @@ verification:
     udp_ie_support_career: 42415003.76
     udp_ie_opposing_opponents_career: 28281982.23
     udp_ie_total_benefit_career: 70696985.99
+    # Complete-financial-picture columns (664 distinct persons; Rivet
+    # counted once). Self-funding / topline are Curtis-corrected
+    # (decision: receipts -$5,640,855.75, disbursements -$5,239,012.32,
+    # transfers-from-auth -$1,261,797.03, transfers-to-auth -$3,300.00).
+    cand_contrib_career: 127959956.91
+    cand_loans_career: 325314576.77
+    self_funding_career: 453274533.68
+    loan_repayments_career: 117267525.92
+    total_receipts_career: 13123758383.28
+    total_disbursements_career: 12119674234.67
+    transfers_from_auth_career: 1084116950.90
+    transfers_to_auth_career: 196548621.70
+    cash_on_hand_career: 1011890622.93
+    debts_owed_by_career: 191691118.19
+    party_committees_career: 12452000.00
+    leadership_pacs_career: 232556005.00
+    labor_pacs_career: 293658668.00
+    trade_pacs_career: 476385811.00
+    membership_pacs_career: 220580356.00
+    cooperative_pacs_career: 30134616.00
+    other_unclassified_career: 302968291.00
+    other_committees_total_career: 1568735747.00
+    party_committees_earmark_transmitted_career: 18743.00
+    leadership_pacs_earmark_transmitted_career: 786779.00
+    labor_pacs_earmark_transmitted_career: 790.00
+    trade_pacs_earmark_transmitted_career: 456352.00
+    membership_pacs_earmark_transmitted_career: 2479868.00
+    cooperative_pacs_earmark_transmitted_career: 0.00
+    other_unclassified_earmark_transmitted_career: 1633442.00
+    all_ie_support_career: 1490363373.56
+    all_ie_oppose_career: 2351872876.19
+    all_ie_total_career: 3842257481.18
+  # All-IE roster-targeted totals per cycle (distinct persons; from
+  # pull_all_ie.py per-cycle summaries). 2026 is partial through Oct 31.
+  all_ie_cycle_totals:
+    2022: 635983318.22
+    2024: 957619902.44
+    2026: 2248654260.52
+  # Bulk coverage end dates, by column family (see methodology §15).
+  # The freshness layer covers activity after these dates; the bulk
+  # re-pull replaces it.
+  coverage_end:
+    committee_money_pas2: "2026-09-30"   # corporate, AIPAC, other-committee
+    weball: "2026-10-14"                 # individual, self-funding, topline
+    independent_expenditures: "2026-10-31"  # all-IE (UDP too)
+    freshness_window_start: "2026-10-15"
   # Clean-in-2026 expectations from methodology.md §14, as of Nov 12, 2026.
   # clean_2026 counts are over the whole roster; the 67 / 53 figures are
   # the incoming (120th) House subset.
@@ -94,10 +149,12 @@ verification:
     house_120th_clean_2026_not_career_clean: 14
 
 # The dataset's column order (CSV) and key order (JSON). The two differ
-# only in the 2026 trio: the CSV lists individual_2026 first, the JSON
-# lists corp_2026 first — both orders are the committed ones, preserved
-# exactly so a rebuild is byte-identical. Every script that writes the
-# dataset filters these lists to the columns it produces.
+# in the 2026 trio (the CSV lists individual_2026 first, the JSON lists
+# corp_2026 first — both orders are the committed ones, preserved exactly
+# so a rebuild is byte-identical) and in all_ie_top_committees, which is
+# JSON-only by design (a list of committee objects; not in the CSV).
+# Every script that writes the dataset filters these lists to the columns
+# it produces.
 dataset:
   csv_columns:
     - person_key
@@ -120,10 +177,42 @@ dataset:
     - corporate_pac_career
     - corporate_earmark_transmitted_career
     - udp_ie_support_career
+    - cand_contrib_career
+    - cand_loans_career
+    - self_funding_career
+    - loan_repayments_career
+    - debts_owed_by_career
+    - debts_owed_to_career
+    - total_receipts_career
+    - total_disbursements_career
+    - transfers_from_auth_career
+    - transfers_to_auth_career
+    - cash_on_hand_career
+    - party_committees_career
+    - leadership_pacs_career
+    - labor_pacs_career
+    - trade_pacs_career
+    - membership_pacs_career
+    - cooperative_pacs_career
+    - other_unclassified_career
+    - other_committees_total_career
+    - party_committees_earmark_transmitted_career
+    - leadership_pacs_earmark_transmitted_career
+    - labor_pacs_earmark_transmitted_career
+    - trade_pacs_earmark_transmitted_career
+    - membership_pacs_earmark_transmitted_career
+    - cooperative_pacs_earmark_transmitted_career
+    - other_unclassified_earmark_transmitted_career
+    - all_ie_support_career
+    - all_ie_oppose_career
+    - all_ie_total_career
     - data_as_of
     - data_notes
     - per_cycle
     - udp_per_cycle
+    - self_funding_per_cycle
+    - other_committees_per_cycle
+    - all_ie_per_cycle
     - total_accepted_career
     - rank_total_accepted
     - rank_individual
@@ -134,6 +223,11 @@ dataset:
     - udp_ie_total_benefit_career
     - rank_udp_opposing_opponents
     - rank_udp_total_benefit
+    - rank_self_funding
+    - rank_all_ie_support
+    - rank_all_ie_oppose
+    - rank_all_ie_total
+    - rank_other_committees_total
     - individual_2026
     - corp_2026
     - aipac_direct_2026
@@ -143,6 +237,16 @@ dataset:
     - dirty_2026
     - clean_2026
     - dep_share_2026
+    - self_funding_2026
+    - cand_loans_2026
+    - cand_contrib_2026
+    - total_receipts_2026
+    - total_disbursements_2026
+    - cash_on_hand_2026
+    - other_committees_total_2026
+    - all_ie_support_2026
+    - all_ie_oppose_2026
+    - all_ie_total_2026
   json_keys:
     - person_key
     - full_name
@@ -164,10 +268,43 @@ dataset:
     - corporate_pac_career
     - corporate_earmark_transmitted_career
     - udp_ie_support_career
+    - cand_contrib_career
+    - cand_loans_career
+    - self_funding_career
+    - loan_repayments_career
+    - debts_owed_by_career
+    - debts_owed_to_career
+    - total_receipts_career
+    - total_disbursements_career
+    - transfers_from_auth_career
+    - transfers_to_auth_career
+    - cash_on_hand_career
+    - party_committees_career
+    - leadership_pacs_career
+    - labor_pacs_career
+    - trade_pacs_career
+    - membership_pacs_career
+    - cooperative_pacs_career
+    - other_unclassified_career
+    - other_committees_total_career
+    - party_committees_earmark_transmitted_career
+    - leadership_pacs_earmark_transmitted_career
+    - labor_pacs_earmark_transmitted_career
+    - trade_pacs_earmark_transmitted_career
+    - membership_pacs_earmark_transmitted_career
+    - cooperative_pacs_earmark_transmitted_career
+    - other_unclassified_earmark_transmitted_career
+    - all_ie_support_career
+    - all_ie_oppose_career
+    - all_ie_total_career
     - data_as_of
     - data_notes
     - per_cycle
     - udp_per_cycle
+    - self_funding_per_cycle
+    - other_committees_per_cycle
+    - all_ie_per_cycle
+    - all_ie_top_committees
     - total_accepted_career
     - rank_total_accepted
     - rank_individual
@@ -178,6 +315,11 @@ dataset:
     - udp_ie_total_benefit_career
     - rank_udp_opposing_opponents
     - rank_udp_total_benefit
+    - rank_self_funding
+    - rank_all_ie_support
+    - rank_all_ie_oppose
+    - rank_all_ie_total
+    - rank_other_committees_total
     - corp_2026
     - aipac_direct_2026
     - individual_2026
@@ -187,3 +329,13 @@ dataset:
     - dirty_2026
     - clean_2026
     - dep_share_2026
+    - self_funding_2026
+    - cand_loans_2026
+    - cand_contrib_2026
+    - total_receipts_2026
+    - total_disbursements_2026
+    - cash_on_hand_2026
+    - other_committees_total_2026
+    - all_ie_support_2026
+    - all_ie_oppose_2026
+    - all_ie_total_2026
