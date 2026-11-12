@@ -126,7 +126,7 @@ def parse_f6_csv(text):
         kind = row[0]
         if kind == 'HDR':
             continue
-        if kind == 'F6N':
+        if kind == 'F6N' or kind == 'F6A':
             def g(i):
                 return row[i] if i < len(row) else ''
             header = {'committee_id': g(1), 'committee_name': g(3),
@@ -159,11 +159,29 @@ def parse_f6_csv(text):
 
 
 def pull_committee(committee_id, since=None):
-    """Discover + fetch + parse every F6 for one committee in-window."""
+    """Discover + fetch + parse every F6 for one committee in-window.
+
+    Amendment chains: the filings endpoint returns BOTH the original
+    and its amended version (e.g. El-Sayed C00902668: file 2044921 and
+    its amendment 2045386 re-list most of the same contributions).
+    A filing is superseded if another discovered filing's
+    amendment_chain contains its file number; superseded filings are
+    dropped and only the latest version of each chain is kept. Without
+    this the El-Sayed F6 total overstates by $351,042.26 (the two
+    superseded filings' totals).
+    """
     filings = discover_f6(committee_id, since=since)
-    out = {'committee_id': committee_id, 'since': since,
-           'n_filings': len(filings), 'filings': []}
+    superseded = set()
     for f in filings:
+        chain = f.get('amendment_chain') or []
+        for fn in chain[:-1]:
+            superseded.add(fn)
+    kept = [f for f in filings if f.get('file_number') not in superseded]
+    out = {'committee_id': committee_id, 'since': since,
+           'n_filings': len(kept), 'n_superseded_dropped': len(filings) - len(kept),
+           'superseded_file_numbers': sorted(superseded),
+           'filings': []}
+    for f in kept:
         file_number = f.get('file_number')
         parsed = parse_f6_csv(fetch_f6_csv(file_number)) if file_number else {'header': None, 'items': []}
         cand_loans = round(sum(i['amount'] for i in parsed['items']

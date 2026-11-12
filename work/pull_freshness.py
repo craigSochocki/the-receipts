@@ -141,8 +141,9 @@ def summarize(entries):
     residuals = [{'person_key': e['person_key'],
                   'committee_id': s.get('committee_id'),
                   'candidate_id': s.get('candidate_id'),
-                  'residual': s.get('residual')}
-                 for e in entries for s in e['f24'] if s.get('residual')]
+                  'residual_unexplained': s.get('residual_unexplained')}
+                 for e in entries for s in e['f24']
+                 if s.get('residual_unexplained')]
     newer = [t['candidate_id'] for e in entries for t in e['totals']
              if t.get('newer_than_bulk')]
     return {'n_persons': len(entries), 'new_f6_candidate_loans': loans,

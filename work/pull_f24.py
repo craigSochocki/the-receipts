@@ -115,6 +115,14 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
     deduped = dedup_rows(all_rows)
     f24_keys = {dedup_key(r) for r in f24_rows}
     residual_rows = [r for r in deduped if dedup_key(r) not in f24_keys]
+    # Residual classification (Nov 12, 2026): a residual row filed on a
+    # regular report (filing_form F3X, e.g. the UDP $1,004.53 GOTV
+    # expenditure of Aug 3, filed Sep 19 on an M9) is EXPECTED — it
+    # predates the 24/48-hour window and was never an F24. Only a
+    # residual row whose filing_form IS F24 would be a real
+    # discrepancy (the F24-only set should contain every F24 row).
+    explained = [r for r in residual_rows if r.get('filing_form') != 'F24']
+    unexplained = [r for r in residual_rows if r.get('filing_form') == 'F24']
     return {
         'committee_id': committee_id, 'candidate_id': candidate_id, 'cycle': cycle,
         'f24_n_rows': len(f24_rows),
@@ -124,6 +132,8 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
         'deduped_n_rows': len(deduped),
         'deduped_total': row_sum(deduped),
         'residual': round(row_sum(deduped) - row_sum(f24_rows), 2),
+        'residual_explained': row_sum(explained),
+        'residual_unexplained': row_sum(unexplained),
         'residual_rows': residual_rows,
         'latest_expenditure_date': max((r.get('expenditure_date') or ''
                                         for r in f24_rows), default=None),
@@ -152,7 +162,9 @@ def main():
           f"{result['f24_n_rows']} rows, ${result['f24_total']:,.2f}; "
           f"naive ${result['naive_total']:,.2f} ({result['naive_n_rows']} rows), "
           f"deduped ${result['deduped_total']:,.2f} ({result['deduped_n_rows']} rows); "
-          f"residual ${result['residual']:,.2f} ({len(result['residual_rows'])} rows); "
+          f"residual ${result['residual']:,.2f} "
+          f"(explained ${result['residual_explained']:,.2f} non-F24, "
+          f"unexplained ${result['residual_unexplained']:,.2f}); "
           f"latest expenditure {result['latest_expenditure_date']}")
 
 
