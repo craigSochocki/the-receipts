@@ -267,19 +267,27 @@ for r in records:
     # An unopposed would-be-clean verdict is null, not True.
     if r['in_120th'] == 'yes' and not has_2026_linkage(r):
         r['clean_2026'] = None
-        r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
+        # Idempotent: compute_2026 appends to data_notes, so a
+        # standalone re-run over an already-noted dataset must not
+        # duplicate the segments (Nov 12, 2026: a targeted re-run
+        # doubled them; the full rebuild is safe because the merge
+        # regenerates data_notes fresh each time).
+        if 'UNVERIFIED' not in r['data_notes']:
+            r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
     elif (r['unopposed_2026'] and r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
             and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0):
         r['clean_2026'] = None
         race_label = ', '.join(format_race(race) for race in unopp_races)
-        r['data_notes'] = r['data_notes'] + UNOPPOSED_NOTE.format(race=race_label)
+        if 'UNOPPOSED' not in r['data_notes']:
+            r['data_notes'] = r['data_notes'] + UNOPPOSED_NOTE.format(race=race_label)
     else:
         r['clean_2026'] = (r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
                            and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0)
 
     # Gap note: corporate PAC money with $0 individual in 2026.
     if r['corp_2026'] > 0 and r['individual_2026'] == 0:
-        r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(corp=f'{r["corp_2026"]:,.0f}')
+        if 'missing-committee-linkage gap' not in r['data_notes']:
+            r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(corp=f'{r["corp_2026"]:,.0f}')
 
 # ---- Assert the expected clean counts (config verification.clean_2026) ----
 exp = CFG['verification']['clean_2026']
