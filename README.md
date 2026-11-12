@@ -42,9 +42,11 @@ committed dataset **byte-identically** (both files, same md5s), and
 `verify_dataset.py` passes all 93 standing audits.
 
 Prerequisite: the FEC bulk files staged under `data/raw/` — the scripts
-read them, they don't download them. See `research/bulk-inventory.md` for the
-exact `curl` commands. About 838 MB of zips, ~5.9 GB on disk with the
-extracted files. Layout the scripts expect:
+read them, they don't download them. Run `./download_bulk.sh` (about
+315 MB down, ~2 GB on disk — it skips `oppexp`, which no script reads),
+or see `research/bulk-inventory.md` for the exact `curl` commands. The
+full staged set including `oppexp` is 838 MB of zips, ~5.9 GB on disk
+with the extracted files. Layout the scripts expect:
 - `weball/weballYY.txt` (1980–2026), `cm/<cycle>/cm.txt`,
   `pas2/<cycle>/itpas2.txt`
 - `ie/<cycle>/independent_expenditure_<cycle>.csv` (2022, 2024, 2026 only)
