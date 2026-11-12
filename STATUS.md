@@ -42,9 +42,9 @@
   secrets needed. `scheduled-refresh.yml` runs weekly, Sunday 09:00 UTC,
   plus manual `workflow_dispatch` (e.g. right after the Dec 3 post-general
   deadline): same pipeline, then the freshness step (only when the
-  `FEC_API_KEY` repository secret was added Nov 12, 2026 (first scheduled
-  run will confirm it by logging whether freshness ran or skipped);
-  without it the step logs a skip line), then a commit + push back to
+  `FEC_API_KEY` repository secret is set — added Nov 12, 2026 (first
+  scheduled run will confirm it by logging whether freshness ran or
+  skipped); without it the step logs a skip line), then a commit + push back to
   `master` as `github-actions[bot]` (`data: refresh from FEC bulk
   <YYYY-MM-DD>`) only if the dataset changed or the site changed apart
   from its generation timestamp (timestamp ignored via `git diff -I`). A
