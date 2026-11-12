@@ -685,6 +685,12 @@ total still 535.
 
 ## 12. Ranking — "how much money they've accepted"
 
+**Dirty money, plainly — read this before the leaderboards.** "Dirty money" in this tracker means money from three sources: corporate PACs, the AIPAC PAC, and UDP independent expenditures that benefited the candidate (support + opposition credit). Individual contributions are **not** dirty money: they are the normal way campaigns are funded, from real people giving their own money, and a candidate can raise millions from individuals and still be verified clean. Self-funding is the candidate's own money, and other-committee money (party, labor, trade, leadership PACs) is also not dirty under this definition. "Total accepted" — individual + corporate PAC + AIPAC direct — measures fundraising **scale**, not dirtiness: it includes individual contributions, which are most of what most campaigns raise. That is why the site's leaderboards and the default table sort lead with dirty money (2026 first, then career), not with total accepted. A big total accepted mostly means a big campaign; a big dirty total means a campaign funded by the sources this tracker treats as dirty.
+
+- **`dirty_career`** = `corporate_pac_career` + `aipac_pac_direct_career` + `udp_ie_total_benefit_career` — the career analog of `dirty_2026`, the same three sources summed over all cycles 1980–2026. Roster total **$1,070,633,247.20**. Null for Alan Armstrong (money unknown, not zero); 60 people are exactly $0.
+- **Top 10 by dirty money (career):** Haley M. Stevens $36,864,670.88, Steny H. Hoyer $14,688,195.00, George Latimer $14,649,053.25, Mitch McConnell $12,323,700.00, Richard E. Neal $12,134,658.00, Wesley Bell $12,097,007.05, James E. Clyburn $10,386,143.00, John Cornyn $9,896,098.00, Steve Scalise $8,816,467.00, Chuck Grassley $8,586,006.00.
+- **Top 10 by dirty money (2026, partial):** Haley M. Stevens $31,025,889.44, Adrian Boafo $5,745,013.28, Ed Gallrein $4,161,286.70, Wesley Bell $3,446,667.69, Brett Guthrie $1,860,780.00, Jason Smith $1,813,155.00, Tom Emmer $1,415,500.00, Pete Aguilar $1,359,750.00, Mark R. Warner $1,331,950.00, Mike Johnson $1,265,350.00. Roster total $201,407,330.11.
+
 - **Total accepted (career)** = individual contributions + corporate PAC money + AIPAC PAC direct. The two earmark columns are subsets of their parent columns and are never added again. UDP independent expenditures are **not** counted as accepted — that money was never given to the campaign, it was spent about the race — but UDP support is ranked separately in its own column.
 - **Ranks** (`rank_total_accepted`, `rank_individual`, `rank_corporate_pac`, `rank_aipac_direct`, `rank_udp_support`, `rank_udp_opposing_opponents`, `rank_udp_total_benefit`, `rank_self_funding`, `rank_all_ie_support`, `rank_all_ie_oppose`, `rank_all_ie_total`, `rank_other_committees_total`): 1 = most money, ties share a rank (competition ranking). Ranks are computed over all 664 people; Alan Armstrong is unranked (money unknown, not zero). A negative total (Patrick Ryan, AIPAC −$10,000) ranks as filed. The five new ranks (self-funding, all-IE support/oppose/total, other-committee total) are career only — there are no per-cycle ranks.
 - **Top 10 by total accepted (career, as of Nov 12, 2026):** Warnock $316.4M, Ossoff $295.7M, Kelly $242.1M, Brown $201.0M, Cruz $154.2M, Talarico $139.8M, McConnell $123.7M (119th only), Schumer $117.7M, Schiff $110.9M, Baldwin $104.7M.
@@ -847,6 +853,9 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
 - `dirty_2026` — `corp_2026` + `aipac_direct_2026` + `udp_benefit_2026`. All
   money that came from corporate PACs, AIPAC's PAC, or UDP spending for the
   candidate in the 2026 cycle.
+- `dirty_career` — `corporate_pac_career` + `aipac_pac_direct_career` +
+  `udp_ie_total_benefit_career`, the career analog of `dirty_2026` (see §12
+  for the top 10). Null for Alan Armstrong (money unknown, not zero).
 - `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
   `total_receipts_2026`, `total_disbursements_2026` — summed from the
   `self_funding_per_cycle` entries with `cycle == 2026`. `cash_on_hand_2026` is
@@ -1178,3 +1187,41 @@ and site still proceed. The freshness snapshot for that run is simply absent or
 partial (uploaded as a workflow artifact when one exists); the dataset itself is
 unaffected, because freshness is an overlay that is never merged into dataset
 totals.
+
+---
+
+## 17. Chamber composition charts — House and Senate
+
+The front door carries two parliament (hemicycle) charts, one per chamber,
+computed from the dataset at render time — one dot per seat, the chamber
+total in the middle, party by color and dirtiness by fill. Placement: front
+door, after the clean story and before the finder; side by side on desktop,
+stacked on mobile.
+
+- **Color = party**, the party-chip palette: Democrat blue, Republican red,
+  Independent/other gray.
+- **Fill = dirtiness in 2026** (`clean_2026`): a **solid** dot took dirty
+  money in 2026; a **hollow ring** is verified clean in 2026; a **gray
+  hollow ring** is not judged — the member ran unopposed or is unverified,
+  so $0 dirty money there is not a clean verdict; a **dashed gray ring**
+  is an uncalled seat with no named incoming member yet.
+- **House: 435 voting seats.** Named voting members 430 + 5 uncalled
+  (Alaska House, LA-05 with no roster row, the LA-06 runoff, and two
+  California races) = 435. The 6 non-voting delegates are **not plotted**
+  — they have no vote — and are listed under the chart: Clean D 3, Clean
+  R 1, Unopposed R 1, Dirty PPD 1. That is why the chart's House clean
+  counts (D 58, R 2) differ from the 64 verified-clean House members in
+  §14 (61 D, 3 R), which counts the Northern Mariana Islands delegate
+  King-Hinds.
+- **Senate: 100 seats.** Named 99 + 1 uncalled (Alaska) = 100.
+
+Counts as of Nov 12, 2026 (computed from the dataset; the charts recompute
+them at render, so they move with the data):
+
+| Chamber | Dirty D | Clean D | Dirty R | Clean R | Dirty I | Clean I | Unopposed | Unverified | Uncalled |
+|---|---|---|---|---|---|---|---|---|---|
+| House (435 voting) | 198 | 58 | 169 | 2 | 0 | 0 | 2 | 1 | 5 |
+| Senate (100) | 44 | 9 | 44 | 0 | 1 | 1 | 0 | 0 | 1 |
+
+House row sums: 198 + 58 + 169 + 2 + 0 + 0 + 2 + 1 + 5 = 435. Senate row
+sums: 44 + 9 + 44 + 0 + 1 + 1 + 0 + 0 + 1 = 100.
