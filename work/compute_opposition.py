@@ -13,18 +13,22 @@ different candidates in the primary vs the general within one cycle+race counts 
 two backed candidates -> nothing credited. This is a documented limitation.
 
 Sources: staged bulk IE files work/bulk/ie/<cycle>/independent_expenditure_<cycle>.csv
-(cycles 2022/2024/2026). Dedup by tran_id, keep latest receipt_dat, tie-break
-highest file_num (same rule as the UDP support pull). AIPAC PAC (C00797670) has
-ZERO Schedule E rows in all three cycles, so no AIPAC opposition column is built.
+(cycles from config cycles.udp). Dedup by tran_id, keep latest receipt_dat, tie-break
+highest file_num (same rule as the UDP support pull). AIPAC PAC (see config
+committees.aipac_pac) has ZERO Schedule E rows in all three cycles, so no AIPAC
+opposition column is built.
 """
 import csv, json, collections
 from datetime import datetime
 
-BASE = '/home/hatch/workspace/user/congress-money-tracker'
-IE_DIR = BASE + '/work/bulk/ie'
-UDP = 'C00799031'
-AIPAC = 'C00797670'
-CYCLES = (2022, 2024, 2026)
+from config import load_config
+
+CFG = load_config()
+ROOT = CFG['_root']
+IE_DIR = str(ROOT / CFG['paths']['ie'])
+UDP = CFG['committees']['udp']
+AIPAC = CFG['committees']['aipac_pac']
+CYCLES = tuple(CFG['cycles']['udp'])
 
 def parse_amt(s):
     return float(str(s).replace('$', '').replace(',', '').strip() or 0)
@@ -102,7 +106,7 @@ for r in udp_rows:
         name_index[key] = r['cand_id']
 
 # roster fallback: (LAST, FIRST, state, district, office) -> fec id(s)
-roster = json.load(open(f'{BASE}/work/roster.json'))
+roster = json.load(open(ROOT / CFG['paths']['roster']))
 id_to_person = {}
 for p in roster:
     for cid in (p.get('fec_candidate_ids') or []):
@@ -170,7 +174,7 @@ for cid, amt in support_by_id.items():
         person_support[f'__nonroster__{cid}'] += amt
 
 existing = {}
-with open(f'{BASE}/congress-money-tracker.csv', newline='') as f:
+with open(ROOT / CFG['paths']['dataset_csv'], newline='') as f:
     for row in csv.DictReader(f):
         existing[row['person_key']] = float(row['udp_ie_support_career']) if row['udp_ie_support_career'] not in ('unknown', '') else None
 mismatch = []
@@ -240,9 +244,9 @@ print(f'\nraces with UDP oppose spending: {len(credit_detail) + len(no_credit)}'
 print(f'races credited (exactly one backed): {len(credit_detail)}; races NOT credited: {len(no_credit)}')
 print(f'total credited to roster persons: ${sum(credit_by_person.values()):,.2f}')
 print(f'total credited to NON-roster backed candidates: ${sum(nonroster_credit.values()):,.2f}')
-print('\n--- races NOT credited, oppose >= $100,000 ---')
+print('\n--- races NOT credited, oppose >= $%s ---' % f"{CFG['verification']['opposition_uncredited_report_threshold']:,}")
 for key, n, names, opp, opposed in sorted(no_credit, key=lambda x: -x[3]):
-    if opp >= 100000:
+    if opp >= CFG['verification']['opposition_uncredited_report_threshold']:
         print(f'  {key}: backed={n} {names}; oppose=${opp:,.2f}; opposed={opposed}')
 
 print('\n--- TEST 1: NY-16 2024 (House, NY, 16) ---')
@@ -272,7 +276,7 @@ for name in ('George Latimer', 'Mike Rogers', 'Haley Stevens', 'Abdul El-Sayed')
                   f'total benefit=${person_support.get(pk,0)+credit_by_person.get(pk,0):,.2f}')
 
 # per-cycle reconciliation vs the prior UDP pull's deduped totals (S+O, all candidates)
-prior_cycle_totals = {2022: 26107515.77, 2024: 38044932.69, 2026: 54322881.51}
+prior_cycle_totals = {int(k): v for k, v in CFG['verification']['udp_prior_cycle_totals'].items()}
 for yr in CYCLES:
     tot = sum(r['amount'] for r in udp_rows if r['cycle'] == yr)
     print(f'cycle {yr}: my deduped S+O total ${tot:,.2f} vs prior pull ${prior_cycle_totals[yr]:,.2f} '
@@ -288,5 +292,5 @@ json.dump({
     'support_mismatches': mismatch,
     'unresolved_blank_rows': len(unresolved),
     'aipac_schedule_e_rows': len(aipac_rows),
-}, open(f'{BASE}/work/opposition-computed.json', 'w'), indent=1)
+}, open(ROOT / CFG['paths']['opposition_computed'], 'w'), indent=1)
 print('\nwrote work/opposition-computed.json')
