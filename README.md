@@ -115,7 +115,10 @@ python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
 ```
 
 A full refresh is ~2,200–2,350 keyed API calls (recounted Nov 12, 2026; see
-`methodology.md` §16 and the driver's docstring); DEMO_KEY (~30/hr) is spot-checks
+`methodology.md` §16 and the driver's docstring) when run ungated
+(`--no-gate`); by default `--all` is gated (`src/ingest/pull_gate.py` — one
+global `/filings/` check per family first, legs only for people with new
+filings), so a quiet week costs a handful of calls. DEMO_KEY (~30/hr) is spot-checks
 only and the driver refuses `--all` on it. A bare `--all` also runs
 committee-only F24 sweeps for the six config-listed spender committees
 (`config.yaml`, `freshness.f24_committee_sweep`), so the scheduled run

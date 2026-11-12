@@ -229,6 +229,17 @@
   sweeps. No workflow change was needed (it already runs bare `--all`). The
   first live confirmation is the Sunday Nov 15, 2026 scheduled run: check
   that the snapshot artifact carries `committee_sweeps` with six entries.
+- Freshness pre-flight gate — ADDED Nov 12, pending live confirmation on
+  the Sunday Nov 15 scheduled run. `pull_freshness.py --all` is now gated
+  by default (`src/ingest/pull_gate.py`): one global `/filings/` check per
+  family (F6, F24, F3) decides who gets refreshed; state in committed
+  `data/source/freshness_state.json`, seeded at the window start
+  2026-10-15 for all families (the Nov 12 snapshot covered only two
+  persons, so it is not a roster-wide baseline). A gate error falls back
+  to the full run, never to a skip. No workflow change (bare `--all` gets
+  the gate automatically); `--no-gate` forces the full run. On Sunday
+  check the snapshot artifact's `gate` record: `calls_used`,
+  `affected_person_keys`, and whether the state file advanced.
 - Opposition credit: split by primary vs. general phase (so anti-El-Sayed
   spending would credit to Stevens in the primary and Rogers in the
   general), or keep the conservative single-backer rule?

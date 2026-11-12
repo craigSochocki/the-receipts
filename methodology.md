@@ -1003,6 +1003,45 @@ everything else in the snapshot: labeled by source and date, **never merged
 into dataset totals**. First live confirmation: the Sunday Nov 15, 2026
 scheduled run.
 
+**Pre-flight gate (added Nov 12, 2026; `src/ingest/pull_gate.py`).** A
+full `--all` is ~2,200–2,350 keyed calls, most returning nothing, so
+`--all` now runs a gate first: one global `GET /v1/filings/
+?form_type=<F>&sort=-receipt_date` check per family — F6 gates the
+Form 6 leg, F24 gates the six committee sweeps, F3 gates the
+candidate-totals leg — paging until `receipt_date` falls before the
+family's `last_seen`, then running each leg only for the people (or
+sweep committees) with new filings. F3X is deliberately not a gate
+family: it is filed by non-candidate committees and no leg is driven
+by it. State is the committed `data/source/freshness_state.json`
+(per-family `last_seen` + the boundary day's `seen_file_numbers`);
+a skipped run leaves it unchanged, a run that finds activity
+advances it. **Safety property: a gate error is never "nothing new"**
+— any gate failure logs loudly and falls back to the full run, and
+state is not advanced. **Boundary-day rule:** the comparison is
+`receipt_date >= last_seen` (inclusive) with dedup by `file_number`,
+because a filing can become API-visible after the last run; this
+assumes filings become visible in `receipt_date` order with lag
+shorter than the run interval. Seeding: every family at the window
+start 2026-10-15 — the Nov 12 snapshot covered only two persons'
+committees (F6 latest 2026-11-01), so it is not a roster-wide
+baseline and seeding there would silently skip Oct 15–Nov 1 activity
+for the other 662 people; the first gated run scans the whole window.
+Attribution costs no API call per person: committee → candidate via
+the staged committee master (`data/raw/cm/2026/cm.txt`, field 15),
+then candidate → roster person via the dataset; `/filings/` rows
+carry `candidate_id: null` (verified live Nov 12 for all four
+families). A global F24 check also sees non-sweep committees — that
+is surfaced as `non_sweep_f24_committees` in the snapshot, never
+silently dropped and never added to the sweep list. The snapshot
+still writes when the gate skips everything (`n_persons=0`,
+gate-only) and carries a top-level `gate` record plus `gate_*`
+summary fields; `--no-gate` forces the full run. Known limitation:
+the F3 gate triggers on filing receipt, so if the FEC has not yet
+processed a new report into the totals endpoint, that candidate's
+new totals are not seen until a newer F3 arrives — the bulk re-pull
+is the backstop. First live confirmation: the Sunday Nov 15, 2026
+scheduled run (no workflow change — it already runs bare `--all`).
+
 **A note on negative residuals at committee scale.** At committee scale the
 deduped-unfiltered total can come out BELOW the F24-only total — observed
 Nov 12, 2026 for the UDP committee-wide sweep (deduped $54,160,031.20 vs

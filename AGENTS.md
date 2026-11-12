@@ -146,7 +146,11 @@ the-receipts/
   date, **never merged into dataset totals**. It is a separate entry
   point, not in `rebuild.py`'s default pipeline. Production runs need a
   registered api.data.gov key (`FEC_API_KEY`); DEMO_KEY is spot-checks
-  only and the driver refuses `--all` on it.
+  only and the driver refuses `--all` on it. `--all` is gated by
+  default (one global `/filings/` check per family first —
+  `src/ingest/pull_gate.py`, state in committed
+  `data/source/freshness_state.json`); `--no-gate` forces the full run,
+  and a gate error falls back to the full run, never to a skip.
 
 ## 5. Verification — the gate
 
