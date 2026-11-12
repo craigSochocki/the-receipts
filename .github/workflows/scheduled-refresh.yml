@@ -71,6 +71,15 @@ jobs:
     # 180 min total leaves headroom for a slow FEC API day.
     timeout-minutes: 180
 
+    # NOTE: the `secrets` context is NOT available in `if:` conditionals
+    # (GitHub rejects the workflow file: "Unrecognized named-value:
+    # 'secrets'"). So the key's presence is captured once here, as a
+    # boolean string — never the key value — and the steps below test
+    # env.FEC_API_KEY_SET instead. Found Nov 12, 2026 when the first
+    # manual run failed validation on all three `secrets` uses below.
+    env:
+      FEC_API_KEY_SET: ${{ secrets.FEC_API_KEY != '' }}
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
@@ -122,7 +131,7 @@ jobs:
       # emits an explicit ::error:: annotation naming the step and
       # pointing at the log / artifact.
       - name: Freshness refresh (registered key only)
-        if: ${{ secrets.FEC_API_KEY != '' }}
+        if: ${{ env.FEC_API_KEY_SET == 'true' }}
         continue-on-error: true
         env:
           FEC_API_KEY: ${{ secrets.FEC_API_KEY }}
@@ -162,7 +171,7 @@ jobs:
       # loud signal, and a missing snapshot shows as a warning in the
       # upload step's log.
       - name: Upload freshness snapshot artifact
-        if: ${{ always() && secrets.FEC_API_KEY != '' }}
+        if: ${{ always() && env.FEC_API_KEY_SET == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: freshness-snapshot-${{ github.run_number }}
@@ -171,7 +180,7 @@ jobs:
           retention-days: 90
 
       - name: Freshness skipped (no FEC API key)
-        if: ${{ secrets.FEC_API_KEY == '' }}
+        if: ${{ env.FEC_API_KEY_SET != 'true' }}
         run: |
           echo "SKIP: freshness refresh not run — FEC_API_KEY secret is not set."
           echo "pull_freshness.py --all refuses DEMO_KEY, so there is nothing to run."
