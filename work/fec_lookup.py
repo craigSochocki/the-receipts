@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """FEC candidate-ID lookup for roster rows with no FEC ID yet.
-Uses api.open.fec.gov with DEMO_KEY (as the task allows). Matches on
+Uses api.open.fec.gov with the API key from the FEC_API_KEY environment
+variable (config fec_api.api_key_default as fallback). Matches on
 office + state + district + party; stops on rate limiting and leaves the
 rest empty rather than guessing."""
-import json, time, urllib.request, urllib.parse, unicodedata, re
+import json, time, urllib.request, urllib.parse, unicodedata, re, os
 
-WORK = '/home/hatch/workspace/user/congress-money-tracker/work'
-API = 'https://api.open.fec.gov/v1/candidates/'
+from config import load_config
+
+CFG = load_config()
+ROOT = CFG['_root']
+WORK = str(ROOT / CFG['paths']['work'])
+API = CFG['fec_api']['base_url']
+API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
+CURRENT_ELECTION_YEAR = CFG['cycles']['current']
+PARTY = CFG['party_codes']
 
 def norm(s):
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
@@ -17,17 +25,16 @@ missing = [r for r in rows if not r['fec_candidate_ids']]
 print('rows missing FEC IDs:', len(missing))
 
 results = {}
-PARTY = {'Democrat': 'DEM', 'Republican': 'REP', 'Independent': 'IND', 'PPD': 'DEM'}
 
 def lookup(r):
     chamber = r['chamber_120'] or r['chamber_119']
     office = 'S' if chamber == 'Senate' else 'H'
     name_q = f"{r['last_name']}, {r['first_name']}"
-    params = {'api_key': 'DEMO_KEY', 'name': name_q, 'election_year': 2026,
+    params = {'api_key': API_KEY, 'name': name_q, 'election_year': CURRENT_ELECTION_YEAR,
               'office': office, 'state': r['state'], 'per_page': 20}
     url = API + '?' + urllib.parse.urlencode(params)
     try:
-        with urllib.request.urlopen(url, timeout=30) as resp:
+        with urllib.request.urlopen(url, timeout=CFG['fec_api']['request_timeout_seconds']) as resp:
             data = json.load(resp)
     except urllib.error.HTTPError as e:
         return ('http_error', e.code)
@@ -51,7 +58,7 @@ def lookup(r):
             continue
         if want_party and c.get('party') and c['party'] != want_party:
             continue
-        if 2026 not in (c.get('election_years') or []):
+        if CURRENT_ELECTION_YEAR not in (c.get('election_years') or []):
             continue
         scored.append(c)
     if len(scored) == 1:
@@ -72,12 +79,12 @@ for i, r in enumerate(missing):
                                 'status': status, 'value': val}
     if status == 'found':
         r['fec_candidate_ids'] = [val]
-        r['_fec_source'] = 'fec-api-2026'
+        r['_fec_source'] = f'fec-api-{CURRENT_ELECTION_YEAR}'
     print(f"{i+1}/{len(missing)} {r['full_name']} ({r['state']}): {status} {val}")
     if status == 'http_error' and val == 429:
         print('RATE LIMITED — stopping')
         break
-    time.sleep(0.4)
+    time.sleep(CFG['fec_api']['sleep_between_requests_seconds'])
 
 json.dump(results, open(f'{WORK}/fec_lookup_results.json', 'w'), indent=1)
 json.dump(rows, open(f'{WORK}/roster_intermediate.json', 'w'), indent=1)
