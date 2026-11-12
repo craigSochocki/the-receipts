@@ -8,15 +8,16 @@ Checks (exit non-zero on any mismatch, printing every failure):
   (a) per-cycle sums reproduce every career column (0 mismatches).
   (b) roster totals match config verification.methodology_totals to the
       cent (Armstrong's "unknown" money excluded from every sum).
-  (c) all seven rank columns recompute exactly (competition ranking:
+  (c) all twelve rank columns recompute exactly (competition ranking:
       rank = 1 + count of strictly greater values).
   (d) clean counts match config verification.clean_2026 (True 84 /
       False 579 / None 1; 120th House clean 67 — 63 D, 4 R;
       career-clean 120th House 53 — 50 D, 3 R; 2026-clean but not
       career-clean 14).
-  (e) the nine 2026 columns, the clean rule, and dep_share recompute
-      exactly (including the Luria unverified case and the int/float
-      split on empty 2026 sums).
+  (e) the nineteen 2026 columns, the clean rule, and dep_share
+      recompute exactly (including the Luria unverified case, the
+      generalized linkage rule, and the int/float split on empty 2026
+      sums).
   (f) the opposition career columns recompute from
       opposition-computed.json.
   (g) dedup audit: the dropped per-cycle entries in dedup-applied.json
@@ -24,8 +25,28 @@ Checks (exit non-zero on any mismatch, printing every failure):
       the recorded amounts.
   (h) CSV and JSON agree field by field (664 rows, same person_keys,
       same values — CSV floats compare by float value, clean_2026 by
-      True/False/empty, dep_share by float value).
+      True/False/empty, dep_share by float value; the per-cycle lists
+      compare by repr; all_ie_top_committees is JSON-only and skipped).
   (i) 664 rows, unique person_keys, row order matches roster.json.
+  (j) self-funding / topline: per-cycle sums reproduce every new
+      career column (flows summed; cash on hand and debts owed by are
+      the latest cycle's values); named spot cases (Constantino
+      $17,000,000.00 exactly, Scott $89,994,251.12, …); debts owed to
+      is null everywhere; Armstrong unknown, not zero.
+  (k) other committees: per-cycle sums reproduce every class, earmark
+      and total column; the corporate/AIPAC re-derivation in
+      other_committees_diagnostics.json matches methodology to the
+      cent; Lamb 2026 pas2-derived $96,500 with the $32,650 residual
+      recorded.
+  (l) all-IE: UDP 2024 deduped S+O is exactly $38,044,932.69; roster
+      cycle totals match config all_ie_cycle_totals; the $21,231.43
+      row-sum gap is exactly the blank-direction rows; top-committee
+      lists are sorted, split correctly, and null for Armstrong.
+  (m) clean-rule generalization: Constantino verified clean=True WITH
+      2026 linkage evidence (self-funding 2026 loans $14.4M, coverage
+      10/14/2026); Luria stays null — her linked ID's 2026 weball row
+      covers only through 07/15/2025 while her real 2026 campaign
+      (H6VA02198, $8,044,063.94 receipts) is unlinked.
 
 Caveat (methodology §13): this verifies the dataset against its own
 definitions. It cannot catch a missing dimension — e.g. the
@@ -109,9 +130,152 @@ def main():
     check('per-cycle sums reproduce every career column (0 mismatches)',
           mism == 0, f'{mism} mismatches')
 
+    # (j) self-funding / topline per-cycle sums (flows summed; stocks =
+    # latest cycle's value); named spot cases; debts owed to null.
+    sf_map = [('candidate_contributions', 'cand_contrib_career'),
+              ('candidate_loans', 'cand_loans_career'),
+              ('loan_repayments', 'loan_repayments_career'),
+              ('total_receipts', 'total_receipts_career'),
+              ('total_disbursements', 'total_disbursements_career'),
+              ('transfers_from_auth', 'transfers_from_auth_career'),
+              ('transfers_to_auth', 'transfers_to_auth_career')]
+    mism = 0
+    for r in numeric:
+        entries = r['self_funding_per_cycle']
+        for src, dst in sf_map:
+            if round(sum(e[src] for e in entries), 2) != r[dst]:
+                mism += 1
+        if round(sum(e['candidate_contributions'] + e['candidate_loans']
+                     for e in entries), 2) != r['self_funding_career']:
+            mism += 1
+        for src, dst in (('cash_on_hand', 'cash_on_hand_career'),
+                         ('debts_owed_by', 'debts_owed_by_career')):
+            if entries:
+                latest = max(e['cycle'] for e in entries)
+                want = round(sum(e[src] for e in entries if e['cycle'] == latest), 2)
+            else:
+                want = None
+            if r[dst] != want:
+                mism += 1
+        if r['debts_owed_to_career'] is not None:
+            mism += 1
+    check('self-funding/topline per-cycle sums reproduce career columns (0 mismatches)',
+          mism == 0, f'{mism} mismatches')
+    named_sf = {
+        'anthonyconstantinonyhouse': ('Constantino', 'self_funding_career', 17000000.00),
+        'S001217': ('Rick Scott', 'self_funding_career', 89994251.12),
+        'R000618': ('Pete Ricketts', 'self_funding_career', 19442012.33),
+        'T000488': ('Shri Thanedar', 'self_funding_career', 17456074.00),
+        'M001232': ('April McClain Delaney', 'self_funding_career', 14873000.00),
+        'J000305': ('Sara Jacobs', 'self_funding_career', 11551385.89),
+        'C001123': ('Gilbert Ray Cisneros, Jr.', 'self_funding_career', 9807843.10),
+        'S001229': ('Jefferson Shreve', 'self_funding_career', 7943000.00),
+    }
+    mism = 0
+    for pk, (name, col, want) in named_sf.items():
+        if by_key[pk][col] != want:
+            mism += 1
+            print(f'  spot mismatch {name} {col}: {by_key[pk][col]} != {want}')
+    check('self-funding named spot cases exact', mism == 0, f'{mism} mismatches')
+    const = by_key['anthonyconstantinonyhouse']
+    check('Constantino career receipts $17,064,951.19 / disbursements $14,765,966.71',
+          const['total_receipts_career'] == 17064951.19
+          and const['total_disbursements_career'] == 14765966.71,
+          f"got {const['total_receipts_career']} / {const['total_disbursements_career']}")
+    check('Constantino 2026 cash $2,298,984.48 / receipts $14,464,951.19',
+          const['cash_on_hand_2026'] == 2298984.48
+          and const['total_receipts_2026'] == 14464951.19,
+          f"got COH {const['cash_on_hand_2026']}")
+    check('debts_owed_to_career is null for every numeric row',
+          all(r['debts_owed_to_career'] is None for r in numeric))
+    arm = by_key.get('A000383')
+    check('Armstrong new money columns are unknown, top committees null',
+          arm is not None
+          and arm['self_funding_career'] == 'unknown'
+          and arm['other_committees_total_career'] == 'unknown'
+          and arm['all_ie_total_career'] == 'unknown'
+          and arm['all_ie_top_committees'] is None)
+
+    # (k) other-committee per-cycle sums (classes, earmarks, total).
+    oc_buckets = ['party_committees', 'leadership_pacs', 'labor_pacs', 'trade_pacs',
+                  'membership_pacs', 'cooperative_pacs', 'other_unclassified']
+    mism = 0
+    for r in numeric:
+        entries = r['other_committees_per_cycle']
+        for b in oc_buckets:
+            if round(sum(e[b] for e in entries), 2) != r[f'{b}_career']:
+                mism += 1
+            if round(sum(e['earmark_transmitted'].get(b, 0.0) for e in entries), 2) != \
+                    r[f'{b}_earmark_transmitted_career']:
+                mism += 1
+        if round(sum(r[f'{b}_career'] for b in oc_buckets), 2) != r['other_committees_total_career']:
+            mism += 1
+    check('other-committee per-cycle sums reproduce career columns (0 mismatches)',
+          mism == 0, f'{mism} mismatches')
+    oc_diag = json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))
+    cc = oc_diag['cross_checks_vs_methodology']
+    check('other-committee pull re-derives corporate/AIPAC to the cent',
+          all(v['match'] for v in cc.values()),
+          f"{[k for k, v in cc.items() if not v['match']]}")
+    lamb = by_key['marklambazhouse']
+    lamb_pc26 = [e for e in lamb['other_committees_per_cycle'] if e['cycle'] == CURRENT]
+    lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
+    check('Lamb 2026 other-committee pas2-derived $96,500.00',
+          lamb_total == 96500.00 and lamb['other_committees_total_2026'] == 96500.00,
+          f'got {lamb_total}')
+    check('Lamb data_notes records the $32,650 pending reconciliation',
+          'PENDING RECONCILIATION' in lamb['data_notes'] and '$32,650.00' in lamb['data_notes'])
+
+    # (l) all-IE per-cycle sums; UDP 2024 exact; cycle totals; the
+    # $21,231.43 blank-direction reconciliation; top committees.
+    mism = 0
+    for r in numeric:
+        entries = r['all_ie_per_cycle']
+        for src, dst in (('all_ie_support', 'all_ie_support_career'),
+                         ('all_ie_oppose', 'all_ie_oppose_career'),
+                         ('all_ie_total', 'all_ie_total_career')):
+            if round(sum(e[src] for e in entries), 2) != r[dst]:
+                mism += 1
+    check('all-IE per-cycle sums reproduce career columns (0 mismatches)',
+          mism == 0, f'{mism} mismatches')
+    aie_raw = json.load(open(ROOT / CFG['paths']['all_ie_per_cycle']))
+    udp24 = aie_raw['validation']['udp_2024_exact']
+    check('all-IE UDP 2024 deduped S+O exactly $38,044,932.69',
+          udp24['computed'] == 38044932.69 and udp24['status'] == 'exact',
+          f"got {udp24['computed']} ({udp24['status']})")
+    for yr, want in CFG['verification']['all_ie_cycle_totals'].items():
+        got = aie_raw['per_cycle_summaries'][str(yr)]['roster_targeted']['total']
+        check(f'all-IE roster total {yr} == {want:,.2f}', got == want, f'got {got:,.2f}')
+    nodir = round(sum(r['all_ie_total_career'] - r['all_ie_support_career']
+                      - r['all_ie_oppose_career'] for r in numeric), 2)
+    check('all-IE row-sum gap is exactly the $21,231.43 blank-direction rows',
+          nodir == 21231.43, f'got {nodir}')
+    mism = 0
+    for r in numeric:
+        top = r['all_ie_top_committees']
+        if top is None:
+            mism += 1
+            continue
+        totals = [c['total'] for c in top]
+        if totals != sorted(totals, reverse=True) or len(top) > 5:
+            mism += 1
+        for c in top:
+            if round(c['support'] + c['oppose'], 2) != c['total']:
+                mism += 1
+    check('all-IE top-committee lists sorted, split correctly, max 5',
+          mism == 0, f'{mism} mismatches')
+    elsayed = next(r for r in numeric if 'El-Sayed' in r['full_name'])
+    check('El-Sayed all-IE support $41,085,593.24 / oppose $107,400,660.67',
+          elsayed['all_ie_support_career'] == 41085593.24
+          and elsayed['all_ie_oppose_career'] == 107400660.67,
+          f"got {elsayed['all_ie_support_career']} / {elsayed['all_ie_oppose_career']}")
+
     # (b) roster totals match methodology.md figures
+    # (None stocks — cash on hand / debts owed by for people with no
+    # weball rows at all — are skipped, exactly as the config totals
+    # were computed from the staged CSVs.)
     for col, expected in CFG['verification']['methodology_totals'].items():
-        total = round(sum(r[col] for r in numeric), 2)
+        total = round(sum(r[col] for r in numeric if r[col] is not None), 2)
         check(f'roster total {col} == {expected:,.2f}', total == expected,
               f'got {total:,.2f}')
 
@@ -122,7 +286,12 @@ def main():
                  ('rank_aipac_direct', 'aipac_pac_direct_career'),
                  ('rank_udp_support', 'udp_ie_support_career'),
                  ('rank_udp_opposing_opponents', 'udp_ie_opposing_opponents_career'),
-                 ('rank_udp_total_benefit', 'udp_ie_total_benefit_career')]
+                 ('rank_udp_total_benefit', 'udp_ie_total_benefit_career'),
+                 ('rank_self_funding', 'self_funding_career'),
+                 ('rank_all_ie_support', 'all_ie_support_career'),
+                 ('rank_all_ie_oppose', 'all_ie_oppose_career'),
+                 ('rank_all_ie_total', 'all_ie_total_career'),
+                 ('rank_other_committees_total', 'other_committees_total_career')]
     # total_accepted itself
     ta_mism = sum(1 for r in numeric
                   if round(r['individual_contribution_total_career']
@@ -170,10 +339,10 @@ def main():
     for race, pk, _name, amount, _detail in opp['credit_detail']:
         if race[0] == CURRENT and not pk.startswith('__nonroster__'):
             credit_2026[pk] = round(float(amount), 2)
+    oc_buckets_e = ['party_committees', 'leadership_pacs', 'labor_pacs', 'trade_pacs',
+                    'membership_pacs', 'cooperative_pacs', 'other_unclassified']
     mism = 0
     for r in records:
-        pc26 = [e for e in r['per_cycle'] if e['cycle'] == CURRENT]
-        udp26 = [e for e in r['udp_per_cycle'] if e['cycle'] == CURRENT]
         expect = {
             'individual_2026': cycle_sum(r['per_cycle'], 'individual'),
             'corp_2026': cycle_sum(r['per_cycle'], 'corporate_pac'),
@@ -189,8 +358,33 @@ def main():
         expect['dep_share_2026'] = (round((expect['corp_2026']
                                            + expect['aipac_direct_2026']) / denom, 4)
                                     if denom > 0 else None)
-        has_pre_2026 = any(e['cycle'] < CURRENT for e in r['per_cycle'])
-        if r['in_120th'] == 'yes' and not pc26 and not udp26 and has_pre_2026:
+        sf26 = [e for e in r['self_funding_per_cycle'] if e['cycle'] == CURRENT]
+        expect['self_funding_2026'] = (
+            round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf26), 2)
+            if sf26 else 0)
+        expect['cand_loans_2026'] = cycle_sum(r['self_funding_per_cycle'], 'candidate_loans')
+        expect['cand_contrib_2026'] = cycle_sum(r['self_funding_per_cycle'],
+                                                'candidate_contributions')
+        expect['total_receipts_2026'] = cycle_sum(r['self_funding_per_cycle'], 'total_receipts')
+        expect['total_disbursements_2026'] = cycle_sum(r['self_funding_per_cycle'],
+                                                       'total_disbursements')
+        expect['cash_on_hand_2026'] = (round(sum(e['cash_on_hand'] for e in sf26), 2)
+                                       if sf26 else None)
+        oc26 = [e for e in r['other_committees_per_cycle'] if e['cycle'] == CURRENT]
+        expect['other_committees_total_2026'] = (
+            round(sum(sum(e[b] for b in oc_buckets_e) for e in oc26), 2) if oc26 else 0)
+        expect['all_ie_support_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_support')
+        expect['all_ie_oppose_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_oppose')
+        expect['all_ie_total_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_total')
+        # Generalized linkage rule (see compute_2026.py): a tracked/UDP
+        # 2026 entry, or a self-funding 2026 entry whose coverage end
+        # date falls in calendar 2026.
+        has_linkage = (any(e['cycle'] == CURRENT for e in r['per_cycle'])
+                       or any(e['cycle'] == CURRENT for e in r['udp_per_cycle'])
+                       or any(e['cycle'] == CURRENT
+                              and str(e.get('coverage_end_date', '')).endswith('/2026')
+                              for e in r['self_funding_per_cycle']))
+        if r['in_120th'] == 'yes' and not has_linkage:
             expect['clean_2026'] = None
         else:
             expect['clean_2026'] = (expect['corp_2026'] == 0
@@ -204,6 +398,31 @@ def main():
                     print(f'  2026 mismatch {r["person_key"]} {k}: {r[k]!r} != {v!r}')
     check('2026 columns + clean rule + dep_share recompute exactly',
           mism == 0, f'{mism} mismatches')
+
+    # (m) clean-rule generalization spot cases.
+    const = by_key['anthonyconstantinonyhouse']
+    const_sf26 = [e for e in const['self_funding_per_cycle'] if e['cycle'] == CURRENT]
+    check('Constantino verified clean=True WITH 2026 linkage evidence',
+          const['clean_2026'] is True
+          and len(const_sf26) == 1
+          and const_sf26[0]['coverage_end_date'] == '10/14/2026'
+          and const_sf26[0]['candidate_loans'] == 14400000.00
+          and const['all_ie_support_2026'] == 459491.94
+          and const['all_ie_oppose_2026'] == 3721257.82,
+          f"clean={const['clean_2026']}")
+    luria = by_key['L000591']
+    luria_sf26 = [e for e in luria['self_funding_per_cycle'] if e['cycle'] == CURRENT]
+    check('Luria stays null — linked ID has no 2026-coverage weball row',
+          luria['clean_2026'] is None
+          and len(luria_sf26) == 1
+          and luria_sf26[0]['coverage_end_date'] == '07/15/2025'
+          and 'H6VA02198' not in luria['fec_candidate_ids']
+          and 'UNVERIFIED' in luria['data_notes'],
+          f"clean={luria['clean_2026']}")
+    check('Luria stale-ID 2026 money exists but does not verify her',
+          luria['other_committees_total_2026'] == 85610.00
+          and luria['all_ie_support_2026'] == 685786.28,
+          f"OC {luria['other_committees_total_2026']} / AIE {luria['all_ie_support_2026']}")
 
     # (f) opposition career columns
     mism = 0
@@ -256,8 +475,12 @@ def main():
         if crow is None:
             continue
         for k in json_keys:
+            if k == 'all_ie_top_committees':
+                continue  # JSON-only by design; not in the CSV.
             cv, jv = crow[k], r[k]
-            if k in ('per_cycle', 'udp_per_cycle', 'fec_candidate_ids'):
+            if k in ('per_cycle', 'udp_per_cycle', 'self_funding_per_cycle',
+                     'other_committees_per_cycle', 'all_ie_per_cycle',
+                     'fec_candidate_ids'):
                 if cv != repr(jv):
                     mism += 1
             elif k == 'clean_2026':
