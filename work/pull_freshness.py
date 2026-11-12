@@ -59,8 +59,8 @@ ROOT = CFG['_root']
 API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
 API_BASE = 'https://api.open.fec.gov/v1'
 SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
-WINDOW_START = CFG['coverage_end']['freshness_window_start']
-BULK_WEBALL_END = str(CFG['coverage_end']['weball'])
+WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
+BULK_WEBALL_END = str(CFG['verification']['coverage_end']['weball'])
 
 
 def api_get(path, params):
@@ -197,7 +197,8 @@ def main():
     snapshot = {
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': WINDOW_START,
-        'bulk_coverage': {k: str(v) for k, v in CFG['coverage_end'].items()},
+        'bulk_coverage': {k: str(v) for k, v in
+                          CFG['verification']['coverage_end'].items()},
         'api_key_type': ('demo' if API_KEY == CFG['fec_api']['api_key_default']
                          else 'registered'),
         'cadence_note': ('Final 20 days before an election: daily. '
