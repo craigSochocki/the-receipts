@@ -369,8 +369,8 @@ The points that matter for interpreting the numbers:
 | All-IE support (2022–2026) | **$1,490,363,373.56** | $1,491,815,311.74 | −$1,451,938.18 | Rivet counted once, not twice |
 | All-IE oppose (2022–2026) | **$2,351,872,876.19** | $2,353,373,730.49 | −$1,500,854.30 | Rivet counted once, not twice |
 | All-IE total (2022–2026) | **$3,842,257,481.18** | $3,845,210,273.66 | −$2,952,792.48 | Rivet counted once, not twice (the pull-file sum is the total column; see the $21,231.43 note in §4) |
-| UDP IE opposing opponents (new, §13) | **$28,281,982.23** | — | — | Credited opposition spending, roster persons only; non-roster backed candidates received a further $11,010,009.25 (not in any tracker row) |
-| UDP IE total benefit (new, §13) | **$70,696,985.99** | — | — | Support + opposing-opponents credit, roster persons only |
+| UDP IE opposing opponents (new, §13) | **$48,421,886.44** | — | — | Credited opposition spending, roster persons only; non-roster backed candidates received a further $10,534,689.73 (not in any tracker row) |
+| UDP IE total benefit (new, §13) | **$90,836,890.20** | — | — | Support + opposing-opponents credit, roster persons only |
 
 The pull totals are the sums of the staged 665-row money files, which double-count Rivet
 (her individual $9,346,559.99 and corporate $493,980.00 appear in both of her rows). The
@@ -703,79 +703,90 @@ AIPAC opposition column; the rule below was run for UDP only.
   (money unknown, not zero).
 
 **The exactly-one-backed-candidate rule.** A race is one FEC cycle + office + state
-+ district. For each race, UDP's backed candidate(s) are the candidates with UDP
-IE **support** rows in that race. If UDP backed exactly one candidate, all of UDP's
-IE spending **opposing other candidates** in that same race is credited to that one
++ district + election phase (`ele_type`: P primary, G general, O other). For each
+race-phase, UDP's backed candidate(s) are the candidates with UDP
+IE **support** rows in that phase. If UDP backed exactly one candidate, all of UDP's
+IE spending **opposing other candidates** in that same phase is credited to that one
 backed candidate. If it backed zero, or two or more, **nothing is credited for that
-race**. Spending opposing the backed candidate themself is never credited (one such
+phase**. Spending opposing the backed candidate themself is never credited (one such
 row exists: $84,325.84 opposing George Latimer in the NY-16 2024 primary, where UDP
 was backing him — excluded as a filing artifact, not opposition to an opponent).
 
-**Primary/general limitation — read this before quoting any credited figure.** The
-race key does not distinguish primary from general. If UDP backed different
-candidates in the primary and the general within one cycle+race, that counts as two
-backed candidates, so nothing is credited — even when the opposition spending
-plainly helped one of them. The MI-Sen 2026 case below is the live example: UDP
-backed Stevens in the primary and Rogers in the general, so the $20.9M spent
-opposing El-Sayed credits to no one. The rule is deliberately conservative: it
-credits opposition spending only where the beneficiary is unambiguous.
+**Why the phase, and why `ele_type`.** The phase comes from the filing's `ele_type`,
+already parsed on every row — expenditure dates cannot be used instead, because
+the date is blank on 100% of UDP rows in all three cycles. Each `ele_type` code is
+its own phase, O included — no special-casing, so a race whose only UDP activity is
+an "other" (O) filing still credits normally (TX-28 2022, CA-14 2026). Backing
+different candidates in different phases is therefore no longer a conflict: each
+phase is judged on its own, and the opposition spending in a phase credits to that
+phase's backed candidate. The rule stays deliberately conservative within a phase:
+it credits opposition spending only where the beneficiary is unambiguous.
 
-**What the rule did, in numbers.** 23 races had UDP oppose spending. 15 races
-credited (exactly one backed candidate); 8 did not. Roster persons were credited
-$28,281,982.23 in total; a further $11,010,009.25 was credited to backed
+**What the rule did, in numbers.** 26 race-phases had UDP oppose spending. 17
+credited (exactly one backed candidate); 9 did not. Roster persons were credited
+$48,421,886.44 in total; a further $10,534,689.73 was credited to backed
 candidates who are not in the tracker (Hollier, Weiss, Hernandez, Conyears-Ervin,
-Irwin), so it appears in no row. $27,321,112.49 of opposition spending was not
+Irwin, Rogers), so it appears in no row. $7,656,527.80 of opposition spending was not
 credited to anyone, plus the $84,325.84 self-opposition row excluded above.
 
-**Races credited (15):** NY-16 2024 → Latimer $9,865,492.96 (vs Bowman); MO-01
-2024 → Bell $5,242,260.11 (vs Bush); MD-04 2022 → Ivey $4,258,735.79 (vs
-Edwards); KY-04 2026 → Gallrein $3,576,968.08 (vs Massie); MO-01 2026 → Bell
-$2,457,791.53 (vs Bush); TX-28 2022 → Cuellar $1,428,196.80 (vs Cisneros); CA-47
-2024 → Weiss $4,615,288.76 (vs Min, non-roster); MI-13 2022 → Hollier
-$1,428,679.18 (vs Thanedar, non-roster); CA-14 2026 → Hernandez $1,642,139.53
-(vs Wahab, non-roster); CA-34 2024 → Gomez $576,452.51 (vs Kim); MI-11 2022 →
-Stevens $341,792.98 (vs Levin); NC-01 2022 → Davis $335,412.57 (vs Smith); OH-11
-2022 → Brown $198,878.90 (vs Turner); IL-07 2026 → Conyears-Ervin $59,748.29
-(vs Friedman, non-roster); PA-12 2022 → Irwin $3,264,153.49 (vs Lee,
+**Races credited (17 — each line is one race-phase):** MI-Sen 2026 (P) → Stevens
+$20,139,904.21 (vs El-Sayed); NY-16 2024 (P) → Latimer $9,865,492.96 (vs Bowman);
+MO-01 2024 (P) → Bell $5,242,260.11 (vs Bush); CA-47 2024 (P) → Weiss
+$4,615,288.76 (vs Min, non-roster); MD-04 2022 (P) → Ivey $4,258,735.79 (vs
+Edwards); KY-04 2026 (P) → Gallrein $3,576,968.08 (vs Massie); MO-01 2026 (P) →
+Bell $2,457,791.53 (vs Bush); PA-12 2022 (P) → Irwin $2,025,300.61 (vs Lee,
 non-roster — the credit exists only outside the tracker, see the Irwin note in
-Method notes below).
+Method notes below); CA-14 2026 (O) → Hernandez $1,642,139.53 (vs Wahab,
+non-roster); MI-13 2022 (P) → Hollier $1,428,679.18 (vs Thanedar, non-roster);
+TX-28 2022 (O) → Cuellar $1,428,196.80 (vs Cisneros); MI-Sen 2026 (G) → Rogers
+$763,533.36 (vs El-Sayed, non-roster); CA-34 2024 (G) → Gomez $576,452.51 (vs
+Kim); MI-11 2022 (P) → Stevens $341,792.98 (vs Levin); NC-01 2022 (P) → Davis
+$335,412.57 (vs Smith); OH-11 2022 (P) → Brown $198,878.90 (vs Turner); IL-07
+2026 (P) → Conyears-Ervin $59,748.29 (vs Friedman, non-roster).
 
-**Races NOT credited (8) — opposition spending with no beneficiary under the rule:**
-MI-Sen 2026, $20,903,437.57 vs El-Sayed — UDP backed **two** candidates (Stevens
-in the primary, Rogers in the general), so nothing credits; NJ-11 2026,
-$2,326,917.40 vs Tom Malinowski — backed nobody; IN-08 2024, $1,567,918.74 vs
-John Hostettler — backed nobody; TX-23 2024, $1,061,283.96 vs Brandon Herrera —
-backed nobody; CA-42 2022, $515,088.43 vs Cristina Garcia — backed nobody; IL-07
-2024, $494,453.18 vs Kina Collins — backed nobody; KY-04 2024, $319,783.30 vs
-Thomas Massie — backed nobody (UDP backed Gallrein against Massie only in 2026,
-not 2024); VA-05 2024, $132,229.91 vs Bob Good — backed nobody.
+**Races NOT credited (9 — each line is one race-phase) — opposition spending with no
+beneficiary under the rule:** NJ-11 2026 (O), $2,326,917.40 vs Tom Malinowski —
+backed nobody; IN-08 2024 (P), $1,567,918.74 vs John Hostettler — backed nobody;
+PA-12 2022 (G), $1,238,852.88 vs Summer Lee — backed nobody (UDP backed Irwin
+against Lee only in the primary, not the general); TX-23 2024 (O), $1,061,283.96
+vs Brandon Herrera — backed nobody; CA-42 2022 (P), $515,088.43 vs Cristina
+Garcia — backed nobody; IL-07 2024 (P), $494,453.18 vs Kina Collins — backed
+nobody; KY-04 2024 (G), $167,010.00 vs Thomas Massie — backed nobody; KY-04 2024
+(P), $152,773.30 vs Thomas Massie — backed nobody (UDP backed Gallrein against
+Massie only in 2026, not 2024); VA-05 2024 (P), $132,229.91 vs Bob Good — backed
+nobody.
 
 **Test case 1 — NY-16, 2024 (House).** UDP supported George Latimer $4,682,560.29
 and opposed Jamaal Bowman $9,865,492.96; Latimer was the only candidate UDP backed
-in the race. Credited to Latimer: **$9,865,492.96**. Combined UDP benefit for
+in the race's primary phase. Credited to Latimer: **$9,865,492.96**. Combined UDP benefit for
 Latimer: **$14,548,053.25** (support + credit). One UDP row opposing Latimer
 himself ($84,325.84, primary media placement) was excluded from the credit as
 self-opposition, not opposition to an opponent.
 
 **Test case 2 — Michigan Senate, 2026.** UDP spent **$20,903,437.57 opposing Abdul
-El-Sayed** and supported **two** candidates in the race: Haley Stevens $10,498,735.23
-(all primary) and Michael Rogers $64,392.80 (general). Because the rule keys on
-cycle+race and does not split primary from general, the backed count is two, so
-**nothing is credited — the $20.9M benefits no one in this tracker**. Rogers is
-not in the tracker (he holds no seat in the 119th or 120th Congress), and Stevens
-receives no credit from the anti-El-Sayed spending. If the rule were split by
-primary/general, the primary-season anti-El-Sayed spending would credit to Stevens
-and the general-season spending to Rogers; that split was deliberately not made.
-El-Sayed's own row stays at $0 UDP support and $0 opposing-opponents credit.
+El-Sayed** — $20,139,904.21 in the primary phase and $763,533.36 in the general
+phase — and supported **two** candidates in the race: Haley Stevens $10,498,735.23
+(primary) and Michael Rogers $64,392.80 (general). Because each phase is judged on
+its own, the primary-phase anti-El-Sayed spending credits to Stevens
+(**$20,139,904.21**) and the general-phase spending credits to Rogers
+(**$763,533.36**). Stevens' total UDP benefit is now **$34,858,462.88** (support
+$14,376,765.69 + credit $20,481,697.19), the highest of any person in the tracker;
+her 2026 dirty total is **$31,025,889.44**, also the highest in 2026 by far (next
+is Boafo at $5,745,013.28). Rogers is not in the tracker (he holds no seat in the
+119th or 120th Congress), so his $763,533.36 appears in no row. El-Sayed's own row
+stays at $0 UDP support and $0 opposing-opponents credit. Before the phase split
+(Nov 12, 2026), the two backings in one race key counted as two backed candidates,
+so nothing credited — the $20.9M benefited no one in the tracker.
 
-**Top 10 by UDP total benefit (career):** Stevens $14,718,558.67, Latimer
+**Top 10 by UDP total benefit (career):** Stevens $34,858,462.88, Latimer
 $14,548,053.25, Bell $11,741,957.05, Ivey $5,992,920.21, Boafo $5,734,013.28,
 Elfreth $4,218,074.08, Gallrein $4,156,286.70, Davis $2,438,050.39, Gomez
 $2,300,442.66, Foushee $2,128,196.18. **Top 10 by opposing-opponents credit:**
-Latimer $9,865,492.96, Bell $7,700,051.64, Ivey $4,258,735.79, Gallrein
-$3,576,968.08, Cuellar $1,428,196.80, Gomez $576,452.51, Stevens $341,792.98,
-Davis $335,412.57, Brown $198,878.90. (The next 654 people are $0 and share rank
-10 on the opposing-opponents rank.)
+Stevens $20,481,697.19, Latimer $9,865,492.96, Bell $7,700,051.64, Ivey
+$4,258,735.79, Gallrein $3,576,968.08, Cuellar $1,428,196.80, Gomez $576,452.51,
+Davis $335,412.57, Brown $198,878.90. (Only nine roster persons have nonzero
+credit; the next 654 people are $0 and share rank 10 on the opposing-opponents
+rank.)
 
 **Method notes.** Source: staged `independent_expenditure_<cycle>.csv` bulk files,
 cycles 2022/2024/2026, `spe_id = C00799031`, same dedup rule as the support pull
@@ -783,8 +794,10 @@ cycles 2022/2024/2026, `spe_id = C00799031`, same dedup rule as the support pull
 Blank-`cand_id` support rows were resolved by name index, then roster match, then
 — for support rows only — a name-based identity where no FEC ID exists anywhere
 (Steven Irwin, PA-12 2022, $660,319.30; that resolution is what makes Irwin the
-sole backed candidate in PA-12 and moves its $3,264,153.49 anti-Lee spending to
-the non-roster bucket instead of the no-credit bucket). Blank-`cand_id` oppose
+sole backed candidate in the PA-12 primary phase and moves its $2,025,300.61 of
+primary-phase anti-Lee spending to the non-roster bucket instead of the no-credit
+bucket; the general-phase anti-Lee spending, $1,238,852.88, is in the no-credit
+bucket because UDP backed nobody in the general phase). Blank-`cand_id` oppose
 rows (30, all 2022: Cisneros, Garcia) need no resolution — the oppose total is
 summed per race from the office/state/district columns, and the opposed person's
 name is in the row. Computation script: `src/transform/compute_opposition.py`; race-level
