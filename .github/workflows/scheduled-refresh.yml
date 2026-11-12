@@ -19,8 +19,8 @@
 #     The snapshot is uploaded as a workflow artifact, never merged
 #     into the dataset and never committed (it lives under
 #     data/intermediate/, which is gitignored).
-#   - If the dataset or the site changed, commit + push back to master
-#     with a bot commit. That push triggers CI, which re-verifies —
+#   - If the dataset, the site, or the gate state file changed, commit
+#     + push back to master with a bot commit. That push triggers CI, which re-verifies —
 #     intended, and idempotent (a no-change run commits nothing).
 #   - A FAILED rebuild/verify commits NOTHING and pushes NOTHING: the
 #     commit step is gated on the earlier steps succeeding (the default
@@ -185,20 +185,26 @@ jobs:
       # timestamp-only rebuild is not a content change and must not
       # trigger a commit (otherwise every weekly run would commit even
       # with no new filings). git diff -I uses the same timestamp
-      # pattern verify_site.py's determinism check strips.
+      # pattern verify_site.py's determinism check strips. The gate
+      # state file counts too: pull_freshness.py advances it only after
+      # a gated run completes, and the advancement must be committed or
+      # it evaporates with the runner and the next run re-scans the
+      # whole window. A state-only change still commits (same message).
       - name: Commit and push if changed
         if: success()
         run: |
           dataset_changed=0
           site_changed=0
+          state_changed=0
           git diff --quiet -- congress-money-tracker.csv congress-money-tracker.json || dataset_changed=1
           git diff --quiet -I'Generated [0-9-]+ [0-9:]+ UTC' -- docs/index.html || site_changed=1
-          if [ "$dataset_changed" -eq 0 ] && [ "$site_changed" -eq 0 ]; then
-            echo "No changes to dataset or site content — nothing to commit."
+          git diff --quiet -- data/source/freshness_state.json || state_changed=1
+          if [ "$dataset_changed" -eq 0 ] && [ "$site_changed" -eq 0 ] && [ "$state_changed" -eq 0 ]; then
+            echo "No changes to dataset, site content, or gate state — nothing to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add congress-money-tracker.csv congress-money-tracker.json docs/index.html
+          git add congress-money-tracker.csv congress-money-tracker.json docs/index.html data/source/freshness_state.json
           git commit -m "data: refresh from FEC bulk $(date -u +%F)"
           git push origin master
