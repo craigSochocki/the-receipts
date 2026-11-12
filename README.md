@@ -114,8 +114,12 @@ python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
     --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
 ```
 
-A full refresh is ~1,300+ API calls; DEMO_KEY (~30/hr) is spot-checks
-only and the driver refuses `--all` on it. Production needs a registered
+A full refresh is ~1,500+ keyed API calls (recounted Nov 12, 2026; see
+`methodology.md` §16 and the driver's docstring); DEMO_KEY (~30/hr) is spot-checks
+only and the driver refuses `--all` on it. A bare `--all` also runs
+committee-only F24 sweeps for the six config-listed spender committees
+(`config.yaml`, `freshness.f24_committee_sweep`), so the scheduled run
+covers the F24 leg. Production needs a registered
 api.data.gov key (1,000 req/hr) via the `FEC_API_KEY` environment variable
 (`config.yaml` `fec_api`, default `DEMO_KEY`). A registered key is set as
 the `FEC_API_KEY` repository secret (added by Craig Nov 12, 2026; the
@@ -195,8 +199,8 @@ timestamp-only rebuild commits nothing and a no-change run is a no-op.
 **No cache of the bulk data.** CI and the scheduled refresh do not cache the FEC bulk data: every run re-downloads it fresh with ./download_bulk.sh. The 2026 bulk files are updated in place by the FEC under the same cycle-named URLs as new filings arrive, so any cache keyed on something other than the files' own content (workflow file hash, runner OS, date) could silently serve stale filings — and the byte-identical rebuild gate would not catch it, because it verifies the rebuild against the committed dataset, not the filings against the FEC. A content-aware cache (keyed on per-file ETag / Last-Modified) would be safe, but ./download_bulk.sh has no such mechanism; until one exists, a fresh ~315 MB download per run is the price of correctness.
 
 **FEC API key (`FEC_API_KEY` secret) — optional.** The freshness step
-(`python3 src/ingest/pull_freshness.py --all`, ~30–45 minutes for ~1,300+
-API calls at an effective 1.0 s/call) runs **only** when the
+(`python3 src/ingest/pull_freshness.py --all`, ~30–45 minutes for ~1,500+
+keyed API calls at an effective 1.0 s/call) runs **only** when the
 `FEC_API_KEY` repository secret is set. When it runs, the snapshot
 (`data/intermediate/freshness_snapshot.json`) is uploaded as a workflow
 artifact (90-day retention) — it is never merged into dataset totals and
@@ -207,9 +211,9 @@ as the `FEC_API_KEY` repository secret Nov 12, 2026 (repo Settings →
 Secrets and variables → Actions; rotate it there if it ever leaks or
 expires). The first scheduled run will confirm it by logging whether
 freshness ran or skipped. Everything else — CI, the scheduled rebuild, the
-commit-back — works without it. Known gap: the
-scheduled freshness run does not cover the F24 leg (see `STATUS.md`, Open
-questions).
+commit-back — works without it. The scheduled run covers the F24 leg via
+the six committee sweeps (`config.yaml`, `freshness.f24_committee_sweep`);
+the first live confirmation is the Sunday Nov 15, 2026 run.
 
 **Where to watch runs:** the repo's Actions tab —
 https://github.com/craigSochocki/the-receipts/actions.
