@@ -38,6 +38,17 @@ Usage:
     # Full refresh (registered key REQUIRED — ~2,200-2,350 keyed API calls):
     FEC_API_KEY=<registered key> python3 src/ingest/pull_freshness.py --all
 
+Pre-flight gate (src/ingest/pull_gate.py, default with --all): before
+the per-person legs, one global /filings/ check per family (F6, F24,
+F3) decides who gets refreshed — legs run only for people (or sweep
+committees) with new filings since the last run, and the snapshot is
+still written when the gate skips everything (n_persons=0, gate-only).
+State lives in data/source/freshness_state.json (committed). A gate
+error NEVER reads as "nothing new": it logs loudly and falls back to
+the full run. --no-gate forces the full run, ignoring the gate.
+--person runs and --f24-committee-sweep are explicit requests and are
+not gated; the gate applies to --all only.
+
 Call count for --all (recounted Nov 12, 2026; the old "~1,300+" predates
 the sweeps and undercounted the per-person legs). Per-person legs, for
 the 664 roster persons' 754 candidate IDs: 754 candidate-totals calls
@@ -74,7 +85,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
-from src.ingest import pull_f24, pull_f6
+from src.ingest import pull_f24, pull_f6, pull_gate
 from src.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from src.common.config import load_config
 
@@ -251,7 +262,40 @@ def sweep_committee_f24(committee_id, committee_name, cycle, by_candidate):
     }
 
 
-def summarize(entries, committee_sweeps=None):
+def snapshot_gate_record(decision):
+    """Gate decision as embedded in the snapshot: the full new_filings
+    rows (whole API rows) are replaced by their file_numbers, so the
+    snapshot stays a small artifact — the gate's working record is
+    the decision itself (see pull_gate.gate_run)."""
+    if not decision:
+        return {'gated': False, 'reason': 'gate did not run',
+                'gate_error': None}
+    rec = {k: v for k, v in decision.items() if k != 'new_state'}
+    fams = {}
+    for fam, r in decision.get('families', {}).items():
+        fams[fam] = {k: v for k, v in r.items() if k != 'new_filings'}
+        fams[fam]['new_filing_file_numbers'] = [
+            f.get('file_number') for f in r.get('new_filings', [])]
+    rec['families'] = fams
+    return rec
+
+
+def gate_summary_fields(gate):
+    """Gate fields for summarize(): a stable shape whether or not a
+    gate ran. A gate that ran and failed (gate_error set, full run
+    taken) still counts as applied — it spent gate calls."""
+    if not gate or not gate.get('gated'):
+        return {'gate_applied': False, 'gate_calls_used': 0,
+                'gate_skipped_all': False, 'gate_affected_persons': 0,
+                'gate_error': (gate or {}).get('gate_error')}
+    return {'gate_applied': True, 'gate_calls_used': gate.get('calls_used', 0),
+            'gate_skipped_all': bool(gate.get('all_skipped')),
+            'gate_affected_persons': len(
+                gate.get('affected_person_keys') or []),
+            'gate_error': gate.get('gate_error')}
+
+
+def summarize(entries, committee_sweeps=None, gate=None):
     loans = round(sum(f.get('total_candidate_loans', 0) for e in entries
                       for f in e['f6']), 2)
     contrib = round(sum(f.get('total_contributions', 0) for e in entries
@@ -282,6 +326,7 @@ def summarize(entries, committee_sweeps=None):
         {'committee_id': s.get('committee_id'),
          'residual_unexplained': s.get('residual_unexplained')}
         for s in sweeps if s.get('residual_unexplained')]
+    out.update(gate_summary_fields(gate))
     return out
 
 
@@ -291,6 +336,10 @@ def main():
                     help='roster person_key to refresh (repeatable)')
     ap.add_argument('--all', action='store_true',
                     help='refresh every roster person (registered key required)')
+    ap.add_argument('--no-gate', action='store_true',
+                    help='force the full run, ignoring the pre-flight gate '
+                         '(default with --all is gated: only legs with new '
+                         'filings run — see src/ingest/pull_gate.py)')
     ap.add_argument('--f24-committee', action='append', default=[],
                     help='spender committee ID for the F24 sweeps (repeatable)')
     ap.add_argument('--f24-candidate', action='append', default=[],
@@ -341,6 +390,11 @@ def main():
                              'the dataset totals.'),
             'entries': entries,
             'committee_sweeps': sweeps,
+            'gate': {'gated': False,
+                     'reason': '--f24-committee-sweep mode: the gate '
+                               'applies to --all only',
+                     'gate_error': None},
+            'gate_error': None,
             'summary': summarize(entries, sweeps),
         }
         out = args.out or str(ROOT / CFG['paths']['freshness_snapshot'])
@@ -353,6 +407,18 @@ def main():
               f"F24 IE ${s['committee_sweeps_f24_ie']:,.2f}; "
               f"open sweep residuals: {s['committee_sweeps_open_residuals'] or 'none'}")
         return
+    gate_decision = None
+    use_gate = args.all and not args.no_gate
+    if use_gate:
+        # Pre-flight gate (src/ingest/pull_gate.py): one global
+        # /filings/ check per family, then legs only for affected
+        # people / sweep committees. A gate error returns run_full —
+        # the full run below, never a skip.
+        gate_decision = pull_gate.gate_run(dataset, by_candidate)
+        if gate_decision['run_full']:
+            print('GATE ERROR — falling back to the FULL freshness run '
+                  '(see gate_error in the snapshot); state NOT advanced.',
+                  file=sys.stderr, flush=True)
     if args.all:
         persons = dataset
     else:
@@ -369,24 +435,62 @@ def main():
         if pk not in by_key:
             sys.exit(f'ERROR: no roster person {pk!r}')
         f24_persons.append(by_key[pk])
-    entries = []
-    for person in persons:
-        cmtes = args.f24_committee if person['person_key'] in f24_targets else []
-        entries.append(refresh_person(person, cmtes))
-    # F24 sweeps for the explicit target list (which may differ from
-    # --person); totals + F6 run for those persons too.
-    for person in f24_persons:
-        if person['person_key'] in args.person:
-            continue
-        entries.append(refresh_person(person, args.f24_committee))
-    # Committee-only F24 sweeps (cycle 2026): run with --all so the
-    # scheduled refresh covers the F24 leg. No workflow flag change —
-    # the workflow already runs bare --all.
-    sweeps = []
-    if args.all:
+    if use_gate and not gate_decision['run_full']:
+        # Gated --all: run each leg ONLY for the people the gate
+        # found new activity for (leg-level, not person-level — a
+        # person with only a new F6 gets the F6 leg, not a totals
+        # call). Entries list only the legs that ran; 'gate_legs_run'
+        # records which. The six-committee sweeps run only for
+        # committees with new F24 filings.
+        entries = []
+        for pk in gate_decision['affected_person_keys']:
+            person = by_key[pk]
+            entry = {'person_key': pk, 'full_name': person['full_name'],
+                     'fec_candidate_ids': person.get('fec_candidate_ids'),
+                     'totals': [], 'f6': [], 'f24': []}
+            legs = []
+            if pk in gate_decision['totals_person_keys']:
+                legs.append('totals')
+                for cid in person.get('fec_candidate_ids') or []:
+                    entry['totals'].append(totals_refresh(cid))
+            if pk in gate_decision['f6_person_keys']:
+                legs.append('f6')
+                for cid in person.get('fec_candidate_ids') or []:
+                    for cmte in principal_committees(cid):
+                        entry['f6'].append(
+                            pull_f6.pull_committee(cmte, since=WINDOW_START))
+            entry['gate_legs_run'] = legs
+            entries.append(entry)
         sweeps = [sweep_committee_f24(c['committee_id'], c['committee_name'],
                                       F24_SWEEP_CYCLE, by_candidate)
-                  for c in F24_SWEEP_COMMITTEES]
+                  for c in gate_decision['f24_sweep_committees']]
+    else:
+        entries = []
+        for person in persons:
+            cmtes = args.f24_committee if person['person_key'] in f24_targets else []
+            entries.append(refresh_person(person, cmtes))
+        # F24 sweeps for the explicit target list (which may differ from
+        # --person); totals + F6 run for those persons too.
+        for person in f24_persons:
+            if person['person_key'] in args.person:
+                continue
+            entries.append(refresh_person(person, args.f24_committee))
+        # Committee-only F24 sweeps (cycle 2026): run with --all so the
+        # scheduled refresh covers the F24 leg. No workflow flag change —
+        # the workflow already runs bare --all.
+        sweeps = []
+        if args.all:
+            sweeps = [sweep_committee_f24(c['committee_id'], c['committee_name'],
+                                          F24_SWEEP_CYCLE, by_candidate)
+                      for c in F24_SWEEP_COMMITTEES]
+        if not use_gate:
+            gate_decision = {
+                'gated': False,
+                'reason': ('--no-gate: full run forced'
+                           if args.no_gate else
+                           'explicit --person mode: the gate applies '
+                           'to --all only'),
+                'gate_error': None}
     snapshot = {
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': WINDOW_START,
@@ -401,12 +505,27 @@ def main():
                          'the dataset totals.'),
         'entries': entries,
         'committee_sweeps': sweeps,
-        'summary': summarize(entries, sweeps),
+        'gate': snapshot_gate_record(gate_decision),
+        'gate_error': gate_decision.get('gate_error'),
+        'summary': summarize(entries, sweeps, gate=gate_decision),
     }
     out = args.out or str(ROOT / CFG['paths']['freshness_snapshot'])
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, 'w') as f:
         json.dump(snapshot, f, indent=1)
+    if use_gate and not gate_decision['run_full'] \
+            and not gate_decision['all_skipped']:
+        # Advance the gate state only after a gated run completes.
+        # A skipped run leaves state unchanged (nothing new to
+        # record); a gate-error run never reaches here (run_full).
+        new_state = gate_decision.get('new_state')
+        if new_state is not None:
+            try:
+                pull_gate.save_state(new_state)
+            except Exception as e:
+                print(f'WARNING: could not save freshness state: {e} — '
+                      f'next run re-gates from the previous state.',
+                      file=sys.stderr, flush=True)
     s = snapshot['summary']
     print(f'wrote {out}')
     print(f"freshness: {s['n_persons']} person(s); "
@@ -417,6 +536,11 @@ def main():
           f"open F24 residuals: {s['open_f24_residuals'] or 'none'}; "
           f"committee F24 sweeps: {s['committee_sweeps_n']} committee(s), "
           f"${s['committee_sweeps_f24_ie']:,.2f}")
+    if use_gate:
+        print(f"gate: {s['gate_calls_used']} calls; affected persons: "
+              f"{s['gate_affected_persons']}; skipped all: "
+              f"{s['gate_skipped_all']}; gate error: "
+              f"{s['gate_error'] or 'none'}")
 
 
 if __name__ == '__main__':
