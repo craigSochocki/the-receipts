@@ -1,6 +1,6 @@
 # Congress Money Tracker — Status Snapshot
 
-**As of: Thursday, November 12, 2026, ~12:15 PM EST**
+**As of: Thursday, November 12, 2026, ~1:15 PM EST**
 
 ## What is built
 
@@ -26,7 +26,33 @@
   GitHub Pages (publishing source `docs/` on `master`) and the site is
   public at https://craigsochocki.github.io/the-receipts/ — verified the
   live page serves the methodology content with correct figures. Never
-  hand-edit `docs/index.html` — edit the generator.
+  hand-edit `docs/index.html` — edit the generator. **Data-as-of stamp —
+  DONE Nov 12 (commit `8d7129b`):** the page carries a visible "Data as
+  of" stamp — coverage end dates from `config.yaml` (committee money
+  through Sep 30, 2026; individual / self-funding / topline through Oct
+  14, 2026; independent expenditures through Oct 31, 2026) plus the build
+  time — checked by `verify_site.py`.
+
+- **Automation (GitHub Actions) — DONE Nov 12; workflows in
+  `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
+  on push + pull request to `master`: download bulk → `src/rebuild.py` →
+  fail unless the rebuild reproduces the committed dataset byte-identically
+  (`git diff --exit-code` on the CSV/JSON) → build + verify the site. No
+  deploy step (Pages serves `docs/` automatically); `contents: read`; no
+  secrets needed. `scheduled-refresh.yml` runs weekly, Sunday 09:00 UTC,
+  plus manual `workflow_dispatch` (e.g. right after the Dec 3 post-general
+  deadline): same pipeline, then the freshness step (only when the
+  `FEC_API_KEY` repository secret was added Nov 12, 2026 (first scheduled
+  run will confirm it by logging whether freshness ran or skipped);
+  without it the step logs a skip line), then a commit + push back to
+  `master` as `github-actions[bot]` (`data: refresh from FEC bulk
+  <YYYY-MM-DD>`) only if the dataset changed or the site changed apart
+  from its generation timestamp (timestamp ignored via `git diff -I`). A
+  failed rebuild/verify commits and pushes nothing. That push triggers CI,
+  which re-verifies. No cache of the bulk data: every run re-downloads
+  fresh with `./download_bulk.sh` (~315 MB) — see `README.md`,
+  "Automation (GitHub Actions)", for the reason. See also the F24 open
+  item under Open questions.
 
 - **Roster: 664 people** — union of the 119th Congress (540 served) and the
   incoming 120th (535 named): 411 in both, 124 in the 119th only, 124 in the
@@ -131,7 +157,8 @@
   `validate/` audits, `src/rebuild.py`); `data/` (`raw/` gitignored bulk,
   `source/` committed inputs, `intermediate/` gitignored regenerable
   staging, `snapshots/` dataset states, `evidence/` one-off API dumps);
-  `research/` for notes and logs; `docs/` reserved for the static site;
+  `research/` for notes and logs; `docs/` holds the generated static site
+  (`index.html`, from `src/site/build_site.py`);
   dataset stays at the repo root. Full rebuild after the move reproduces
   the dataset **byte-identically** (same md5s as above), all 93 audits
   pass. Future direction (not built): data eventually lives outside the
@@ -180,10 +207,22 @@
    (roll calls, sponsorships, priorities); promises vs. reality
    (follow-through scoring, how funding shapes platforms); synthesis into
    the 2028 voter guide.
-6. **Public sharing:** tracker is private until Craig explicitly says go.
+6. **Public sharing:** the site is live and public by Craig's go-ahead
+   (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
+   public without his explicit go-ahead.
 
 ## Open questions
 
+- Freshness F24 gap (open, Nov 12): a bare `pull_freshness.py --all` —
+  the form the scheduled refresh runs — covers the totals + Form 6 legs
+  for all 664 people but runs NO F24 sweeps, because the driver's
+  `f24_targets` list (`src/ingest/pull_freshness.py:184`) is
+  `args.f24_candidate or args.person`, which is empty unless
+  `--person` / `--f24-candidate` is given. The F24 leg (24/48-hour
+  independent expenditures — e.g. the $20,903,437.57 UDP-vs-El-Sayed
+  finding) is therefore not covered by the scheduled freshness run. Fix
+  needs a driver design decision (per-person sweeps vs a committee-only
+  UDP sweep); out of scope for the automation docs pass.
 - Opposition credit: split by primary vs. general phase (so anti-El-Sayed
   spending would credit to Stevens in the primary and Rogers in the
   general), or keep the conservative single-backer rule?
