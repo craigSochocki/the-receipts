@@ -276,10 +276,10 @@ def main():
           [r["full_name"] for r in decoded if r["dirty_career"] is None]
           == ["Alan Armstrong"])
 
-    # ---- composition charts (hemicycles): reconcile to 435 / 100 ----
+    # ---- composition charts (House waffle, Senate state tiles): reconcile to 435 / 100 ----
     check("composition section exists on the front door",
           'id="composition"' in html and "renderComposition" in html
-          and "waffleSVG" in html and "hemicycleSVG" in html
+          and "waffleSVG" in html and "senateTilesSVG" in html
           and "compositionSeats" in html)
     check("composition sits after the clean story, before the finder",
           html.index('id="landing-story"') < html.index('id="composition"')
@@ -328,6 +328,14 @@ def main():
                        ("R", "dirty"): 44, ("I", "dirty"): 1,
                        ("I", "clean"): 1},
           f"got {dict(s_counts)}")
+    check("Senate tiles cover 50 states: 49 with two named, Alaska with one + uncalled",
+          len({r["state"] for r in sen}) == 50 and len(sen) == 99
+          and sum(1 for r in sen if r["state"] == "AK") == 1,
+          f"states {len({r['state'] for r in sen})}, named {len(sen)}")
+    check("Senate tile renderer present (state tiles + dotted patterns)",
+          "senateTilesSVG" in html and "dots-" in html
+          and "TILE_COLS = 10" in html,
+          "senateTilesSVG or dotted patterns missing from the built page")
     delegates = [r for r in incoming if r["chamber_120"] == "House"
                  and r["state"] in TERR]
     d_counts = _Counter((party_letter(r), seat_status(r))

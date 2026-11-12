@@ -161,9 +161,8 @@ assert.ok(leadersHtml.includes("Talarico"), "all-IE board has Talarico");
 const compHtml = document.getElementById("composition").innerHTML;
 assert.ok(compHtml.includes("House — 435 voting seats"), "House chart captioned 435");
 assert.ok(compHtml.includes("Senate — 100 seats"), "Senate chart captioned 100");
-assert.ok(compHtml.includes(">100<"), "Senate total in the middle");
 const countDots = (html, cls, party) =>
-  (html.match(new RegExp('(?:<g|<circle) class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
+  (html.match(new RegExp('<g class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
 // The House svg sits before its figcaption; the Senate svg sits after the
 // House figcaption and before its own, so split on the captions.
 const housePart = compHtml.split("House — 435 voting seats")[0];
@@ -183,14 +182,27 @@ assert.strictEqual(countDots(housePart, "clean", "R"), 2, "House Clean R 2");
 assert.strictEqual(countDots(housePart, "unopposed", "D"), 2, "House Unopposed 2");
 assert.strictEqual(countDots(housePart, "unverified", "D"), 1, "House Unverified 1");
 assert.strictEqual(countDots(housePart, "uncalled", ""), 5, "House Uncalled 5");
-assert.strictEqual((senPart.match(/<circle/g) || []).length, 100, "Senate chart has 100 dots");
-assert.strictEqual(countDots(senPart, "dirty", "D"), 44, "Senate Dirty D 44");
-assert.strictEqual(countDots(senPart, "clean", "D"), 9, "Senate Clean D 9");
-assert.strictEqual(countDots(senPart, "dirty", "R"), 44, "Senate Dirty R 44");
-assert.strictEqual(countDots(senPart, "clean", "R"), 0, "Senate Clean R 0");
-assert.strictEqual(countDots(senPart, "dirty", "I"), 1, "Senate Dirty I 1");
-assert.strictEqual(countDots(senPart, "clean", "I"), 1, "Senate Clean I 1");
-assert.strictEqual(countDots(senPart, "uncalled", ""), 1, "Senate Uncalled 1");
+// Senate state tiles: 50 tiles, one per state, two seat halves each.
+assert.strictEqual((senPart.match(/<g class="tile"/g) || []).length, 50, "Senate chart has 50 state tiles");
+assert.strictEqual((senPart.match(/class="half/g) || []).length, 100, "Senate chart has 100 seat halves");
+const countHalves = (html, cls, party) =>
+  (html.match(new RegExp('class="half ' + cls + '" data-party="' + party + '"', "g")) || []).length;
+assert.strictEqual(countHalves(senPart, "dirty", "D"), 44, "Senate Dirty D 44");
+assert.strictEqual(countHalves(senPart, "clean", "D"), 9, "Senate Clean D 9");
+assert.strictEqual(countHalves(senPart, "dirty", "R"), 44, "Senate Dirty R 44");
+assert.strictEqual(countHalves(senPart, "clean", "R"), 0, "Senate Clean R 0");
+assert.strictEqual(countHalves(senPart, "dirty", "I"), 1, "Senate Dirty I 1");
+assert.strictEqual(countHalves(senPart, "clean", "I"), 1, "Senate Clean I 1");
+assert.strictEqual(countHalves(senPart, "uncalled", ""), 1, "Senate Uncalled 1");
+// AK tile: half Murkowski (dirty R), half uncalled.
+const akTile = senPart.split('data-state="AK"')[1].split('data-state="')[0];
+assert.ok(akTile.includes('class="half dirty" data-party="R"'), "AK tile has Murkowski dirty R half");
+assert.ok(akTile.includes('class="half uncalled"'), "AK tile has uncalled half");
+// PA tile: both dirty, split D/R. AZ tile: same-party clean/dirty split.
+const paTile = senPart.split('data-state="PA"')[1].split('data-state="')[0];
+assert.ok(paTile.includes('class="half dirty" data-party="D"') && paTile.includes('class="half dirty" data-party="R"'), "PA tile splits dirty D / dirty R");
+const azTile = senPart.split('data-state="AZ"')[1].split('data-state="')[0];
+assert.ok(azTile.includes('class="half clean" data-party="D"') && azTile.includes('class="half dirty" data-party="D"'), "AZ tile splits clean D / dirty D");
 assert.ok(compHtml.includes("Dirty D 198"), "House legend shows Dirty D 198");
 assert.ok(compHtml.includes("Uncalled 5"), "House legend shows Uncalled 5");
 assert.ok(compHtml.includes("Dirty D 44"), "Senate legend shows Dirty D 44");

@@ -783,51 +783,79 @@ function waffleSVG(seats){
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
     + seats.length + ' seats: one dot per seat">'+dots+'</svg>';
 }
-function dotSVG(s, x, y, r){
+const TILE_W = 60, TILE_H = 46, TILE_GAP = 5, TILE_COLS = 10;
+function senateStates(){
+  // One entry per state: its named senators, padded with uncalled
+  // halves to two seats. Every state has at least one named senator;
+  // Alaska has one named (Murkowski) and one uncalled seat.
+  const byState = {};
+  PEOPLE.filter(p=>p.in_120th==='yes' && p.chamber_120==='Senate')
+    .forEach(p=>{ (byState[p.state] = byState[p.state]||[]).push(p); });
+  const partyRank = {Democrat:0, Republican:1, Independent:2};
+  return Object.keys(STATE_NAMES).filter(s=>!TERRITORIES.has(s)).sort()
+    .map(code=>{
+      const sens = (byState[code]||[]).slice().sort((a,b)=>
+        (partyRank[partyName(a)] ?? 3) - (partyRank[partyName(b)] ?? 3)
+        || a.full_name.localeCompare(b.full_name));
+      const halves = sens.map(p=>({party:partyName(p), letter:seatLetter(p),
+        status:seatStatus(p), name:p.full_name}));
+      while(halves.length < 2)
+        halves.push({party:null, letter:'', status:'uncalled', name:'Uncalled seat'});
+      return {code, halves};
+    });
+}
+function tileHalfSVG(half, x, y, w, h){
   const label = {dirty:'took dirty money in 2026',
     clean:'verified clean in 2026',
     unopposed:'ran unopposed — not judged',
     unverified:'unverified — not judged',
-    uncalled:'no named member yet'}[s.status];
-  const title = s.status==='uncalled' ? 'Uncalled seat — no named member yet'
-    : s.name+' · '+(s.party||'')+' · '+label;
-  const cls = 'dot '+s.status;
-  const c = dotColor(s.party);
-  const attrs = s.status==='dirty' ? 'fill="'+c+'"'
-    : s.status==='clean' ? 'fill="#fff" stroke="'+c+'" stroke-width="1.6"'
-    : (s.status==='unopposed' || s.status==='unverified')
-      ? 'fill="#fff" stroke="#9ca3af" stroke-width="1.6"'
-      : 'fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"';
-  return '<circle class="'+cls+'" data-party="'+esc(s.letter)+'" cx="'+x.toFixed(1)
-    +'" cy="'+y.toFixed(1)+'" r="'+r+'" '+attrs+'><title>'+esc(title)+'</title></circle>';
-}
-function hemicycleSVG(seats, total, rows, dotR, width, height){
-  const cx = width/2, cy = height - 8;
-  const rOuter = width/2 - dotR - 4, rInner = 46;
-  const step = rows > 1 ? (rOuter - rInner)/(rows-1) : 0;
-  const radii = [];
-  for(let j=0;j<rows;j++) radii.push(rInner + j*step);
-  // Dots per row, proportional to radius; largest remainder so the
-  // row counts sum to exactly the seat total.
-  const wsum = radii.reduce((a,b)=>a+b,0);
-  const counts = radii.map(r=>Math.floor(total*r/wsum));
-  let rem = total - counts.reduce((a,b)=>a+b,0);
-  const frac = radii.map((r,i)=>({i, f: total*r/wsum - counts[i]}))
-    .sort((a,b)=>b.f-a.f);
-  for(let k=0;k<rem;k++) counts[frac[k].i]++;
-  let idx = 0, circles = '';
-  for(let j=rows-1;j>=0;j--){
-    const n = counts[j], r = radii[j];
-    for(let k=0;k<n;k++){
-      const a = Math.PI * (1 - (k+0.5)/n);
-      circles += dotSVG(seats[idx++], cx + r*Math.cos(a), cy - r*Math.sin(a), dotR);
-    }
+    uncalled:'no named member yet'}[half.status];
+  const title = half.status==='uncalled' ? 'Uncalled seat — no named member yet'
+    : half.name+' · '+(half.party||'')+' · '+label;
+  let attrs;
+  if(half.status==='dirty'){
+    // Black with a dotted party-color pattern.
+    const pat = {D:'D', R:'R', I:'I'}[half.letter] || 'I';
+    attrs = 'fill="url(#dots-'+pat+')"';
+  } else if(half.status==='clean'){
+    attrs = 'fill="'+dotColor(half.party)+'"';
+  } else if(half.status==='unopposed' || half.status==='unverified'){
+    attrs = 'fill="#fff" stroke="#9ca3af" stroke-width="1.2"';
+  } else {
+    attrs = 'fill="#f9fafb" stroke="#d1d5db" stroke-width="1.2" stroke-dasharray="3 2"';
   }
-  return '<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'
-    + total + ' seats: ' + total + ' dots, one per seat">'
-    + circles
-    + '<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-size="30" font-weight="700" fill="var(--ink)">'+total+'</text>'
-    + '</svg>';
+  return '<rect class="half '+half.status+'" data-party="'+esc(half.letter)+'" x="'+x+'" y="'+y
+    +'" width="'+w+'" height="'+h+'" '+attrs+'><title>'+esc(title)+'</title></rect>';
+}
+function senateTilesSVG(){
+  const states = senateStates();
+  const rows = Math.ceil(states.length/TILE_COLS);
+  const W = TILE_COLS*TILE_W + (TILE_COLS-1)*TILE_GAP;
+  const H = rows*TILE_H + (rows-1)*TILE_GAP;
+  const defs = '<defs>' + ['D','R','I'].map(L=>{
+    const c = {D:'#1e40af', R:'#991b1b', I:'#374151'}[L];
+    return '<pattern id="dots-'+L+'" width="7" height="7" patternUnits="userSpaceOnUse">'
+      + '<rect width="7" height="7" fill="#111827"/>'
+      + '<circle cx="3.5" cy="3.5" r="1.4" fill="'+c+'"/></pattern>';
+  }).join('') + '</defs>';
+  let tiles = '';
+  states.forEach((st, i)=>{
+    const col = i%TILE_COLS, row = Math.floor(i/TILE_COLS);
+    const x = col*(TILE_W+TILE_GAP), y = row*(TILE_H+TILE_GAP);
+    const title = (STATE_NAMES[st.code]||st.code)+' — '+st.halves.map(h=>
+      h.status==='uncalled' ? 'seat uncalled'
+      : h.name+' ('+h.letter+', '+({dirty:'took dirty money in 2026',
+        clean:'verified clean in 2026', unopposed:'ran unopposed',
+        unverified:'unverified'}[h.status])+')').join('; ');
+    tiles += '<g class="tile" data-state="'+st.code+'">'
+      + tileHalfSVG(st.halves[0], x, y, TILE_W/2, TILE_H)
+      + tileHalfSVG(st.halves[1], x+TILE_W/2, y, TILE_W/2, TILE_H)
+      + '<rect x="'+x+'" y="'+y+'" width="'+TILE_W+'" height="'+TILE_H+'" fill="none" stroke="#6b7280" stroke-width="1"/>'
+      + '<text x="'+(x+TILE_W/2)+'" y="'+(y+TILE_H/2+4.5)+'" text-anchor="middle" font-size="13" font-weight="700" fill="#fff" stroke="#111827" stroke-width="2.5" paint-order="stroke" stroke-linejoin="round">'+st.code+'</text>'
+      + '<title>'+esc(title)+'</title></g>';
+  });
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Senate: '
+    + states.length + ' state tiles, ' + states.length*2 + ' seats">'+defs+tiles+'</svg>';
 }
 function legendSwatch(kind, color){
   if(kind==='solid') return 'background:'+color;
@@ -872,8 +900,8 @@ function renderComposition(){
     '<div class="comp">'
     + '<figure>'+waffleSVG(h.seats)
     + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats,'dot')+'</figure>'
-    + '<figure>'+hemicycleSVG(s.seats, s.total, 5, 5.5, 360, 205)
-    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats,'solid')+'</figure>'
+    + '<figure>'+senateTilesSVG()
+    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats,'dots')+'</figure>'
     + '</div><p class="delegates">'+esc(dNote)+'</p>';
 }
 /* ---- find-your-member finder (120th Congress only, no URL state) ----
