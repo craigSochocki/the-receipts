@@ -15,12 +15,24 @@ Pipeline (in order):
     pull_money.py          weball + pas2 money per cycle
     pull_udp.py            UDP independent-expenditure support
     apply_dedup.py         apply the recorded weball double-count dedup
+    pull_self_funding.py   self-funding + topline from weball
+                           (Curtis-corrected for cols 6-9)
+    pull_other_committees.py  other-committee contributions (pas2 + cm)
+    pull_all_ie.py         all independent expenditures 2022-2026
+                           (+ top committees per person)
     compute_opposition.py  UDP opposition credit (runs BEFORE the merge so
                            its sanity check reads the current dataset)
     merge_dataset.py       roster + money + opposition -> base dataset
-    compute_ranking.py     total_accepted + seven rank columns
+    compute_ranking.py     total_accepted + twelve rank columns
     compute_2026.py        2026 columns, clean flags, primary-target list
     verify_dataset.py      standing audits (unless --skip-verify)
+
+The freshness layer (work/pull_freshness.py) is NOT part of this
+pipeline: it runs on a different cadence (daily in the final 20 days
+before an election, weekly in-cycle, event-driven after deadlines)
+and writes work/freshness_snapshot.json — new money found since bulk
+coverage (Oct 14), labeled by source and date, NEVER merged into the
+dataset totals. See methodology.md §16.
 
 Prerequisites: the staged FEC bulk data in work/bulk/ (see README.md).
 The script fails fast with a clear message when bulk is not staged.
@@ -141,6 +153,9 @@ def main():
     run('pull_money.py')
     run('pull_udp.py')
     run('apply_dedup.py')
+    run('pull_self_funding.py')
+    run('pull_other_committees.py')
+    run('pull_all_ie.py')
     run('compute_opposition.py')
     opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
     if opp.get('support_mismatches'):
