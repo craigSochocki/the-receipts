@@ -664,8 +664,11 @@ total still 535.
 ## 12. Ranking — "how much money they've accepted"
 
 - **Total accepted (career)** = individual contributions + corporate PAC money + AIPAC PAC direct. The two earmark columns are subsets of their parent columns and are never added again. UDP independent expenditures are **not** counted as accepted — that money was never given to the campaign, it was spent about the race — but UDP support is ranked separately in its own column.
-- **Ranks** (`rank_total_accepted`, `rank_individual`, `rank_corporate_pac`, `rank_aipac_direct`, `rank_udp_support`): 1 = most money, ties share a rank (competition ranking). Ranks are computed over all 664 people; Alan Armstrong is unranked (money unknown, not zero). A negative total (Patrick Ryan, AIPAC −$10,000) ranks as filed.
+- **Ranks** (`rank_total_accepted`, `rank_individual`, `rank_corporate_pac`, `rank_aipac_direct`, `rank_udp_support`, `rank_udp_opposing_opponents`, `rank_udp_total_benefit`, `rank_self_funding`, `rank_all_ie_support`, `rank_all_ie_oppose`, `rank_all_ie_total`, `rank_other_committees_total`): 1 = most money, ties share a rank (competition ranking). Ranks are computed over all 664 people; Alan Armstrong is unranked (money unknown, not zero). A negative total (Patrick Ryan, AIPAC −$10,000) ranks as filed. The five new ranks (self-funding, all-IE support/oppose/total, other-committee total) are career only — there are no per-cycle ranks.
 - **Top 10 by total accepted (career, as of Nov 12, 2026):** Warnock $316.4M, Ossoff $295.7M, Kelly $242.1M, Brown $201.0M, Cruz $154.2M, Talarico $139.8M, McConnell $123.7M (119th only), Schumer $117.7M, Schiff $110.9M, Baldwin $104.7M.
+- **Top 10 by self-funding (career):** Rick Scott $89,994,251.12, Darrell Issa $27,875,844.99, David McCormick $22,090,582.51, Pete Ricketts $19,442,012.33, Shri Thanedar $17,456,074.00, Anthony Constantino $17,000,000.00, Maria Cantwell $15,628,249.00, April McClain Delaney $14,873,000.00, Sara Jacobs $11,551,385.89, Mark R. Warner $10,726,284.00.
+- **Top 10 by all-IE total (career, 2022–2026 only):** James Talarico $259,873,813.32, Jon Husted $197,481,557.46, Sherrod Brown $151,242,621.14, Abdul El-Sayed $148,486,253.91, Bernie Moreno $144,269,327.01, David McCormick $100,622,798.35, Tim Sheehy $81,608,222.10, Josh Turek $71,523,244.93, Mark Kelly $61,452,069.16, Ron Johnson $60,574,856.06.
+- **Top 10 by other-committee total (career):** Frank Pallone, Jr. $17,794,814, Steny H. Hoyer $15,801,231, Mitch McConnell $11,203,442, Sherrod Brown $10,981,813, Nancy Pelosi $10,105,781, James E. Clyburn $9,889,929, Richard E. Neal $9,541,014, Chuck Grassley $9,239,433, Susan M. Collins $9,095,131, Mike Thompson $9,013,645.
 
 ---
 
@@ -807,10 +810,32 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
 - `dirty_2026` — `corp_2026` + `aipac_direct_2026` + `udp_benefit_2026`. All
   money that came from corporate PACs, AIPAC's PAC, or UDP spending for the
   candidate in the 2026 cycle.
+- `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
+  `total_receipts_2026`, `total_disbursements_2026` — summed from the
+  `self_funding_per_cycle` entries with `cycle == 2026`. `cash_on_hand_2026` is
+  that cycle's COH (a stock; null when the person has no 2026 self-funding entry).
+  `other_committees_total_2026` — summed from `other_committees_per_cycle`
+  entries with `cycle == 2026`. `all_ie_support_2026`, `all_ie_oppose_2026`,
+  `all_ie_total_2026` — summed from `all_ie_per_cycle` entries with
+  `cycle == 2026`. The int-0-when-empty convention matches the existing 2026
+  columns (a person with no 2026 entry in a family reads $0 in that family's 2026
+  columns, except `cash_on_hand_2026`, which reads null). `dirty_2026` is
+  UNCHANGED by all of this — self-funding, other-committee money and all-IE
+  spending are never folded into it.
 - `clean_2026` — true when `corp_2026`, `aipac_direct_2026`,
   `udp_support_2026`, and `udp_opp_credit_2026` are ALL zero in 2026. This is
   a cycle test, not a career test: a member can be clean in 2026 while having
-  taken such money in earlier cycles.
+  taken such money in earlier cycles. **Verification rule (generalized Nov 12,
+  2026 — previously a hardcoded Luria exception):** a person in the 120th is
+  *unverified* (`clean_2026 = null`) iff they have NO 2026 linkage evidence in
+  ANY money source — no tracked `per_cycle` / `udp_per_cycle` 2026 entry, and no
+  `self_funding_per_cycle` 2026 entry whose `coverage_end_date` falls in calendar
+  2026. Other-committee and all-IE 2026 entries do NOT establish linkage on their
+  own (they are third-party reports filed under a possibly stale ID). A person
+  with linkage and all-zero dirty columns is verified clean **with evidence**;
+  a person with linkage and nonzero dirty columns is dirty. The rule is
+  implemented in `work/compute_2026.py` (`has_2026_linkage`) and re-verified in
+  `work/verify_dataset.py` (checks (e) and (m)).
 - `dep_share_2026` — `(corp_2026 + aipac_direct_2026) / (individual_2026 +
   corp_2026 + aipac_direct_2026)`, the share of the candidate's own 2026
   fundraising (individual + corporate PAC + AIPAC direct) that came from
@@ -853,4 +878,23 @@ figures understate reality:
   candidate ID, so her `clean_2026` is null (unverified), NOT true. She is
   excluded from the 67 verified-clean count above. Do not present Luria as
   confirmed clean — or as dirty — until her 2026 committee ID is linked and
-  her 2026 figures are pulled.
+  her 2026 figures are pulled. **Correction to the original premise (Nov 12,
+  2026):** the earlier note said she had "no 2026 entries in any source." That
+  was wrong. Under her linked old ID `H8VA02111` she DOES have 2026 entries:
+  self-funding 2026 receipts $590.89 (coverage through 07/15/2025 only — a
+  pre-2026 coverage date, so it does not establish 2026 linkage under the
+  generalized rule), other-committee 2026 $85,610 (leadership $19,000; labor
+  $36,000; other $30,610), and all-IE 2026 support $685,786.28. What she does
+  NOT have is a 2026-coverage weball row under the linked ID — and her real
+  2026 campaign is a different, **unlinked** candidate ID, `H6VA02198`
+  (committee `C00926303` "ELAINE LURIA FOR CONGRESS": receipts $8,044,063.94,
+  individual $6,209,590.10, coverage through 10/14/2026, 242 pas2 2026 rows,
+  132 IE 2026 rows). Linking `H6VA02198` is a roster change and was NOT done
+  unilaterally — it would change her career totals. The conclusion (Luria stays
+  null) is substantively correct; the premise was not, and this paragraph now
+  states the evidence. Constantino is the mirror case: his tracked 2026 $0s
+  are now verified WITH evidence (self-funding 2026 loans $14,400,000, coverage
+  10/14/2026; all-IE 2026 support $459,491.94 / oppose $3,721,257.82;
+  other-committee 2026 $19,500), so he counts among the 67 verified-clean —
+  the count returns to **67 House / 77 total**, correcting the 66 / 76 figures
+  recorded in MEMORY.md and the intro page (the dataset itself always said 67).
