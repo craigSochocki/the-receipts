@@ -93,6 +93,24 @@
   site (front door, Explore, finder) still renders the pre-change figures
   until the site build picks up the new columns — site work queued separately.
 
+- **Tolerance preset control + Balanced default (site) — DONE Nov 12.**
+  The site now embeds the three new columns and defaults to Balanced:
+  front-door story 203 of 535 not dirty (150 House + 53 Senate) with the
+  tolerance labeled; an Explore control (Strict / Balanced / Lenient)
+  recomputes live the header stats, table tier badges, clean tab,
+  breakdown column, and the 2028 targets tab (Strict 192 House / 13
+  Senate Class 3, Balanced 133 / 6, Lenient 103 / 3). The AIPAC/UDP flag
+  has its own badge (231 in the 120th, always on); the middle tier reads
+  "Below threshold" with its corporate PAC amount always shown. Charts
+  stay Strict per methodology §17 (House Clean D 64, Senate Clean D 13;
+  rows sum 435 / 100). Verification: `verify_site.py` passes (100 checks,
+  incl. new flag/tier/targets checks; its stale pre-fix expectations were
+  updated to methodology §14/§17 in the same change), Node smoke test
+  passes and exercises `setPreset()` across all three presets, and a
+  standalone Node harness re-verified the live switching against the
+  embedded dataset. Dataset byte-identical through the build (csv
+  6666f009e6a5a3e84ab2ac2f76fd50bf, json d9b7e77d289641773748cfa2458ac299).
+
 - **Automation (GitHub Actions) — DONE Nov 12; workflows in
   `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
   on push + pull request to `master`: download bulk → `src/rebuild.py` →
