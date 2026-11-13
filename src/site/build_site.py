@@ -174,6 +174,8 @@ TEMPLATE_HEAD = """<!DOCTYPE html>
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
 header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
 h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
+h1 a{color:inherit;text-decoration:none}
+h1 a:hover{text-decoration:underline}
 .sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
 .stamp{font-size:.9rem;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -302,7 +304,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 </head>
 <body>
 <header>
-<h1>The Receipts</h1>
+<h1 tabindex="-1"><a href="#" id="home-link">The Receipts</a></h1>
 <p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, 2026 clean/dirty flags, self-funding, and outside spending.</p>
 <div id="explore-head">
 <p class="stamp">%%STAMP%%</p>
@@ -315,7 +317,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 </div>
 </div>
 </header>
-<nav class="tabs" id="tabs-nav" role="tablist" aria-label="Views">
+<nav class="tabs" id="tabs-nav" role="tablist" aria-label="Views" tabindex="-1">
 <button role="tab" aria-selected="true" data-tab="tracker">Tracker</button>
 <button role="tab" aria-selected="false" data-tab="leaders">Leaderboards</button>
 <button role="tab" aria-selected="false" data-tab="clean">Clean money</button>
@@ -327,7 +329,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <main id="main">
 """
 TEMPLATE_BODY = """
-<section id="tab-tracker">
+<section id="tab-tracker" tabindex="-1">
 <div class="controls">
 <input type="search" id="q" placeholder="Search by name…" aria-label="Search by name">
 <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
@@ -344,32 +346,32 @@ TEMPLATE_BODY = """
 <p id="showing" style="color:var(--muted);font-size:.88rem"></p>
 </section>
 
-<section id="tab-leaders" hidden>
+<section id="tab-leaders" hidden tabindex="-1">
 <h2 class="sec">Leaderboards</h2>
 <p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, in 2026 and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
 <div id="leaders"></div>
 </section>
 
-<section id="tab-clean" hidden>
+<section id="tab-clean" hidden tabindex="-1">
 <h2 class="sec">Clean money</h2>
 <div id="clean-stats"></div>
 <div class="callout" id="clean-callout"></div>
 <div class="tablewrap"><table id="clean-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
-<section id="tab-breakdown" hidden>
+<section id="tab-breakdown" hidden tabindex="-1">
 <h2 class="sec">Party-by-chamber breakdown — 120th Congress</h2>
 <p style="color:var(--muted)" id="breakdown-intro"></p>
 <div class="tablewrap"><table id="breakdown-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
-<section id="tab-targets" hidden>
+<section id="tab-targets" hidden tabindex="-1">
 <h2 class="sec">2026 primary targets — House Democrats, by dirty money in 2026</h2>
 <p style="color:var(--muted)">192 House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
 <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
-<section id="tab-targets28" hidden>
+<section id="tab-targets28" hidden tabindex="-1">
 <h2 class="sec">2028 primary targets — the dirtiest Democrats to watch</h2>
 <p style="color:var(--muted)" id="targets28-intro"></p>
 <h3>House — every seat is up in 2028</h3>
@@ -379,7 +381,7 @@ TEMPLATE_BODY = """
 <div class="tablewrap"><table id="targets28-senate-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
-<section id="tab-method" class="method" hidden>
+<section id="tab-method" class="method" hidden tabindex="-1">
 <h2 class="sec">Methodology</h2>
 <p style="color:var(--muted)">Condensed from <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a> in the repo, which is the authoritative version. If this page and methodology.md ever disagree on a number, methodology.md wins.</p>
 %%METHOD_HTML%%
@@ -1456,6 +1458,16 @@ function setMode(mode, updateHash){
   if(updateHash!==false){
     try{ if(typeof location!=='undefined'){ location.hash = front ? '' : 'explore'; } }catch(e){}
   }
+  // One return control (U1): the masthead title is the way back to the
+  // front door, so a mode change also moves the reader there — scroll
+  // to the top and focus the new region. Only on user-initiated
+  // transitions: hashchange / back-forward pass updateHash===false and
+  // must not scroll (the browser restores the position).
+  if(updateHash!==false){
+    try{ if(typeof window!=='undefined' && typeof window.scrollTo==='function') window.scrollTo(0,0); }catch(e){}
+    const target = front ? document.querySelector('header h1') : document.getElementById('tabs-nav');
+    if(target && typeof target.focus==='function') target.focus();
+  }
 }
 
 /* ---- scrollytelling reveals ----
@@ -1541,6 +1553,10 @@ function showTab(name){
     if(name==='targets') renderTargets();
     if(name==='targets28') renderTargets2028();
   }
+  // Tab change: top of the page, focus on the panel.
+  try{ if(typeof window!=='undefined' && typeof window.scrollTo==='function') window.scrollTo(0,0); }catch(e){}
+  const panel = document.getElementById('tab-'+name);
+  if(panel && typeof panel.focus==='function') panel.focus();
 }
 function init(){
   // Gate the hidden-before-reveal state on JS actually running: no-JS
@@ -1553,6 +1569,10 @@ function init(){
   initReveals();
   state.rendered.tracker = true;
   setMode(modeFromHash(), false);
+  document.getElementById('home-link').addEventListener('click', e=>{
+    e.preventDefault();
+    setMode('front');
+  });
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
   document.getElementById('targets28-btn').addEventListener('click', ()=>showTab('targets28'));
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){

@@ -919,6 +919,25 @@ setMode("front");
 assert.strictEqual(
   document.getElementById("front-door").hidden, false,
   "back to front door");
+
+/* ---- U1: one return control — the masthead title links home ---- */
+assert.ok(document.getElementById("home-link"), "masthead title is a link");
+setMode("explore");
+document.getElementById("home-link").click();
+assert.strictEqual(
+  document.getElementById("front-door").hidden, false,
+  "home link returns to the front door");
+assert.strictEqual(
+  document.activeElement, document.querySelector("header h1"),
+  "returning to front focuses the masthead");
+setMode("explore");
+assert.strictEqual(
+  document.activeElement, document.getElementById("tabs-nav"),
+  "entering explore focuses the tab bar");
+showTab("leaders");
+assert.strictEqual(
+  document.activeElement, document.getElementById("tab-leaders"),
+  "switching tabs focuses the panel");
 assert.ok(
   document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
   "core table has an Outcome column");
@@ -1449,7 +1468,15 @@ tbodyEl.removeEventListener("click", probe);
 closeDetail();
 
 /* ---- focus() + document.activeElement (FE4's keyboard wave) ---- */
-assert.strictEqual(document.activeElement, null, "nothing focused initially");
+// NOTE: never assert.strictEqual on a harness element object against a
+// value it will not equal — a failing assertion on an El hangs while
+// Node builds the failure message (found in U1: the null check below
+// failed once mode/tab changes started focusing panels, and the test
+// OOM'd instead of reporting). Compare tagName/id strings instead.
+// U1 focuses panels during mode/tab changes, so something is usually
+// focused by the time this block runs — blur first, then check.
+if (document.activeElement) document.activeElement.blur();
+assert.strictEqual(document.activeElement, null, "nothing focused after blur");
 const qBox = document.getElementById("q");
 qBox.focus();
 assert.strictEqual(document.activeElement, qBox, "focus() sets document.activeElement");
