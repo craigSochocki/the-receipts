@@ -241,6 +241,7 @@ footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);
 .detail h2{margin:0 0 2px}
 .detail .meta{color:var(--muted);margin:0 0 14px}
 .detail h3{margin:18px 0 6px;font-size:1.05rem}
+.detail .cycle summary{font-weight:600;font-size:1.05rem;margin:18px 0 6px;cursor:pointer}
 .detail table{min-width:0}
 .detail th{cursor:default}
 .detail .close{float:right}
@@ -285,7 +286,7 @@ html.js .chapter.in .tile{opacity:1}
 @media (prefers-reduced-motion: reduce){
 html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
 }
-@media(max-width:560px){.hook{font-size:1.9rem}.big-number{font-size:1.8rem}}
+@media(max-width:560px){.hook{font-size:1.9rem}.big-number{font-size:1.8rem}.detail .kv{grid-template-columns:1fr}}
 .comp{display:flex;flex-direction:column;gap:18px}
 .comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}
@@ -1241,9 +1242,9 @@ TEMPLATE_JS2 = """
 <script>
 "use strict";
 /* ---- detail overlay ---- */
-function cycleTable(title, rows, cols){
+function cycleTable(title, rows, cols, open){
   if(!rows || !rows.length) return '';
-  let h = '<h3>'+esc(title)+'</h3><div class="tablewrap"><table><thead><tr>'
+  let h = '<details'+(open?' open':'')+' class="cycle"><summary>'+esc(title)+'</summary><div class="tablewrap"><table><thead><tr>'
     + cols.map(c=>'<th class="'+(c.type==='money'?'num':'')+'">'+esc(c.label)+'</th>').join('') + '</tr></thead><tbody>';
   rows.forEach(r=>{
     h += '<tr>'+cols.map(c=>{
@@ -1255,7 +1256,7 @@ function cycleTable(title, rows, cols){
       return '<td class="'+(c.type==='money'?'num':'')+'">'+cell+'</td>';
     }).join('')+'</tr>';
   });
-  return h + '</tbody></table></div>';
+  return h + '</tbody></table></div></details>';
 }
 function kvRow(label, value){ return '<div><span>'+esc(label)+'</span><span>'+value+'</span></div>'; }
 function openDetail(key){
@@ -1267,6 +1268,15 @@ function openDetail(key){
   document.getElementById('detail-sheet').innerHTML = '<h2>'+esc(p.full_name)+'</h2><p>Loading the full breakdown\u2026</p>';
   document.getElementById('detail').classList.add('open');
   decodeNested(p);
+  // D9: cycle tables collapse into <details>, the first one open —
+  // the drill-down is otherwise a wall of tables on a phone. The
+  // U10 anchor nav opens the target <details> before jumping to it.
+  let firstCycle = true;
+  function cycle(title, rows, cols){
+    const h = cycleTable(title, rows, cols, firstCycle);
+    if(h) firstCycle = false;
+    return h;
+  }
   const leader = [p.leadership_119, (p.leadership_120 && p.leadership_120!=='TBD') ? p.leadership_120 : null].filter(Boolean).join('; ');
   let h = '<button class="btn ghost close" id="detail-close" type="button">Close ✕</button>';
   h += '<h2>'+esc(p.full_name)+'</h2>';
@@ -1296,7 +1306,7 @@ function openDetail(key){
     + '</div>';
   const oppRows = OPP[p.person_key];
   if(oppRows && oppRows.length){
-    h += cycleTable('UDP opposition credit by race — phase by phase', oppRows.map(e=>({
+    h += cycle('UDP opposition credit by race — phase by phase', oppRows.map(e=>({
       race: e.cycle+' · '+(e.office==='S'?'Senate':'House')+' · '+e.state+(e.office==='H'?'-'+e.district:''),
       phase: PHASE_LABEL[e.phase]||e.phase,
       amount: e.amount,
@@ -1324,32 +1334,32 @@ function openDetail(key){
     + kvRow('Other committees 2026', fmtMoney(p.other_committees_total_2026))
     + kvRow('All IE 2026 (support / oppose)', fmtMoney(p.all_ie_support_2026)+' / '+fmtMoney(p.all_ie_oppose_2026))
     + '</div>';
-  h += cycleTable('Cycle by cycle — individual / AIPAC / corporate PAC', p.per_cycle, [
+  h += cycle('Cycle by cycle — individual / AIPAC / corporate PAC', p.per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'individual',label:'Individual',type:'money'},{k:'aipac_pac_direct',label:'AIPAC direct',type:'money'},
     {k:'aipac_earmark_transmitted',label:'AIPAC earmark',type:'money'},
     {k:'corporate_pac',label:'Corp PAC',type:'money'},{k:'corporate_earmark_transmitted',label:'Corp earmark',type:'money'}]);
-  h += cycleTable('Cycle by cycle — self-funding & topline', p.self_funding_per_cycle, [
+  h += cycle('Cycle by cycle — self-funding & topline', p.self_funding_per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'candidate_contributions',label:'Cand. contrib.',type:'money'},{k:'candidate_loans',label:'Cand. loans',type:'money'},
     {k:'loan_repayments',label:'Loan repay.',type:'money'},{k:'debts_owed_by',label:'Debts owed',type:'money'},
     {k:'total_receipts',label:'Receipts',type:'money'},{k:'total_disbursements',label:'Disbursements',type:'money'},
     {k:'cash_on_hand',label:'Cash on hand',type:'money'},{k:'coverage_end_date',label:'Coverage ends',type:'text'}]);
-  h += cycleTable('Cycle by cycle — other committees', p.other_committees_per_cycle, [
+  h += cycle('Cycle by cycle — other committees', p.other_committees_per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'party_committees',label:'Party',type:'money'},{k:'leadership_pacs',label:'Leadership',type:'money'},
     {k:'labor_pacs',label:'Labor',type:'money'},{k:'trade_pacs',label:'Trade',type:'money'},
     {k:'membership_pacs',label:'Membership',type:'money'},{k:'cooperative_pacs',label:'Cooperative',type:'money'},
     {k:'other_unclassified',label:'Other',type:'money'},{k:'winred_included',label:'WinRed incl.',type:'money'}]);
-  h += cycleTable('Cycle by cycle — all independent expenditures (2022–2026)', p.all_ie_per_cycle, [
+  h += cycle('Cycle by cycle — all independent expenditures (2022–2026)', p.all_ie_per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'all_ie_support',label:'Support',type:'money'},{k:'all_ie_oppose',label:'Oppose',type:'money'},
     {k:'all_ie_total',label:'Total',type:'money'}]);
-  h += cycleTable('Cycle by cycle — UDP support', p.udp_per_cycle, [
+  h += cycle('Cycle by cycle — UDP support', p.udp_per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'udp_ie_support',label:'UDP support',type:'money'},{k:'attribution',label:'Attribution',type:'text'}]);
   if(p.all_ie_top_committees && p.all_ie_top_committees.length){
-    h += cycleTable('Top outside spenders on this race (career, 2022–2026)', p.all_ie_top_committees, [
+    h += cycle('Top outside spenders on this race (career, 2022–2026)', p.all_ie_top_committees, [
       {k:'committee_name',label:'Committee',type:'text'},{k:'support',label:'Support',type:'money'},
       {k:'oppose',label:'Oppose',type:'money'},{k:'total',label:'Total',type:'money'}]);
   }

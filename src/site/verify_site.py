@@ -654,6 +654,15 @@ def main():
           and "matchMedia('(max-width: 560px)')" in html
           and "addEventListener('resize'" in html)
 
+    # ---- Wave 2 (redesign): D9 drill-down collapses on mobile ----
+    # The key-value grid is one column on phones, and every cycle
+    # table in the drill-down is a <details> element (first one
+    # open) instead of a wall of expanded tables.
+    check("D9: cycle tables are <details> (first open); kv is 1 column on mobile",
+          "function cycleTable(title, rows, cols, open)" in html
+          and "'<details'+(open?' open':'')+' class=\"cycle\">" in html
+          and '.detail .kv{grid-template-columns:1fr}' in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

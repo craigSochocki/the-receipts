@@ -1138,6 +1138,10 @@ const detailHtml = document.getElementById("detail-sheet").innerHTML;
 assert.ok(detailHtml.includes("$17,000,000.00"), "Constantino detail shows $17M self-funding");
 assert.ok(detailHtml.includes("Self-funding"), "detail has self-funding section");
 assert.ok(detailHtml.includes("Cycle by cycle"), "detail has cycle tables");
+const detailCycles = document.querySelectorAll("#detail-sheet details.cycle");
+assert.ok(detailCycles.length >= 2, "D9: cycle tables collapse into details elements, got " + detailCycles.length);
+assert.ok(detailCycles[0].hasAttribute("open"), "D9: first cycle table is open");
+assert.ok(!detailCycles[1].hasAttribute("open"), "D9: later cycle tables start closed");
 closeDetail();
 
 const stevensKey = PEOPLE.find((p) => p.full_name.includes("Stevens")).person_key;
