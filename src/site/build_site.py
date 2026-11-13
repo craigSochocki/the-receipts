@@ -337,7 +337,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 TEMPLATE_BODY = """
 <section id="tab-tracker" tabindex="-1">
 <div class="controls">
-<input type="search" id="q" placeholder="Search by name…" aria-label="Search by name">
+<input type="search" id="q" placeholder="Search name, state, district, party…" aria-label="Search by name, state, district, party, or chamber">
 <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
 <select id="f-chamber" aria-label="Chamber"><option value="all">House + Senate</option><option value="House">House</option><option value="Senate">Senate</option></select>
 <select id="f-party" aria-label="Party"><option value="all">All parties</option><option value="Democrat">Democrat</option><option value="Republican">Republican</option><option value="Independent">Independent</option><option value="PPD">PPD</option></select>
@@ -648,10 +648,24 @@ function cmpVal(a, b, dir){
   if(bn===null) return -1;
   return dir==='asc' ? an-bn : bn-an;
 }
+/* ---- search relevance (U8) ----
+   Name first (starts-with, then contains), then state / district,
+   then party / chamber. -1 means no match. */
+function matchScore(p, q){
+  if(!q) return -1;
+  const name = p.full_name.toLowerCase();
+  if(name.startsWith(q)) return 0;
+  if(name.includes(q)) return 1;
+  if(p.state.toLowerCase()===q || (STATE_NAMES[p.state]||'').toLowerCase().includes(q)) return 2;
+  if(place(p).toLowerCase().includes(q)) return 2;
+  if(party(p).toLowerCase().includes(q)) return 3;
+  if(chamber(p).toLowerCase().includes(q)) return 3;
+  return -1;
+}
 function applyFilters(){
   const q = state.q.trim().toLowerCase();
   return PEOPLE.filter(p=>{
-    if(q && !p.full_name.toLowerCase().includes(q)) return false;
+    if(q && matchScore(p,q)<0) return false;
     if(state.congress==='119' && p.in_119th!=='yes') return false;
     if(state.congress==='120' && p.in_120th!=='yes') return false;
     if(state.congress==='both' && !(p.in_119th==='yes'&&p.in_120th==='yes')) return false;
@@ -665,7 +679,14 @@ function applyFilters(){
 }
 function sortRows(rows){
   const k = state.sortKey, dir = state.sortDir;
+  const q = state.q.trim().toLowerCase();
   return rows.slice().sort((a,b)=>{
+    // Relevance ranking only while a query is active: best match
+    // first, then the current sort order within a relevance band.
+    if(q){
+      const sa = matchScore(a,q), sb = matchScore(b,q);
+      if(sa!==sb) return sa-sb;
+    }
     const av = getVal(a,k), bv = getVal(b,k);
     if(typeof av==='string' || typeof bv==='string'){
       const as = String(av==null?'':av), bs = String(bv==null?'':bv);
@@ -730,7 +751,9 @@ function renderTable(){
     ['All IE total', fmtCompact(sum('all_ie_total_career'))]
   ];
   document.getElementById('totals').innerHTML = t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join('');
-  document.getElementById('showing').textContent = 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
+  document.getElementById('showing').textContent = rows.length===0
+    ? 'No matches for \u201c'+state.q.trim()+'\u201d \u2014 try a name, state, district, party, or chamber.'
+    : 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
   renderChips();
   document.getElementById('foot-totals').textContent =
     'Filtered set totals — individual '+fmtMoney(sum('individual_contribution_total_career'))

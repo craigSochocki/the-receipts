@@ -1617,6 +1617,54 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   assert.ok(
     document.getElementById("showing").textContent.includes("Showing 664 of 664"),
     "showing line counts 664 of 664 after clearing the search");
+
+  /* ---- U8: search matches state, district, party, chamber ---- */
+  searchBox.value = "michigan";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 21,
+    "search 'michigan' finds the 21-person Michigan delegation");
+  searchBox.value = "11";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 17,
+    "search '11' finds the 17 district-11 members");
+  searchBox.value = "senate";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 118,
+    "search 'senate' finds the 118 senators");
+  // Relevance: a name match outranks a state match — "mi" is 113 rows
+  // (name matches plus Michigan, Minnesota, Mississippi, Missouri,
+  // Wyoming by state name) and the first is Mike Johnson (name starts
+  // with "mi"), not a Michigan member.
+  searchBox.value = "mi";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 113,
+    "search 'mi' finds 113 rows");
+  assert.ok(
+    document.querySelector("#main-table tbody tr td").textContent.includes("Mike Johnson"),
+    "relevance ranks the Mike Johnson name match first for 'mi'");
+  searchBox.value = "zzzznope";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 0,
+    "search with no match shows zero rows");
+  assert.ok(
+    document.getElementById("showing").textContent.includes("No matches for"),
+    "empty search shows an inline empty state");
+  searchBox.value = "";
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 664,
+    "clearing the search after U8 restores 664 rows");
   console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work; handlers, bubbling/focus, and viewport covered.");
 })().catch((e) => {
   console.error(e);
