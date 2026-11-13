@@ -7,8 +7,8 @@ Checks:
  2. The embedded compact payload decodes back to the dataset exactly —
     every field of every row, including nested per-cycle lists.
  3. Headline figures recomputed from the embedded data match the dataset:
-    664 rows; clean True 81 / None 4 (Luria unverified + 3 unopposed);
-    incoming House clean 64 (61 D, 3 R); incoming Senate clean 10;
+    664 rows; clean True 98 / None 4 (Luria unverified + 3 unopposed);
+    incoming House clean 70 (67 D, 3 R); incoming Senate clean 14;
     Constantino verified clean; Luria null; King-Hinds verified clean
     and contested; 9 ran unopposed; Armstrong "unknown" money cells;
     top-10 total-accepted names; 192 primary targets; 53 career-clean
@@ -22,6 +22,14 @@ Checks:
     primary targets: House 192 (same rule as 2026), Senate 13 Class 3
     Democrats led by Hassan; the tab's intro is computed at render,
     never typed; the front-door pointer opens it via showTab.
+    Tolerance presets (methodology §14): AIPAC/UDP flag 231 in the
+    120th (291 roster-wide); Balanced tiers clean 84 / below_threshold
+    119 / dirty 328 (not-dirty 203), Lenient 84 / 173 / 274 (not-dirty
+    257); 2028 targets under presets Strict 192/13, Balanced 133/6,
+    Lenient 103/3; the front-door story defaults to Balanced not-dirty
+    with the tolerance labeled; the Explore tolerance control
+    (Strict / Balanced / Lenient) recomputes the counts, badges, and
+    the 2028 tab live.
     Scrollytelling: 7 front-door chapters in narrative order
     (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
     IntersectionObserver reveals gated on html.js (no-JS shows
@@ -172,7 +180,7 @@ def main():
 
     clean_true = [r for r in decoded if r["clean_2026"] is True]
     clean_none = [r for r in decoded if r["clean_2026"] is None]
-    check("clean True = 81", len(clean_true) == 81, f"got {len(clean_true)}")
+    check("clean True = 98", len(clean_true) == 98, f"got {len(clean_true)}")
     unopp_none = [r for r in clean_none if r["unopposed_2026"] is True]
     unver_none = [r for r in clean_none if r["unopposed_2026"] is not True]
     check("clean None = 4 (Luria unverified + 3 unopposed)",
@@ -195,14 +203,14 @@ def main():
                if r["chamber_120"] == "House" and r["clean_2026"] is True]
     s_clean = [r for r in incoming
                if r["chamber_120"] == "Senate" and r["clean_2026"] is True]
-    check("incoming House clean = 64 (61 D, 3 R)", len(h_clean) == 64
-          and sum(1 for r in h_clean if r["party_120"] == "Democrat") == 61
+    check("incoming House clean = 70 (67 D, 3 R)", len(h_clean) == 70
+          and sum(1 for r in h_clean if r["party_120"] == "Democrat") == 67
           and sum(1 for r in h_clean if r["party_120"] == "Republican") == 3,
           f"got {len(h_clean)}")
-    check("incoming Senate clean = 10", len(s_clean) == 10, f"got {len(s_clean)}")
+    check("incoming Senate clean = 14", len(s_clean) == 14, f"got {len(s_clean)}")
     check("methodology clean paragraph is computed, not stale",
-          "74 verified clean in the incoming 120th" in html
-          and "64 House (61 D, 3 R)" in html
+          "84 verified clean in the incoming 120th" in html
+          and "70 House (67 D, 3 R)" in html
           and "77 verified clean" not in html
           and "67 House (63 D, 4 R)" not in html)
 
@@ -346,8 +354,8 @@ def main():
     check("composition sits after the clean story, before the finder",
           html.index('id="landing-story"') < html.index('id="composition"')
           < html.index('id="finder"'))
-    COMP_LITERALS = ["Dirty D 198", "Clean D 58", "Dirty R 169",
-                     "Clean R 2", "Dirty D 44", "Clean D 9", "Dirty R 44",
+    COMP_LITERALS = ["Dirty D 192", "Clean D 64", "Dirty R 169",
+                     "Clean R 2", "Dirty D 40", "Clean D 13", "Dirty R 44",
                      "Clean I 1", "Dirty I 1", "Unopposed 2",
                      "Unverified 1", "Uncalled 5"]
     check("House waffle is 15 rows x 29 columns, column-major fill",
@@ -378,15 +386,15 @@ def main():
     check("House composition reconciles: 430 named voting + 5 uncalled = 435",
           len(house_voting) == 430 and 435 - len(house_voting) == 5,
           f"named {len(house_voting)}")
-    check("House chart counts: Dirty D 198, Clean D 58, Dirty R 169, Clean R 2, Unopposed 2, Unverified 1",
-          h_counts == {("D", "dirty"): 198, ("D", "clean"): 58,
+    check("House chart counts: Dirty D 192, Clean D 64, Dirty R 169, Clean R 2, Unopposed 2, Unverified 1",
+          h_counts == {("D", "dirty"): 192, ("D", "clean"): 64,
                        ("D", "unopposed"): 2, ("D", "unverified"): 1,
                        ("R", "dirty"): 169, ("R", "clean"): 2},
           f"got {dict(h_counts)}")
     check("Senate composition reconciles: 99 named + 1 uncalled = 100",
           len(sen) == 99 and 100 - len(sen) == 1, f"named {len(sen)}")
-    check("Senate chart counts: Dirty D 44, Clean D 9, Dirty R 44, Dirty I 1, Clean I 1",
-          s_counts == {("D", "dirty"): 44, ("D", "clean"): 9,
+    check("Senate chart counts: Dirty D 40, Clean D 13, Dirty R 44, Dirty I 1, Clean I 1",
+          s_counts == {("D", "dirty"): 40, ("D", "clean"): 13,
                        ("R", "dirty"): 44, ("I", "dirty"): 1,
                        ("I", "clean"): 1},
           f"got {dict(s_counts)}")
@@ -521,6 +529,63 @@ def main():
                           and num(r["udp_ie_opposing_opponents_career"]) == 0]
     check("career-clean incoming House = 53",
           len(career_clean_house) == 53, f"got {len(career_clean_house)}")
+
+    # ---- tolerance presets (methodology §14): flag + tiers ----
+    check("embedded payload carries the tolerance columns",
+          all(k in cols["scalars"] for k in
+              ("aipac_udp_flag_2026", "tier_balanced_2026",
+               "tier_lenient_2026")))
+    flag120 = [r for r in incoming if r["aipac_udp_flag_2026"] is True]
+    flag_all = [r for r in decoded if r["aipac_udp_flag_2026"] is True]
+    check("AIPAC/UDP flag: 231 in the 120th, 291 roster-wide",
+          len(flag120) == 231 and len(flag_all) == 291,
+          f"got {len(flag120)} / {len(flag_all)}")
+    check("tier nulls align with clean nulls exactly",
+          all((r["tier_balanced_2026"] is None) == (r["clean_2026"] is None)
+              for r in decoded)
+          and all((r["tier_lenient_2026"] is None) == (r["clean_2026"] is None)
+                  for r in decoded))
+    bal = _Counter(r["tier_balanced_2026"] for r in incoming)
+    leni = _Counter(r["tier_lenient_2026"] for r in incoming)
+    check("Balanced tiers in the 120th: clean 84 / below 119 / dirty 328",
+          bal == {"clean": 84, "below_threshold": 119, "dirty": 328, None: 4},
+          f"got {dict(bal)}")
+    check("Lenient tiers in the 120th: clean 84 / below 173 / dirty 274",
+          leni == {"clean": 84, "below_threshold": 173, "dirty": 274, None: 4},
+          f"got {dict(leni)}")
+
+    def not_dirty(rows, tier_key):
+        return [r for r in rows if r[tier_key] in ("clean", "below_threshold")]
+
+    check("not-dirty in the 120th: Balanced 203, Lenient 257",
+          len(not_dirty(incoming, "tier_balanced_2026")) == 203
+          and len(not_dirty(incoming, "tier_lenient_2026")) == 257)
+
+    def targets28_preset(rows, rule):
+        h = [r for r in rows if r["chamber_120"] == "House"
+             and r["party_120"] == "Democrat" and rule(r)]
+        s = [r for r in rows if r["chamber_120"] == "Senate"
+             and r["party_120"] == "Democrat" and r["senate_class"] == 3
+             and rule(r)]
+        return len(h), len(s)
+
+    check("2028 targets under presets: Strict 192/13, Balanced 133/6, Lenient 103/3",
+          targets28_preset(incoming, lambda r: num(r["dirty_2026"]) > 0) == (192, 13)
+          and targets28_preset(
+              incoming, lambda r: r["tier_balanced_2026"] == "dirty") == (133, 6)
+          and targets28_preset(
+              incoming, lambda r: r["tier_lenient_2026"] == "dirty") == (103, 3))
+    check("tolerance control exists (Strict / Balanced / Lenient, Balanced default)",
+          'id="f-tolerance"' in html and 'id="tolerance-note"' in html
+          and 'value="strict"' in html and 'value="balanced" selected' in html
+          and 'value="lenient"' in html
+          and "over $100,000 and over 5% of 2026 receipts" in html
+          and "over $250,000 and over 10% of 2026 receipts" in html
+          and "setPreset" in html)
+    check("flag badge + below-threshold badge exist (not the Dirty badge)",
+          'badge flag' in html and 'AIPAC/UDP' in html
+          and 'badge below' in html and 'Below threshold' in html
+          and "Corporate PAC tolerance presets" in html)
 
     # ---- JS syntax ----
     app_scripts = re.findall(
