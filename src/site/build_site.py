@@ -739,36 +739,44 @@ function renderTable(){
     const cls = c.type==='name' ? ' class="name"' : ((c.type==='money'||c.type==='pct'||c.type==='rank') ? ' class="num"' : '');
     return '<td'+cls+'>'+cellHtml(p,c)+'</td>';
   }).join('')+'</tr>').join('');
-  tbody.querySelectorAll('tr').forEach(tr=>{
-    tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key')));
-  });
-  // totals strip + footer for the filtered set
-  const sum = k => rows.reduce((s,p)=>s+(num(p[k])||0),0);
-  const t = [
-    ['People', rows.length],
-    ['Individual', fmtCompact(sum('individual_contribution_total_career'))],
-    ['Corp PAC', fmtCompact(sum('corporate_pac_career'))],
-    ['AIPAC direct', fmtCompact(sum('aipac_pac_direct_career'))],
-    ['Total accepted', fmtCompact(sum('total_accepted_career'))],
-    ['UDP benefit', fmtCompact(sum('udp_ie_total_benefit_career'))],
-    ['Self-funding', fmtCompact(sum('self_funding_career'))],
-    ['All IE total', fmtCompact(sum('all_ie_total_career'))]
-  ];
-  document.getElementById('totals').innerHTML = t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join('');
+  // totals strip + footer for the filtered set (FE2: memoised — the
+  // sums depend only on which rows the filters select, not on their
+  // sort order, so the filter state is the cache key)
+  const totalsKey = [state.q, state.congress, state.chamber, state.party, state.state, state.leadership, state.clean].join('|');
+  let totals = totalsCache[totalsKey];
+  if(!totals){
+    const sum = k => rows.reduce((s,p)=>s+(num(p[k])||0),0);
+    const t = [
+      ['People', rows.length],
+      ['Individual', fmtCompact(sum('individual_contribution_total_career'))],
+      ['Corp PAC', fmtCompact(sum('corporate_pac_career'))],
+      ['AIPAC direct', fmtCompact(sum('aipac_pac_direct_career'))],
+      ['Total accepted', fmtCompact(sum('total_accepted_career'))],
+      ['UDP benefit', fmtCompact(sum('udp_ie_total_benefit_career'))],
+      ['Self-funding', fmtCompact(sum('self_funding_career'))],
+      ['All IE total', fmtCompact(sum('all_ie_total_career'))]
+    ];
+    totals = {
+      strip: t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join(''),
+      foot: 'Filtered set totals \u2014 individual '+fmtMoney(sum('individual_contribution_total_career'))
+        +' \u00b7 corporate PAC '+fmtMoney(sum('corporate_pac_career'))
+        +' \u00b7 AIPAC direct '+fmtMoney(sum('aipac_pac_direct_career'))
+        +' \u00b7 total accepted '+fmtMoney(sum('total_accepted_career'))
+        +' \u00b7 UDP benefit '+fmtMoney(sum('udp_ie_total_benefit_career'))
+        +' \u00b7 self-funding '+fmtMoney(sum('self_funding_career'))
+        +' \u00b7 all IE total '+fmtMoney(sum('all_ie_total_career'))+'.'
+    };
+    totalsCache[totalsKey] = totals;
+  }
+  document.getElementById('totals').innerHTML = totals.strip;
   document.getElementById('csv-btn').textContent = 'Download CSV \u2014 '+rows.length+' rows';
   document.getElementById('showing').textContent = rows.length===0
     ? 'No matches for \u201c'+state.q.trim()+'\u201d \u2014 try a name, state, district, party, or chamber.'
     : 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
   renderChips();
-  document.getElementById('foot-totals').textContent =
-    'Filtered set totals — individual '+fmtMoney(sum('individual_contribution_total_career'))
-    +' · corporate PAC '+fmtMoney(sum('corporate_pac_career'))
-    +' · AIPAC direct '+fmtMoney(sum('aipac_pac_direct_career'))
-    +' · total accepted '+fmtMoney(sum('total_accepted_career'))
-    +' · UDP benefit '+fmtMoney(sum('udp_ie_total_benefit_career'))
-    +' · self-funding '+fmtMoney(sum('self_funding_career'))
-    +' · all IE total '+fmtMoney(sum('all_ie_total_career'))+'.';
+  document.getElementById('foot-totals').textContent = totals.foot;
 }
+const totalsCache = {};
 function renderChips(){
   const chips = [];
   const q = state.q.trim();
@@ -1531,7 +1539,10 @@ function downloadCsv(){
 }
 
 /* ---- header stats ---- */
+// Pure function of (preset, PEOPLE) — cached per preset (FE2).
+const statsCache = {};
 function renderStats(){
+  if(statsCache[state.preset]){ document.getElementById('stats').innerHTML = statsCache[state.preset]; return; }
   const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
   const nd = incoming.filter(isNotDirty);
   const hND = nd.filter(p=>p.chamber_120==='House').length;
@@ -1540,7 +1551,7 @@ function renderStats(){
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
   const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
   const word = state.preset==='strict' ? 'verified clean' : 'not dirty';
-  document.getElementById('stats').innerHTML =
+  const h =
     '<div class="stat"><b>'+PEOPLE.length+'</b>people tracked</div>'
     + '<div class="stat"><b>'+nd.length+' '+word+'</b>in 2026 — '+hND+' House + '+sND+' Senate ('+PRESETS[state.preset].label+' tolerance)</div>'
     + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
@@ -1548,6 +1559,8 @@ function renderStats(){
     + '<div class="stat"><b>'+fmtCompact(sum('individual_contribution_total_career'))+'</b>individual contributions, career</div>'
     + '<div class="stat"><b>'+fmtCompact(sum('all_ie_total_career'))+'</b>outside spending, 2022–2026</div>'
     + '<div class="stat"><b>'+fmtCompact(sum('self_funding_career'))+'</b>self-funding, career</div>';
+  statsCache[state.preset] = h;
+  document.getElementById('stats').innerHTML = h;
 }
 
 /* ---- front door vs full-data mode (hash: #explore) ----
@@ -1691,7 +1704,18 @@ function init(){
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
     window.addEventListener('hashchange', ()=>setMode(modeFromHash(), false));
   }
-  document.getElementById('q').addEventListener('input', e=>{ state.q=e.target.value; renderTable(); });
+  let searchTimer = null;
+  document.getElementById('q').addEventListener('input', e=>{
+    state.q = e.target.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(renderTable, 150);
+  });
+  // One delegated listener on the table body (FE2) — it survives
+  // every innerHTML re-render, so rows need no listeners of their own.
+  document.querySelector('#main-table tbody').addEventListener('click', e=>{
+    const row = e.target.closest ? e.target.closest('tr') : null;
+    if(row) openDetail(row.getAttribute('data-key'));
+  });
   document.getElementById('f-congress').addEventListener('change', e=>{ state.congress=e.target.value; renderTable(); });
   document.getElementById('f-chamber').addEventListener('change', e=>{ state.chamber=e.target.value; renderTable(); });
   document.getElementById('f-party').addEventListener('change', e=>{ state.party=e.target.value; renderTable(); });

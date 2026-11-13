@@ -1303,8 +1303,11 @@ const sortHeaders = document.querySelectorAll("#main-table thead th[data-sort]")
 assert.ok(sortHeaders.length >= 1, "sortable headers exist");
 assert.ok(sortHeaders.every(hasClick), "every sortable header has a click listener");
 assert.ok(
-  document.querySelectorAll("#main-table tbody tr").every(hasClick),
-  "every table row has a click listener");
+  hasListener(document.querySelector("#main-table tbody"), "click"),
+  "table body has one delegated click listener (FE2)");
+assert.ok(
+  !document.querySelectorAll("#main-table tbody tr").some(hasClick),
+  "no table row carries a listener of its own (FE2)");
 assert.ok(
   document.querySelectorAll("#viewbtns button").every(hasClick),
   "every view button has a click listener");
@@ -1628,8 +1631,12 @@ window.innerWidth = 1024;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 (async () => {
   const searchBox = document.getElementById("q");
+  // FE2: search is debounced ~150ms — no re-render before the delay.
   searchBox.value = "Warnock";
   searchBox.dispatchEvent("input");
+  assert.strictEqual(
+    document.querySelectorAll("#main-table tbody tr").length, 664,
+    "search waits for the debounce before re-rendering");
   await sleep(250);
   assert.strictEqual(
     document.querySelectorAll("#main-table tbody tr").length, 1,
