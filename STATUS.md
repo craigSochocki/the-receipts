@@ -60,6 +60,39 @@
 
 - **2028 primary targets — DONE Nov 12.** New full-data tab next to the 2026 tab (kept untouched as history): "the dirtiest Democrats to watch for 2028 primaries" — a watchlist from 2026-cycle dirty money, NOT a ballot prediction (retirements unknown, 2028 filings not open, 2026 partial). House: same rule as the 2026 tab (120th House Democrats, dirty_2026 > 0) — 192 rows, top five Boafo $5,745,013.28, Bell $3,446,667.69, Aguilar $1,359,750.00, Jeffries $1,259,000.00, Clark $1,166,250.00. Senate: Class 3 Democrats only, dirty_2026 > 0 — 13 rows, led by Hassan $407,388.00, Wyden $304,500.00, Schatz $279,400.00 (all thirteen corporate-PAC-only dirty in 2026). New `senate_class` dataset column (1/2/3 for senators, null otherwise), read from the Senate-term `class` field in `legislators-current.yaml` — own term where held into 2026, else the 2026 seat-holder's class (Brown 3 via Husted); render-time derivation from FEC cycles was tested and fails on all three attempts, documented in methodology §14. Audit (n) in `verify_dataset.py` re-derives it independently: 0 mismatches, 120th C1 33 / C2 32 / C3 34, 16 Class 3 Democrats (Kelly/Bennet $0 and Warnock −$3,500 corp-PAC refund are the three not on the tab). Front-door pointer in the Data chapter opens the tab by in-page navigation (onclick, no URL state — Change 2 still queued). Verifier + smoke test cover the counts, the Senate top 3, the computed intro (literal scan + negative test), and the tab order. Dataset md5s after the build: csv edaf65eb6850c498f7436c05098338c0, json 436211b328d3682c8f7104e6a2b57325 (changed only by the added `senate_class` column; every other value byte-identical).
 
+- **Tiered dirty rule + corporate PAC tolerance presets — DONE Nov 12.**
+  New dataset columns (rebuilt via `src/rebuild.py`, byte-identical on
+  re-run, all 140 audits passing — 107 pre-existing + 33 new): `aipac_udp_flag_2026`
+  (AIPAC direct > $0 OR UDP benefit > $0 — always on, not tolerance-based;
+  231 in the 120th, 291 roster-wide) and `tier_balanced_2026` /
+  `tier_lenient_2026` (`clean` / `below_threshold` / `dirty`, null exactly
+  where `clean_2026` is null). Thresholds in `config.yaml`
+  (`tolerance_presets`): Balanced (default) corp > $100k AND > 5% of 2026
+  receipts; Lenient corp > $250k AND > 10%. The middle tier is never called
+  clean and always shows the dollar amount. Tiers in the 120th: Balanced
+  clean 84 / below_threshold 119 / dirty 328, Lenient clean 84 /
+  below_threshold 173 / dirty 274 (null 4); not-dirty 203 Balanced, 257
+  Lenient. Corp-only (211 in the 120th): 93 stay dirty under Balanced, 41
+  under Lenient. 2028 targets under each preset: Strict 192 House / 13
+  Senate Class 3, Balanced 133 / 6, Lenient 103 / 3. **Net-negative fix
+  (same change):** `clean_2026` is now True when `dirty_2026 <= 0` — 17
+  members flip False -> True (10 in the 120th, incl. Patrick Ryan on a
+  -$15,000 AIPAC refund with corp $0), so Strict clean in the 120th is
+  **84 of 535** (70 House + 14 Senate), not 74. **Known discrepancy vs the
+  build spec, for Craig to confirm:** the spec's recount put Balanced /
+  Lenient not-dirty at 201 / 253; the coherent partition gives 203 / 257 —
+  the recount left Ryan and the below-threshold members with a negative
+  AIPAC component (Balanced: Emily Randall; Lenient: Randall, Sylvia R.
+  Garcia, Suhas Subramanyam) counted neither clean nor dirty. See
+  methodology §14. Dataset md5s after the build: csv
+  6666f009e6a5a3e84ab2ac2f76fd50bf, json
+  d9b7e77d289641773748cfa2458ac299 (only `clean_2026` changes among
+  pre-existing fields — exactly the 17 flips — plus the 3 new columns).
+  Snapshot of the pre-change dataset:
+  `data/snapshots/congress-money-tracker-pre-tiered-rule.csv/.json`. The
+  site (front door, Explore, finder) still renders the pre-change figures
+  until the site build picks up the new columns — site work queued separately.
+
 - **Automation (GitHub Actions) — DONE Nov 12; workflows in
   `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
   on push + pull request to `master`: download bulk → `src/rebuild.py` →
@@ -120,10 +153,13 @@
   breakdown for the 120th; clean-money view; 2026 primary-target list (House
   Democrats by dirty_2026: Boafo $5,745,013; Bell $3,446,668; Aguilar
   $1,359,750; Jeffries $1,259,000; Clark $1,166,250).
-- **Clean counts:** career-clean 53 incoming House members (all also
-  2026-clean). Verified-clean in 2026: **67 of 436** incoming House (63 D,
-  4 R); 14 are 2026-clean but not career-clean. Senate clean in 2026: 10 of
-  99 (9 D, 1 I, 0 R).
+- **Clean counts (Strict, `clean_2026`, post net-negative fix):** career-clean 53 incoming House members (all also
+  2026-clean). Verified-clean in 2026: **70 of 436** incoming House (67 D,
+  3 R); 17 are 2026-clean but not career-clean. Senate clean in 2026: 14 of
+  99 (13 D, 1 I, 0 R). **Tolerance presets (Balanced is the default):**
+  not-dirty in the 120th 203 of 535 under Balanced, 257 under Lenient;
+  AIPAC/UDP flag 231 in the 120th. Every clean / not-dirty figure is labeled
+  with its preset — see methodology §14.
 - **Design guide:** `architecture.md` (one canonical JSON dataset; stable
   FEC-ID keys; raw/staging/mart/presentation layers; idempotent re-runnable
   pulls; versioned snapshots; exact money; per-cycle first-class grain;
