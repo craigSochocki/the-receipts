@@ -1520,6 +1520,14 @@ assert.strictEqual(
   document.querySelectorAll("#main-table tbody tr").length, 664,
   "leadership filter reset restores 664 rows");
 
+/* ---- D8: filters in two labelled rows, tab bar scrolls ---- */
+assert.strictEqual(
+  document.querySelectorAll(".controls-row").length, 2,
+  "D8: Tracker filters sit in two labelled rows");
+assert.ok(
+  document.querySelector(".controls-row .controls-label").textContent.includes("Filter"),
+  "D8: first filter row is labelled Filter");
+
 /* ---- tolerance select re-renders (targets28 tab must be showing) ---- */
 document.querySelector('.tabs button[data-tab="targets28"]').dispatchEvent("click");
 assert.ok(

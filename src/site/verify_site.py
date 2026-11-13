@@ -631,6 +631,19 @@ def main():
           and html.count('var(--accent-soft)') == 3
           and 'Not clean' not in html)
 
+    # ---- Wave 2 (redesign): D8 tab strip + labelled filter rows ----
+    # The tab bar is one horizontal scroll strip (no wrapping); the
+    # Tracker filters sit in two labelled rows (Filter / Show only).
+    # Tabs keep the squared-top radius — never pill-shaped.
+    check("D8: tab bar is one horizontal scroll strip, tabs not pill-shaped",
+          '.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto' in html
+          and '.tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0' in html)
+    check("D8: Tracker filters in two labelled rows",
+          'class="controls controls-rows"' in html
+          and html.count('class="controls-row"') == 2
+          and 'class="controls-label">Filter<' in html
+          and 'class="controls-label">Show only<' in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

@@ -20,13 +20,16 @@ h1 a:hover{text-decoration:underline}
 .stat b{display:block;font-size:1.15rem}
 .cutoffs{font-size:.82rem;color:var(--muted);margin:6px 0 0}
 .cutoffs b{color:var(--ink)}
-.tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1120px;margin:0 auto;padding:0 16px}
-.tabs button{border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
+.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin}
+.tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 main{max-width:1120px;margin:0 auto;padding:16px}
 section[hidden]{display:none}
 #front-door[hidden],#explore-head[hidden],#tabs-nav[hidden],main[hidden],footer[hidden]{display:none}
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.controls-rows{flex-direction:column;align-items:stretch}
+.controls-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls-label{font-size:.9rem;font-weight:700}
 .controls input[type="search"],.controls select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px}
 .controls input[type="search"]{flex:1 1 200px}
 .controls label{font-size:.9rem;display:flex;align-items:center;gap:5px}
@@ -177,15 +180,19 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <main id="main">
 
 <section id="tab-tracker" tabindex="-1">
-<div class="controls">
+<div class="controls controls-rows">
+<div class="controls-row"><span class="controls-label">Filter</span>
 <input type="search" id="q" placeholder="Search name, state, district, party…" aria-label="Search by name, state, district, party, or chamber">
 <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
 <select id="f-chamber" aria-label="Chamber"><option value="all">House + Senate</option><option value="House">House</option><option value="Senate">Senate</option></select>
 <select id="f-party" aria-label="Party"><option value="all">All parties</option><option value="Democrat">Democrat</option><option value="Republican">Republican</option><option value="Independent">Independent</option><option value="PPD">PPD</option></select>
 <select id="f-state" aria-label="State"><option value="all">All states</option></select>
+</div>
+<div class="controls-row"><span class="controls-label">Show only</span>
 <label><input type="checkbox" id="f-leader"> Leadership (119th; 120th TBD)</label>
 <label><input type="checkbox" id="f-clean"> Not dirty in 2026 only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
+</div>
 </div>
 <div class="chips" id="filter-chips"></div>
 <div class="viewbtns" id="viewbtns" role="group" aria-label="Column views"></div>
