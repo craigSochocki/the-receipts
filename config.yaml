@@ -224,17 +224,98 @@ verification:
   # clean_2026 counts are over the whole roster; the 64 / 53 figures are
   # the incoming (120th) House subset. null_total 4 = Luria unverified +
   # 3 unopposed (Pressley, Jacobs, Radewagen).
+  # NET-NEGATIVE FIX (Nov 12, 2026, methodology §14): clean_2026 is now
+  # True when dirty_2026 <= 0 (took no NET dirty money), not only when
+  # all four dirty components are exactly zero. 17 members had
+  # dirty_2026 < 0 from refunds exceeding contributions (10 in the
+  # 120th, 7 in the 119th only) and flip False -> True, so the pre-fix
+  # counts (True 81 / False 579; 120th House clean 64 — 61 D, 3 R;
+  # 2026-clean but not career-clean 11) become the values below.
+  # The 10 in-120th flippers are all Democrats (6 House, 4 Senate);
+  # the House flippers are Ansari, Balint, Casar, Frost, Ryan, Tokuda.
   clean_2026:
-    true_total: 81
-    false_total: 579
+    true_total: 98
+    false_total: 562
     null_total: 4
-    house_120th_verified_clean: 64
-    house_120th_verified_clean_democrat: 61
+    house_120th_verified_clean: 70
+    house_120th_verified_clean_democrat: 67
     house_120th_verified_clean_republican: 3
     house_120th_career_clean: 53
     house_120th_career_clean_democrat: 50
     house_120th_career_clean_republican: 3
-    house_120th_clean_2026_not_career_clean: 11
+    house_120th_clean_2026_not_career_clean: 17
+
+  # Corporate PAC tolerance presets (methodology §14, Nov 12, 2026).
+  # Under a preset, a member's corporate PAC take counts as dirty only
+  # when BOTH the dollar amount AND the share of 2026 total receipts
+  # exceed the preset's thresholds. The AIPAC/UDP flag is NOT
+  # tolerance-based: any AIPAC direct dollar or UDP benefit dollar
+  # flags the member under every preset. Strict has no thresholds of
+  # its own — it is clean_2026 itself (any net dirty dollar > $0 is
+  # dirty; net dirty <= $0 is clean). Balanced is the DEFAULT preset.
+  # Share denominator note: corp_2026 is pas2 through Sep 30, 2026
+  # while total_receipts_2026 is weball through Oct 14, 2026 — the
+  # denominator runs two weeks longer than the numerator, slightly
+  # understating shares. A non-positive total_receipts_2026 leaves the
+  # share undefined and the share test cannot pass (no case in the
+  # current data has corp above an amount threshold with non-positive
+  # receipts; the only corp>0 / receipts<=0 member is Melissa Bean,
+  # corp $3,500).
+  tolerance_presets:
+    balanced:
+      corp_amount: 100000
+      corp_share: 0.05
+    lenient:
+      corp_amount: 250000
+      corp_share: 0.10
+
+  # Tiered dirty rule — expected counts (methodology §14, Nov 12, 2026).
+  # All counts are over the 120th (535) unless marked _all (664 rows).
+  # tier_* is null exactly where clean_2026 is null (the 4 unverified /
+  # unopposed members); otherwise its domain is clean / below_threshold
+  # / dirty. "Not dirty" = clean + below_threshold (the middle tier is
+  # never called clean, but it is not dirty under the preset).
+  # NOTE on the spec discrepancy: an earlier recount put Balanced
+  # not-dirty at 201 and Lenient at 253. Those figures exclude Patrick
+  # Ryan (corp $0, AIPAC -$15,000 refund — the recount assumed his corp
+  # was positive) and the members with corp above $0 but below the
+  # threshold who also carry a negative AIPAC component (Balanced:
+  # Emily Randall; Lenient: Randall, Sylvia R. Garcia, Suhas
+  # Subramanyam). Under the coherent partition below they are
+  # clean (Ryan) / below_threshold (the other three), so the actual
+  # not-dirty counts are 203 / 257. The tier dirty counts and the
+  # 2028-target counts below DO match the earlier recount exactly.
+  tiered_2026:
+    aipac_udp_flag_120th: 231
+    aipac_udp_flag_all: 291
+    balanced:
+      clean: 84
+      below_threshold: 119
+      dirty: 328
+      'null': 4
+      not_dirty: 203
+    lenient:
+      clean: 84
+      below_threshold: 173
+      dirty: 274
+      'null': 4
+      not_dirty: 257
+    # Corp-only members in the 120th (corp > 0, AIPAC == 0, UDP == 0):
+    # 211 total; the split is how many stay dirty under each preset.
+    corp_only_2026_120th: 211
+    corp_only_staying_dirty_balanced: 93
+    corp_only_below_balanced: 118
+    corp_only_staying_dirty_lenient: 41
+    corp_only_below_lenient: 170
+    # 2028 primary targets under each preset: House Democrats in the
+    # 120th / Class 3 Senate Democrats whose tier is dirty (flagged OR
+    # corporate-PAC-material under the preset). Strict is dirty_2026 > 0.
+    targets_2028_strict_house: 192
+    targets_2028_strict_senate_class3: 13
+    targets_2028_balanced_house: 133
+    targets_2028_balanced_senate_class3: 6
+    targets_2028_lenient_house: 103
+    targets_2028_lenient_senate_class3: 3
 
 # The dataset's column order (CSV) and key order (JSON). The two differ
 # in the 2026 trio (the CSV lists individual_2026 first, the JSON lists
@@ -327,6 +408,9 @@ dataset:
     - dirty_career
     - clean_2026
     - unopposed_2026
+    - aipac_udp_flag_2026
+    - tier_balanced_2026
+    - tier_lenient_2026
     - dep_share_2026
     - self_funding_2026
     - cand_loans_2026
@@ -422,6 +506,9 @@ dataset:
     - dirty_career
     - clean_2026
     - unopposed_2026
+    - aipac_udp_flag_2026
+    - tier_balanced_2026
+    - tier_lenient_2026
     - dep_share_2026
     - self_funding_2026
     - cand_loans_2026
