@@ -239,7 +239,9 @@ footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);
 .kv span:first-child{color:var(--muted)}
 .notes{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:.9rem}
 .leader{list-style:none;margin:0 0 20px;padding:0}
-.leader li{display:flex;justify-content:space-between;gap:10px;padding:8px 4px;border-bottom:1px solid var(--line);font-size:.95rem}
+.leader li{border-bottom:1px solid var(--line)}
+.leader-row{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:none;padding:8px 4px;font:inherit;cursor:pointer;color:inherit}
+.leader-row:hover{background:#f7f9f7}
 .leader li b{font-weight:600}
 .leader .amt{font-variant-numeric:tabular-nums;white-space:nowrap}
 .leader .who{color:var(--muted);font-size:.85rem}
@@ -1216,12 +1218,12 @@ function closeDetail(){ document.getElementById('detail').classList.remove('open
 function topByRank(rankKey, amountKey, n){
   return PEOPLE.filter(p=>num(p[rankKey])!==null)
     .sort((a,b)=>a[rankKey]-b[rankKey]).slice(0,n)
-    .map(p=>({name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
+    .map(p=>({key:p.person_key, name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
 }
 function boardHtml(title, sub, entries){
   let h = '<h3>'+esc(title)+'</h3><p style="color:var(--muted);font-size:.9rem">'+esc(sub)+'</p><ol class="leader">';
   entries.forEach((e,i)=>{
-    h += '<li><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+e.who+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></li>';
+    h += '<li><button type="button" class="leader-row" data-key="'+e.key+'"><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+e.who+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></button></li>';
   });
   return h + '</ol>';
 }
@@ -1233,7 +1235,7 @@ function boardHtml(title, sub, entries){
 function topByAmount(amountKey, n){
   return PEOPLE.filter(p=>num(p[amountKey])!==null && num(p[amountKey])>0)
     .sort((a,b)=>num(b[amountKey])-num(a[amountKey])).slice(0,n)
-    .map(p=>({name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
+    .map(p=>({key:p.person_key, name:p.full_name, who:partyChip(p)+' '+esc(party(p))+' · '+esc(place(p))+' · '+outcomeLabel(p), amount:p[amountKey]}));
 }
 function renderLeaders(){
   document.getElementById('leaders').innerHTML =
@@ -1249,6 +1251,12 @@ function renderLeaders(){
       topByRank('rank_self_funding','self_funding_career',10))
     + boardHtml('Top 10 — all independent expenditures (career, 2022–2026)', 'All outside spending for and against the candidate, every registered committee — not just UDP.',
       topByRank('rank_all_ie_total','all_ie_total_career',10));
+  // U3: leaderboards are clickable — one delegated listener, so the
+  // rows need no per-row handlers.
+  document.getElementById('leaders').addEventListener('click', e=>{
+    const b = e.target.closest('.leader-row');
+    if(b) openDetail(b.getAttribute('data-key'));
+  });
 }
 
 /* ---- clean view (preset-aware) ----

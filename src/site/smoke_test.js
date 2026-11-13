@@ -1288,12 +1288,16 @@ assert.ok(hasListener(document.getElementById("find-state"), "change"), "finder 
 assert.ok(hasListener(document.getElementById("find-district"), "change"), "finder district select has a change listener");
 assert.ok(hasClick(document.getElementById("detail")), "detail backdrop has a click listener");
 assert.ok(hasListener(document, "keydown"), "document has a keydown listener (Escape closes the detail)");
-// Leaderboards are NOT clickable yet (U3, queued): assert what the
-// current site does, and update this when U3 lands.
+// U3: leaderboards are clickable — one delegated listener on
+// #leaders, rows are buttons that open the drill-down.
+assert.ok(hasClick(document.getElementById("leaders")), "leaderboards container has a delegated click listener");
+const leaderBtn = document.querySelector("#leaders .leader-row");
+assert.ok(leaderBtn, "leaderboard rows are buttons");
+leaderBtn.click();
 assert.ok(
-  document.querySelectorAll("#leaders .leader li")
-    .every((li) => (li.listeners.click || []).length === 0),
-  "leaderboard rows have no click listeners yet (U3 will add them)");
+  document.getElementById("detail-sheet").innerHTML.includes("Stevens"),
+  "clicking a leaderboard row opens the Stevens drill-down");
+closeDetail();
 
 /* ---- tab buttons switch tabs ---- */
 document.querySelector('.tabs button[data-tab="clean"]').dispatchEvent("click");
