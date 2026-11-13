@@ -20,7 +20,10 @@
  * tiles (dot/tile counts per party/status category). And the
  * scrollytelling front door: 7 chapters in narrative order, count-up
  * spans whose data-values are the computed figures (hook, clean story,
- * dirty explainer), and staggered waffle/tile/row reveals.
+ * dirty explainer), and staggered waffle/tile/row reveals. And the 2028
+ * primary targets tab: the computed watchlist intro (192 House Democrats,
+ * 13 Class 3 Democratic senators), both tables in dirty-2026 order with
+ * the Dirty career column, and the front-door pointer button.
  */
 "use strict";
 const fs = require("fs");
@@ -230,6 +233,36 @@ showTab("targets");
 const targetsHtml = document.querySelector("#targets-table tbody").innerHTML;
 assert.ok(targetsHtml.includes("Boafo"), "targets table starts with Boafo");
 assert.ok(targetsHtml.includes("Bell"), "targets table contains Bell");
+
+/* ---- 2028 primary targets ---- */
+showTab("targets28");
+assert.strictEqual(
+  document.getElementById("tab-targets28").hidden, false,
+  "2028 tab is shown after showTab");
+assert.strictEqual(
+  document.getElementById("tab-targets").hidden, true,
+  "2026 tab hides when the 2028 tab is shown");
+const t28Intro = document.getElementById("targets28-intro").innerHTML;
+assert.ok(t28Intro.includes("A watchlist, not a prediction"), "2028 intro frames it as a watchlist");
+assert.ok(t28Intro.includes("192 House Democrats"), "2028 intro counts 192 House Democrats");
+assert.ok(t28Intro.includes("13 Democratic senators"), "2028 intro counts 13 Democratic senators");
+const t28HouseHtml = document.querySelector("#targets28-house-table tbody").innerHTML;
+assert.ok(t28HouseHtml.includes("Boafo"), "2028 House table starts with Boafo");
+assert.ok(
+  t28HouseHtml.indexOf("Boafo") < t28HouseHtml.indexOf("Bell"),
+  "2028 House table in dirty-2026 order");
+assert.ok(t28HouseHtml.includes("$5,745,013.28"), "2028 House table shows Boafo dirty 2026");
+assert.ok(t28HouseHtml.includes("$36,864,670.88") === false, "2028 House table does not show Stevens (not in 120th)");
+const t28SenHtml = document.querySelector("#targets28-senate-table tbody").innerHTML;
+assert.ok(t28SenHtml.includes("Hassan"), "2028 Senate table has Hassan");
+assert.ok(
+  t28SenHtml.indexOf("Hassan") < t28SenHtml.indexOf("Wyden") &&
+  t28SenHtml.indexOf("Wyden") < t28SenHtml.indexOf("Schatz"),
+  "2028 Senate table in dirty-2026 order");
+assert.ok(t28SenHtml.includes("Schumer"), "2028 Senate table has Schumer");
+assert.ok(t28SenHtml.includes("$407,388.00"), "2028 Senate table shows Hassan dirty 2026");
+assert.ok(t28SenHtml.includes("$2,148,341.00"), "2028 Senate table shows Hassan dirty career");
+assert.ok(t28SenHtml.includes("CA · Senate"), "2028 Senate rows show the seat");
 
 const constKey = PEOPLE.find((p) => p.full_name.includes("Constantino")).person_key;
 openDetail(constKey);

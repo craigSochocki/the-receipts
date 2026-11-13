@@ -18,7 +18,10 @@ Checks:
     leaderboards lead with dirty (2026, then career) and the default
     table sort is Dirty 2026; dirty_career recomputes and Stevens is
     the career dirty #1; composition charts reconcile to 435 / 100
-    with per-category counts matching the dataset exactly.
+    with per-category counts matching the dataset exactly. 2028
+    primary targets: House 192 (same rule as 2026), Senate 13 Class 3
+    Democrats led by Hassan; the tab's intro is computed at render,
+    never typed; the front-door pointer opens it via showTab.
     Scrollytelling: 7 front-door chapters in narrative order
     (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
     IntersectionObserver reveals gated on html.js (no-JS shows
@@ -456,6 +459,60 @@ def main():
                and r["chamber_120"] == "House" and r["party_120"] == "Democrat"
                and num(r["dirty_2026"]) > 0]
     check("primary targets = 192", len(targets) == 192, f"got {len(targets)}")
+    targets28_h = [r for r in decoded if r["in_120th"] == "yes"
+                   and r["chamber_120"] == "House"
+                   and r["party_120"] == "Democrat"
+                   and num(r["dirty_2026"]) > 0]
+    targets28_s = [r for r in decoded if r["in_120th"] == "yes"
+                   and r["chamber_120"] == "Senate"
+                   and r["party_120"] == "Democrat"
+                   and r["senate_class"] == 3
+                   and num(r["dirty_2026"]) > 0]
+    check("2028 targets: House 192, Senate 13",
+          len(targets28_h) == 192 and len(targets28_s) == 13,
+          f"got House {len(targets28_h)}, Senate {len(targets28_s)}")
+    check("2028 Senate targets led by Hassan, Wyden, Schatz",
+          [r["full_name"] for r in sorted(
+              targets28_s, key=lambda r: -num(r["dirty_2026"]))[:3]]
+          == ["Margaret Wood Hassan", "Ron Wyden", "Brian Schatz"],
+          f"got {[r['full_name'] for r in sorted(targets28_s, key=lambda r: -num(r['dirty_2026']))[:3]]}")
+    check("2028 Senate targets are all corporate-PAC dirty in 2026",
+          all(num(r["corp_2026"]) == num(r["dirty_2026"])
+              and num(r["aipac_direct_2026"]) == 0
+              and num(r["udp_benefit_2026"]) == 0 for r in targets28_s))
+    check("2028 tab exists (both tables + intro + renderer + Class 3 filter)",
+          all(x in html for x in ('id="tab-targets28"',
+                                  'id="targets28-house-table"',
+                                  'id="targets28-senate-table"',
+                                  'id="targets28-intro"',
+                                  "renderTargets2028", "senate_class===3",
+                                  "Dirty career"))
+          and "renderTargets2028" in html)
+    check("2028 tab sits after the 2026 tab, before Methodology",
+          html.index('data-tab="targets"')
+          < html.index('data-tab="targets28"')
+          < html.index('data-tab="method"'))
+    check("2028 front-door pointer exists (Data chapter, onclick)",
+          'id="targets28-btn"' in html
+          and "showTab('targets28')" in html
+          and html.index('id="targets28-btn"')
+          > html.index('data-chapter="finder"')
+          and html.index('id="targets28-btn"')
+          < html.index('id="explore-btn"'))
+    # The 2028 intro is rendered from the filtered rows, so its counts
+    # must not appear as literals in the tab's static HTML (the 2026
+    # tab's typed "192 House Democrats" intro is pre-existing and
+    # untouched — the scan below is scoped to the 2028 section only).
+    t28 = html[html.index('id="tab-targets28"'):html.index('id="tab-method"')]
+    check("2028 intro counts are computed, not hardcoded",
+          re.search(r"\d+ House Democrats", t28) is None
+          and re.search(r"\d+ Democratic senators", t28) is None
+          and "house.length" in html and "senate.length" in html
+          and "A watchlist, not a prediction" in html,
+          "a literal 2028 count survives in the built page")
+    check("negative test: injected 2028 count trips the check",
+          re.search(r"\d+ House Democrats",
+                    t28 + "192 House Democrats") is not None)
     career_clean_house = [r for r in incoming
                           if r["chamber_120"] == "House"
                           and num(r["corporate_pac_career"]) == 0
@@ -499,7 +556,8 @@ def main():
                 status = resp.status
             check("local serve returns 200", status == 200, f"got {status}")
             for needle in ["The Receipts", "receipts-data", "Methodology",
-                           "primary targets", "Clean money", "Leaderboards",
+                           "primary targets", "2028 primary targets",
+                           "Clean money", "Leaderboards",
                            "Data as of", "Find your member",
                            "took no dirty money in 2026",
                            "Dirtiest in 2026", "Explore the full data"]:
