@@ -82,7 +82,8 @@ SCALARS = [
     "rank_all_ie_oppose", "rank_all_ie_total", "rank_other_committees_total",
     "corp_2026", "aipac_direct_2026", "individual_2026", "udp_support_2026",
     "udp_opp_credit_2026", "udp_benefit_2026", "dirty_2026", "dirty_career", "clean_2026",
-    "unopposed_2026", "dep_share_2026", "self_funding_2026", "cand_loans_2026",
+    "unopposed_2026", "aipac_udp_flag_2026", "tier_balanced_2026",
+    "tier_lenient_2026", "dep_share_2026", "self_funding_2026", "cand_loans_2026",
     "cand_contrib_2026", "total_receipts_2026", "total_disbursements_2026",
     "cash_on_hand_2026", "other_committees_total_2026",
     "all_ie_support_2026", "all_ie_oppose_2026", "all_ie_total_2026",
@@ -211,6 +212,9 @@ td.name{font-weight:600;white-space:normal;min-width:150px}
 .badge.dirty{background:#fdeede;color:var(--warn)}
 .badge.unver{background:#f3f3f3;color:var(--muted)}
 .badge.unopp{background:#fff3d6;color:#7a5b00}
+.badge.below{background:#fef3c7;color:#92400e}
+.badge.flag{background:#ede9fe;color:#5b21b6}
+.tol-note{font-size:.88rem;color:var(--muted)}
 .pchip{display:inline-block;min-width:1.35em;text-align:center;padding:0 6px;border-radius:999px;font-size:.8rem;font-weight:700;line-height:1.55;vertical-align:1px}
 .pchip.d{background:#dbeafe;color:#1e40af}
 .pchip.r{background:#fee2e2;color:#991b1b}
@@ -304,6 +308,11 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
 <p class="cutoffs"><b>2026 is partial.</b> Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p>
+<div class="controls" id="tolerance-controls">
+<label for="f-tolerance">Corporate PAC tolerance:</label>
+<select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
+<span class="tol-note" id="tolerance-note"></span>
+</div>
 </div>
 </header>
 <nav class="tabs" id="tabs-nav" role="tablist" aria-label="Views">
@@ -326,7 +335,7 @@ TEMPLATE_BODY = """
 <select id="f-party" aria-label="Party"><option value="all">All parties</option><option value="Democrat">Democrat</option><option value="Republican">Republican</option><option value="Independent">Independent</option><option value="PPD">PPD</option></select>
 <select id="f-state" aria-label="State"><option value="all">All states</option></select>
 <label><input type="checkbox" id="f-leader"> Leadership only</label>
-<label><input type="checkbox" id="f-clean"> Clean in 2026 only</label>
+<label><input type="checkbox" id="f-clean"> Not dirty in 2026 only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
 <div class="viewbtns" id="viewbtns" role="group" aria-label="Column views"></div>
@@ -344,13 +353,13 @@ TEMPLATE_BODY = """
 <section id="tab-clean" hidden>
 <h2 class="sec">Clean money</h2>
 <div id="clean-stats"></div>
-<div class="callout"><b>What “clean in 2026” means:</b> zero corporate PAC money, zero AIPAC PAC direct money, and zero UDP benefit (support + opposition credit) in the 2026 cycle. It is a cycle test, not a career test — a member can be clean in 2026 while having taken such money in earlier cycles. A member is shown as <b>unverified</b> only if they have no 2026 entries in <i>any</i> money source; Elaine Luria is the one unverified member — her real 2026 campaign is not linked in the roster yet.</div>
+<div class="callout" id="clean-callout"></div>
 <div class="tablewrap"><table id="clean-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
 <section id="tab-breakdown" hidden>
 <h2 class="sec">Party-by-chamber breakdown — 120th Congress</h2>
-<p style="color:var(--muted)">Members of the incoming 120th Congress, grouped by party and chamber. Money columns are career totals; the clean column counts verified-clean members in 2026.</p>
+<p style="color:var(--muted)" id="breakdown-intro"></p>
 <div class="tablewrap"><table id="breakdown-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
@@ -464,11 +473,44 @@ function fmtCompact(v){
 }
 function fmtPct(v){ if(v===null||v===undefined) return '—'; return (v*100).toFixed(1)+'%'; }
 function fmtRank(v){ return (v===null||v===undefined)?'—':'#'+v; }
-function fmtClean(p){
-  if(p.clean_2026===true) return '<span class="badge clean">Clean</span>';
-  if(p.unopposed_2026===true) return '<span class="badge unopp">Unopposed</span>';
-  if(p.clean_2026===null) return '<span class="badge unver">Unverified</span>';
-  return '<span class="badge dirty">Not clean</span>';
+/* ---- corporate PAC tolerance presets (methodology §14) ----
+   Strict is clean_2026 itself (any net dirty dollar above $0 is
+   dirty); Balanced / Lenient read the stored tier columns. The
+   AIPAC/UDP flag is not tolerance-based: any AIPAC direct or UDP
+   benefit dollar flags the member under every preset, and a flagged
+   member is dirty under every preset. The middle tier is never
+   called clean, and its dollar amount (corp_2026) is always shown.
+   Default is Balanced. */
+const PRESETS = {
+  strict:{label:'Strict',
+    def:'Strict: any net dirty dollar above $0 is dirty.',
+    short:'any dirty dollar counts'},
+  balanced:{label:'Balanced',
+    def:'Balanced (default): corporate PAC counts as dirty only over $100,000 and over 5% of 2026 receipts; any AIPAC direct or UDP benefit dollar always counts.',
+    short:'corporate PAC over $100k and over 5% of receipts'},
+  lenient:{label:'Lenient',
+    def:'Lenient: corporate PAC counts as dirty only over $250,000 and over 10% of 2026 receipts; any AIPAC direct or UDP benefit dollar always counts.',
+    short:'corporate PAC over $250k and over 10% of receipts'}
+};
+function tierOf(p){
+  if(state.preset==='strict')
+    return p.clean_2026===true ? 'clean' : (p.clean_2026===null ? null : 'dirty');
+  return state.preset==='lenient' ? p.tier_lenient_2026 : p.tier_balanced_2026;
+}
+function isNotDirty(p){ const t=tierOf(p); return t==='clean'||t==='below_threshold'; }
+function flagBadge(p){
+  if(p.aipac_udp_flag_2026!==true) return '';
+  return ' <span class="badge flag" title="Took AIPAC PAC direct money or UDP benefit in 2026 — flagged under every tolerance preset">AIPAC/UDP</span>';
+}
+function fmtTierBadge(p){
+  const t = tierOf(p);
+  if(t===null)
+    return p.unopposed_2026===true ? '<span class="badge unopp">Unopposed</span>'
+      : '<span class="badge unver">Unverified</span>';
+  if(t==='clean') return '<span class="badge clean">Clean</span>';
+  if(t==='below_threshold')
+    return '<span class="badge below">Below threshold · '+fmtMoney(p.corp_2026)+'</span>';
+  return '<span class="badge dirty">Dirty</span>'+flagBadge(p);
 }
 
 /* ---- derived fields ---- */
@@ -527,7 +569,7 @@ const VIEWS = {
     {k:'total_accepted_career',label:'Total accepted',type:'money'},
     {k:'rank_total_accepted',label:'Rank',type:'rank'},
     {k:'dirty_2026',label:'Dirty 2026',type:'money'},
-    {k:'clean_2026',label:'Clean 2026',type:'clean'}]},
+    {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
   y2026:{label:'2026 cycle',cols:[
     {k:'full_name',label:'Name',type:'name'},
     {k:'place',label:'State / Dist.',type:'place'},
@@ -539,7 +581,7 @@ const VIEWS = {
     {k:'udp_benefit_2026',label:'UDP benefit 2026',type:'money'},
     {k:'dirty_2026',label:'Dirty 2026',type:'money'},
     {k:'dep_share_2026',label:'Dep. share 2026',type:'pct'},
-    {k:'clean_2026',label:'Clean 2026',type:'clean'}]},
+    {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
   selffund:{label:'Self-funding & topline',cols:[
     {k:'full_name',label:'Name',type:'name'},
     {k:'place',label:'State / Dist.',type:'place'},
@@ -579,7 +621,7 @@ const SORTABLE = new Set(['individual_contribution_total_career','corporate_pac_
 
 /* ---- state ---- */
 const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
-  leadership:false, clean:false, view:'core',
+  leadership:false, clean:false, view:'core', preset:'balanced',
   sortKey:'dirty_2026', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
 
 function getVal(p, key){
@@ -607,7 +649,7 @@ function applyFilters(){
     if(state.party!=='all' && !(p.party_119===state.party||p.party_120===state.party)) return false;
     if(state.state!=='all' && p.state!==state.state) return false;
     if(state.leadership && !p.leadership_119) return false;
-    if(state.clean && p.clean_2026!==true) return false;
+    if(state.clean && !isNotDirty(p)) return false;
     return true;
   });
 }
@@ -635,7 +677,7 @@ function cellHtml(p, col){
     }
     case 'pct': return fmtPct(v);
     case 'rank': return fmtRank(v);
-    case 'clean': return fmtClean(p);
+    case 'clean': return fmtTierBadge(p);
     default: return esc(v==null||v===''?'—':v);
   }
 }
@@ -721,17 +763,23 @@ function renderDirtiest(){
   });
 }
 /* ---- front door: the clean story, computed from the data ----
-   The counts below are computed from PEOPLE at render time, exactly
-   like renderStats — no figure is ever typed into this template, so
-   a data change cannot strand a stale number on the landing. */
+   The counts below are computed from PEOPLE at render time under
+   the current tolerance preset — no figure is ever typed into this
+   template, so a data change cannot strand a stale number on the
+   landing. The count is always shown with its preset definition
+   (methodology §14: a count is never shown without its definition);
+   the default preset is Balanced. */
 function renderCleanStory(){
   const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const hClean = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
-  const sClean = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
+  const nd = incoming.filter(isNotDirty);
+  const hND = nd.filter(p=>p.chamber_120==='House').length;
+  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
+  const preset = PRESETS[state.preset];
   document.getElementById('landing-story').innerHTML =
-    '<b><span class="countup" data-value="'+(hClean+sClean)+'" data-format="int">'+(hClean+sClean)+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></b> incoming members took no dirty money in 2026 — '
-    + hClean+' House + '+sClean+' Senate. '
-    + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
+    '<b><span class="countup" data-value="'+nd.length+'" data-format="int">'+nd.length+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></b> took no dirty money in 2026 — '
+    + hND+' House + '+sND+' Senate. '
+    + preset.label+' tolerance: '+preset.short+'. Any AIPAC direct or UDP benefit dollar always counts. '
+    + '<button type="button" class="linklike" id="story-clean-link">See the list</button>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
 }
 /* ---- front door: what counts as dirty, computed from the data ----
@@ -1022,7 +1070,7 @@ function initFinder(){
     }
     person.innerHTML = people.map(p=>
       '<button type="button" class="btn person-btn" data-key="'+p.person_key+'">'
-      + partyChip(p)+' '+esc(p.full_name)+' · '+outcomeLabel(p)+' '+fmtClean(p)+'</button>').join(' ');
+      + partyChip(p)+' '+esc(p.full_name)+' · '+outcomeLabel(p)+' '+fmtTierBadge(p)+'</button>').join(' ');
     person.querySelectorAll('button').forEach(b=>{
       b.addEventListener('click', ()=>findPerson(b.getAttribute('data-key')));
     });
@@ -1109,7 +1157,8 @@ function openDetail(key){
       {k:'opposed',label:'Opposed',type:'text'}]);
   }
   h += '<h3>2026 cycle (partial)</h3><div class="kv">'
-    + kvRow('Clean in 2026', fmtClean(p))
+    + kvRow('Tier in 2026 ('+PRESETS[state.preset].label+')', fmtTierBadge(p))
+    + kvRow('AIPAC/UDP flag', p.aipac_udp_flag_2026===true ? 'Yes — AIPAC PAC direct money or UDP benefit in 2026; flagged under every tolerance preset' : 'No')
     + kvRow('Unopposed in 2026', p.unopposed_2026===true?'Yes — no opponent with receipts over $0':'No')
     + kvRow('Dirty 2026', fmtMoney(p.dirty_2026))
     + kvRow('Individual 2026', fmtMoney(p.individual_2026))
@@ -1200,36 +1249,52 @@ function renderLeaders(){
       topByRank('rank_all_ie_total','all_ie_total_career',10));
 }
 
-/* ---- clean view ---- */
+/* ---- clean view (preset-aware) ----
+   Under Strict the tab lists verified-clean members; under Balanced
+   / Lenient it lists everyone not dirty under the preset — clean
+   plus the below-threshold middle tier, whose corporate PAC amount
+   is always shown. Counts are computed from PEOPLE at render time
+   and always labeled with the preset. */
 function renderClean(){
   const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const hHouse = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true);
-  const hSen = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true);
+  const nd = incoming.filter(isNotDirty);
+  const hND = nd.filter(p=>p.chamber_120==='House').length;
+  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
   const careerCleanHouse = incoming.filter(p=>p.chamber_120==='House'&&isCareerClean(p));
-  const clean = PEOPLE.filter(p=>p.clean_2026===true);
+  const ndAll = PEOPLE.filter(isNotDirty);
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
   const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
+  const preset = PRESETS[state.preset];
+  const word = state.preset==='strict' ? 'verified clean' : 'not dirty';
   document.getElementById('clean-stats').innerHTML =
     '<div class="stats">'
-    + '<div class="stat"><b>'+hHouse.length+' of 436</b>incoming House verified clean in 2026</div>'
-    + '<div class="stat"><b>'+hSen.length+' of 99</b>incoming Senate verified clean in 2026</div>'
-    + '<div class="stat"><b>'+(hHouse.length+hSen.length)+' total</b>verified clean in the incoming 120th</div>'
+    + '<div class="stat"><b>'+hND+' of 436</b>incoming House '+word+' in 2026 ('+preset.label+')</div>'
+    + '<div class="stat"><b>'+sND+' of 99</b>incoming Senate '+word+' in 2026 ('+preset.label+')</div>'
+    + '<div class="stat"><b>'+nd.length+' total</b>'+word+' in the incoming 120th ('+preset.label+')</div>'
     + '<div class="stat"><b>'+careerCleanHouse.length+'</b>career-clean incoming House members</div>'
     + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0, so not counted clean: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+unver.length+' unverified</b>'+esc(unver.map(p=>p.full_name).join(', '))+'</div>'
     + '</div>'
-    + '<p style="color:var(--muted)">'+clean.length+' people in the whole tracker are clean in 2026 — the '+(hHouse.length+hSen.length)+' above plus '
-    + (clean.length-hHouse.length-hSen.length) + ' outgoing 119th-only members. Click a row for the full breakdown.</p>';
+    + '<p style="color:var(--muted)">'+ndAll.length+' people in the whole tracker are '+word+' in 2026 under the '+preset.label+' tolerance — the '+nd.length+' above plus '
+    + (ndAll.length-nd.length) + ' outgoing 119th-only members. Click a row for the full breakdown.</p>';
+  const mid = state.preset==='strict' ? ''
+    : ' The middle tier — “Below threshold” — took corporate PAC money below those thresholds; it is never called clean, and the dollar amount is always shown.';
+  document.getElementById('clean-callout').innerHTML =
+    '<b>What “'+word+' in 2026” means under the '+preset.label+' tolerance:</b> '+preset.def
+    + ' It is a cycle test, not a career test — a member can be '+word+' in 2026 while having taken such money in earlier cycles.'+mid
+    + ' A member is shown as <b>unverified</b> only if they have no 2026 entries in <i>any</i> money source; Elaine Luria is the one unverified member — her real 2026 campaign is not linked in the roster yet.';
   const thead = document.querySelector('#clean-table thead');
   const tbody = document.querySelector('#clean-table tbody');
-  thead.innerHTML = '<tr><th>Name</th><th>State / Dist.</th><th>Party</th><th>Chamber</th><th>Incoming 120th?</th><th class="num">Corp PAC (career)</th><th class="num">AIPAC (career)</th><th class="num">UDP support (career)</th><th class="num">Dirty 2026</th><th>Career-clean?</th></tr>';
-  const rows = clean.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name));
-  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td class="num">'+fmtCompact(p.corporate_pac_career)+'</td><td class="num">'+fmtCompact(p.aipac_pac_direct_career)+'</td><td class="num">'+fmtCompact(p.udp_ie_support_career)+'</td><td class="num">'+fmtCompact(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
+  thead.innerHTML = '<tr><th>Name</th><th>State / Dist.</th><th>Party</th><th>Chamber</th><th>Incoming 120th?</th><th>Tier 2026</th><th class="num">Corp PAC 2026</th><th class="num">Dirty 2026</th><th>Career-clean?</th></tr>';
+  const rows = ndAll.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name));
+  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td>'+fmtTierBadge(p)+'</td><td class="num">'+fmtCompact(p.corp_2026)+'</td><td class="num">'+fmtCompact(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
   tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
 /* ---- party breakdown ---- */
 function renderBreakdown(){
+  document.getElementById('breakdown-intro').textContent =
+    'Members of the incoming 120th Congress, grouped by party and chamber. Money columns are career totals; the not-dirty column counts members with no dirty money in 2026 under the '+PRESETS[state.preset].label+' tolerance ('+PRESETS[state.preset].short+').';
   const groups = {};
   PEOPLE.filter(p=>p.in_120th==='yes').forEach(p=>{
     const k = (p.party_120||'—')+'|'+(p.chamber_120||'—');
@@ -1242,14 +1307,14 @@ function renderBreakdown(){
     g.udp+=num(p.udp_ie_total_benefit_career)||0;
     g.self+=num(p.self_funding_career)||0;
     g.ie+=num(p.all_ie_total_career)||0;
-    if(p.clean_2026===true) g.clean++;
+    if(isNotDirty(p)) g.clean++;
   });
   const rows = Object.values(groups).sort((a,b)=>b.n-a.n);
   const tot = {n:0,ind:0,corp:0,aipac:0,tot:0,udp:0,self:0,ie:0,clean:0};
   rows.forEach(g=>{ tot.n+=g.n; tot.ind+=g.ind; tot.corp+=g.corp; tot.aipac+=g.aipac; tot.tot+=g.tot; tot.udp+=g.udp; tot.self+=g.self; tot.ie+=g.ie; tot.clean+=g.clean; });
   const rowHtml = g=>'<tr><td>'+esc(g.party)+'</td><td>'+esc(g.chamber)+'</td><td class="num">'+g.n+'</td><td class="num">'+fmtCompact(g.ind)+'</td><td class="num">'+fmtCompact(g.corp)+'</td><td class="num">'+fmtCompact(g.aipac)+'</td><td class="num">'+fmtCompact(g.tot)+'</td><td class="num">'+fmtCompact(g.udp)+'</td><td class="num">'+fmtCompact(g.self)+'</td><td class="num">'+fmtCompact(g.ie)+'</td><td class="num">'+g.clean+'</td></tr>';
   document.querySelector('#breakdown-table thead').innerHTML =
-    '<tr><th>Party</th><th>Chamber</th><th class="num">Members</th><th class="num">Individual (career)</th><th class="num">Corp PAC (career)</th><th class="num">AIPAC (career)</th><th class="num">Total accepted</th><th class="num">UDP benefit</th><th class="num">Self-funding</th><th class="num">All IE total</th><th class="num">Clean 2026</th></tr>';
+    '<tr><th>Party</th><th>Chamber</th><th class="num">Members</th><th class="num">Individual (career)</th><th class="num">Corp PAC (career)</th><th class="num">AIPAC (career)</th><th class="num">Total accepted</th><th class="num">UDP benefit</th><th class="num">Self-funding</th><th class="num">All IE total</th><th class="num">Not dirty 2026 ('+PRESETS[state.preset].label+')</th></tr>';
   document.querySelector('#breakdown-table tbody').innerHTML =
     rows.map(rowHtml).join('') + '<tr><td><b>All</b></td><td><b>120th</b></td><td class="num"><b>'+tot.n+'</b></td><td class="num"><b>'+fmtCompact(tot.ind)+'</b></td><td class="num"><b>'+fmtCompact(tot.corp)+'</b></td><td class="num"><b>'+fmtCompact(tot.aipac)+'</b></td><td class="num"><b>'+fmtCompact(tot.tot)+'</b></td><td class="num"><b>'+fmtCompact(tot.udp)+'</b></td><td class="num"><b>'+fmtCompact(tot.self)+'</b></td><td class="num"><b>'+fmtCompact(tot.ie)+'</b></td><td class="num"><b>'+tot.clean+'</b></td></tr>';
 }
@@ -1269,16 +1334,21 @@ function renderTargets(){
    House: every seat is up, so the 2026 pool carries over. Senate:
    Class 3 Democrats only (senate_class 3, from the dataset — the
    legislators yaml's Senate-term class field; see methodology §14).
-   The intro is computed at render, never typed: counts change with
-   the data, and the framing is a watchlist, not a ballot prediction. */
+   Under a tolerance preset the target rule is tier dirty (flagged
+   OR corporate-PAC-material under that preset) instead of
+   dirty_2026 > 0 — Strict 192 / 13, Balanced 133 / 6, Lenient
+   103 / 3. The intro is computed at render, never typed: counts
+   change with the data and the preset, and the framing is a
+   watchlist, not a ballot prediction. */
 function renderTargets2028(){
-  const house = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&num(p.dirty_2026)>0)
+  const house = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&tierOf(p)==='dirty')
     .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
-  const senate = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='Senate'&&p.party_120==='Democrat'&&p.senate_class===3&&num(p.dirty_2026)>0)
+  const senate = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='Senate'&&p.party_120==='Democrat'&&p.senate_class===3&&tierOf(p)==='dirty')
     .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+  const preset = PRESETS[state.preset];
   document.getElementById('targets28-intro').innerHTML =
-    'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028. Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
-  const rowHtml = (p,i)=>'<tr data-key="'+p.person_key+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>';
+    'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028, under the '+preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
+  const rowHtml = (p,i)=>'<tr data-key="'+p.person_key+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flagBadge(p)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>';
   document.querySelector('#targets28-house-table thead').innerHTML =
     '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
   document.querySelector('#targets28-house-table tbody').innerHTML = house.map(rowHtml).join('');
@@ -1286,6 +1356,29 @@ function renderTargets2028(){
     '<tr><th>#</th><th>Name</th><th>Seat</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
   document.querySelector('#targets28-senate-table tbody').innerHTML = senate.map(rowHtml).join('');
   document.querySelectorAll('#targets28-house-table tbody tr, #targets28-senate-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
+}
+
+/* ---- tolerance preset switching ----
+   Recomputes every preset-dependent surface live: header stats, the
+   table badges, the front-door story, and the clean / breakdown /
+   2028-targets tabs (re-rendered on next show if not current). The
+   leaderboards and the 2026 targets tab are Strict history and do
+   not move with the preset. */
+function setPreset(preset){
+  if(!PRESETS[preset]) return;
+  state.preset = preset;
+  document.getElementById('tolerance-note').textContent = PRESETS[preset].def;
+  renderStats(); renderTable(); renderCleanStory();
+  ['clean','breakdown','targets28'].forEach(t=>{
+    if(state.tab===t){
+      if(t==='clean') renderClean();
+      if(t==='breakdown') renderBreakdown();
+      if(t==='targets28') renderTargets2028();
+      state.rendered[t]=true;
+    } else {
+      state.rendered[t]=false;
+    }
+  });
 }
 
 /* ---- CSV download (from the same embedded figures) ---- */
@@ -1325,14 +1418,16 @@ function downloadCsv(){
 /* ---- header stats ---- */
 function renderStats(){
   const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const cleanH = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
-  const cleanS = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
+  const nd = incoming.filter(isNotDirty);
+  const hND = nd.filter(p=>p.chamber_120==='House').length;
+  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
   const sum = k => PEOPLE.reduce((s,p)=>s+(num(p[k])||0),0);
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
   const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
+  const word = state.preset==='strict' ? 'verified clean' : 'not dirty';
   document.getElementById('stats').innerHTML =
     '<div class="stat"><b>'+PEOPLE.length+'</b>people tracked</div>'
-    + '<div class="stat"><b>'+(cleanH+cleanS)+' verified clean</b>in 2026 — '+cleanH+' House + '+cleanS+' Senate</div>'
+    + '<div class="stat"><b>'+nd.length+' '+word+'</b>in 2026 — '+hND+' House + '+sND+' Senate ('+PRESETS[state.preset].label+' tolerance)</div>'
     + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+unver.length+' unverified</b>'+esc(unver.map(p=>p.full_name).join(', '))+'</div>'
     + '<div class="stat"><b>'+fmtCompact(sum('individual_contribution_total_career'))+'</b>individual contributions, career</div>'
@@ -1470,6 +1565,8 @@ function init(){
   document.getElementById('f-state').addEventListener('change', e=>{ state.state=e.target.value; renderTable(); });
   document.getElementById('f-leader').addEventListener('change', e=>{ state.leadership=e.target.checked; renderTable(); });
   document.getElementById('f-clean').addEventListener('change', e=>{ state.clean=e.target.checked; renderTable(); });
+  document.getElementById('f-tolerance').addEventListener('change', e=>{ setPreset(e.target.value); });
+  document.getElementById('tolerance-note').textContent = PRESETS[state.preset].def;
   document.getElementById('csv-btn').addEventListener('click', downloadCsv);
   document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click', ()=>showTab(b.getAttribute('data-tab'))));
   document.getElementById('detail').addEventListener('click', e=>{ if(e.target.id==='detail') closeDetail(); });
@@ -1497,6 +1594,8 @@ METHOD_HTML = """
 </ul>
 <h3>Clean in 2026</h3>
 <p>Zero corporate PAC money, zero AIPAC PAC direct money, and zero UDP benefit in the 2026 cycle. <b>%%CLEAN_TOTAL_120%% verified clean in the incoming 120th: %%HOUSE_CLEAN%% House (%%HOUSE_CLEAN_D%% D, %%HOUSE_CLEAN_R%% R) + %%SEN_CLEAN%% Senate (%%SEN_CLEAN_D%% D, %%SEN_CLEAN_I%% I, %%SEN_CLEAN_R%% R).</b> %%CLEAN_HOUSE_R_SENTENCE%% A member is <b>unverified</b> only if they have no 2026 entries in <i>any</i> money source — %%UNVERIFIED_SENTENCE%% %%UNOPPOSED_SENTENCE%% %%CAREER_CLEAN_HOUSE%% incoming House members are career-clean (no corporate PAC, AIPAC direct, UDP support, or UDP opposition credit in any cycle).</p>
+<h3>Corporate PAC tolerance presets</h3>
+<p>Dirty money always includes any AIPAC PAC direct dollar and any UDP benefit dollar — that flag (%%FLAG_120%% of the incoming 120th) is not tolerance-based and is always on. Corporate PAC money counts as dirty under a tolerance preset: <b>Strict</b> — any net dirty dollar above $0 is dirty (the verified-clean count is in the paragraph above); <b>Balanced (default)</b> — corporate PAC over $100,000 and over 5% of 2026 receipts (%%BALANCED_NOT_DIRTY%% of 535 not dirty); <b>Lenient</b> — corporate PAC over $250,000 and over 10% of 2026 receipts (%%LENIENT_NOT_DIRTY%% of 535 not dirty). The middle tier — “Below threshold” — took corporate PAC money below the preset’s thresholds; it is never called clean, and the dollar amount is always shown. The full definitions are in methodology.md §14, which wins if this page ever disagrees.</p>
 <h3>Coverage end dates</h3>
 <table><thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead><tbody>
 <tr><td>Individual, self-funding, topline</td><td>weball</td><td>Oct 14, 2026</td></tr>
@@ -1588,6 +1687,11 @@ def clean_method_html(dataset):
         '%%UNVERIFIED_SENTENCE%%': unver_sentence,
         '%%UNOPPOSED_SENTENCE%%': unopp_sentence,
         '%%CAREER_CLEAN_HOUSE%%': str(sum(1 for r in house if is_career_clean(r))),
+        '%%BALANCED_NOT_DIRTY%%': str(sum(1 for r in incoming
+                                          if r['tier_balanced_2026'] in ('clean', 'below_threshold'))),
+        '%%LENIENT_NOT_DIRTY%%': str(sum(1 for r in incoming
+                                         if r['tier_lenient_2026'] in ('clean', 'below_threshold'))),
+        '%%FLAG_120%%': str(sum(1 for r in incoming if r['aipac_udp_flag_2026'] is True)),
     }
     html = METHOD_HTML
     for token, value in tokens.items():
