@@ -32,30 +32,76 @@ and the 2026 opposition credit in `opposition-computed.json`:
   three people with negative 2026 corporate PAC refunds — McConnell,
   Peters, Tina Smith.) Negative shares are kept when the denominator
   is positive.
-- `clean_2026` — True when corp, AIPAC direct, UDP support, and UDP
-  opposition credit are ALL zero in 2026. Individual contributions
-  are ALLOWED: a candidate can raise millions from individuals and
-  still be clean. A person is clean ONLY when 2026 linkage exists —
-  absence of linkage means UNVERIFIED (null), never clean by absence
-  of data. Linkage evidence is a 2026 entry in a committee-money
-  source: a tracked `per_cycle` / `udp_per_cycle` 2026 entry, or a
-  `self_funding_per_cycle` 2026 entry whose coverage end date falls
-  in calendar 2026 (the candidate's own committee filed a 2026-cycle
-  report covering 2026 activity). Other-committee and all-IE 2026
-  entries do NOT establish linkage on their own: they are third-party
-  reports about a race and can be filed under a stale candidate ID —
-  the proof case is Elaine Luria (see below), whose linked ID carries
-  $85,610 of other-committee money and $685,786 of all-IE support in
-  2026 while her real 2026 campaign (H6VA02198, $8,044,063.94
-  receipts, coverage through 10/14/2026) is unlinked. Her linked ID's
-  2026 weball row covers only through 07/15/2025 (a dormant committee
-  winding down, $590.89 receipts), so she stays null. Anthony
-  Constantino is the positive case: his tracked 2026 $0s are real —
-  his self-funding 2026 entry (loans $14,400,000, coverage
-  10/14/2026) plus all-IE support $459,491.94 / oppose $3,721,257.82
-  prove the committee is linked — so he is verified clean=True WITH
-  evidence (his True used to rest on having no per-cycle entries at
-  all, which the old has_pre_2026 guard could not catch).
+- `clean_2026` — True when the member took no NET dirty money in 2026:
+  `dirty_2026 <= 0`. (Changed Nov 12, 2026 — the old rule required all
+  four dirty components to be exactly zero, which misread refunds: a
+  member whose 2026 refunds exceeded their 2026 contributions read
+  dirty on a negative total. 17 members flip False -> True under the
+  net rule — 10 in the 120th: Ansari -$3,000, Balint -$1,000, Casar
+  -$1,000, Frost -$1,000, Markey -$1,000, Hickenlooper -$9,080,
+  Murphy -$6,000, Ryan -$15,000, Tokuda -$2,750, Warnock -$3,500;
+  plus 7 in the 119th only: Davis -$1,000, Peters -$116,600, Shaheen
+  -$11,050, McConnell -$97,212, Pelosi -$1,900, Durbin -$13,000,
+  Tina Smith -$23,500. Ryan's case: his corp_2026 is $0 — the
+  negative component is AIPAC direct, -$15,000 (a refund), not
+  corporate PAC. In every one of the 17, exactly one dirty component
+  is nonzero and it is negative, so the net rule and an
+  all-components-<=0 rule agree on the current data; the net rule is
+  the one implemented, because dirty_2026 is the defined net total.)
+  Individual contributions are ALLOWED: a candidate can raise
+  millions from individuals and still be clean. A person is clean
+  ONLY when 2026 linkage exists — absence of linkage means
+  UNVERIFIED (null), never clean by absence of data. Linkage evidence
+  is a 2026 entry in a committee-money source: a tracked `per_cycle` /
+  `udp_per_cycle` 2026 entry, or a `self_funding_per_cycle` 2026 entry
+  whose coverage end date falls in calendar 2026 (the candidate's own
+  committee filed a 2026-cycle report covering 2026 activity).
+  Other-committee and all-IE 2026 entries do NOT establish linkage on
+  their own: they are third-party reports about a race and can be
+  filed under a stale candidate ID — the proof case is Elaine Luria
+  (see below), whose linked ID carries $85,610 of other-committee
+  money and $685,786 of all-IE support in 2026 while her real 2026
+  campaign (H6VA02198, $8,044,063.94 receipts, coverage through
+  10/14/2026) is unlinked. Her linked ID's 2026 weball row covers
+  only through 07/15/2025 (a dormant committee winding down, $590.89
+  receipts), so she stays null. Anthony Constantino is the positive
+  case: his tracked 2026 $0s are real — his self-funding 2026 entry
+  (loans $14,400,000, coverage 10/14/2026) plus all-IE support
+  $459,491.94 / oppose $3,721,257.82 prove the committee is linked —
+  so he is verified clean=True WITH evidence (his True used to rest
+  on having no per-cycle entries at all, which the old has_pre_2026
+  guard could not catch).
+- `aipac_udp_flag_2026` — True when `aipac_direct_2026 > 0` OR
+  `udp_benefit_2026 > 0`. The "most egregious" flag: AIPAC direct
+  money or UDP benefit, in any amount, flags the member under EVERY
+  tolerance preset — it is not tolerance-based. 231 members of the
+  120th are flagged (291 roster-wide). A boolean on every row,
+  including the 4 nulls (all False — a flag is a money fact, not a
+  verdict).
+- `tier_balanced_2026` / `tier_lenient_2026` — the member's tier under
+  each corporate PAC tolerance preset (thresholds in config
+  `tolerance_presets`; Balanced is the default). Domain: `clean` /
+  `below_threshold` / `dirty`, or null exactly where `clean_2026` is
+  null (unverified / unopposed — never presented as clean). `dirty`
+  when flagged OR corporate-PAC-material under the preset (corp above
+  BOTH the dollar and the share threshold); `below_threshold` when
+  corporate PAC was taken but below the preset's thresholds (the
+  middle tier — never called "clean", and the dollar amount is always
+  shown via `corp_2026`); `clean` otherwise (corp <= 0 and not
+  flagged — which, given the flag definition, is exactly the
+  post-fix Strict-clean set restricted to corp <= 0). Counts over the
+  120th: Balanced clean 84 / below_threshold 119 / dirty 328;
+  Lenient clean 84 / below_threshold 173 / dirty 274; null 4 either
+  way. "Not dirty" under a preset (clean + below_threshold) is 203
+  Balanced / 257 Lenient. The tiers are monotone in the strictness
+  order: anyone clean under Strict is clean or below_threshold under
+  Balanced/Lenient — a looser preset never makes a Strict-clean
+  member dirty. (An earlier recount put not-dirty at 201 / 253; it
+  left Patrick Ryan and the below-threshold members carrying a
+  negative AIPAC component — Emily Randall under Balanced; Randall,
+  Sylvia R. Garcia, and Suhas Subramanyam under Lenient — in limbo,
+  counted neither clean nor dirty. The partition here counts Ryan
+  clean and those three below_threshold; see methodology §14.)
 - `unopposed_2026` — True when the person ran unopposed in 2026: every
   2026 candidate ID of theirs in weball26 sits in a race where no OTHER
   candidate has total receipts over $0. A filed opponent with $0
@@ -78,8 +124,8 @@ and the 2026 opposition credit in `opposition-computed.json`:
   unopposed keeps career-clean status (King-Hinds is the proof case:
   career-clean AND contested-clean in 2026).
   In practice the rule leaves: exactly four nulls (Luria unverified +
-  three unopposed); True 81 / False 579; 120th House clean 64
-  (61 D, 3 R).
+  three unopposed); True 98 / False 562; 120th House clean 70
+  (67 D, 3 R); 120th Senate clean 14 (13 D, 1 I).
 
 Gap notes appended to `data_notes` (exact committed text):
 - corp_2026 > 0 and individual_2026 == 0: the $0 individual figure is
@@ -101,9 +147,11 @@ files in the FINAL column order (note: the CSV and JSON orders differ
 in the 2026 trio — CSV is individual/corp/AIPAC, JSON is
 corp/AIPAC/individual; both orders come from config). Fails loudly if
 the clean counts do not match the expectations in config
-(verification.clean_2026).
+(verification.clean_2026) or the flag / tier counts do not match
+(verification.tiered_2026).
 """
 import json
+from collections import Counter
 
 import pandas as pd
 
@@ -218,6 +266,39 @@ def has_2026_linkage(r):
     return False
 
 
+def corp_material_2026(r, preset):
+    """Corporate PAC counts as dirty under a tolerance preset only when
+    BOTH the dollar amount AND the share of 2026 total receipts exceed
+    the preset's thresholds (config tolerance_presets). The amount test
+    short-circuits: a corp total at or below the dollar threshold is
+    never material, whatever the share. A non-positive
+    total_receipts_2026 leaves the share undefined and the share test
+    cannot pass.
+    """
+    th = CFG['verification']['tolerance_presets'][preset]
+    if r['corp_2026'] <= th['corp_amount']:
+        return False
+    total = r['total_receipts_2026']
+    if not isinstance(total, (int, float)) or isinstance(total, bool) or total <= 0:
+        return False
+    return r['corp_2026'] / total > th['corp_share']
+
+
+def tier_2026(r, preset):
+    """Tier under a tolerance preset (see module docstring): 'dirty'
+    when AIPAC/UDP-flagged or corporate-PAC-material; 'below_threshold'
+    when corporate PAC was taken but below the preset's thresholds;
+    'clean' otherwise. None exactly where clean_2026 is None.
+    """
+    if r['clean_2026'] is None:
+        return None
+    if r['aipac_udp_flag_2026'] or corp_material_2026(r, preset):
+        return 'dirty'
+    if r['corp_2026'] > 0:
+        return 'below_threshold'
+    return 'clean'
+
+
 race_map, by_cid = load_weball_2026_races()
 
 for r in records:
@@ -228,6 +309,9 @@ for r in records:
     r['udp_opp_credit_2026'] = credit_2026.get(r['person_key'], 0.0)
     r['udp_benefit_2026'] = round(r['udp_support_2026'] + r['udp_opp_credit_2026'], 2)
     r['dirty_2026'] = round(r['corp_2026'] + r['aipac_direct_2026'] + r['udp_benefit_2026'], 2)
+    # AIPAC/UDP flag (always on, not tolerance-based): any AIPAC direct
+    # dollar or UDP benefit dollar flags the member under every preset.
+    r['aipac_udp_flag_2026'] = bool(r['aipac_direct_2026'] > 0 or r['udp_benefit_2026'] > 0)
     denom = r['individual_2026'] + r['corp_2026'] + r['aipac_direct_2026']
     r['dep_share_2026'] = (round((r['corp_2026'] + r['aipac_direct_2026']) / denom, 4)
                            if denom > 0 else None)
@@ -261,10 +345,14 @@ for r in records:
     races_2026, unopp_races = unopposed_2026_races(r, race_map, by_cid)
     r['unopposed_2026'] = bool(races_2026) and len(unopp_races) == len(races_2026)
 
-    # Clean rule (methodology §14): all four dirty components zero,
+    # Clean rule (methodology §14): no NET dirty money in 2026
+    # (dirty_2026 <= 0 — refunds exceeding contributions read clean),
     # and only when 2026 linkage exists (generalized Nov 12, 2026 —
     # the old rule hardcoded the Luria exception via has_pre_2026).
-    # An unopposed would-be-clean verdict is null, not True.
+    # An unopposed would-be-clean verdict is null, not True — and the
+    # unopposed test is the same net test, so an unopposed member with
+    # net-negative dirty money is null, not clean (no such member in
+    # the current data; the 17 net-negative members are all contested).
     if r['in_120th'] == 'yes' and not has_2026_linkage(r):
         r['clean_2026'] = None
         # Idempotent: compute_2026 appends to data_notes, so a
@@ -274,15 +362,18 @@ for r in records:
         # regenerates data_notes fresh each time).
         if 'UNVERIFIED' not in r['data_notes']:
             r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
-    elif (r['unopposed_2026'] and r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
-            and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0):
+    elif r['unopposed_2026'] and r['dirty_2026'] <= 0:
         r['clean_2026'] = None
         race_label = ', '.join(format_race(race) for race in unopp_races)
         if 'UNOPPOSED' not in r['data_notes']:
             r['data_notes'] = r['data_notes'] + UNOPPOSED_NOTE.format(race=race_label)
     else:
-        r['clean_2026'] = (r['corp_2026'] == 0 and r['aipac_direct_2026'] == 0
-                           and r['udp_support_2026'] == 0 and r['udp_opp_credit_2026'] == 0)
+        r['clean_2026'] = r['dirty_2026'] <= 0
+
+    # Tolerance tiers (methodology §14): the flag takes precedence —
+    # a flagged member is dirty under every preset.
+    r['tier_balanced_2026'] = tier_2026(r, 'balanced')
+    r['tier_lenient_2026'] = tier_2026(r, 'lenient')
 
     # Gap note: corporate PAC money with $0 individual in 2026.
     if r['corp_2026'] > 0 and r['individual_2026'] == 0:
@@ -325,12 +416,42 @@ not_career = sum(1 for r in house_clean if r['person_key'] not in career_keys)
 if not_career != exp['house_120th_clean_2026_not_career_clean']:
     raise SystemExit(f'2026-clean but not career-clean {not_career} != expected '
                      f"{exp['house_120th_clean_2026_not_career_clean']}")
+# ---- Assert the expected flag and tier counts (config verification.tiered_2026) ----
+exp_t = CFG['verification']['tiered_2026']
+flag_all = sum(1 for r in records if r['aipac_udp_flag_2026'])
+if flag_all != exp_t['aipac_udp_flag_all']:
+    raise SystemExit(f'aipac_udp_flag_2026 roster-wide {flag_all} != expected '
+                     f"{exp_t['aipac_udp_flag_all']}")
+r120 = [r for r in records if r['in_120th'] == 'yes']
+flag_120 = sum(1 for r in r120 if r['aipac_udp_flag_2026'])
+if flag_120 != exp_t['aipac_udp_flag_120th']:
+    raise SystemExit(f'aipac_udp_flag_2026 120th {flag_120} != expected '
+                     f"{exp_t['aipac_udp_flag_120th']}")
+tier_counts = {}
+for preset in ('balanced', 'lenient'):
+    tier_counts[preset] = Counter(r[f'tier_{preset}_2026'] for r in r120)
+    for tier_name in ('clean', 'below_threshold', 'dirty'):
+        if tier_counts[preset].get(tier_name, 0) != exp_t[preset][tier_name]:
+            raise SystemExit(f'tier_{preset}_2026 {tier_name} '
+                             f"{tier_counts[preset].get(tier_name, 0)} != expected "
+                             f"{exp_t[preset][tier_name]}")
+    if tier_counts[preset].get(None, 0) != exp_t[preset]['null']:
+        raise SystemExit(f"tier_{preset}_2026 null {tier_counts[preset].get(None, 0)} "
+                         f"!= expected {exp_t[preset]['null']}")
+    not_dirty = (tier_counts[preset].get('clean', 0)
+                 + tier_counts[preset].get('below_threshold', 0))
+    if not_dirty != exp_t[preset]['not_dirty']:
+        raise SystemExit(f'tier_{preset}_2026 not-dirty {not_dirty} != expected '
+                         f"{exp_t[preset]['not_dirty']}")
 print(f"clean_2026: True {counts['true_total']}, False {counts['false_total']}, "
       f"None {counts['null_total']}; "
       f"unopposed_2026 True {sum(1 for r in records if r['unopposed_2026'])}; "
       f"120th House clean {len(house_clean)} "
       f"({by_party['Democrat']} D, {by_party['Republican']} R); "
-      f"career-clean 120th House {len(career_clean)}")
+      f"career-clean 120th House {len(career_clean)}; "
+      f"aipac_udp_flag_2026 120th {flag_120} / roster {flag_all}; "
+      f"tiers balanced {dict(tier_counts['balanced'])}; "
+      f"tiers lenient {dict(tier_counts['lenient'])}")
 
 # ---- Primary-target list ----
 targets = [r for r in house120 if r['party_120'] == 'Democrat' and r['dirty_2026'] > 0]
