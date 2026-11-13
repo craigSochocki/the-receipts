@@ -10,15 +10,17 @@ Checks (exit non-zero on any mismatch, printing every failure):
       cent (Armstrong's "unknown" money excluded from every sum).
   (c) all twelve rank columns recompute exactly (competition ranking:
       rank = 1 + count of strictly greater values).
-  (d) clean counts match config verification.clean_2026 (True 81 /
-      False 579 / None 4; 120th House clean 64 — 61 D, 3 R;
+  (d) clean counts match config verification.clean_2026 (True 98 /
+      False 562 / None 4; 120th House clean 70 — 67 D, 3 R;
       career-clean 120th House 53 — 50 D, 3 R; 2026-clean but not
-      career-clean 11).
-  (e) the twenty 2026 columns, the clean rule, and dep_share
+      career-clean 17). The True count is post net-negative fix: 17
+      members with dirty_2026 < 0 from refunds read clean (see (o)).
+  (e) the twenty-three 2026 columns, the clean rule, and dep_share
       recompute exactly (including the Luria unverified case, the
       generalized linkage rule, the unopposed_2026 flag recomputed
       from weball26, the unopposed nulling of would-be-clean verdicts,
-      and the int/float split on empty 2026 sums).
+      the net-negative clean rule, the AIPAC/UDP flag and both
+      tolerance tiers, and the int/float split on empty 2026 sums).
   (f) the opposition career columns recompute from
       opposition-computed.json.
   (g) dedup audit: the dropped per-cycle entries in dedup-applied.json
@@ -58,6 +60,16 @@ Checks (exit non-zero on any mismatch, printing every failure):
       to the dataset for every row — None for non-senators, 1/2/3 for
       every senator; 120th class counts C1 33 / C2 32 / C3 34; 16 Class 3
       Democrats in the 120th; named spot cases.
+  (o) tiered dirty rule (methodology §14): the AIPAC/UDP flag
+      recomputes from aipac_direct_2026 / udp_benefit_2026 (231 in the
+      120th, 291 roster-wide); both tolerance tiers recompute from the
+      flag + the config thresholds (Balanced 84 / 119 / 328, Lenient
+      84 / 173 / 274 over the 120th, null 4); the corp-only splits
+      (211 corp-only in the 120th; 93 / 41 stay dirty); the 2028-target
+      counts under each preset (Strict 192 / 13, Balanced 133 / 6,
+      Lenient 103 / 3); spot cases Ryan (clean on a -$15,000 AIPAC
+      refund, corp $0), Randall and Garcia (below_threshold with a
+      -$5,000 AIPAC component).
 
 Caveat (methodology §13): this verifies the dataset against its own
 definitions. It cannot catch a missing dimension — e.g. the
@@ -379,7 +391,7 @@ def main():
               f"got {counts[key]}")
     house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
     house_clean = [r for r in house120 if r['clean_2026'] is True]
-    check('120th House clean == 64', len(house_clean) == exp['house_120th_verified_clean'],
+    check('120th House clean == 70', len(house_clean) == exp['house_120th_verified_clean'],
           f"got {len(house_clean)}")
     for party in ('Democrat', 'Republican'):
         n = sum(1 for r in house_clean if r['party_120'] == party)
@@ -396,8 +408,132 @@ def main():
               n == exp[f'house_120th_career_clean_{party.lower()}'], f'got {n}')
     career_keys = {r['person_key'] for r in career_clean}
     not_career = sum(1 for r in house_clean if r['person_key'] not in career_keys)
-    check('2026-clean but not career-clean (120th House) == 11',
+    check('2026-clean but not career-clean (120th House) == 17',
           not_career == exp['house_120th_clean_2026_not_career_clean'], f'got {not_career}')
+
+    # (o) tiered dirty rule: flag, tiers, corp-only splits, targets.
+    # The tier logic is re-derived here from the config thresholds,
+    # independently of compute_2026.py (same definitions, separate code).
+    exp_t = CFG['verification']['tiered_2026']
+
+    def corp_material(corp, total_receipts, preset):
+        th = CFG['verification']['tolerance_presets'][preset]
+        if corp <= th['corp_amount']:
+            return False
+        if not isinstance(total_receipts, (int, float)) \
+                or isinstance(total_receipts, bool) or total_receipts <= 0:
+            return False
+        return corp / total_receipts > th['corp_share']
+
+    def tier_for(clean, flag, corp, total_receipts, preset):
+        if clean is None:
+            return None
+        if flag or corp_material(corp, total_receipts, preset):
+            return 'dirty'
+        if corp > 0:
+            return 'below_threshold'
+        return 'clean'
+
+    r120 = [r for r in records if r['in_120th'] == 'yes']
+    flag_120 = sum(1 for r in r120 if r['aipac_udp_flag_2026'] is True)
+    check('aipac_udp_flag_2026 120th == 231', flag_120 == exp_t['aipac_udp_flag_120th'],
+          f'got {flag_120}')
+    flag_all = sum(1 for r in records if r['aipac_udp_flag_2026'] is True)
+    check('aipac_udp_flag_2026 roster-wide == 291',
+          flag_all == exp_t['aipac_udp_flag_all'], f'got {flag_all}')
+    check('aipac_udp_flag_2026 is a boolean on every row',
+          all(r['aipac_udp_flag_2026'] in (True, False) for r in records))
+    for preset in ('balanced', 'lenient'):
+        got = Counter(r[f'tier_{preset}_2026'] for r in r120)
+        for tier_name in ('clean', 'below_threshold', 'dirty'):
+            check(f'tier_{preset}_2026 {tier_name} == {exp_t[preset][tier_name]}',
+                  got.get(tier_name, 0) == exp_t[preset][tier_name],
+                  f"got {got.get(tier_name, 0)}")
+        check(f"tier_{preset}_2026 null == {exp_t[preset]['null']}",
+              got.get(None, 0) == exp_t[preset]['null'], f"got {got.get(None, 0)}")
+        not_dirty = got.get('clean', 0) + got.get('below_threshold', 0)
+        check(f'tier_{preset}_2026 not-dirty (clean + below_threshold) == '
+              f"{exp_t[preset]['not_dirty']}",
+              not_dirty == exp_t[preset]['not_dirty'], f'got {not_dirty}')
+        # Tier nulls coincide exactly with clean_2026 nulls.
+        check(f'tier_{preset}_2026 is null exactly where clean_2026 is null',
+              all((r[f'tier_{preset}_2026'] is None) == (r['clean_2026'] is None)
+                  for r in records))
+        # Monotonicity: a Strict-clean member is never dirty under a
+        # looser preset (a looser preset only relaxes the corp rule).
+        check(f'no Strict-clean member is dirty under {preset}',
+              all(r[f'tier_{preset}_2026'] != 'dirty' for r in records
+                  if r['clean_2026'] is True))
+        # The flag takes precedence: every flagged member is dirty
+        # under every preset.
+        check(f'every flagged member is dirty under {preset}',
+              all(r[f'tier_{preset}_2026'] == 'dirty' for r in records
+                  if r['aipac_udp_flag_2026'] is True
+                  and r['clean_2026'] is not None))
+    # Corp-only members in the 120th (corp > 0, AIPAC == 0, UDP == 0)
+    # and how many stay dirty under each preset.
+    corp_only = [r for r in r120 if r['corp_2026'] > 0
+                 and r['aipac_direct_2026'] == 0 and r['udp_benefit_2026'] == 0]
+    check('corp-only members in the 120th == 211',
+          len(corp_only) == exp_t['corp_only_2026_120th'], f'got {len(corp_only)}')
+    for preset, stay_key, below_key in (
+            ('balanced', 'corp_only_staying_dirty_balanced', 'corp_only_below_balanced'),
+            ('lenient', 'corp_only_staying_dirty_lenient', 'corp_only_below_lenient')):
+        staying = sum(1 for r in corp_only
+                      if corp_material(r['corp_2026'], r['total_receipts_2026'], preset))
+        check(f'corp-only staying dirty under {preset} == {exp_t[stay_key]}',
+              staying == exp_t[stay_key], f'got {staying}')
+        check(f'corp-only below threshold under {preset} == {exp_t[below_key]}',
+              len(corp_only) - staying == exp_t[below_key],
+              f'got {len(corp_only) - staying}')
+    # 2028 primary targets under each preset: tier dirty among House
+    # Democrats / Class 3 Senate Democrats in the 120th; Strict is
+    # dirty_2026 > 0.
+    house_dem = [r for r in r120 if r['chamber_120'] == 'House'
+                 and r['party_120'] == 'Democrat']
+    sen3_dem = [r for r in r120 if r['chamber_120'] == 'Senate'
+                and r['party_120'] == 'Democrat' and r['senate_class'] == 3]
+    check('2028 targets Strict House == 192',
+          sum(1 for r in house_dem if r['dirty_2026'] > 0)
+          == exp_t['targets_2028_strict_house'],
+          f"got {sum(1 for r in house_dem if r['dirty_2026'] > 0)}")
+    check('2028 targets Strict Senate Class 3 == 13',
+          sum(1 for r in sen3_dem if r['dirty_2026'] > 0)
+          == exp_t['targets_2028_strict_senate_class3'],
+          f"got {sum(1 for r in sen3_dem if r['dirty_2026'] > 0)}")
+    for preset in ('balanced', 'lenient'):
+        th = sum(1 for r in house_dem if r[f'tier_{preset}_2026'] == 'dirty')
+        check(f'2028 targets {preset} House == {exp_t[f"targets_2028_{preset}_house"]}',
+              th == exp_t[f'targets_2028_{preset}_house'], f'got {th}')
+        ts = sum(1 for r in sen3_dem if r[f'tier_{preset}_2026'] == 'dirty')
+        check(f'2028 targets {preset} Senate Class 3 == '
+              f"{exp_t[f'targets_2028_{preset}_senate_class3']}",
+              ts == exp_t[f'targets_2028_{preset}_senate_class3'], f'got {ts}')
+    # Spot cases.
+    ryan = by_key['R000579']  # Patrick Ryan (NY-18)
+    check('Ryan clean on a -$15,000 AIPAC refund (corp $0, dirty -$15,000)',
+          ryan['clean_2026'] is True and ryan['corp_2026'] == 0
+          and ryan['aipac_direct_2026'] == -15000.0 and ryan['dirty_2026'] == -15000.0
+          and ryan['aipac_udp_flag_2026'] is False
+          and ryan['tier_balanced_2026'] == 'clean'
+          and ryan['tier_lenient_2026'] == 'clean',
+          f"clean={ryan['clean_2026']} corp={ryan['corp_2026']} "
+          f"aipac={ryan['aipac_direct_2026']} dirty={ryan['dirty_2026']}")
+    randall = next(r for r in records if r['full_name'] == 'Emily Randall')
+    check('Randall below_threshold under both presets (corp $68,250, AIPAC -$5,000)',
+          randall['corp_2026'] == 68250.0 and randall['aipac_direct_2026'] == -5000.0
+          and randall['tier_balanced_2026'] == 'below_threshold'
+          and randall['tier_lenient_2026'] == 'below_threshold',
+          f"corp={randall['corp_2026']} aipac={randall['aipac_direct_2026']} "
+          f"balanced={randall['tier_balanced_2026']}")
+    garcia = next(r for r in records if r['full_name'] == 'Sylvia R. Garcia')
+    check('Garcia dirty under Balanced, below_threshold under Lenient '
+          '(corp $238,500, AIPAC -$5,000)',
+          garcia['corp_2026'] == 238500.0 and garcia['aipac_direct_2026'] == -5000.0
+          and garcia['tier_balanced_2026'] == 'dirty'
+          and garcia['tier_lenient_2026'] == 'below_threshold',
+          f"balanced={garcia['tier_balanced_2026']} "
+          f"lenient={garcia['tier_lenient_2026']}")
 
     # (e) 2026 columns, clean rule, dep_share
     opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
@@ -462,18 +598,23 @@ def main():
             not any(cid not in ids and receipts > 0
                     for cid, receipts in race_map.get(race, []))
             for race in races)
+        # AIPAC/UDP flag (always on): any AIPAC direct dollar or UDP
+        # benefit dollar flags the member under every preset.
+        expect['aipac_udp_flag_2026'] = bool(expect['aipac_direct_2026'] > 0
+                                            or expect['udp_benefit_2026'] > 0)
+        # Net-negative clean rule: no NET dirty money (dirty_2026 <= 0)
+        # reads clean; the unopposed test is the same net test.
         if r['in_120th'] == 'yes' and not has_linkage:
             expect['clean_2026'] = None
-        elif (expect['unopposed_2026'] and expect['corp_2026'] == 0
-                and expect['aipac_direct_2026'] == 0
-                and expect['udp_support_2026'] == 0
-                and expect['udp_opp_credit_2026'] == 0):
+        elif expect['unopposed_2026'] and expect['dirty_2026'] <= 0:
             expect['clean_2026'] = None
         else:
-            expect['clean_2026'] = (expect['corp_2026'] == 0
-                                    and expect['aipac_direct_2026'] == 0
-                                    and expect['udp_support_2026'] == 0
-                                    and expect['udp_opp_credit_2026'] == 0)
+            expect['clean_2026'] = expect['dirty_2026'] <= 0
+        # Tolerance tiers (tier_for is defined in check (o) above).
+        for preset in ('balanced', 'lenient'):
+            expect[f'tier_{preset}_2026'] = tier_for(
+                expect['clean_2026'], expect['aipac_udp_flag_2026'],
+                expect['corp_2026'], expect['total_receipts_2026'], preset)
         for k, v in expect.items():
             if r[k] != v:
                 mism += 1
