@@ -248,6 +248,24 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
 .frontdoor h2{font-size:1.05rem;letter-spacing:.02em;margin:32px 0 6px}
 .frontdoor h2:first-child{margin-top:12px}
+/* Scrollytelling chapters: one chapter per beat of the story, revealed
+   as the reader scrolls (see initReveals). Chapters are visible by
+   default; the hidden-before-reveal state lives under html.js only,
+   so no-JS (or a failed observer) still shows every chapter. */
+.frontdoor .chapter{margin:0 0 48px}
+.frontdoor .chapter:first-child{margin-top:8px}
+html.js .chapter{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
+html.js .chapter.in{opacity:1;transform:none}
+html.js .chapter .dirtiest li{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+html.js .chapter.in .dirtiest li{opacity:1;transform:none}
+html.js .chapter .dot{opacity:0;transition:opacity .4s ease}
+html.js .chapter.in .dot{opacity:1}
+html.js .chapter .tile{opacity:0;transition:opacity .45s ease}
+html.js .chapter.in .tile{opacity:1}
+@media (prefers-reduced-motion: reduce){
+html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
+}
+@media(max-width:560px){.hook{font-size:1.55rem}}
 .comp{display:flex;flex-direction:column;gap:18px}
 .comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}
@@ -256,7 +274,7 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
 .delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
-.headline{font-size:1.3rem;line-height:1.5;margin:6px 0 4px}
+.hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600}
 .dirtiest{list-style:none;margin:6px 0 0;padding:0}
 .dirtiest li{border-bottom:1px solid #ececec}
 .dirty-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%;text-align:left;background:none;border:none;padding:12px 2px;font:inherit;cursor:pointer;color:inherit}
@@ -346,21 +364,27 @@ TEMPLATE_BODY = """
 </section>
 </main>
 <div id="front-door" class="frontdoor">
-<section aria-label="Dirtiest in 2026">
+<section class="chapter" data-chapter="hook" aria-label="The dirtiest fact">
+<p class="hook" id="dirtiest-headline"></p>
+</section>
+<section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest in 2026">
 <h2>Dirtiest in 2026</h2>
-<p class="headline" id="dirtiest-headline"></p>
 <ol class="dirtiest" id="dirtiest-list"></ol>
 <p class="fine">Dirty money in 2026 is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. 2026 is partial; see the methodology for the coverage cutoffs.</p>
 </section>
-<section aria-label="Clean money">
+<section class="chapter" data-chapter="dirty-definition" aria-label="What counts as dirty">
+<h2>What counts as dirty</h2>
+<div id="dirty-explainer"></div>
+</section>
+<section class="chapter" data-chapter="clean" aria-label="Clean money">
 <h2>Clean money</h2>
 <div class="story" id="landing-story"></div>
 </section>
-<section aria-label="Composition of Congress">
+<section class="chapter" data-chapter="chamber" aria-label="Composition of Congress">
 <h2>Who sits in the 120th</h2>
 <div id="composition"></div>
 </section>
-<section aria-label="Find your member">
+<section class="chapter" data-chapter="finder" aria-label="Find your member">
 <h2>Find your member</h2>
 <div class="finder" id="finder">
 <label for="find-state">Your state</label>
@@ -369,8 +393,10 @@ TEMPLATE_BODY = """
 <span id="find-person"></span>
 </div>
 </section>
+<section class="chapter" data-chapter="data" aria-label="The data">
 <p class="fresh" id="fresh-line">%%FRESH_LINE%%</p>
 <p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
+</section>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
 <footer>
