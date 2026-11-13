@@ -195,6 +195,10 @@ section[hidden]{display:none}
 .controls label{font-size:.9rem;display:flex;align-items:center;gap:5px}
 .btn{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:40px}
 .btn.ghost{background:#fff;color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.chips:empty{display:none}
+.chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 11px;font-size:.85rem;cursor:pointer}
+.chip.reset{background:#fff;border-color:var(--ink);font-weight:600}
 .viewbtns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .viewbtns button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:.88rem;cursor:pointer}
 .viewbtns button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
@@ -342,6 +346,7 @@ TEMPLATE_BODY = """
 <label><input type="checkbox" id="f-clean"> Not dirty in 2026 only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
+<div class="chips" id="filter-chips"></div>
 <div class="viewbtns" id="viewbtns" role="group" aria-label="Column views"></div>
 <div class="totals" id="totals"></div>
 <div class="tablewrap"><table id="main-table"><thead></thead><tbody></tbody></table></div>
@@ -415,7 +420,7 @@ TEMPLATE_BODY = """
 <div class="finder" id="finder">
 <label for="find-state">Your state</label>
 <select id="find-state" aria-label="Your state"><option value="">Choose your state…</option></select>
-<select id="find-district" aria-label="District" disabled><option value="">Choose a district…</option></select>
+<select id="find-district" aria-label="District" disabled><option value="">Choose a seat…</option></select>
 <span id="find-person"></span>
 </div>
 </section>
@@ -725,6 +730,7 @@ function renderTable(){
   ];
   document.getElementById('totals').innerHTML = t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join('');
   document.getElementById('showing').textContent = 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
+  renderChips();
   document.getElementById('foot-totals').textContent =
     'Filtered set totals — individual '+fmtMoney(sum('individual_contribution_total_career'))
     +' · corporate PAC '+fmtMoney(sum('corporate_pac_career'))
@@ -733,6 +739,47 @@ function renderTable(){
     +' · UDP benefit '+fmtMoney(sum('udp_ie_total_benefit_career'))
     +' · self-funding '+fmtMoney(sum('self_funding_career'))
     +' · all IE total '+fmtMoney(sum('all_ie_total_career'))+'.';
+}
+function renderChips(){
+  const chips = [];
+  const q = state.q.trim();
+  if(q) chips.push({k:'q', label:'Search: \u201c'+q+'\u201d'});
+  if(state.congress!=='all') chips.push({k:'congress', label:'Congress: '+({119:'119th',120:'120th',both:'In both'})[state.congress]});
+  if(state.chamber!=='all') chips.push({k:'chamber', label:'Chamber: '+state.chamber});
+  if(state.party!=='all') chips.push({k:'party', label:'Party: '+state.party});
+  if(state.state!=='all') chips.push({k:'state', label:'State: '+state.state});
+  if(state.leadership) chips.push({k:'leadership', label:'Leadership (119th; 120th TBD)'});
+  if(state.clean) chips.push({k:'clean', label:'Not dirty in 2026 only'});
+  const el = document.getElementById('filter-chips');
+  if(!chips.length){ el.innerHTML=''; return; }
+  el.innerHTML = chips.map(c=>'<button type="button" class="chip" data-filter="'+c.k+'" title="Clear this filter">'+esc(c.label)+' \u2715</button>').join(' ')
+    + ' <button type="button" class="chip reset" id="filters-reset">Reset filters</button>';
+  el.querySelectorAll('.chip[data-filter]').forEach(b=>{
+    b.addEventListener('click', ()=>clearFilter(b.getAttribute('data-filter')));
+  });
+  document.getElementById('filters-reset').addEventListener('click', resetFilters);
+}
+function clearFilter(k){
+  if(k==='q'){ state.q=''; document.getElementById('q').value=''; }
+  if(k==='congress'){ state.congress='all'; document.getElementById('f-congress').value='all'; }
+  if(k==='chamber'){ state.chamber='all'; document.getElementById('f-chamber').value='all'; }
+  if(k==='party'){ state.party='all'; document.getElementById('f-party').value='all'; }
+  if(k==='state'){ state.state='all'; document.getElementById('f-state').value='all'; }
+  if(k==='leadership'){ state.leadership=false; document.getElementById('f-leader').checked=false; }
+  if(k==='clean'){ state.clean=false; document.getElementById('f-clean').checked=false; }
+  renderTable();
+}
+function resetFilters(){
+  state.q=''; state.congress='all'; state.chamber='all'; state.party='all';
+  state.state='all'; state.leadership=false; state.clean=false;
+  document.getElementById('q').value='';
+  document.getElementById('f-congress').value='all';
+  document.getElementById('f-chamber').value='all';
+  document.getElementById('f-party').value='all';
+  document.getElementById('f-state').value='all';
+  document.getElementById('f-leader').checked=false;
+  document.getElementById('f-clean').checked=false;
+  renderTable();
 }
 function renderViewBtns(){
   document.getElementById('viewbtns').innerHTML = Object.entries(VIEWS).map(([k,v])=>
@@ -1053,9 +1100,9 @@ function initFinder(){
     const dist = document.getElementById('find-district');
     const person = document.getElementById('find-person');
     person.innerHTML = '';
-    if(!sel.value){ dist.innerHTML = '<option value="">Choose a district…</option>'; dist.disabled = true; return; }
+    if(!sel.value){ dist.innerHTML = '<option value="">Choose a seat…</option>'; dist.disabled = true; return; }
     const seats = finderSeats(sel.value);
-    dist.innerHTML = '<option value="">Choose a district…</option>'
+    dist.innerHTML = '<option value="">Choose a seat…</option>'
       + seats.map(s=>'<option value="'+esc(s.value)+'">'+esc(s.label)+'</option>').join('');
     dist.disabled = false;
     if(!seats.some(s=>s.value!=='senate')){
@@ -1091,6 +1138,9 @@ function findPerson(key){
   document.getElementById('f-state').value = 'all';
   document.getElementById('f-leader').checked = false;
   document.getElementById('f-clean').checked = false;
+  // U2: the handoff lands in Explore on the Tracker tab, so the
+  // filtered table is what the reader sees behind the drill-down.
+  showTab('tracker');
   renderTable();
   openDetail(key);
 }

@@ -1155,6 +1155,36 @@ assert.strictEqual(
   "finder sets the search box to the person");
 closeDetail();
 
+/* ---- U2: finder handoff lands in Explore on the Tracker tab ---- */
+setMode("front");
+findPerson(elSayedKey);
+assert.strictEqual(
+  document.getElementById("front-door").hidden, true,
+  "finder handoff hides the front door");
+assert.strictEqual(
+  document.getElementById("main").hidden, false,
+  "finder handoff shows Explore");
+assert.strictEqual(
+  document.getElementById("tab-tracker").hidden, false,
+  "finder handoff lands on the Tracker tab");
+assert.ok(
+  document.getElementById("filter-chips").innerHTML.includes("Abdul El-Sayed"),
+  "finder filters show as chips");
+assert.ok(
+  document.getElementById("filter-chips").innerHTML.includes("Reset filters"),
+  "chips carry a Reset button");
+closeDetail();
+document.getElementById("filters-reset").click();
+assert.strictEqual(
+  document.getElementById("q").value, "",
+  "Reset clears the search box");
+assert.strictEqual(
+  document.querySelectorAll("#main-table tbody tr").length, 664,
+  "Reset restores all 664 rows");
+assert.strictEqual(
+  document.getElementById("filter-chips").innerHTML, "",
+  "Reset clears the chips");
+
 /* ---- finder result buttons carry party chips + outcome ---- */
 document.getElementById("find-state").value = "MI";
 document.getElementById("find-district").listeners.change.forEach((f) =>
