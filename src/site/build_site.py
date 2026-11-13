@@ -53,7 +53,7 @@ SCALARS = [
     "person_key", "full_name", "state",
     "district_119", "district_120", "chamber_119", "chamber_120",
     "party_119", "party_120", "leadership_119", "leadership_120",
-    "in_119th", "in_120th", "fec_candidate_ids",
+    "in_119th", "in_120th", "fec_candidate_ids", "senate_class",
     "individual_contribution_total_career", "aipac_pac_direct_career",
     "aipac_earmark_transmitted_career", "corporate_pac_career",
     "corporate_earmark_transmitted_career",
@@ -312,6 +312,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <button role="tab" aria-selected="false" data-tab="clean">Clean money</button>
 <button role="tab" aria-selected="false" data-tab="breakdown">Party breakdown</button>
 <button role="tab" aria-selected="false" data-tab="targets">2026 primary targets</button>
+<button role="tab" aria-selected="false" data-tab="targets28">2028 primary targets</button>
 <button role="tab" aria-selected="false" data-tab="method">Methodology</button>
 </nav>
 <main id="main">
@@ -359,6 +360,16 @@ TEMPLATE_BODY = """
 <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
+<section id="tab-targets28" hidden>
+<h2 class="sec">2028 primary targets — the dirtiest Democrats to watch</h2>
+<p style="color:var(--muted)" id="targets28-intro"></p>
+<h3>House — every seat is up in 2028</h3>
+<div class="tablewrap"><table id="targets28-house-table"><thead></thead><tbody></tbody></table></div>
+<h3>Senate — Class 3 seats, next up in 2028</h3>
+<p style="color:var(--muted)">Class comes from the Senate-term class field in the legislators data — the same derivation that puts every 120th senator in Class 1, 2, or 3. See Methodology §14.</p>
+<div class="tablewrap"><table id="targets28-senate-table"><thead></thead><tbody></tbody></table></div>
+</section>
+
 <section id="tab-method" class="method" hidden>
 <h2 class="sec">Methodology</h2>
 <p style="color:var(--muted)">Condensed from <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a> in the repo, which is the authoritative version. If this page and methodology.md ever disagree on a number, methodology.md wins.</p>
@@ -397,6 +408,7 @@ TEMPLATE_BODY = """
 </section>
 <section class="chapter" data-chapter="data" aria-label="The data">
 <p class="fresh" id="fresh-line">%%FRESH_LINE%%</p>
+<p>Looking ahead to 2028: the dirtiest Democrats to watch for 2028 primaries. <button class="btn" id="targets28-btn" type="button">2028 primary targets</button></p>
 <p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
 </section>
 </div>
@@ -1253,6 +1265,29 @@ function renderTargets(){
   document.querySelectorAll('#targets-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
+/* ---- 2028 primary targets: same rule, seats up in 2028 ----
+   House: every seat is up, so the 2026 pool carries over. Senate:
+   Class 3 Democrats only (senate_class 3, from the dataset — the
+   legislators yaml's Senate-term class field; see methodology §14).
+   The intro is computed at render, never typed: counts change with
+   the data, and the framing is a watchlist, not a ballot prediction. */
+function renderTargets2028(){
+  const house = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&num(p.dirty_2026)>0)
+    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+  const senate = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='Senate'&&p.party_120==='Democrat'&&p.senate_class===3&&num(p.dirty_2026)>0)
+    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+  document.getElementById('targets28-intro').innerHTML =
+    'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028. Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
+  const rowHtml = (p,i)=>'<tr data-key="'+p.person_key+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>';
+  document.querySelector('#targets28-house-table thead').innerHTML =
+    '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
+  document.querySelector('#targets28-house-table tbody').innerHTML = house.map(rowHtml).join('');
+  document.querySelector('#targets28-senate-table thead').innerHTML =
+    '<tr><th>#</th><th>Name</th><th>Seat</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
+  document.querySelector('#targets28-senate-table tbody').innerHTML = senate.map(rowHtml).join('');
+  document.querySelectorAll('#targets28-house-table tbody tr, #targets28-senate-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
+}
+
 /* ---- CSV download (from the same embedded figures) ---- */
 function csvCell(v){
   if(v===null||v===undefined) return '';
@@ -1400,7 +1435,7 @@ function showTab(name){
   if(state.mode!=='explore') setMode('explore');
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.getAttribute('data-tab')===name)));
-  ['tracker','leaders','clean','breakdown','targets','method'].forEach(t=>{
+  ['tracker','leaders','clean','breakdown','targets','targets28','method'].forEach(t=>{
     document.getElementById('tab-'+t).hidden = (t!==name);
   });
   if(!state.rendered[name]){
@@ -1409,6 +1444,7 @@ function showTab(name){
     if(name==='clean') renderClean();
     if(name==='breakdown') renderBreakdown();
     if(name==='targets') renderTargets();
+    if(name==='targets28') renderTargets2028();
   }
 }
 function init(){
@@ -1423,6 +1459,7 @@ function init(){
   state.rendered.tracker = true;
   setMode(modeFromHash(), false);
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
+  document.getElementById('targets28-btn').addEventListener('click', ()=>showTab('targets28'));
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
     window.addEventListener('hashchange', ()=>setMode(modeFromHash(), false));
   }
