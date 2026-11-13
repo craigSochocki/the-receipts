@@ -1423,6 +1423,27 @@ assert.strictEqual(
 sortTh().dispatchEvent("click"); // back to descending
 assert.ok(firstRowName().includes("Stevens"), "sort header click again restores descending");
 
+/* ---- FE4: keyboard / screen-reader access ---- */
+const nameBtn = document.querySelector("#main-table tbody tr .name-btn");
+assert.ok(nameBtn, "name cells are buttons");
+assert.strictEqual(
+  document.querySelector('#main-table thead th[data-sort="dirty_2026"]').getAttribute("aria-sort"),
+  "descending",
+  "sorted column announces descending");
+nameBtn.focus();
+nameBtn.click(); // bubbles to the row -> openDetail
+assert.strictEqual(
+  document.activeElement, document.getElementById("detail-close"),
+  "opening the detail focuses Close");
+document.getElementById("detail").dispatchEvent("keydown", { key: "Tab" });
+assert.strictEqual(
+  document.activeElement, document.getElementById("detail-close"),
+  "Tab cycles within the sheet (only Close is focusable)");
+closeDetail();
+assert.strictEqual(
+  document.activeElement, nameBtn,
+  "closing the detail restores focus to the opener");
+
 /* ---- filter select re-renders ---- */
 const partySel = document.getElementById("f-party");
 partySel.value = "Democrat";

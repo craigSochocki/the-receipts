@@ -209,10 +209,13 @@ section[hidden]{display:none}
 table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px}
 th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
 th{position:sticky;top:0;background:var(--soft);cursor:pointer;user-select:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
 tbody tr{cursor:pointer}
 tbody tr:hover{background:#f7f9f7}
 td.name{font-weight:600;white-space:normal;min-width:150px}
+.name-btn{background:none;border:none;padding:0;font:inherit;font-weight:600;text-align:left;cursor:pointer;color:inherit}
+.name-btn:hover{text-decoration:underline}
 .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.8rem;font-weight:600}
 .badge.clean{background:var(--accent-soft);color:var(--accent)}
 .badge.dirty{background:#fdeede;color:var(--warn)}
@@ -699,7 +702,7 @@ function sortRows(rows){
 function cellHtml(p, col){
   const v = getVal(p, col.k);
   switch(col.type){
-    case 'name': return esc(v);
+    case 'name': return '<button type="button" class="name-btn" data-key="'+p.person_key+'">'+esc(v)+'</button>';
     case 'party': return partyChip(p) || '—';
     case 'outcome': return outcomeLabel(p);
     case 'money': {
@@ -719,8 +722,9 @@ function renderTable(){
   thead.innerHTML = '<tr>'+view.cols.map(c=>{
     const arrow = state.sortKey===c.k ? (state.sortDir==='asc'?' ▲':' ▼') : '';
     const sortable = SORTABLE.has(c.k) ? ' data-sort="'+c.k+'"' : '';
+    const ariaSort = SORTABLE.has(c.k) ? ' aria-sort="'+(state.sortKey===c.k ? (state.sortDir==='asc'?'ascending':'descending') : 'none')+'"' : '';
     const cls = (c.type==='money'||c.type==='pct'||c.type==='rank') ? ' class="num"' : '';
-    return '<th'+cls+sortable+'>'+esc(c.label)+arrow+'</th>';
+    return '<th'+cls+sortable+ariaSort+'>'+esc(c.label)+arrow+'</th>';
   }).join('')+'</tr>';
   thead.querySelectorAll('th[data-sort]').forEach(th=>{
     th.addEventListener('click', ()=>{
@@ -1292,8 +1296,27 @@ function openDetail(key){
   document.getElementById('detail-sheet').innerHTML = h;
   document.getElementById('detail').classList.add('open');
   document.getElementById('detail-close').addEventListener('click', closeDetail);
+  lastFocused = document.activeElement || null;
+  const closeBtn = document.getElementById('detail-close');
+  if(closeBtn && typeof closeBtn.focus==='function') closeBtn.focus();
 }
-function closeDetail(){ document.getElementById('detail').classList.remove('open'); }
+/* ---- detail focus trap + restore (FE4) ----
+   Opening the sheet remembers what had focus and moves focus to
+   Close; Tab cycles within the sheet; closing hands focus back. */
+let lastFocused = null;
+function detailFocusable(){
+  const sheet = document.getElementById('detail-sheet');
+  if(!sheet) return [];
+  // querySelectorAll returns a NodeList in browsers (no .filter),
+  // a plain array in the smoke-test DOM — slice handles both.
+  const els = sheet.querySelectorAll('button, a[href], [tabindex]');
+  return Array.prototype.slice.call(els).filter(el=>!el.disabled);
+}
+function closeDetail(){
+  document.getElementById('detail').classList.remove('open');
+  if(lastFocused && typeof lastFocused.focus==='function') lastFocused.focus();
+  lastFocused = null;
+}
 
 /* ---- leaderboards ---- */
 function topByRank(rankKey, amountKey, n){
@@ -1679,6 +1702,14 @@ function init(){
   document.getElementById('csv-btn').addEventListener('click', downloadCsv);
   document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click', ()=>showTab(b.getAttribute('data-tab'))));
   document.getElementById('detail').addEventListener('click', e=>{ if(e.target.id==='detail') closeDetail(); });
+  document.getElementById('detail').addEventListener('keydown', e=>{
+    if(e.key!=='Tab' || !document.getElementById('detail').classList.contains('open')) return;
+    const f = detailFocusable();
+    if(!f.length) return;
+    const first = f[0], last = f[f.length-1];
+    if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+  });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
 }
 init();
