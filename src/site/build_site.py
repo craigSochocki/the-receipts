@@ -1310,6 +1310,73 @@ function setMode(mode, updateHash){
   }
 }
 
+/* ---- scrollytelling reveals ----
+   Chapters reveal as the reader scrolls: an IntersectionObserver adds
+   .in when a chapter enters view; CSS transitions do the work (fade +
+   slight rise). The hidden-before-reveal state lives under html.js
+   only (see the stylesheet), so with JS disabled — or if the observer
+   never fires — every chapter is fully visible. prefers-reduced-motion
+   reveals everything instantly with no animation (the stylesheet kills
+   the transitions). No scroll-jacking, no pinned sections, no parallax. */
+function reducedMotion(){
+  try{
+    return typeof window!=='undefined' && window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }catch(e){ return false; }
+}
+function revealChapter(el){
+  el.classList.add('in');
+  el.querySelectorAll('.countup').forEach(runCountUp);
+}
+function initReveals(){
+  const chapters = Array.prototype.slice.call(
+    document.querySelectorAll('.chapter'));
+  if(!chapters.length) return;
+  if(reducedMotion() || typeof IntersectionObserver==='undefined'){
+    chapters.forEach(revealChapter);
+    return;
+  }
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){ revealChapter(en.target); io.unobserve(en.target); }
+    });
+  }, {threshold: 0.12, rootMargin: '0px 0px -6% 0px'});
+  chapters.forEach(ch=>io.observe(ch));
+}
+
+/* ---- count-up numbers (headline figures) ----
+   A .countup span carries its computed target in data-value and its
+   formatter in data-format; the span's initial text IS the final
+   formatted value, so the figure is correct even if the animation
+   never runs. On reveal, the number animates from 0 to the target
+   and lands on the exact formatted figure. Reduced motion (or no
+   requestAnimationFrame) skips the animation and keeps the final
+   text. */
+function formatCountUp(v, format){
+  if(format==='int') return String(Math.round(v));
+  if(format==='money') return fmtMoney(v);
+  return fmtCompact(v);
+}
+function runCountUp(el){
+  if(el.getAttribute('data-counted')) return;
+  el.setAttribute('data-counted','1');
+  const target = parseFloat(el.getAttribute('data-value'));
+  const format = el.getAttribute('data-format')||'compact';
+  const finalText = formatCountUp(target, format);
+  if(reducedMotion() || typeof requestAnimationFrame==='undefined'){
+    el.textContent = finalText;
+    return;
+  }
+  const start = performance.now(), dur = 900;
+  (function frame(now){
+    const t = Math.min(1, (now-start)/dur);
+    const eased = 1-Math.pow(1-t,3);
+    el.textContent = formatCountUp(target*eased, format);
+    if(t<1) requestAnimationFrame(frame);
+    else el.textContent = finalText;
+  })(start);
+}
+
 /* ---- tabs + init ---- */
 function showTab(name){
   if(state.mode!=='explore') setMode('explore');
@@ -1327,10 +1394,14 @@ function showTab(name){
   }
 }
 function init(){
+  // Gate the hidden-before-reveal state on JS actually running: no-JS
+  // never gets the .js class, so every chapter stays visible.
+  try{ if(document.documentElement && document.documentElement.classList) document.documentElement.classList.add('js'); }catch(e){}
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
   renderStats(); renderDirtiest(); renderCleanStory(); renderComposition(); initFinder(); renderViewBtns(); renderTable();
+  initReveals();
   state.rendered.tracker = true;
   setMode(modeFromHash(), false);
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
