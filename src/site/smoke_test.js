@@ -888,6 +888,23 @@ assert.ok(headlineHtml.includes("$31.03M"), "headline shows Stevens $31.03M");
 assert.ok(headlineHtml.includes("next four combined"), "headline compares #1 to next four");
 assert.ok(headlineHtml.includes("2.04"), "headline ratio is about 2.04x");
 assert.ok(headlineHtml.includes("$15.21M"), "headline shows next-four total $15.21M");
+
+/* ---- U6: one-line dirty definition under the hook ---- */
+const hookDef = document.getElementById("hook-definition").textContent;
+assert.ok(
+  hookDef.includes("Dirty money is money from sources other than individual contributors"),
+  "hook definition uses the explainer phrasing");
+assert.ok(
+  hookDef.includes("over $100k and over 5% of receipts"),
+  "hook definition states the Balanced rule");
+assert.ok(
+  hookDef.includes("any AIPAC direct or UDP benefit dollar always counts"),
+  "hook definition states the flag rule");
+setPreset("strict");
+assert.ok(
+  document.getElementById("hook-definition").textContent.includes("any dirty dollar counts"),
+  "hook definition follows the Strict preset");
+setPreset("balanced");
 const dirtiestHtml = document.getElementById("dirtiest-list").innerHTML;
 ["Stevens", "Boafo", "Gallrein", "Bell", "Guthrie"].forEach((n) =>
   assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));

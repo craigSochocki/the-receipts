@@ -397,6 +397,7 @@ TEMPLATE_BODY = """
 <div id="front-door" class="frontdoor">
 <section class="chapter" data-chapter="hook" aria-label="The dirtiest fact">
 <p class="hook" id="dirtiest-headline"></p>
+<p class="fine" id="hook-definition"></p>
 </section>
 <section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest in 2026">
 <h2>Dirtiest in 2026</h2>
@@ -804,6 +805,13 @@ function renderDirtiest(){
     h += ' That is more than the next four combined (<span class="countup" data-value="'+next4+'" data-format="compact">'+fmtCompact(next4)+'</span>) — about '+(num(top.dirty_2026)/next4).toFixed(2)+'× as much.';
   }
   document.getElementById('dirtiest-headline').innerHTML = h;
+  // U6: one line under the hook saying what counts as dirty, in the
+  // explainer's exact phrasing, under the current tolerance preset.
+  const preset = PRESETS[state.preset];
+  document.getElementById('hook-definition').textContent =
+    'Dirty money is money from sources other than individual contributors \u2014 '
+    + preset.short
+    + (state.preset==='strict' ? '.' : '; any AIPAC direct or UDP benefit dollar always counts.');
   document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
     '<li style="transition-delay:'+(i*90)+'ms"><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
     + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
@@ -1428,7 +1436,7 @@ function setPreset(preset){
   if(!PRESETS[preset]) return;
   state.preset = preset;
   document.getElementById('tolerance-note').textContent = PRESETS[preset].def;
-  renderStats(); renderTable(); renderCleanStory();
+  renderStats(); renderTable(); renderCleanStory(); renderDirtiest();
   ['clean','breakdown','targets28'].forEach(t=>{
     if(state.tab===t){
       if(t==='clean') renderClean();
