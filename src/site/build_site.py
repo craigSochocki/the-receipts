@@ -1015,7 +1015,19 @@ function waffleSVG(seats){
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
     + seats.length + ' seats: one dot per seat">'+dots+'</svg>';
 }
-const TILE_W = 60, TILE_H = 46, TILE_GAP = 5, TILE_COLS = 10;
+const TILE_W = 60, TILE_H = 46, TILE_GAP = 5, TILE_COLS = 10, TILE_COLS_NARROW = 5;
+/* ---- Senate tiles: 5 columns below 560px (D1) ----
+   Ten tiles across is unreadable on a phone, so the grid reflows
+   to 5 x 10 under the 560px breakpoint. The column count is read
+   at render time; a resize that crosses the breakpoint re-renders
+   the composition (see init). */
+function senateCols(){
+  try{
+    return (typeof window!=='undefined' && window.matchMedia
+      && window.matchMedia('(max-width: 560px)').matches)
+      ? TILE_COLS_NARROW : TILE_COLS;
+  }catch(e){ return TILE_COLS; }
+}
 function senateStates(){
   // One entry per state: its named senators, padded with uncalled
   // halves to two seats. Every state has at least one named senator;
@@ -1061,8 +1073,9 @@ function tileHalfSVG(half, x, y, w, h){
 }
 function senateTilesSVG(){
   const states = senateStates();
-  const rows = Math.ceil(states.length/TILE_COLS);
-  const W = TILE_COLS*TILE_W + (TILE_COLS-1)*TILE_GAP;
+  const cols = senateCols();
+  const rows = Math.ceil(states.length/cols);
+  const W = cols*TILE_W + (cols-1)*TILE_GAP;
   const H = rows*TILE_H + (rows-1)*TILE_GAP;
   const defs = '<defs>' + ['D','R','I'].map(L=>{
     const c = {D:'#1e40af', R:'#991b1b', I:'#374151'}[L];
@@ -1072,7 +1085,7 @@ function senateTilesSVG(){
   }).join('') + '</defs>';
   let tiles = '';
   states.forEach((st, i)=>{
-    const col = i%TILE_COLS, row = Math.floor(i/TILE_COLS);
+    const col = i%cols, row = Math.floor(i/cols);
     const x = col*(TILE_W+TILE_GAP), y = row*(TILE_H+TILE_GAP);
     const title = (STATE_NAMES[st.code]||st.code)+' — '+st.halves.map(h=>
       h.status==='uncalled' ? 'seat uncalled'
@@ -1746,6 +1759,20 @@ function init(){
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
   renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder();
+  // D1: a resize that crosses the 560px breakpoint reflows the
+  // Senate tiles (5 wide on phones, 10 wide otherwise). Debounced,
+  // and only when the column count actually changes.
+  let lastSenateCols = senateCols();
+  let resizeTimer = null;
+  if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(()=>{
+        const c = senateCols();
+        if(c!==lastSenateCols){ lastSenateCols = c; renderComposition(); }
+      }, 150);
+    });
+  }
   initReveals();
   setMode(modeFromHash(), false);
   document.getElementById('home-link').addEventListener('click', e=>{

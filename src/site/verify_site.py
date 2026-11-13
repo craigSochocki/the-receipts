@@ -644,6 +644,16 @@ def main():
           and 'class="controls-label">Filter<' in html
           and 'class="controls-label">Show only<' in html)
 
+    # ---- Wave 2 (redesign): D1 Senate tiles reflow on phones ----
+    # Below 560px the Senate tiles render 5 wide x 10 tall (320x505
+    # viewBox); at desktop width they stay 10 wide (645x250). The
+    # waffle geometry is untouched (D1's waffle changes were cut).
+    check("D1: Senate tiles reflow to 5 wide below 560px, 10 wide above",
+          "TILE_COLS = 10" in html and "TILE_COLS_NARROW = 5" in html
+          and "function senateCols" in html
+          and "matchMedia('(max-width: 560px)')" in html
+          and "addEventListener('resize'" in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

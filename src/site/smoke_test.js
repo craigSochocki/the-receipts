@@ -1662,6 +1662,23 @@ assert.strictEqual(window.matchMedia("(prefers-reduced-motion: reduce)").matches
 assert.strictEqual(reducedMotion(), false, "page reducedMotion() clears with the flag");
 window.innerWidth = 1024;
 
+/* ---- D1: Senate tiles reflow to 5x10 below 560px ---- */
+window.innerWidth = 500;
+assert.strictEqual(senateCols(), 5, "D1: senateCols is 5 below 560px");
+renderComposition();
+assert.ok(
+  document.getElementById("composition").innerHTML.includes('viewBox="0 0 320 505"'),
+  "D1: Senate tiles render 5 wide (320x505) at width 500");
+assert.strictEqual(
+  (document.getElementById("composition").innerHTML.match(/<g class="tile"/g) || []).length, 50,
+  "D1: still 50 state tiles at 5 wide");
+window.innerWidth = 1024;
+assert.strictEqual(senateCols(), 10, "D1: senateCols is 10 above 560px");
+renderComposition();
+assert.ok(
+  document.getElementById("composition").innerHTML.includes('viewBox="0 0 645 250"'),
+  "D1: Senate tiles render 10 wide (645x250) at width 1024");
+
 /* ---- search input (debounce-tolerant) ----
  * The FE2 wave debounces the search input (~150ms) around
  * renderTable, so this assertion waits instead of expecting a
@@ -1739,6 +1756,20 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   assert.strictEqual(
     document.querySelectorAll("#main-table tbody tr").length, 664,
     "clearing the search after U8 restores 664 rows");
+
+  /* ---- D1: a resize across the breakpoint re-renders the tiles ---- */
+  window.innerWidth = 500;
+  global.dispatchEvent("resize");
+  await sleep(250);
+  assert.ok(
+    document.getElementById("composition").innerHTML.includes('viewBox="0 0 320 505"'),
+    "D1: resize to 500px reflows the Senate tiles to 5 wide");
+  window.innerWidth = 1024;
+  global.dispatchEvent("resize");
+  await sleep(250);
+  assert.ok(
+    document.getElementById("composition").innerHTML.includes('viewBox="0 0 645 250"'),
+    "D1: resize back to 1024px restores the tiles to 10 wide");
   console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work; handlers, bubbling/focus, and viewport covered.");
 })().catch((e) => {
   console.error(e);
