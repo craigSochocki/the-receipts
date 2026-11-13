@@ -1452,11 +1452,19 @@ const demCount = PEOPLE.filter((p) => p.party_119 === "Democrat" || p.party_120 
 assert.strictEqual(
   document.querySelectorAll("#main-table tbody tr").length, demCount,
   "party filter re-renders to " + demCount + " Democrats");
+assert.strictEqual(
+  document.getElementById("csv-btn").textContent,
+  "Download CSV — " + demCount + " rows",
+  "CSV button is labelled with the filtered row count");
 partySel.value = "all";
 partySel.dispatchEvent("change");
 assert.strictEqual(
   document.querySelectorAll("#main-table tbody tr").length, 664,
   "party filter reset restores 664 rows");
+assert.strictEqual(
+  document.getElementById("csv-btn").textContent,
+  "Download CSV — 664 rows",
+  "CSV button label follows the reset");
 
 /* ---- U7: leadership filter excludes TBD (would return everyone) ---- */
 assert.ok(

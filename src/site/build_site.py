@@ -755,6 +755,7 @@ function renderTable(){
     ['All IE total', fmtCompact(sum('all_ie_total_career'))]
   ];
   document.getElementById('totals').innerHTML = t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join('');
+  document.getElementById('csv-btn').textContent = 'Download CSV \u2014 '+rows.length+' rows';
   document.getElementById('showing').textContent = rows.length===0
     ? 'No matches for \u201c'+state.q.trim()+'\u201d \u2014 try a name, state, district, party, or chamber.'
     : 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
@@ -1508,7 +1509,7 @@ function downloadCsv(){
   const cols = COLS.csv;
   const escCsv = s => /[",\\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
   const lines = [cols.map(escCsv).join(',')];
-  PEOPLE.forEach(p=>{
+  sortRows(applyFilters()).forEach(p=>{
     lines.push(cols.map(k=>{
       let v;
       if(k==='fec_candidate_ids') v = p.fec_candidate_ids.join(';');
