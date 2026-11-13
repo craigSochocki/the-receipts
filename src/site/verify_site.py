@@ -705,6 +705,16 @@ def main():
           and "fmtMoney(p.dirty_2026)" in html
           and "fmtMoney(p.total_accepted_career)" in html)
 
+    # ---- Wave 2 (redesign): U4 charts are tappable ----
+    # Waffle dots and Senate tile halves carry the person's key,
+    # and one delegated listener on the composition container opens
+    # the drill-down. Uncalled seats carry no key and stay inert.
+    # Per-dot keyboard focus was cut (435 dots ~ 535 tab stops).
+    check("U4: charts are tappable via a delegated SVG listener",
+          "data-key" in html
+          and "getElementById('composition').addEventListener('click'" in html
+          and "closest('[data-key]')" in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

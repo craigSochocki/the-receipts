@@ -293,6 +293,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .comp{display:flex;flex-direction:column;gap:18px}
 .comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}
+.comp [data-key]{cursor:pointer}
 .comp figcaption{text-align:center;font-weight:600;margin-top:2px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
 .legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
@@ -989,7 +990,7 @@ function compositionSeats(chamber){
     && !(chamber==='House' && TERRITORIES.has(p.state)));
   const total = chamber==='House' ? 435 : 100;
   const seats = named.map(p=>({party:partyName(p), letter:seatLetter(p),
-    status:seatStatus(p), name:p.full_name}));
+    status:seatStatus(p), name:p.full_name, key:p.person_key}));
   // Waffle group order, left to right: Clean D, Dirty D, Dirty R,
   // Clean R, then Clean/Dirty I, Unopposed, Unverified, Uncalled.
   const groupRank = s=>{
@@ -1031,7 +1032,7 @@ function waffleDotSVG(s, x, y, col){
     inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"/>';
   }
   // Stagger by column so the waffle fills left to right on reveal.
-  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'" style="transition-delay:'+(col*40)+'ms">'+inner
+  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'"'+(s.key?' data-key="'+esc(s.key)+'"':'')+' style="transition-delay:'+(col*40)+'ms">'+inner
     + '<title>'+esc(title)+'</title></g>';
 }
 function waffleSVG(seats){
@@ -1074,7 +1075,7 @@ function senateStates(){
         (partyRank[partyName(a)] ?? 3) - (partyRank[partyName(b)] ?? 3)
         || a.full_name.localeCompare(b.full_name));
       const halves = sens.map(p=>({party:partyName(p), letter:seatLetter(p),
-        status:seatStatus(p), name:p.full_name}));
+        status:seatStatus(p), name:p.full_name, key:p.person_key}));
       while(halves.length < 2)
         halves.push({party:null, letter:'', status:'uncalled', name:'Uncalled seat'});
       return {code, halves};
@@ -1100,7 +1101,7 @@ function tileHalfSVG(half, x, y, w, h){
   } else {
     attrs = 'fill="#f9fafb" stroke="#d1d5db" stroke-width="1.2" stroke-dasharray="3 2"';
   }
-  return '<rect class="half '+half.status+'" data-party="'+esc(half.letter)+'" x="'+x+'" y="'+y
+  return '<rect class="half '+half.status+'" data-party="'+esc(half.letter)+'"'+(half.key?' data-key="'+esc(half.key)+'"':'')+' x="'+x+'" y="'+y
     +'" width="'+w+'" height="'+h+'" '+attrs+'><title>'+esc(title)+'</title></rect>';
 }
 function senateTilesSVG(){
@@ -1836,6 +1837,16 @@ function init(){
       }, 150);
     });
   }
+  // U4: the charts are tappable — one delegated listener on the
+  // composition container opens the drill-down for the dot or tile
+  // half clicked. Attached once, on the container, so it survives
+  // re-renders (D1) and works while the reveal is still running
+  // (opacity never blocks pointer events). Per-dot keyboard focus
+  // was cut: 435 dots would be ~535 tab stops.
+  document.getElementById('composition').addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target.closest('[data-key]') : null;
+    if(t) openDetail(t.getAttribute('data-key'));
+  });
   initReveals();
   setMode(modeFromHash(), false);
   document.getElementById('home-link').addEventListener('click', e=>{

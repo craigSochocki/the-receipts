@@ -1042,6 +1042,15 @@ assert.ok(compHtml.includes("Not shown: 6 non-voting delegates"), "delegate note
 assert.ok(compHtml.includes("Clean D 3"), "delegate note shows Clean D 3");
 assert.ok(compHtml.includes("Dirty PPD 1"), "delegate note shows Dirty PPD 1");
 
+/* ---- U4: charts carry person keys (clicks tested after FE1a,
+ * because opening a drill-down decodes that person's lists) ---- */
+assert.ok(
+  document.querySelector('#composition .dot[data-key]'),
+  "U4: waffle dots carry a person key");
+assert.ok(
+  document.querySelector('#composition .half[data-key]'),
+  "U4: Senate tile halves carry a person key");
+
 showTab("clean");
 assert.ok(
   document.getElementById("clean-stats").innerHTML.includes("150 of 436"),
@@ -1167,6 +1176,18 @@ assert.ok(
 assert.ok(
   stevensHtml.includes("pchip d") && stevensHtml.includes("Not returning"),
   "Stevens drill-down header has the D chip and Not returning");
+closeDetail();
+
+/* ---- U4: clicking a chart opens the drill-down ---- */
+document.querySelector('#composition .dot[data-key]').dispatchEvent("click");
+assert.ok(
+  document.getElementById("detail-sheet").innerHTML.includes("Dirty 2026"),
+  "U4: clicking a waffle dot opens the drill-down");
+closeDetail();
+document.querySelector('#composition .half[data-key]').dispatchEvent("click");
+assert.ok(
+  document.getElementById("detail-sheet").innerHTML.includes("Dirty 2026"),
+  "U4: clicking a Senate tile half opens the drill-down");
 closeDetail();
 
 downloadCsv(); // must not throw (Blob + object URL path)
