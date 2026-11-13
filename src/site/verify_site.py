@@ -256,6 +256,22 @@ def main():
           "syncHash(false)" in html and "syncHash(true)" in html)
     check("FE5: Back (hashchange) closes the sheet without a hash write",
           "closeDetail({pop:false})" in html)
+    # ---- U1 leftovers: sticky tab bar + finder in Explore ----
+    check("U1: tab bar sticks in Explore (hidden in front-door mode)",
+          "position:sticky;top:0;z-index:10;background:var(--bg)" in html)
+    check("U1: finder reachable from Explore via a slot (one node, moved)",
+          'id="finder-slot"' in html and "function placeFinder" in html
+          and "slot.appendChild(finder)" in html
+          and "finderHome.parent.insertBefore(finder, finderHome.next)" in html)
+    # ---- U10: prev/next, View in Tracker, anchor nav ----
+    check("U10: prev/next walk the filtered set, View in Tracker, anchor nav",
+          'id="detail-prev"' in html and 'id="detail-next"' in html
+          and "View in Tracker" in html and 'class="detail-nav"' in html
+          and "sortRows(applyFilters())" in html and "data-anchor" in html)
+    check("U10: anchors are buttons, not hash links",
+          'data-anchor="sec-career"' in html and 'href="#sec-' not in html)
+    check("U10: sticky sheet header (name + Close + prev/next)",
+          ".detail-top{position:sticky" in html)
     front = html[html.index('id="front-door"'):html.index('<footer>')]
     check("front door carries no stat cards or totals strip",
           'id="stats"' not in front and 'id="totals"' not in front)
@@ -672,8 +688,8 @@ def main():
     # table in the drill-down is a <details> element (first one
     # open) instead of a wall of expanded tables.
     check("D9: cycle tables are <details> (first open); kv is 1 column on mobile",
-          "function cycleTable(title, rows, cols, open)" in html
-          and "'<details'+(open?' open':'')+' class=\"cycle\">" in html
+          "function cycleTable(title, rows, cols, open, id)" in html
+          and "'<details'+(id?' id=\"'+id+'\"':'')+(open?' open':'')+' class=\"cycle\">" in html
           and '.detail .kv{grid-template-columns:1fr}' in html)
 
     # ---- Wave 2 (redesign): D10 tabular numerals now ----

@@ -189,7 +189,11 @@ h1 a:hover{text-decoration:underline}
 .cutoffs b{color:var(--ink)}
 details.cutoffs summary{cursor:pointer;font-weight:600}
 details.cutoffs p{margin:6px 0 0}
-.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin}
+/* U1 (leftovers): the tab bar sticks in Explore only — the tabs are
+   hidden in front-door mode anyway, so there is nothing to stick
+   there. The background keeps table rows from showing through the
+   strip's gaps while it sticks. */
+.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin;position:sticky;top:0;z-index:10;background:var(--bg)}
 .tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 main{max-width:1120px;margin:0 auto;padding:16px}
@@ -251,7 +255,15 @@ footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);
 .detail .cycle summary{font-weight:600;font-size:1.05rem;margin:18px 0 6px;cursor:pointer}
 .detail table{min-width:0}
 .detail th{cursor:default}
-.detail .close{float:right}
+/* U10: one combined sticky header row in the sheet — name + prev/next
+   + Close — with the anchor nav under it. The sheet is the scroll
+   container, so sticky works here (unlike the table header, FE10). */
+.detail-top{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:8px;padding:10px 0 8px;z-index:2}
+.detail-top h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
+.detail-actions{display:flex;gap:6px;flex:none}
+.detail-actions .btn{padding:4px 8px;font-size:.85rem}
+.detail-nav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
+.detail-nav .btn{padding:4px 8px;font-size:.85rem}
 .kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:.92rem}
 .kv div{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:4px 0}
 .kv span:first-child{color:var(--muted)}
@@ -320,6 +332,8 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .story b{font-size:1.2rem}
 .linklike{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.finder-slot{margin:0 0 12px}
+.finder-slot summary{cursor:pointer;font-weight:600}
 .finder label{font-weight:600;font-size:.95rem}
 .finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
 .finder .person-btn{white-space:normal;text-align:left}
@@ -357,6 +371,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 """
 TEMPLATE_BODY = """
 <section id="tab-tracker" tabindex="-1">
+<details id="finder-slot" class="finder-slot"><summary>Find your seat</summary></details>
 <div class="controls controls-rows">
 <div class="controls-row"><span class="controls-label">Filter</span>
 <input type="search" id="q" placeholder="Search name, state, district, party…" aria-label="Search by name, state, district, party, or chamber">
@@ -1309,9 +1324,9 @@ TEMPLATE_JS2 = """
 <script>
 "use strict";
 /* ---- detail overlay ---- */
-function cycleTable(title, rows, cols, open){
+function cycleTable(title, rows, cols, open, id){
   if(!rows || !rows.length) return '';
-  let h = '<details'+(open?' open':'')+' class="cycle"><summary>'+esc(title)+'</summary><div class="tablewrap"><table><thead><tr>'
+  let h = '<details'+(id?' id="'+id+'"':'')+(open?' open':'')+' class="cycle"><summary>'+esc(title)+'</summary><div class="tablewrap"><table><thead><tr>'
     + cols.map(c=>'<th class="'+(c.type==='money'?'num':'')+'">'+esc(c.label)+'</th>').join('') + '</tr></thead><tbody>';
   rows.forEach(r=>{
     h += '<tr>'+cols.map(c=>{
@@ -1339,21 +1354,42 @@ function openDetail(key, opts){
   // the drill-down is otherwise a wall of tables on a phone. The
   // U10 anchor nav opens the target <details> before jumping to it.
   let firstCycle = true;
-  function cycle(title, rows, cols){
-    const h = cycleTable(title, rows, cols, firstCycle);
+  function cycle(title, rows, cols, id){
+    const h = cycleTable(title, rows, cols, firstCycle, id);
     if(h) firstCycle = false;
     return h;
   }
   const leader = [p.leadership_119, (p.leadership_120 && p.leadership_120!=='TBD') ? p.leadership_120 : null].filter(Boolean).join('; ');
-  let h = '<button class="btn ghost close" id="detail-close" type="button">Close ✕</button>';
-  h += '<h2>'+esc(p.full_name)+'</h2>';
+  // U10: prev/next walk the filtered, sorted tracker set — the rows
+  // the table is showing. Disabled at the ends, or when this person
+  // is not in the set at all. Navigation replaces the URL, not pushes.
+  const set = sortRows(applyFilters());
+  const idx = set.findIndex(x=>x.person_key===key);
+  const prevKey = idx>0 ? set[idx-1].person_key : null;
+  const nextKey = idx>=0 && idx<set.length-1 ? set[idx+1].person_key : null;
+  let h = '<div class="detail-top"><h2>'+esc(p.full_name)+'</h2><div class="detail-actions">'
+    + '<button class="btn ghost" id="detail-prev" type="button"'+(prevKey?'':' disabled')+'>← Prev</button>'
+    + '<button class="btn ghost" id="detail-next" type="button"'+(nextKey?'':' disabled')+'>Next →</button>'
+    + '<button class="btn ghost close" id="detail-close" type="button">Close ✕</button>'
+    + '</div></div>';
+  // U10: anchor nav — jumps to a section, opening its <details>
+  // first, and moves focus there. Buttons, not href="#…" links, so a
+  // jump never fights the FE5 hash scheme.
+  h += '<div class="detail-nav">'
+    + '<button class="btn ghost" type="button" data-anchor="sec-career">Career</button>'
+    + '<button class="btn ghost" type="button" data-anchor="sec-2026">2026</button>'
+    + '<button class="btn ghost" type="button" data-anchor="sec-cycle-money">By cycle</button>'
+    + (p.all_ie_top_committees && p.all_ie_top_committees.length ? '<button class="btn ghost" type="button" data-anchor="sec-spenders">Outside spenders</button>' : '')
+    + (p.data_notes ? '<button class="btn ghost" type="button" data-anchor="sec-notes">Notes</button>' : '')
+    + '<button class="btn ghost" id="detail-tracker" type="button">View in Tracker →</button>'
+    + '</div>';
   h += '<p class="meta">'+partyChip(p)+' '+esc(party(p))+' · '+esc(chamber(p))+' · '+esc(place(p))+' · '+outcomeLabel(p)+' · '+esc(congressLabel(p))
     + (leader ? ' · '+esc(leader) : '') + ' · FEC ID'+(p.fec_candidate_ids.length>1?'s':'')+': '
     + esc(p.fec_candidate_ids.join(', ')||'none') + '</p>';
   // D6/FE3: the detail header always shows exact figures — Dirty
   // 2026 and total accepted — whatever the compact/exact toggle says.
   h += '<p class="detail-head">Dirty 2026 <b>'+fmtMoney(p.dirty_2026)+'</b> · Total accepted (career) <b>'+fmtMoney(p.total_accepted_career)+'</b></p>';
-  h += '<h3>Career money</h3><div class="kv">'
+  h += '<h3 id="sec-career" tabindex="-1">Career money</h3><div class="kv">'
     + kvRow('Individual contributions', fmtMoney(p.individual_contribution_total_career)+' ('+fmtRank(p.rank_individual)+')')
     + kvRow('Corporate PAC', fmtMoney(p.corporate_pac_career)+' ('+fmtRank(p.rank_corporate_pac)+')')
     + kvRow('AIPAC PAC direct', fmtMoney(p.aipac_pac_direct_career)+' ('+fmtRank(p.rank_aipac_direct)+')')
@@ -1387,7 +1423,7 @@ function openDetail(key, opts){
       {k:'amount',label:'Credited',type:'money'},
       {k:'opposed',label:'Opposed',type:'text'}]);
   }
-  h += '<h3>2026 cycle (partial)</h3><div class="kv">'
+  h += '<h3 id="sec-2026" tabindex="-1">2026 cycle (partial)</h3><div class="kv">'
     + kvRow('Tier in 2026 ('+PRESETS[state.preset].label+')', fmtTierBadge(p))
     + kvRow('AIPAC/UDP flag', p.aipac_udp_flag_2026===true ? 'Yes — AIPAC PAC direct money or UDP benefit in 2026; flagged under every tolerance preset' : 'No')
     + kvRow('Unopposed in 2026', p.unopposed_2026===true?'Yes — no opponent with receipts over $0':'No')
@@ -1408,7 +1444,7 @@ function openDetail(key, opts){
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'individual',label:'Individual',type:'money'},{k:'aipac_pac_direct',label:'AIPAC direct',type:'money'},
     {k:'aipac_earmark_transmitted',label:'AIPAC earmark',type:'money'},
-    {k:'corporate_pac',label:'Corp PAC',type:'money'},{k:'corporate_earmark_transmitted',label:'Corp earmark',type:'money'}]);
+    {k:'corporate_pac',label:'Corp PAC',type:'money'},{k:'corporate_earmark_transmitted',label:'Corp earmark',type:'money'}], 'sec-cycle-money');
   h += cycle('Cycle by cycle — self-funding & topline', p.self_funding_per_cycle, [
     {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
     {k:'candidate_contributions',label:'Cand. contrib.',type:'money'},{k:'candidate_loans',label:'Cand. loans',type:'money'},
@@ -1431,12 +1467,20 @@ function openDetail(key, opts){
   if(p.all_ie_top_committees && p.all_ie_top_committees.length){
     h += cycle('Top outside spenders on this race (career, 2022–2026)', p.all_ie_top_committees, [
       {k:'committee_name',label:'Committee',type:'text'},{k:'support',label:'Support',type:'money'},
-      {k:'oppose',label:'Oppose',type:'money'},{k:'total',label:'Total',type:'money'}]);
+      {k:'oppose',label:'Oppose',type:'money'},{k:'total',label:'Total',type:'money'}], 'sec-spenders');
   }
-  if(p.data_notes) h += '<h3>Data notes</h3><div class="notes">'+esc(p.data_notes)+'</div>';
+  if(p.data_notes) h += '<h3 id="sec-notes" tabindex="-1">Data notes</h3><div class="notes">'+esc(p.data_notes)+'</div>';
   h += '<p style="color:var(--muted);font-size:.85rem">Data as of '+esc(p.data_as_of)+' · Person key '+esc(p.person_key)+' · Figures trace to FEC filings; see Methodology.</p>';
   document.getElementById('detail-sheet').innerHTML = h;
   document.getElementById('detail-close').addEventListener('click', closeDetail);
+  if(prevKey) document.getElementById('detail-prev').addEventListener('click', ()=>openDetail(prevKey, {push:false}));
+  if(nextKey) document.getElementById('detail-next').addEventListener('click', ()=>openDetail(nextKey, {push:false}));
+  document.getElementById('detail-tracker').addEventListener('click', ()=>viewInTracker(key));
+  // U10: anchor buttons jump to their section (open its <details>
+  // first) and move focus there.
+  Array.prototype.slice.call(document.getElementById('detail-sheet').querySelectorAll('[data-anchor]')).forEach(b=>{
+    b.addEventListener('click', ()=>goAnchor(b.getAttribute('data-anchor')));
+  });
   const closeBtn = document.getElementById('detail-close');
   if(closeBtn && typeof closeBtn.focus==='function') closeBtn.focus();
   // FE5: the open sheet lives in the URL — a push for a fresh open
@@ -1456,6 +1500,28 @@ function detailFocusable(){
   // a plain array in the smoke-test DOM — slice handles both.
   const els = sheet.querySelectorAll('button, a[href], [tabindex]');
   return Array.prototype.slice.call(els).filter(el=>!el.disabled);
+}
+/* ---- drill-down anchor nav + View in Tracker (U10) ----
+   Anchors are buttons, not href="#…" links: a hash change would fight
+   the FE5 hash scheme. A <details> target opens first; focus moves to
+   the section so keyboard readers land where they jumped. */
+function goAnchor(id){
+  const target = document.getElementById(id);
+  if(!target) return;
+  if(target.tagName==='DETAILS') target.open = true;
+  const focusEl = target.tagName==='DETAILS' ? target.querySelector('summary') : target;
+  if(focusEl && typeof focusEl.focus==='function') focusEl.focus();
+  else if(typeof target.scrollIntoView==='function') target.scrollIntoView();
+}
+function viewInTracker(key){
+  const p = BY_KEY[key]; if(!p) return;
+  // Close without a hash write, then filter the Tracker tab to this
+  // person — like findPerson, but without reopening the sheet.
+  closeDetail({pop:false});
+  state.q = p.full_name;
+  document.getElementById('q').value = state.q;
+  showTab('tracker');
+  renderTable();
 }
 function closeDetail(opts){
   const sheet = document.getElementById('detail');
@@ -1860,6 +1926,23 @@ function applyHash(){
   // and showTab would force the mode back to Explore if called here.
   if(p.mode==='explore' && p.tab!==state.tab) showTab(p.tab, {scroll:false});
 }
+/* ---- U1 (leftovers): the finder, reachable from Explore ----
+   One finder node, moved between the front-door chapter and an
+   Explore <details> slot in the tracker section. Moving a node keeps
+   its listeners (initFinder), so there is still exactly one finder;
+   its input and results survive the move. */
+let finderHome = null;
+function placeFinder(){
+  const finder = document.getElementById('finder');
+  const slot = document.getElementById('finder-slot');
+  if(!finder || !slot) return;
+  if(!finderHome) finderHome = {parent: finder.parentNode, next: finder.nextSibling};
+  if(state.mode==='explore'){
+    if(finder.parentNode!==slot) slot.appendChild(finder);
+  } else if(finder.parentNode!==finderHome.parent){
+    finderHome.parent.insertBefore(finder, finderHome.next);
+  }
+}
 function setMode(mode, updateHash){
   state.mode = mode;
   // Push the mode change first: ensureExplore renders the table, and
@@ -1873,6 +1956,7 @@ function setMode(mode, updateHash){
   document.getElementById('tabs-nav').hidden = front;
   document.getElementById('main').hidden = front;
   document.querySelector('footer').hidden = front;
+  placeFinder();
   // One return control (U1): the masthead title is the way back to the
   // front door, so a mode change also moves the reader there — scroll
   // to the top and focus the new region. Only on user-initiated

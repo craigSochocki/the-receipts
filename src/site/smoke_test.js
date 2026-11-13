@@ -1681,6 +1681,41 @@ assert.strictEqual(document.getElementById("front-door").hidden, false, "FE5: di
 closeDetail();
 setMode("front");
 
+/* ---- U10: prev/next, anchor nav, View in Tracker ---- */
+setMode("explore");
+// The first tracker row is Stevens (dirtiest 2026): prev disabled, next live.
+document.querySelector("#main-table tbody tr").dispatchEvent("click");
+assert.strictEqual(document.getElementById("detail-prev").disabled, true, "U10: prev disabled on the first row");
+assert.strictEqual(document.getElementById("detail-next").disabled, false, "U10: next enabled on the first row");
+document.getElementById("detail-next").dispatchEvent("click");
+assert.ok(document.getElementById("detail-sheet").innerHTML.includes("Boafo"), "U10: next opens the second row (Boafo)");
+assert.ok(location.hash.includes("detail="), "U10: prev/next keeps the detail in the hash");
+assert.strictEqual(document.getElementById("detail-prev").disabled, false, "U10: prev enabled after stepping forward");
+// Anchor nav: the 2026 section takes focus.
+document.querySelector('[data-anchor="sec-2026"]').dispatchEvent("click");
+assert.strictEqual(document.activeElement && document.activeElement.id, "sec-2026", "U10: anchor moves focus to the 2026 section");
+// View in Tracker: sheet closes, Tracker tab shows only this person.
+document.getElementById("detail-tracker").dispatchEvent("click");
+assert.strictEqual(document.getElementById("detail").classList.contains("open"), false, "U10: View in Tracker closes the sheet");
+assert.strictEqual(document.getElementById("tab-tracker").hidden, false, "U10: View in Tracker shows the Tracker tab");
+assert.strictEqual(document.getElementById("q").value, "Adrian Boafo", "U10: View in Tracker filters to the person");
+assert.strictEqual(document.querySelectorAll("#main-table tbody tr").length, 1, "U10: filtered table has exactly the person");
+document.getElementById("filters-reset").dispatchEvent("click"); // the Reset chip runs the page's resetFilters (synchronous render)
+assert.strictEqual(document.querySelectorAll("#main-table tbody tr").length, 664, "U10: reset restores 664 rows");
+setMode("front");
+
+/* ---- U1 leftovers: sticky tab bar + finder in Explore ---- */
+setMode("explore");
+assert.strictEqual(document.getElementById("finder").parentNode.id, "finder-slot", "U1: entering Explore moves the finder into the slot");
+// The finder still works after the move: its listeners survive it.
+const findStateU1 = document.getElementById("find-state");
+findStateU1.value = "MI";
+findStateU1.dispatchEvent("change");
+assert.strictEqual(document.getElementById("find-district").disabled, false, "U1: finder in the slot enables districts after a state change");
+assert.ok(document.getElementById("find-district").innerHTML.includes("District 11"), "U1: finder in the slot lists MI districts");
+setMode("front");
+assert.strictEqual(document.getElementById("finder").parentNode.getAttribute("data-chapter"), "finder", "U1: returning home moves the finder back to its chapter");
+
 /* ---- bubbling + closest() (what FE2's delegated tbody listener
  * and U4's delegated chart listener will rely on) ---- */
 const tbodyEl = document.querySelector("#main-table tbody");
