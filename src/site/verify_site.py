@@ -663,6 +663,18 @@ def main():
           and "'<details'+(open?' open':'')+' class=\"cycle\">" in html
           and '.detail .kv{grid-template-columns:1fr}' in html)
 
+    # ---- Wave 2 (redesign): D10 tabular numerals now ----
+    # Figures align in their columns: tabular numerals on the table
+    # itself (every cell, not just the .num money columns) and on
+    # the display numbers (hook, big-number, stat and totals
+    # figures). The full 6-step type scale + 4-step gray remap stay
+    # deferred to their own commit with a screenshot review.
+    check("D10: tabular numerals on tables and display numbers",
+          re.search(r"table\{[^}]*font-variant-numeric:tabular-nums",
+                    html) is not None
+          and '.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2;font-variant-numeric:tabular-nums}' in html
+          and html.count('font-variant-numeric:tabular-nums') == 8)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

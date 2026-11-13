@@ -180,7 +180,7 @@ h1 a:hover{text-decoration:underline}
 .stamp{font-size:.9rem;background:var(--soft);border-left:4px solid var(--ink);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .stat{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
-.stat b{display:block;font-size:1.15rem}
+.stat b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
 .cutoffs{font-size:.82rem;color:var(--muted);margin:6px 0 0}
 .cutoffs b{color:var(--ink)}
 .tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin}
@@ -207,9 +207,9 @@ section[hidden]{display:none}
 .viewbtns button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
 .totals{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
 .totals .t{background:var(--chip);border-radius:8px;padding:7px 11px;font-size:.88rem}
-.totals .t b{display:block;font-size:1rem}
+.totals .t b{display:block;font-size:1rem;font-variant-numeric:tabular-nums}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
-table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px;font-variant-numeric:tabular-nums}
 th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
 th{position:sticky;top:0;background:var(--soft);cursor:pointer;user-select:none}
 :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -295,8 +295,8 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
 .delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
-.hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600}
-.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2}
+.hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600;font-variant-numeric:tabular-nums}
+.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2;font-variant-numeric:tabular-nums}
 .big-label{color:var(--muted);margin:2px 0 10px}
 .dirtiest{list-style:none;margin:6px 0 0;padding:0}
 .dirtiest li{border-bottom:1px solid #ececec}
