@@ -1103,6 +1103,24 @@ assert.ok(
   document.getElementById("targets28-intro").innerHTML.includes("6 Democratic senators"),
   "Balanced 2028 intro counts 6 Democratic senators");
 
+/* ---- FE1a: nested lists decode lazily ----
+   Must run before the first openDetail / CSV export below, which
+   decode the people they touch. */
+const lazyPerson = PEOPLE.find(p=>p.per_cycle.length && Array.isArray(p.per_cycle[0]));
+assert.ok(lazyPerson, "a person with undecoded nested lists exists");
+assert.ok(
+  PEOPLE.every(p=>!p.per_cycle.length || Array.isArray(p.per_cycle[0])),
+  "no nested list is decoded at load");
+openDetail(lazyPerson.person_key);
+assert.ok(
+  lazyPerson.per_cycle.length && !Array.isArray(lazyPerson.per_cycle[0])
+    && typeof lazyPerson.per_cycle[0].cycle === "number",
+  "opening the detail decodes that person's nested lists");
+assert.ok(
+  PEOPLE.some(p=>p!==lazyPerson && p.per_cycle.length && Array.isArray(p.per_cycle[0])),
+  "other people's nested lists stay undecoded");
+closeDetail();
+
 const constKey = PEOPLE.find((p) => p.full_name.includes("Constantino")).person_key;
 openDetail(constKey);
 const detailHtml = document.getElementById("detail-sheet").innerHTML;

@@ -453,15 +453,32 @@ const NS = COLS.scalars.length;
 function mkobj(cols, arr){ const o={}; cols.forEach((k,i)=>{ o[k]=arr[i]; }); return o; }
 const PEOPLE = RAW.map(a=>{
   const o={}; COLS.scalars.forEach((k,i)=>{ o[k]=a[i]; });
-  o.per_cycle=(a[NS]||[]).map(e=>mkobj(COLS.pc,e));
-  o.udp_per_cycle=(a[NS+1]||[]).map(e=>mkobj(COLS.upc,e));
-  o.self_funding_per_cycle=(a[NS+2]||[]).map(e=>mkobj(COLS.sf,e));
-  o.other_committees_per_cycle=(a[NS+3]||[]).map(e=>mkobj(COLS.oc,e));
-  o.all_ie_per_cycle=(a[NS+4]||[]).map(e=>mkobj(COLS.aie,e));
-  o.all_ie_top_committees=(a[NS+5]||[]).map(e=>mkobj(COLS.tc,e));
+  // Nested lists stay positional until a drill-down (or the CSV
+  // export) needs them — decodeNested maps them to named objects
+  // on demand (FE1a), so first paint skips 664 people's cycle detail.
+  o.per_cycle=a[NS]||[];
+  o.udp_per_cycle=a[NS+1]||[];
+  o.self_funding_per_cycle=a[NS+2]||[];
+  o.other_committees_per_cycle=a[NS+3]||[];
+  o.all_ie_per_cycle=a[NS+4]||[];
+  o.all_ie_top_committees=a[NS+5]||[];
   return o;
 });
 const BY_KEY = {}; PEOPLE.forEach(p=>{ BY_KEY[p.person_key]=p; });
+
+/* ---- lazy-decode nested lists (FE1a) ----
+   Each nested list is a positional array until decoded; decodeNested
+   maps it to named objects once and caches the result on the person,
+   so a second drill-down (or the CSV export) pays nothing. */
+const NESTED_MAP = {per_cycle:'pc', udp_per_cycle:'upc', self_funding_per_cycle:'sf', other_committees_per_cycle:'oc', all_ie_per_cycle:'aie', all_ie_top_committees:'tc'};
+function decodeNested(p){
+  Object.keys(NESTED_MAP).forEach(k=>{
+    if(Array.isArray(p[k]) && p[k].length && Array.isArray(p[k][0])){
+      p[k] = p[k].map(e=>mkobj(COLS[NESTED_MAP[k]], e));
+    }
+  });
+  return p;
+}
 
 /* ---- formatting ---- */
 function num(v){ return (typeof v==='number' && isFinite(v)) ? v : null; }
@@ -1214,6 +1231,13 @@ function cycleTable(title, rows, cols){
 function kvRow(label, value){ return '<div><span>'+esc(label)+'</span><span>'+value+'</span></div>'; }
 function openDetail(key){
   const p = BY_KEY[key]; if(!p) return;
+  // Loading state first (FE1a): the sheet opens with the name and a
+  // loading line; the nested lists then decode synchronously (trivial
+  // for one person) and the full breakdown fills in the same task.
+  lastFocused = document.activeElement || null;
+  document.getElementById('detail-sheet').innerHTML = '<h2>'+esc(p.full_name)+'</h2><p>Loading the full breakdown\u2026</p>';
+  document.getElementById('detail').classList.add('open');
+  decodeNested(p);
   const leader = [p.leadership_119, (p.leadership_120 && p.leadership_120!=='TBD') ? p.leadership_120 : null].filter(Boolean).join('; ');
   let h = '<button class="btn ghost close" id="detail-close" type="button">Close ✕</button>';
   h += '<h2>'+esc(p.full_name)+'</h2>';
@@ -1303,9 +1327,7 @@ function openDetail(key){
   if(p.data_notes) h += '<h3>Data notes</h3><div class="notes">'+esc(p.data_notes)+'</div>';
   h += '<p style="color:var(--muted);font-size:.85rem">Data as of '+esc(p.data_as_of)+' · Person key '+esc(p.person_key)+' · Figures trace to FEC filings; see Methodology.</p>';
   document.getElementById('detail-sheet').innerHTML = h;
-  document.getElementById('detail').classList.add('open');
   document.getElementById('detail-close').addEventListener('click', closeDetail);
-  lastFocused = document.activeElement || null;
   const closeBtn = document.getElementById('detail-close');
   if(closeBtn && typeof closeBtn.focus==='function') closeBtn.focus();
 }
@@ -1518,6 +1540,7 @@ function downloadCsv(){
   const escCsv = s => /[",\\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
   const lines = [cols.map(escCsv).join(',')];
   sortRows(applyFilters()).forEach(p=>{
+    decodeNested(p);
     lines.push(cols.map(k=>{
       let v;
       if(k==='fec_candidate_ids') v = p.fec_candidate_ids.join(';');
