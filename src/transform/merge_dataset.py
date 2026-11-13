@@ -138,7 +138,7 @@ LAMB_NOTE = ('2026 PENDING RECONCILIATION: other-committee money in 2026 is $96,
 ROSTER_FIELDS = ['person_key', 'full_name', 'chamber_119', 'chamber_120', 'state',
                  'district_119', 'district_120', 'party_119', 'party_120',
                  'leadership_119', 'leadership_120', 'in_119th', 'in_120th',
-                 'fec_candidate_ids']
+                 'fec_candidate_ids', 'senate_class']
 MONEY_COLS = ['individual_contribution_total_career', 'aipac_pac_direct_career',
               'aipac_earmark_transmitted_career', 'corporate_pac_career',
               'corporate_earmark_transmitted_career', 'udp_ie_support_career']

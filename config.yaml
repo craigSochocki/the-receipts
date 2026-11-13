@@ -259,6 +259,7 @@ dataset:
     - in_119th
     - in_120th
     - fec_candidate_ids
+    - senate_class
     - individual_contribution_total_career
     - aipac_pac_direct_career
     - aipac_earmark_transmitted_career
@@ -352,6 +353,7 @@ dataset:
     - in_119th
     - in_120th
     - fec_candidate_ids
+    - senate_class
     - individual_contribution_total_career
     - aipac_pac_direct_career
     - aipac_earmark_transmitted_career

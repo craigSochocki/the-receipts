@@ -349,6 +349,40 @@ for k, r in rows.items():
             if new_sens:
                 add_note(k, f"Not in 120th; new senator(s) from {r['state']} in the 120th: {', '.join(new_sens)}.")
 
+# ---------- senate_class ----------
+# Senate class (1/2/3) for every senator row, from the legislators yaml:
+# each Senate term carries its class directly. A person holding a Senate
+# seat into 2026 takes their own latest term's class; a new senator (no
+# Senate term of their own) takes the class of whoever held that seat
+# during 2026 — the appointee or outgoing holder, whose term carries the
+# seat's class. Render-time derivation from FEC cycles was tested and
+# fails (every senator fundraises every cycle; special-election winners
+# break the cycle-mod-6 pattern), so it is computed here, not on the page.
+_sen_terms = {}
+for _p in cur:
+    _sen_terms[_p['id'].get('bioguide')] = [
+        t for t in _p['terms'] if t.get('type') == 'sen']
+_cont_sen = {r['person_key'] for r in rows.values()
+             if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'}
+def _senate_class(r):
+    if r['chamber_119'] != 'Senate' and r['chamber_120'] != 'Senate':
+        return None
+    own = [t for t in _sen_terms.get(r.get('_bioguide') or r['person_key'], [])
+           if (t.get('end') or '') >= '2026-01-01']
+    if own:
+        return own[-1].get('class')
+    holders = set()
+    for _p in cur:
+        for t in _p['terms']:
+            if (t.get('type') == 'sen' and t.get('state') == r['state']
+                    and (t.get('start') or '') <= '2026-12-31'
+                    and (t.get('end') or '') >= '2026-01-01'
+                    and _p['id'].get('bioguide') not in _cont_sen):
+                holders.add(t.get('class'))
+    return holders.pop() if len(holders) == 1 else None
+for r in rows.values():
+    r['senate_class'] = _senate_class(r)
+
 json.dump(list(rows.values()), open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
 print('total rows:', len(rows))
 print('in 119th:', sum(1 for r in rows.values() if r['in_119th'] == 'yes'))
