@@ -265,7 +265,7 @@ html.js .chapter.in .tile{opacity:1}
 @media (prefers-reduced-motion: reduce){
 html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
 }
-@media(max-width:560px){.hook{font-size:1.55rem}}
+@media(max-width:560px){.hook{font-size:1.55rem}.big-number{font-size:1.8rem}}
 .comp{display:flex;flex-direction:column;gap:18px}
 .comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}
@@ -275,6 +275,8 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
 .delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
 .hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600}
+.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2}
+.big-label{color:var(--muted);margin:2px 0 10px}
 .dirtiest{list-style:none;margin:6px 0 0;padding:0}
 .dirtiest li{border-bottom:1px solid #ececec}
 .dirty-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%;text-align:left;background:none;border:none;padding:12px 2px;font:inherit;cursor:pointer;color:inherit}
@@ -692,9 +694,9 @@ function renderDirtiest(){
     .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026)).slice(0,5);
   const top = rows[0];
   const next4 = rows.slice(1).reduce((s,p)=>s+num(p.dirty_2026),0);
-  let h = '<b>'+esc(top.full_name)+'</b> took <b>'+fmtCompact(top.dirty_2026)+'</b> in dirty money in 2026 — the most of anyone in Congress.';
+  let h = '<b>'+esc(top.full_name)+'</b> took <b><span class="countup" data-value="'+num(top.dirty_2026)+'" data-format="compact">'+fmtCompact(top.dirty_2026)+'</span></b> in dirty money in 2026 — the most of anyone in Congress.';
   if(num(top.dirty_2026) > next4){
-    h += ' That is more than the next four combined ('+fmtCompact(next4)+') — about '+(num(top.dirty_2026)/next4).toFixed(2)+'× as much.';
+    h += ' That is more than the next four combined (<span class="countup" data-value="'+next4+'" data-format="compact">'+fmtCompact(next4)+'</span>) — about '+(num(top.dirty_2026)/next4).toFixed(2)+'× as much.';
   }
   document.getElementById('dirtiest-headline').innerHTML = h;
   document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
@@ -715,10 +717,25 @@ function renderCleanStory(){
   const hClean = incoming.filter(p=>p.chamber_120==='House'&&p.clean_2026===true).length;
   const sClean = incoming.filter(p=>p.chamber_120==='Senate'&&p.clean_2026===true).length;
   document.getElementById('landing-story').innerHTML =
-    '<b>'+(hClean+sClean)+' of '+incoming.length+'</b> incoming members took no dirty money in 2026 — '
+    '<b><span class="countup" data-value="'+(hClean+sClean)+'" data-format="int">'+(hClean+sClean)+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></b> incoming members took no dirty money in 2026 — '
     + hClean+' House + '+sClean+' Senate. '
     + '<button type="button" class="linklike" id="story-clean-link">See the clean list</button>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
+}
+/* ---- front door: what counts as dirty, computed from the data ----
+   The career dirty total and its three components are summed from
+   PEOPLE at render time — no figure is ever typed into this template.
+   The big number counts up on reveal (see runCountUp). */
+function renderDirtyExplainer(){
+  const sum = k => PEOPLE.reduce((s,p)=>s+(num(p[k])||0),0);
+  const total = sum('dirty_career');
+  const corp = sum('corporate_pac_career');
+  const aipac = sum('aipac_pac_direct_career');
+  const udp = sum('udp_ie_total_benefit_career');
+  document.getElementById('dirty-explainer').innerHTML =
+    '<p class="big-number"><span class="countup" data-value="'+total+'" data-format="compact">'+fmtCompact(total)+'</span></p>'
+    + '<p class="big-label">of dirty money taken over a career by everyone in the tracker</p>'
+    + '<p>Dirty money is money from sources other than individual contributors: <b>corporate PAC contributions ('+fmtCompact(corp)+')</b>, <b>AIPAC PAC direct ('+fmtCompact(aipac)+')</b>, and <b>UDP benefit — outside spending for the candidate, or against their opponent ('+fmtCompact(udp)+')</b>. Individual contributions are <b>not</b> dirty money.</p>';
 }
 /* ---- front door: House waffle + Senate state tiles ----
    House: a 15-row x 29-column waffle grid (435 dots), filled one
@@ -1400,7 +1417,7 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderDirtiest(); renderCleanStory(); renderComposition(); initFinder(); renderViewBtns(); renderTable();
+  renderStats(); renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder(); renderViewBtns(); renderTable();
   initReveals();
   state.rendered.tracker = true;
   setMode(modeFromHash(), false);

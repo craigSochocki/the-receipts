@@ -260,8 +260,10 @@ downloadCsv(); // must not throw (Blob + object URL path)
 const incoming120 = PEOPLE.filter((p) => p.in_120th === "yes");
 const clean120 = incoming120.filter((p) => p.clean_2026 === true).length;
 const storyHtml = document.getElementById("landing-story").innerHTML;
+// The counts are count-up spans now, so strip tags before matching.
+const storyText = storyHtml.replace(/<[^>]+>/g, "");
 assert.ok(
-  storyHtml.includes(clean120 + " of " + incoming120.length),
+  storyText.includes(clean120 + " of " + incoming120.length),
   "story renders the computed clean count: " + storyHtml);
 assert.ok(storyHtml.includes("story-clean-link"), "story links to the clean list");
 const findStateHtml = document.getElementById("find-state").innerHTML;
