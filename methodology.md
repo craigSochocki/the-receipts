@@ -872,32 +872,109 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
   columns, except `cash_on_hand_2026`, which reads null). `dirty_2026` is
   UNCHANGED by all of this — self-funding, other-committee money and all-IE
   spending are never folded into it.
-- `clean_2026` — true when `corp_2026`, `aipac_direct_2026`,
-  `udp_support_2026`, and `udp_opp_credit_2026` are ALL zero in 2026. This is
-  a cycle test, not a career test: a member can be clean in 2026 while having
-  taken such money in earlier cycles. **Verification rule (generalized Nov 12,
-  2026 — previously a hardcoded Luria exception):** a person in the 120th is
-  *unverified* (`clean_2026 = null`) iff they have NO 2026 linkage evidence in
+- `clean_2026` — true when the member took no NET dirty money in 2026:
+  `dirty_2026 <= 0`. This is a cycle test, not a career test: a member
+  can be clean in 2026 while having taken such money in earlier cycles.
+  **Net-negative fix (Nov 12, 2026):** the rule used to require all four
+  dirty components to be exactly zero, which misread refunds — a member
+  whose 2026 refunds exceeded their 2026 contributions read dirty on a
+  negative total. 17 members flip False -> True under the net rule (10
+  in the 120th, 7 in the 119th only). The 10 in the 120th: Yassamin
+  Ansari -$3,000, Becca Balint -$1,000, Greg Casar -$1,000, Maxwell
+  Frost -$1,000, Edward J. Markey -$1,000, John W. Hickenlooper
+  -$9,080, Christopher Murphy -$6,000, Patrick Ryan -$15,000, Jill N.
+  Tokuda -$2,750, Raphael G. Warnock -$3,500. The 7 in the 119th only:
+  Danny K. Davis -$1,000, Gary C. Peters -$116,600, Jeanne Shaheen
+  -$11,050, Mitch McConnell -$97,212, Nancy Pelosi -$1,900, Richard J.
+  Durbin -$13,000, Tina Smith -$23,500. Ryan's case: his `corp_2026`
+  is $0 — the negative component is AIPAC direct, -$15,000 (a refund),
+  not corporate PAC. In every one of the 17, exactly one dirty
+  component is nonzero and it is negative, so the net rule and an
+  all-components-<=0 rule agree on the current data; the net rule is
+  the one implemented, because `dirty_2026` is the defined net total.
+  **Verification rule (generalized Nov 12, 2026 — previously a hardcoded
+  Luria exception):** a person in the 120th is *unverified*
+  (`clean_2026 = null`) iff they have NO 2026 linkage evidence in
   ANY money source — no tracked `per_cycle` / `udp_per_cycle` 2026 entry, and no
   `self_funding_per_cycle` 2026 entry whose `coverage_end_date` falls in calendar
   2026. Other-committee and all-IE 2026 entries do NOT establish linkage on their
   own (they are third-party reports filed under a possibly stale ID). A person
-  with linkage and all-zero dirty columns is verified clean **with evidence**;
-  a person with linkage and nonzero dirty columns is dirty. **Unopposed
+  with linkage and no net dirty money is verified clean **with evidence**;
+  a person with linkage and net dirty money above $0 is dirty. **Unopposed
   exclusion (Nov 12, 2026):** a member who ran unopposed in 2026
-  (`unopposed_2026`) and whose four dirty columns are all zero is **null, not
-  clean** — $0 dirty money in a race with no opponent is a structural zero,
+  (`unopposed_2026`) and whose net dirty money is zero or negative is
+  **null, not clean** — $0 dirty money in a race with no opponent is a structural zero,
   not a verified-clean campaign. A dirty unopposed member stays dirty. The
   rule is implemented in `src/transform/compute_2026.py` (`has_2026_linkage`)
   and re-verified in `src/validate/verify_dataset.py` (checks (e) and (m)).
+- `aipac_udp_flag_2026` — true when `aipac_direct_2026 > 0` OR
+  `udp_benefit_2026 > 0`. The "most egregious" flag: any AIPAC direct
+  dollar or any UDP benefit dollar flags the member, in any amount,
+  under EVERY tolerance preset — the flag is not tolerance-based. 231
+  members of the 120th are flagged (291 roster-wide). A boolean on every
+  row, including the 4 nulls (all False — a flag is a money fact, not a
+  verdict).
+- `tier_balanced_2026` / `tier_lenient_2026` — the member's tier under
+  each corporate PAC tolerance preset. Domain: `clean` /
+  `below_threshold` / `dirty`, or null exactly where `clean_2026` is null
+  (unverified / unopposed — never presented as clean). `dirty` when the
+  member is AIPAC/UDP-flagged OR their corporate PAC take is material
+  under the preset; `below_threshold` (the middle tier) when corporate
+  PAC was taken but below the preset's thresholds — never called
+  "clean", and the dollar amount is always shown (`corp_2026`);
+  `clean` otherwise (no corporate PAC taken and not flagged). The flag
+  takes precedence: a flagged member is dirty under every preset, and
+  the tiers are monotone — anyone clean under Strict is clean or
+  below_threshold under Balanced / Lenient, never dirty. Thresholds
+  (config `tolerance_presets`; Balanced is the DEFAULT):
+  - **Strict:** no thresholds of its own — it is `clean_2026` itself
+    (any net dirty dollar above $0 is dirty; net dirty at or below $0
+    is clean). Strict clean in the 120th: **84 of 535** (70 House +
+    14 Senate), up from 74 before the net-negative fix (see the
+    net-negative note under `clean_2026` above).
+  - **Balanced (default):** corporate PAC counts as dirty only if
+    `corp_2026 > $100,000` AND `corp_2026 / total_receipts_2026 >
+    5%`. Tiers in the 120th: clean 84 / below_threshold 119 / dirty
+    328 (null 4). Not dirty under Balanced (clean + below_threshold):
+    **203 of 535**.
+  - **Lenient:** corporate PAC counts as dirty only if `corp_2026 >
+    $250,000` AND `corp_2026 / total_receipts_2026 > 10%`. Tiers in
+    the 120th: clean 84 / below_threshold 173 / dirty 274 (null 4).
+    Not dirty under Lenient: **257 of 535**.
+  - **Share-denominator cutoff note:** `corp_2026` is pas2 through
+    Sep 30, 2026 while `total_receipts_2026` is weball through Oct 14,
+    2026 — the denominator runs two weeks longer than the numerator,
+    slightly understating shares (see §15). A non-positive
+    `total_receipts_2026` leaves the share undefined and the share
+    test cannot pass; no member in the current data has corporate PAC
+    above an amount threshold with non-positive receipts (the only
+    corp > $0 / receipts <= $0 member is Melissa Bean, corp $3,500).
+  - **Corp-only split (120th):** 211 members took corporate PAC only
+    (corp > $0, AIPAC $0, UDP $0). Of those, 93 stay dirty under
+    Balanced (118 below threshold) and 41 stay dirty under Lenient
+    (170 below threshold).
+  - **Count discrepancy (Nov 12, 2026):** an earlier recount put
+    not-dirty at 201 (Balanced) and 253 (Lenient). Those figures left
+    Patrick Ryan and the below-threshold members carrying a negative
+    AIPAC component in limbo — counted neither clean nor dirty. Ryan
+    (corp $0, AIPAC -$15,000) is clean under the partition here, and
+    the negative-AIPAC members are below_threshold (Balanced: Emily
+    Randall, corp $68,250; Lenient: Randall, Sylvia R. Garcia, corp
+    $238,500, and Suhas Subramanyam, corp $133,500). The tier dirty
+    counts and the 2028-target counts below match the earlier recount
+    exactly; only the not-dirty counts differ, by +2 / +4.
+  - **A count is never shown without its definition:** every clean /
+    not-dirty figure in this tracker is labeled with its preset
+    (Strict / Balanced / Lenient). The default presentation is
+    Balanced.
 - `unopposed_2026` — true when the person ran unopposed in 2026: every 2026
   candidate ID of theirs in weball26 sits in a race where no OTHER candidate
   has total receipts over $0. A filed opponent with $0 receipts does not make
   the race contested; a write-in opponent who never filed does not appear. The
   race is taken from the filing's own weball row (office prefix + state +
   district), NOT the roster district — see the unopposed subsection below.
-  An unopposed member whose four dirty columns are all zero is **null, not
-  clean** (see the `clean_2026` rule below); an unopposed member with dirty
+  An unopposed member whose net dirty money is zero or negative is
+  **null, not clean** (see the `clean_2026` rule below); an unopposed member with dirty
   money stays dirty. `unopposed_2026` is a race fact, independent of the clean
   verdict — nine people ran unopposed in 2026, six of them dirty.
 - `dep_share_2026` — `(corp_2026 + aipac_direct_2026) / (individual_2026 +
@@ -935,14 +1012,17 @@ is derived from career money columns only, an unopposed run could never have
 cost her career-clean status anyway. She is the proof case that the rule uses
 the filings.
 
-**Headline — incoming House, 2026 cycle (partial): 64 of 436 verified-clean (61
+**Headline — incoming House, 2026 cycle (partial): 70 of 436 verified-clean (67
 Democrats, 3 Republicans).** The three clean Republicans are Kimberlyn
 King-Hinds, Mark Lamb, and Anthony Constantino
 (Constantino's zero is verified — FEC activity found, all totals zero). The
 nearest miss is Paul Gosar (R), $4,250 in corporate PAC money in 2026. All 53
-career-clean incoming House members are also clean in 2026; 11 more are
-2026-clean but not career-clean. For the Senate, 10 of 99 incoming senators
-are clean in 2026 (9 Democrats, 1 independent, 0 Republicans).
+career-clean incoming House members are also clean in 2026; 17 more are
+2026-clean but not career-clean. For the Senate, 14 of 99 incoming senators
+are clean in 2026 (13 Democrats, 1 independent, 0 Republicans). All clean
+counts in this paragraph are Strict (`clean_2026`); the Balanced (default)
+not-dirty count for the 120th is 203 of 535 and Lenient is 257 of 535 — see
+the tier definitions above.
 
 **Top dirty-2026 incoming House Democrats:** Adrian Boafo $5,745,013.28
 (UDP-driven: $5,734,013.28 UDP support, $11,000 corporate PAC); Wesley Bell
@@ -979,6 +1059,13 @@ are not open, and 2026 is partial (cutoffs in §15). The rule is mechanical
   three: Margaret Wood Hassan $407,388.00, Ron Wyden $304,500.00, Brian
   Schatz $279,400.00. All thirteen are corporate-PAC-only dirty in 2026 (no
   AIPAC direct, no UDP benefit in 2026).
+- **The 2028 tab under a tolerance preset:** the target rule under a
+  preset is tier `dirty` (flagged OR corporate-PAC-material under that
+  preset) instead of `dirty_2026 > 0`. Balanced (default): House 133,
+  Senate Class 3 6. Lenient: House 103, Senate Class 3 3. Strict is the
+  192 / 13 above. The preset does not change the pool (House Democrats
+  / Class 3 Senate Democrats in the 120th), only which of them count as
+  dirty.
 - **Who is Class 3 and who is not on the list:** 16 Democrats in the 120th
   are Class 3. Three are not on the tab because their `dirty_2026` is not
   above zero: Mark Kelly and Michael F. Bennet ($0) and Raphael G. Warnock
@@ -1023,7 +1110,7 @@ figures understate reality:
   real zero. Do not present their $0 individual_2026 as fact.
 - Elaine Luria has no 2026 per-cycle data at all under the roster's linked
   candidate ID, so her `clean_2026` is null (unverified), NOT true. She is
-  excluded from the 64 verified-clean count above. Do not present Luria as
+  excluded from the 70 verified-clean count above. Do not present Luria as
   confirmed clean — or as dirty — until her 2026 committee ID is linked and
   her 2026 figures are pulled. **Correction to the original premise (Nov 12,
   2026):** the earlier note said she had "no 2026 entries in any source." That
@@ -1042,12 +1129,18 @@ figures understate reality:
   states the evidence. Constantino is the mirror case: his tracked 2026 $0s
   are now verified WITH evidence (self-funding 2026 loans $14,400,000, coverage
   10/14/2026; all-IE 2026 support $459,491.94 / oppose $3,721,257.82;
-  other-committee 2026 $19,500), so he counts among the 64 verified-clean —
+  other-committee 2026 $19,500), so he counts among the 70 verified-clean —
   the count returns to **67 House / 77 total**, correcting the 66 / 76 figures
   recorded in MEMORY.md and the intro page (the dataset itself always said 67).
   A later change (Nov 12, 2026) excludes members who ran unopposed in 2026
   from verified-clean — see the unopposed subsection above — bringing the
-  count to **64 House / 74 total**.
+  count to **64 House / 74 total**. A later change the same day (Nov 12, 2026)
+  replaces the all-components-zero clean rule with the net rule
+  (`dirty_2026 <= 0` — refunds exceeding contributions read clean) and
+  adds the AIPAC/UDP flag plus the corporate PAC tolerance presets
+  (Strict / Balanced / Lenient) documented above, bringing the Strict
+  count to **70 House / 84 total** (Balanced not-dirty 203 of 535,
+  Lenient 257 of 535).
 
 ---
 
@@ -1282,8 +1375,8 @@ Senate. (The original parliament/hemicycle charts were replaced Nov 12,
   California races) = 435. The 6 non-voting delegates are **not plotted**
   — they have no vote — and are listed under the chart: Clean D 3, Clean
   R 1, Unopposed R 1, Dirty PPD 1. That is why the chart's House clean
-  counts (D 58, R 2) differ from the 64 verified-clean House members in
-  §14 (61 D, 3 R), which counts the Northern Mariana Islands delegate
+  counts (D 64, R 2) differ from the 70 verified-clean House members in
+  §14 (67 D, 3 R), which counts the Northern Mariana Islands delegate
   King-Hinds.
 - **Senate: 100 seats.** Named 99 + 1 uncalled (Alaska) = 100.
   Alaska's tile is half decided (Murkowski, Republican, dirty) and
@@ -1294,8 +1387,8 @@ them at render, so they move with the data):
 
 | Chamber | Dirty D | Clean D | Dirty R | Clean R | Dirty I | Clean I | Unopposed | Unverified | Uncalled |
 |---|---|---|---|---|---|---|---|---|---|
-| House (435 voting) | 198 | 58 | 169 | 2 | 0 | 0 | 2 | 1 | 5 |
-| Senate (100) | 44 | 9 | 44 | 0 | 1 | 1 | 0 | 0 | 1 |
+| House (435 voting) | 192 | 64 | 169 | 2 | 0 | 0 | 2 | 1 | 5 |
+| Senate (100) | 40 | 13 | 44 | 0 | 1 | 1 | 0 | 0 | 1 |
 
-House row sums: 198 + 58 + 169 + 2 + 0 + 0 + 2 + 1 + 5 = 435. Senate row
-sums: 44 + 9 + 44 + 0 + 1 + 1 + 0 + 0 + 1 = 100.
+House row sums: 192 + 64 + 169 + 2 + 0 + 0 + 2 + 1 + 5 = 435. Senate row
+sums: 40 + 13 + 44 + 0 + 1 + 1 + 0 + 0 + 1 = 100.
