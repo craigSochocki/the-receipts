@@ -715,6 +715,20 @@ def main():
           and "getElementById('composition').addEventListener('click'" in html
           and "closest('[data-key]')" in html)
 
+    # ---- Wave 2 (redesign): FE10 stagger cap + text alternative ----
+    # The waffle and tile staggers are scaled so the whole sequence
+    # stays under ~500ms (was ~1.1s / ~1.5s); the dirtiest rows were
+    # already 360ms. Each chart also gets a visually-hidden
+    # sentence-form text alternative. The sticky-th clause is NOT
+    # done here: the only concrete fix (a 70vh inner scroller) was
+    # cut, and no other pure-CSS fix exists — see the wave report.
+    check("FE10: chart staggers capped under ~500ms",
+          '480/(WAFFLE_COLS-1)' in html and '480/49' in html
+          and 'col*40' not in html and 'i*30' not in html)
+    check("FE10: charts have a visually-hidden text alternative",
+          '.visually-hidden{' in html and 'function chartAltText' in html
+          and 'class="visually-hidden"' in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

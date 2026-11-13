@@ -1041,6 +1041,13 @@ assert.ok(compHtml.includes("Dirty D 40"), "Senate legend shows Dirty D 40");
 assert.ok(compHtml.includes("Not shown: 6 non-voting delegates"), "delegate note present");
 assert.ok(compHtml.includes("Clean D 3"), "delegate note shows Clean D 3");
 assert.ok(compHtml.includes("Dirty PPD 1"), "delegate note shows Dirty PPD 1");
+assert.ok(compHtml.includes("visually-hidden"), "FE10: charts have a visually-hidden text alternative");
+assert.ok(compHtml.includes("House: 435 seats"), "FE10: text alternative states the House counts");
+const compDelays = [...compHtml.matchAll(/transition-delay:(\d+)ms/g)].map((m) => +m[1]);
+assert.ok(compDelays.length > 0, "FE10: chart stagger delays present");
+assert.ok(
+  Math.max(...compDelays) <= 500,
+  "FE10: chart stagger totals stay under ~500ms, max " + Math.max(...compDelays));
 
 /* ---- U4: charts carry person keys (clicks tested after FE1a,
  * because opening a drill-down decodes that person's lists) ---- */

@@ -295,6 +295,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .comp svg{width:100%;height:auto;display:block}
 .comp [data-key]{cursor:pointer}
 .comp figcaption{text-align:center;font-weight:600;margin-top:2px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
 .legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
@@ -973,6 +974,24 @@ function renderDirtyExplainer(){
    dashed gray ring / empty half (no named member yet).
    House plots the 435 voting seats; the 6 non-voting delegates are
    listed under the chart, not plotted. */
+function chartAltText(seats, label){
+  // A sentence-form text alternative for the chart (FE10): the
+  // legend already shows the same counts visually.
+  const count = (letter, status)=>seats.filter(s=>s.letter===letter && s.status===status).length;
+  const parts = [];
+  ['D','R','I'].forEach(L=>{
+    const d = count(L,'dirty'), c = count(L,'clean');
+    if(d) parts.push(d+' Dirty '+L);
+    if(c) parts.push(c+' Clean '+L);
+  });
+  const unopp = seats.filter(s=>s.status==='unopposed').length;
+  const unver = seats.filter(s=>s.status==='unverified').length;
+  const unc = seats.filter(s=>s.status==='uncalled').length;
+  if(unopp) parts.push(unopp+' unopposed');
+  if(unver) parts.push(unver+' unverified');
+  if(unc) parts.push(unc+' uncalled');
+  return label+': '+seats.length+' seats — '+parts.join(', ')+'.';
+}
 const PARTY_DOT_COLOR = {Democrat:'#1e40af', Republican:'#991b1b'};
 function dotColor(name){ return PARTY_DOT_COLOR[name] || '#374151'; }
 function seatLetter(p){
@@ -1031,8 +1050,9 @@ function waffleDotSVG(s, x, y, col){
   } else {
     inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"/>';
   }
-  // Stagger by column so the waffle fills left to right on reveal.
-  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'"'+(s.key?' data-key="'+esc(s.key)+'"':'')+' style="transition-delay:'+(col*40)+'ms">'+inner
+  // Stagger by column so the waffle fills left to right on reveal —
+  // scaled so the whole stagger stays under ~500ms (FE10).
+  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'"'+(s.key?' data-key="'+esc(s.key)+'"':'')+' style="transition-delay:'+(Math.round(col*480/(WAFFLE_COLS-1)))+'ms">'+inner
     + '<title>'+esc(title)+'</title></g>';
 }
 function waffleSVG(seats){
@@ -1125,7 +1145,9 @@ function senateTilesSVG(){
       : h.name+' ('+h.letter+', '+({dirty:'took dirty money in 2026',
         clean:'verified clean in 2026', unopposed:'ran unopposed',
         unverified:'unverified'}[h.status])+')').join('; ');
-    tiles += '<g class="tile" data-state="'+st.code+'" style="transition-delay:'+(i*30)+'ms">'
+    // Stagger the tiles on reveal, scaled so the whole stagger stays
+    // under ~500ms (FE10).
+    tiles += '<g class="tile" data-state="'+st.code+'" style="transition-delay:'+(Math.round(i*480/49))+'ms">'
       + tileHalfSVG(st.halves[0], x, y, TILE_W/2, TILE_H)
       + tileHalfSVG(st.halves[1], x+TILE_W/2, y, TILE_W/2, TILE_H)
       + '<rect x="'+x+'" y="'+y+'" width="'+TILE_W+'" height="'+TILE_H+'" fill="none" stroke="#6b7280" stroke-width="1"/>'
@@ -1177,9 +1199,11 @@ function renderComposition(){
   document.getElementById('composition').innerHTML =
     '<div class="comp">'
     + '<figure>'+waffleSVG(h.seats)
-    + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats,'dot')+'</figure>'
+    + '<figcaption>House — '+h.total+' voting seats</figcaption>'+legendHTML(h.seats,'dot')
+    + '<p class="visually-hidden">'+esc(chartAltText(h.seats, 'House'))+'</p></figure>'
     + '<figure>'+senateTilesSVG()
-    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats,'dots')+'</figure>'
+    + '<figcaption>Senate — '+s.total+' seats</figcaption>'+legendHTML(s.seats,'dots')
+    + '<p class="visually-hidden">'+esc(chartAltText(s.seats, 'Senate'))+'</p></figure>'
     + '</div><p class="delegates">'+esc(dNote)+'</p>';
 }
 /* ---- find-your-member finder (120th Congress only, no URL state) ----
