@@ -27,8 +27,10 @@ Rules (see AGENTS.md):
   the default — dirtiest in 2026, the clean story, the finder, one
   freshness line, one "Explore the full data" button — and #explore opens
   the full-data workspace (tabs, filters, table, methodology) with the
-  story and finder removed from above the table. Mode only lives in the
-  URL hash; filters/tabs get no URL state (Change 2, queued).
+  story and finder removed from above the table. Mode, tab, filters,
+  preset, view, sort and the open drill-down all live in the URL hash
+  (Change 2, FE5): a view is shareable, and Back/forward restores it —
+  Back from a drill-down closes the sheet.
 """
 import csv
 import hashlib
@@ -705,6 +707,9 @@ const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core', preset:'balanced',
   moneyFmt:loadMoneyFmt(),
   sortKey:'dirty_2026', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
+// The drill-down's person key, when a sheet is open (FE5: it lives
+// in the URL hash, so Back closes the sheet).
+let detailKey = null;
 
 function getVal(p, key){
   if(key==='place') return place(p);
@@ -844,6 +849,9 @@ function renderTable(){
     : 'Showing '+rows.length+' of '+PEOPLE.length+' people. Click a row for the full breakdown.';
   renderChips();
   document.getElementById('foot-totals').textContent = totals.foot;
+  // FE5: every filter/preset/sort change lands in the URL (replace,
+  // not push — typing in the search box must not spam history).
+  syncHash(true);
 }
 const totalsCache = {};
 function renderChips(){
@@ -1318,7 +1326,7 @@ function cycleTable(title, rows, cols, open){
   return h + '</tbody></table></div></details>';
 }
 function kvRow(label, value){ return '<div><span>'+esc(label)+'</span><span>'+value+'</span></div>'; }
-function openDetail(key){
+function openDetail(key, opts){
   const p = BY_KEY[key]; if(!p) return;
   // Loading state first (FE1a): the sheet opens with the name and a
   // loading line; the nested lists then decode synchronously (trivial
@@ -1431,6 +1439,11 @@ function openDetail(key){
   document.getElementById('detail-close').addEventListener('click', closeDetail);
   const closeBtn = document.getElementById('detail-close');
   if(closeBtn && typeof closeBtn.focus==='function') closeBtn.focus();
+  // FE5: the open sheet lives in the URL — a push for a fresh open
+  // (Back closes it), a replace for prev/next and hash restores.
+  detailKey = key;
+  if(!opts || opts.push!==false) syncHash(false);
+  else syncHash(true);
 }
 /* ---- detail focus trap + restore (FE4) ----
    Opening the sheet remembers what had focus and moves focus to
@@ -1444,10 +1457,17 @@ function detailFocusable(){
   const els = sheet.querySelectorAll('button, a[href], [tabindex]');
   return Array.prototype.slice.call(els).filter(el=>!el.disabled);
 }
-function closeDetail(){
-  document.getElementById('detail').classList.remove('open');
+function closeDetail(opts){
+  const sheet = document.getElementById('detail');
+  if(!sheet.classList.contains('open') && detailKey===null) return;
+  detailKey = null;
+  sheet.classList.remove('open');
   if(lastFocused && typeof lastFocused.focus==='function') lastFocused.focus();
   lastFocused = null;
+  // From the hashchange handler the hash already moved (Back/forward):
+  // write nothing. Otherwise strip the detail from the URL (replace —
+  // the Close button should not add a history entry).
+  if(!(opts && opts.pop===false)) syncHash(true);
 }
 
 /* ---- leaderboards ---- */
@@ -1706,28 +1726,153 @@ function renderStats(){
   document.getElementById('stats').innerHTML = h;
 }
 
-/* ---- front door vs full-data mode (hash: #explore) ----
+/* ---- front door vs full-data mode, and the URL hash (FE5) ----
    Default (no hash) is the front door; #explore opens the full-data
-   workspace. Mode only lives in the URL hash; filters/tabs get no URL
-   state (Change 2, queued). No-JS fallback shows the full-data page:
-   the hidden flags are applied by init(), never baked into the HTML. */
+   workspace. The hash carries the whole view — mode, tab, filters,
+   preset, view, sort, and the open drill-down — so a view is
+   shareable and Back/forward restores it. Only non-default values are
+   written, so a plain #explore still means "defaults".
+   Mode changes and drill-down opens push a history entry (Back
+   returns); filter/tab/preset changes replace the current entry, so
+   typing in the search box does not spam history. No-JS fallback shows
+   the full-data page: the hidden flags are applied by init(), never
+   baked into the HTML. */
 function modeFromHash(){
   let h = '';
   try{ h = (typeof location!=='undefined' && location.hash) || ''; }catch(e){ h = ''; }
-  return h.replace(/^#/,'')==='explore' ? 'explore' : 'front';
+  h = h.replace(/^#/,'');
+  return (h==='explore' || h.indexOf('explore?')===0) ? 'explore' : 'front';
+}
+function safeDecode(s){
+  try{ return decodeURIComponent(s); }catch(e){ return s; }
+}
+function currentHash(){
+  try{ return (typeof location!=='undefined' && location.hash) || ''; }catch(e){ return ''; }
+}
+function hashFromState(){
+  const parts = [];
+  if(state.tab!=='tracker') parts.push('tab='+encodeURIComponent(state.tab));
+  if(state.q.trim()) parts.push('q='+encodeURIComponent(state.q.trim()));
+  if(state.congress!=='all') parts.push('congress='+state.congress);
+  if(state.chamber!=='all') parts.push('chamber='+state.chamber);
+  if(state.party!=='all') parts.push('party='+encodeURIComponent(state.party));
+  if(state.state!=='all') parts.push('state='+state.state);
+  if(state.leadership) parts.push('leader=1');
+  if(state.clean) parts.push('clean=1');
+  if(state.view!=='core') parts.push('view='+state.view);
+  if(state.preset!=='balanced') parts.push('preset='+state.preset);
+  if(state.sortKey!=='dirty_2026') parts.push('sort='+encodeURIComponent(state.sortKey));
+  if(state.sortDir!=='desc') parts.push('dir='+state.sortDir);
+  if(detailKey) parts.push('detail='+encodeURIComponent(detailKey));
+  if(state.mode==='explore') return 'explore'+(parts.length ? '?'+parts.join('&') : '');
+  return detailKey ? 'detail='+encodeURIComponent(detailKey) : '';
+}
+function writeHash(h, replace){
+  const target = h ? '#'+h : '';
+  // No-op guard: the serialized state already matches the URL, so
+  // there is nothing to write — and no hashchange to loop on.
+  if(target===currentHash()) return;
+  try{
+    if(replace && typeof history!=='undefined' && history.replaceState){
+      history.replaceState(null, '', target || '#');
+      return;
+    }
+  }catch(e){}
+  try{ location.hash = target; }catch(e){}
+}
+function syncHash(replace){ writeHash(hashFromState(), !!replace); }
+function parseHash(){
+  const out = {mode:'front', tab:'tracker', q:'', congress:'all', chamber:'all',
+    party:'all', state:'all', leadership:false, clean:false, view:'core',
+    preset:'balanced', sortKey:'dirty_2026', sortDir:'desc', detail:null};
+  let h = currentHash().replace(/^#/,'');
+  if(!h) return out;
+  out.mode = modeFromHash();
+  let params = '';
+  if(h==='explore'){ /* defaults */ }
+  else if(h.indexOf('explore?')===0){ params = h.slice('explore?'.length); }
+  else if(h.indexOf('detail=')===0){
+    const d = safeDecode(h.slice('detail='.length));
+    if(BY_KEY[d]) out.detail = d;
+    return out;
+  }
+  else if(h.indexOf('?')>=0){ params = h.slice(h.indexOf('?')+1); }
+  else { return out; }
+  params.split('&').forEach(pair=>{
+    if(!pair) return;
+    const eq = pair.indexOf('=');
+    const k = eq<0 ? pair : pair.slice(0,eq);
+    const v = eq<0 ? '' : safeDecode(pair.slice(eq+1));
+    if(k==='tab' && ['tracker','leaders','clean','breakdown','targets','targets28','method'].indexOf(v)>=0) out.tab = v;
+    else if(k==='q') out.q = v;
+    else if(k==='congress' && ['119','120','both','all'].indexOf(v)>=0) out.congress = v;
+    else if(k==='chamber' && ['House','Senate','all'].indexOf(v)>=0) out.chamber = v;
+    else if(k==='party' && ['Democrat','Republican','Independent','PPD','all'].indexOf(v)>=0) out.party = v;
+    else if(k==='state' && /^[A-Z]{2}$/.test(v)) out.state = v;
+    else if(k==='leader' && v==='1') out.leadership = true;
+    else if(k==='clean' && v==='1') out.clean = true;
+    else if(k==='view' && VIEWS[v]) out.view = v;
+    else if(k==='preset' && PRESETS[v]) out.preset = v;
+    else if(k==='sort' && SORTABLE.has(v)) out.sortKey = v;
+    else if(k==='dir' && (v==='asc' || v==='desc')) out.sortDir = v;
+    else if(k==='detail' && BY_KEY[v]) out.detail = v;
+  });
+  return out;
+}
+function applyHash(){
+  const p = parseHash();
+  // Detail first: open the hashed person, or close a sheet the hash
+  // no longer names (this is how Back closes the sheet).
+  if(p.detail && BY_KEY[p.detail]){
+    if(detailKey!==p.detail) openDetail(p.detail, {push:false});
+  } else if(document.getElementById('detail').classList.contains('open')){
+    closeDetail({pop:false});
+  }
+  // Unconditional: on load the mode already matches the default, but
+  // the hidden flags still need applying (no-JS fallback leaves the
+  // full-data page visible in the HTML). updateHash===false, so this
+  // never scrolls or moves focus.
+  setMode(p.mode, false);
+  // Only touch what differs, and never scroll or move focus — a
+  // hashchange / back-forward must restore the view without yanking
+  // the reader (U1).
+  let filtersChanged = false, presetChanged = false;
+  const setField = (key, val)=>{ if(state[key]!==val){ state[key]=val; filtersChanged=true; } };
+  setField('q', p.q); setField('congress', p.congress); setField('chamber', p.chamber);
+  setField('party', p.party); setField('state', p.state); setField('leadership', p.leadership);
+  setField('clean', p.clean); setField('view', p.view);
+  setField('sortKey', p.sortKey); setField('sortDir', p.sortDir);
+  if(p.preset!==state.preset){ setPreset(p.preset); presetChanged = true; }
+  if(filtersChanged || presetChanged){
+    // Push the parsed values into the controls (setting .value fires
+    // no change event) and re-render the table — unless setPreset
+    // already did.
+    document.getElementById('q').value = state.q;
+    document.getElementById('f-congress').value = state.congress;
+    document.getElementById('f-chamber').value = state.chamber;
+    document.getElementById('f-party').value = state.party;
+    document.getElementById('f-state').value = state.state;
+    document.getElementById('f-leader').checked = state.leadership;
+    document.getElementById('f-clean').checked = state.clean;
+    if(!presetChanged) renderTable();
+  }
+  // The tab only exists in Explore: a front-door hash carries no tab,
+  // and showTab would force the mode back to Explore if called here.
+  if(p.mode==='explore' && p.tab!==state.tab) showTab(p.tab, {scroll:false});
 }
 function setMode(mode, updateHash){
-  if(mode==='explore') ensureExplore();
   state.mode = mode;
+  // Push the mode change first: ensureExplore renders the table, and
+  // renderTable syncs the hash — if that replace landed first, the
+  // push below would be a no-op and Back would skip the front door.
+  if(updateHash!==false) syncHash(false);
+  if(mode==='explore') ensureExplore();
   const front = mode==='front';
   document.getElementById('front-door').hidden = !front;
   document.getElementById('explore-head').hidden = front;
   document.getElementById('tabs-nav').hidden = front;
   document.getElementById('main').hidden = front;
   document.querySelector('footer').hidden = front;
-  if(updateHash!==false){
-    try{ if(typeof location!=='undefined'){ location.hash = front ? '' : 'explore'; } }catch(e){}
-  }
   // One return control (U1): the masthead title is the way back to the
   // front door, so a mode change also moves the reader there — scroll
   // to the top and focus the new region. Only on user-initiated
@@ -1822,7 +1967,7 @@ function ensureExplore(){
 }
 
 /* ---- tabs + init ---- */
-function showTab(name){
+function showTab(name, opts){
   if(state.mode!=='explore') setMode('explore');
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.getAttribute('data-tab')===name)));
@@ -1837,10 +1982,14 @@ function showTab(name){
     if(name==='targets') renderTargets();
     if(name==='targets28') renderTargets2028();
   }
-  // Tab change: top of the page, focus on the panel.
-  try{ if(typeof window!=='undefined' && typeof window.scrollTo==='function') window.scrollTo(0,0); }catch(e){}
-  const panel = document.getElementById('tab-'+name);
-  if(panel && typeof panel.focus==='function') panel.focus();
+  syncHash(true);
+  // Tab change: top of the page, focus on the panel — but not on
+  // hashchange / back-forward (U1): applyHash passes scroll:false.
+  if(!opts || opts.scroll!==false){
+    try{ if(typeof window!=='undefined' && typeof window.scrollTo==='function') window.scrollTo(0,0); }catch(e){}
+    const panel = document.getElementById('tab-'+name);
+    if(panel && typeof panel.focus==='function') panel.focus();
+  }
 }
 function init(){
   // Gate the hidden-before-reveal state on JS actually running: no-JS
@@ -1875,7 +2024,9 @@ function init(){
     if(t) openDetail(t.getAttribute('data-key'));
   });
   initReveals();
-  setMode(modeFromHash(), false);
+  // FE5: the hash is the state — restore mode, tab, filters, preset
+  // and the open drill-down from it on load.
+  applyHash();
   document.getElementById('home-link').addEventListener('click', e=>{
     e.preventDefault();
     setMode('front');
@@ -1889,7 +2040,7 @@ function init(){
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
   document.getElementById('targets28-btn').addEventListener('click', ()=>showTab('targets28'));
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
-    window.addEventListener('hashchange', ()=>setMode(modeFromHash(), false));
+    window.addEventListener('hashchange', ()=>applyHash());
   }
   let searchTimer = null;
   document.getElementById('q').addEventListener('input', e=>{

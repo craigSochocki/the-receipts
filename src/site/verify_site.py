@@ -243,6 +243,19 @@ def main():
     check("mode lives in the URL hash (#explore)",
           "location.hash" in html and "modeFromHash" in html
           and "setMode" in html and "'explore'" in html)
+    # ---- FE5: the hash carries the whole view (Change 2) ----
+    check("FE5: hash serializes/parses/restores the full view",
+          "function parseHash" in html and "function applyHash" in html
+          and "function hashFromState" in html and "function syncHash" in html
+          and "function writeHash" in html)
+    check("FE5: hashchange restores state (not just the mode)",
+          "addEventListener('hashchange', ()=>applyHash())" in html)
+    check("FE5: open drill-down lives in the URL (detail=key)",
+          "parts.push('detail='+encodeURIComponent(detailKey))" in html)
+    check("FE5: mode changes push, filter/tab changes replace",
+          "syncHash(false)" in html and "syncHash(true)" in html)
+    check("FE5: Back (hashchange) closes the sheet without a hash write",
+          "closeDetail({pop:false})" in html)
     front = html[html.index('id="front-door"'):html.index('<footer>')]
     check("front door carries no stat cards or totals strip",
           'id="stats"' not in front and 'id="totals"' not in front)

@@ -1654,6 +1654,33 @@ assert.strictEqual(document.getElementById("front-door").hidden, true, "U5: skip
 assert.strictEqual(document.getElementById("main").hidden, false, "U5: skip link shows the workspace");
 setMode("front");
 
+/* ---- FE5: the hash carries the whole view (Change 2) ---- */
+setMode("explore");
+const partySelFE5 = document.getElementById("f-party");
+partySelFE5.value = "Democrat";
+partySelFE5.dispatchEvent("change");
+assert.ok(location.hash.includes("party=Democrat"), "FE5: party filter lands in the hash: " + location.hash);
+location.hash = "explore?party=Republican";
+assert.strictEqual(document.getElementById("f-party").value, "Republican", "FE5: hash restores the party filter");
+location.hash = "explore";
+assert.strictEqual(document.getElementById("f-party").value, "all", "FE5: bare #explore resets the filters");
+document.querySelector('.tabs button[data-tab="clean"]').dispatchEvent("click");
+assert.ok(location.hash.includes("tab=clean"), "FE5: tab lands in the hash: " + location.hash);
+location.hash = "explore?tab=leaders";
+assert.strictEqual(document.getElementById("tab-leaders").hidden, false, "FE5: hash restores the tab");
+location.hash = "explore";
+// The first tracker row is the dirtiest in 2026 (Stevens): open it.
+document.querySelector("#main-table tbody tr").dispatchEvent("click");
+assert.ok(location.hash.includes("detail="), "FE5: open drill-down lands in the hash: " + location.hash);
+assert.strictEqual(document.getElementById("detail").classList.contains("open"), true, "FE5: drill-down is open");
+location.hash = "explore";
+assert.strictEqual(document.getElementById("detail").classList.contains("open"), false, "FE5: hash back to explore closes the drill-down");
+location.hash = "detail=" + document.querySelector("#main-table tbody tr").getAttribute("data-key");
+assert.strictEqual(document.getElementById("detail").classList.contains("open"), true, "FE5: direct detail link opens the sheet");
+assert.strictEqual(document.getElementById("front-door").hidden, false, "FE5: direct detail link stays on the front door");
+closeDetail();
+setMode("front");
+
 /* ---- bubbling + closest() (what FE2's delegated tbody listener
  * and U4's delegated chart listener will rely on) ---- */
 const tbodyEl = document.querySelector("#main-table tbody");
