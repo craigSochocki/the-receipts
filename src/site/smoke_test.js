@@ -930,6 +930,11 @@ assert.strictEqual(
 const statsHtml = document.getElementById("stats").innerHTML;
 assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
 assert.ok(statsHtml.includes("203") && statsHtml.includes("not dirty"), "stats mention 203 not dirty (Balanced)");
+assert.strictEqual(
+  document.querySelectorAll("#stats .stat").length, 3,
+  "D7: Explore stats are 3 cards");
+assert.ok(statsHtml.includes("not judged"), "D7: third card is the combined not-judged card");
+assert.ok(statsHtml.includes("Elaine Luria"), "D7: not-judged card names the unverified member");
 const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
 assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
 assert.ok(

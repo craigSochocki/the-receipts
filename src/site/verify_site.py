@@ -675,6 +675,21 @@ def main():
           and '.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2;font-variant-numeric:tabular-nums}' in html
           and html.count('font-variant-numeric:tabular-nums') == 8)
 
+    # ---- Wave 2 (redesign): D7 Explore stats 7 -> 3 ----
+    # Only three cards: people tracked, the not-dirty count, and one
+    # combined "not judged" card (9 ran unopposed + 1 unverified,
+    # Luria, with names). The cutoffs paragraph is NOT deleted — the
+    # veto stands (AGENTS.md §4 requires cutoffs labelled
+    # everywhere); it collapses into a <details> instead.
+    check("D7: Explore stats are 3 cards incl. a combined not-judged card",
+          "not judged" in html and "ran unopposed in 2026" in html
+          and "unverified: " in html)
+    check("D7: cutoffs survive, collapsed into a details element",
+          '<details class="cutoffs">' in html
+          and "2026 is partial — coverage end dates" in html
+          and "Sep 30, 2026" in html and "Oct 14, 2026" in html
+          and "Oct 31, 2026" in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

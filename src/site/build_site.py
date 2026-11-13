@@ -183,6 +183,8 @@ h1 a:hover{text-decoration:underline}
 .stat b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
 .cutoffs{font-size:.82rem;color:var(--muted);margin:6px 0 0}
 .cutoffs b{color:var(--ink)}
+details.cutoffs summary{cursor:pointer;font-weight:600}
+details.cutoffs p{margin:6px 0 0}
 .tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin}
 .tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
 .tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
@@ -324,7 +326,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <div id="explore-head">
 <p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
-<p class="cutoffs"><b>2026 is partial.</b> Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p>
+<details class="cutoffs"><summary>2026 is partial — coverage end dates</summary><p>Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p></details>
 <div class="controls" id="tolerance-controls">
 <label for="f-tolerance">Corporate PAC tolerance:</label>
 <select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
@@ -1609,18 +1611,17 @@ function renderStats(){
   const nd = incoming.filter(isNotDirty);
   const hND = nd.filter(p=>p.chamber_120==='House').length;
   const sND = nd.filter(p=>p.chamber_120==='Senate').length;
-  const sum = k => PEOPLE.reduce((s,p)=>s+(num(p[k])||0),0);
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
   const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
   const word = state.preset==='strict' ? 'verified clean' : 'not dirty';
+  // D7: three cards only — the two that matter plus one combined
+  // "not judged" card (ran unopposed + unverified, with names).
+  // The dropped totals (individual, outside spending, self-funding)
+  // already live in the filtered totals strip below the table.
   const h =
     '<div class="stat"><b>'+PEOPLE.length+'</b>people tracked</div>'
     + '<div class="stat"><b>'+nd.length+' '+word+'</b>in 2026 — '+hND+' House + '+sND+' Senate ('+PRESETS[state.preset].label+' tolerance)</div>'
-    + '<div class="stat"><b>'+unopp.length+' ran unopposed</b>in 2026 — no opponent with receipts over $0: '+esc(unopp.map(p=>p.full_name).join(', '))+'</div>'
-    + '<div class="stat"><b>'+unver.length+' unverified</b>'+esc(unver.map(p=>p.full_name).join(', '))+'</div>'
-    + '<div class="stat"><b>'+fmtCompact(sum('individual_contribution_total_career'))+'</b>individual contributions, career</div>'
-    + '<div class="stat"><b>'+fmtCompact(sum('all_ie_total_career'))+'</b>outside spending, 2022–2026</div>'
-    + '<div class="stat"><b>'+fmtCompact(sum('self_funding_career'))+'</b>self-funding, career</div>';
+    + '<div class="stat"><b>'+(unopp.length+unver.length)+' not judged</b>'+unopp.length+' ran unopposed in 2026 — no opponent with receipts over $0: '+esc(unopp.map(p=>p.full_name).join(', '))+' · '+unver.length+' unverified: '+esc(unver.map(p=>p.full_name).join(', '))+'</div>';
   statsCache[state.preset] = h;
   document.getElementById('stats').innerHTML = h;
 }
