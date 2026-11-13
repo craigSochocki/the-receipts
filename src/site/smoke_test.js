@@ -1143,6 +1143,8 @@ const detailHtml = document.getElementById("detail-sheet").innerHTML;
 assert.ok(detailHtml.includes("$17,000,000.00"), "Constantino detail shows $17M self-funding");
 assert.ok(detailHtml.includes("Self-funding"), "detail has self-funding section");
 assert.ok(detailHtml.includes("Cycle by cycle"), "detail has cycle tables");
+assert.ok(detailHtml.includes('class="detail-head"'), "D6/FE3: detail header shows exact figures");
+assert.ok(detailHtml.includes("Dirty 2026"), "D6/FE3: detail header names Dirty 2026");
 const detailCycles = document.querySelectorAll("#detail-sheet details.cycle");
 assert.ok(detailCycles.length >= 2, "D9: cycle tables collapse into details elements, got " + detailCycles.length);
 assert.ok(detailCycles[0].hasAttribute("open"), "D9: first cycle table is open");
@@ -1557,6 +1559,22 @@ assert.ok(
   document.getElementById("targets28-intro").innerHTML.includes("133 House Democrats"),
   "tolerance select change back to Balanced restores 133");
 document.querySelector('.tabs button[data-tab="tracker"]').dispatchEvent("click");
+
+/* ---- D6/FE3: compact/exact money toggle (persisted, Compact default) ---- */
+const moneySel = document.getElementById("f-money");
+assert.strictEqual(moneySel.value, "compact", "money toggle defaults to Compact");
+const dirtyCell = document.querySelector("#main-table tbody tr").children[11];
+assert.strictEqual(dirtyCell.textContent, "$31.03M", "money shows compact by default");
+moneySel.value = "exact";
+moneySel.dispatchEvent("change");
+assert.strictEqual(
+  document.querySelector("#main-table tbody tr").children[11].textContent,
+  "$31,025,889.44", "money toggle to Exact shows dollars and cents");
+moneySel.value = "compact";
+moneySel.dispatchEvent("change");
+assert.strictEqual(
+  document.querySelector("#main-table tbody tr").children[11].textContent,
+  "$31.03M", "money toggle back to Compact restores the short form");
 
 /* ---- finder, driven by dispatched change/click events ---- */
 const findStateSel = document.getElementById("find-state");

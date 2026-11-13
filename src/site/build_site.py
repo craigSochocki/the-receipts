@@ -242,6 +242,7 @@ footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);
 @media(min-width:700px){.detail .sheet{inset:5vh 0;max-height:90vh;border-radius:14px}}
 .detail h2{margin:0 0 2px}
 .detail .meta{color:var(--muted);margin:0 0 14px}
+.detail .detail-head{font-size:.95rem;margin:0 0 4px}
 .detail h3{margin:18px 0 6px;font-size:1.05rem}
 .detail .cycle summary{font-weight:600;font-size:1.05rem;margin:18px 0 6px;cursor:pointer}
 .detail table{min-width:0}
@@ -331,6 +332,8 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <label for="f-tolerance">Corporate PAC tolerance:</label>
 <select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
 <span class="tol-note" id="tolerance-note"></span>
+<label for="f-money">Money:</label>
+<select id="f-money" aria-label="Money format"><option value="compact" selected>Compact ($1.23M)</option><option value="exact">Exact ($1,234,567.89)</option></select>
 </div>
 </div>
 </header>
@@ -667,9 +670,35 @@ const VIEWS = {
 };
 const SORTABLE = new Set(['individual_contribution_total_career','corporate_pac_career','aipac_pac_direct_career','total_accepted_career','rank_total_accepted','dirty_2026','individual_2026','corp_2026','aipac_direct_2026','udp_support_2026','udp_benefit_2026','dep_share_2026','self_funding_career','cand_loans_career','cand_contrib_career','loan_repayments_career','total_receipts_career','total_disbursements_career','cash_on_hand_career','debts_owed_by_career','rank_self_funding','party_committees_career','leadership_pacs_career','labor_pacs_career','trade_pacs_career','membership_pacs_career','cooperative_pacs_career','other_unclassified_career','other_committees_total_career','rank_other_committees_total','udp_ie_support_career','udp_ie_opposing_opponents_career','udp_ie_total_benefit_career','all_ie_support_career','all_ie_oppose_career','all_ie_total_career','rank_all_ie_total','full_name']);
 
+/* ---- money format: compact / exact (D6/FE3) ----
+   Compact is the default ($1.23M); Exact shows dollars and cents
+   ($1,234,567.89). The choice persists in localStorage; the guards
+   keep it working where storage is unavailable. The toggle governs
+   the Explore data views (table, totals strip, clean, breakdown);
+   the front-door headlines stay compact, and the drill-down always
+   shows exact figures. */
+function loadMoneyFmt(){
+  try{
+    if(typeof localStorage!=='undefined'){
+      const v = localStorage.getItem('receipts-money-fmt');
+      if(v==='exact' || v==='compact') return v;
+    }
+  }catch(e){}
+  return 'compact';
+}
+function saveMoneyFmt(fmt){
+  try{
+    if(typeof localStorage!=='undefined') localStorage.setItem('receipts-money-fmt', fmt);
+  }catch(e){}
+}
+function moneyShort(v){
+  return state.moneyFmt==='exact' ? fmtMoney(v) : fmtCompact(v);
+}
+
 /* ---- state ---- */
 const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core', preset:'balanced',
+  moneyFmt:loadMoneyFmt(),
   sortKey:'dirty_2026', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
 
 function getVal(p, key){
@@ -742,7 +771,7 @@ function cellHtml(p, col){
     case 'outcome': return outcomeLabel(p);
     case 'money': {
       const t = fmtMoney(v);
-      return '<span title="'+esc(t)+'">'+fmtCompact(v)+'</span>';
+      return '<span title="'+esc(t)+'">'+moneyShort(v)+'</span>';
     }
     case 'pct': return fmtPct(v);
     case 'rank': return fmtRank(v);
@@ -783,13 +812,13 @@ function renderTable(){
     const sum = k => rows.reduce((s,p)=>s+(num(p[k])||0),0);
     const t = [
       ['People', rows.length],
-      ['Individual', fmtCompact(sum('individual_contribution_total_career'))],
-      ['Corp PAC', fmtCompact(sum('corporate_pac_career'))],
-      ['AIPAC direct', fmtCompact(sum('aipac_pac_direct_career'))],
-      ['Total accepted', fmtCompact(sum('total_accepted_career'))],
-      ['UDP benefit', fmtCompact(sum('udp_ie_total_benefit_career'))],
-      ['Self-funding', fmtCompact(sum('self_funding_career'))],
-      ['All IE total', fmtCompact(sum('all_ie_total_career'))]
+      ['Individual', moneyShort(sum('individual_contribution_total_career'))],
+      ['Corp PAC', moneyShort(sum('corporate_pac_career'))],
+      ['AIPAC direct', moneyShort(sum('aipac_pac_direct_career'))],
+      ['Total accepted', moneyShort(sum('total_accepted_career'))],
+      ['UDP benefit', moneyShort(sum('udp_ie_total_benefit_career'))],
+      ['Self-funding', moneyShort(sum('self_funding_career'))],
+      ['All IE total', moneyShort(sum('all_ie_total_career'))]
     ];
     totals = {
       strip: t.map(x=>'<div class="t">'+esc(x[0])+'<b>'+esc(x[1])+'</b></div>').join(''),
@@ -1285,6 +1314,9 @@ function openDetail(key){
   h += '<p class="meta">'+partyChip(p)+' '+esc(party(p))+' · '+esc(chamber(p))+' · '+esc(place(p))+' · '+outcomeLabel(p)+' · '+esc(congressLabel(p))
     + (leader ? ' · '+esc(leader) : '') + ' · FEC ID'+(p.fec_candidate_ids.length>1?'s':'')+': '
     + esc(p.fec_candidate_ids.join(', ')||'none') + '</p>';
+  // D6/FE3: the detail header always shows exact figures — Dirty
+  // 2026 and total accepted — whatever the compact/exact toggle says.
+  h += '<p class="detail-head">Dirty 2026 <b>'+fmtMoney(p.dirty_2026)+'</b> · Total accepted (career) <b>'+fmtMoney(p.total_accepted_career)+'</b></p>';
   h += '<h3>Career money</h3><div class="kv">'
     + kvRow('Individual contributions', fmtMoney(p.individual_contribution_total_career)+' ('+fmtRank(p.rank_individual)+')')
     + kvRow('Corporate PAC', fmtMoney(p.corporate_pac_career)+' ('+fmtRank(p.rank_corporate_pac)+')')
@@ -1473,7 +1505,7 @@ function renderClean(){
   const tbody = document.querySelector('#clean-table tbody');
   thead.innerHTML = '<tr><th>Name</th><th>State / Dist.</th><th>Party</th><th>Chamber</th><th>Incoming 120th?</th><th>Tier 2026</th><th class="num">Corp PAC 2026</th><th class="num">Dirty 2026</th><th>Career-clean?</th></tr>';
   const rows = ndAll.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name));
-  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td>'+fmtTierBadge(p)+'</td><td class="num">'+fmtCompact(p.corp_2026)+'</td><td class="num">'+fmtCompact(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
+  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td>'+fmtTierBadge(p)+'</td><td class="num">'+moneyShort(p.corp_2026)+'</td><td class="num">'+moneyShort(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
   tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
@@ -1498,11 +1530,11 @@ function renderBreakdown(){
   const rows = Object.values(groups).sort((a,b)=>b.n-a.n);
   const tot = {n:0,ind:0,corp:0,aipac:0,tot:0,udp:0,self:0,ie:0,clean:0};
   rows.forEach(g=>{ tot.n+=g.n; tot.ind+=g.ind; tot.corp+=g.corp; tot.aipac+=g.aipac; tot.tot+=g.tot; tot.udp+=g.udp; tot.self+=g.self; tot.ie+=g.ie; tot.clean+=g.clean; });
-  const rowHtml = g=>'<tr><td>'+esc(g.party)+'</td><td>'+esc(g.chamber)+'</td><td class="num">'+g.n+'</td><td class="num">'+fmtCompact(g.ind)+'</td><td class="num">'+fmtCompact(g.corp)+'</td><td class="num">'+fmtCompact(g.aipac)+'</td><td class="num">'+fmtCompact(g.tot)+'</td><td class="num">'+fmtCompact(g.udp)+'</td><td class="num">'+fmtCompact(g.self)+'</td><td class="num">'+fmtCompact(g.ie)+'</td><td class="num">'+g.clean+'</td></tr>';
+  const rowHtml = g=>'<tr><td>'+esc(g.party)+'</td><td>'+esc(g.chamber)+'</td><td class="num">'+g.n+'</td><td class="num">'+moneyShort(g.ind)+'</td><td class="num">'+moneyShort(g.corp)+'</td><td class="num">'+moneyShort(g.aipac)+'</td><td class="num">'+moneyShort(g.tot)+'</td><td class="num">'+moneyShort(g.udp)+'</td><td class="num">'+moneyShort(g.self)+'</td><td class="num">'+moneyShort(g.ie)+'</td><td class="num">'+g.clean+'</td></tr>';
   document.querySelector('#breakdown-table thead').innerHTML =
     '<tr><th>Party</th><th>Chamber</th><th class="num">Members</th><th class="num">Individual (career)</th><th class="num">Corp PAC (career)</th><th class="num">AIPAC (career)</th><th class="num">Total accepted</th><th class="num">UDP benefit</th><th class="num">Self-funding</th><th class="num">All IE total</th><th class="num">Not dirty 2026 ('+PRESETS[state.preset].label+')</th></tr>';
   document.querySelector('#breakdown-table tbody').innerHTML =
-    rows.map(rowHtml).join('') + '<tr><td><b>All</b></td><td><b>120th</b></td><td class="num"><b>'+tot.n+'</b></td><td class="num"><b>'+fmtCompact(tot.ind)+'</b></td><td class="num"><b>'+fmtCompact(tot.corp)+'</b></td><td class="num"><b>'+fmtCompact(tot.aipac)+'</b></td><td class="num"><b>'+fmtCompact(tot.tot)+'</b></td><td class="num"><b>'+fmtCompact(tot.udp)+'</b></td><td class="num"><b>'+fmtCompact(tot.self)+'</b></td><td class="num"><b>'+fmtCompact(tot.ie)+'</b></td><td class="num"><b>'+tot.clean+'</b></td></tr>';
+    rows.map(rowHtml).join('') + '<tr><td><b>All</b></td><td><b>120th</b></td><td class="num"><b>'+tot.n+'</b></td><td class="num"><b>'+moneyShort(tot.ind)+'</b></td><td class="num"><b>'+moneyShort(tot.corp)+'</b></td><td class="num"><b>'+moneyShort(tot.aipac)+'</b></td><td class="num"><b>'+moneyShort(tot.tot)+'</b></td><td class="num"><b>'+moneyShort(tot.udp)+'</b></td><td class="num"><b>'+moneyShort(tot.self)+'</b></td><td class="num"><b>'+moneyShort(tot.ie)+'</b></td><td class="num"><b>'+tot.clean+'</b></td></tr>';
 }
 
 /* ---- primary targets ---- */
@@ -1560,6 +1592,26 @@ function setPreset(preset){
       if(t==='clean') renderClean();
       if(t==='breakdown') renderBreakdown();
       if(t==='targets28') renderTargets2028();
+      state.rendered[t]=true;
+    } else {
+      state.rendered[t]=false;
+    }
+  });
+}
+
+/* ---- money format switching (D6/FE3) ----
+   Re-renders the surfaces moneyShort feeds (table, clean and
+   breakdown tabs); the leaderboards, targets and front-door
+   headlines already show exact figures or stay compact by design. */
+function setMoneyFmt(fmt){
+  if(fmt!=='exact' && fmt!=='compact') return;
+  state.moneyFmt = fmt;
+  saveMoneyFmt(fmt);
+  renderTable();
+  ['clean','breakdown'].forEach(t=>{
+    if(state.tab===t){
+      if(t==='clean') renderClean();
+      if(t==='breakdown') renderBreakdown();
       state.rendered[t]=true;
     } else {
       state.rendered[t]=false;
@@ -1814,6 +1866,8 @@ function init(){
   document.getElementById('f-leader').addEventListener('change', e=>{ state.leadership=e.target.checked; renderTable(); });
   document.getElementById('f-clean').addEventListener('change', e=>{ state.clean=e.target.checked; renderTable(); });
   document.getElementById('f-tolerance').addEventListener('change', e=>{ setPreset(e.target.value); });
+  document.getElementById('f-money').value = state.moneyFmt;
+  document.getElementById('f-money').addEventListener('change', e=>{ setMoneyFmt(e.target.value); });
   document.getElementById('tolerance-note').textContent = PRESETS[state.preset].def;
   document.getElementById('csv-btn').addEventListener('click', downloadCsv);
   document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click', ()=>showTab(b.getAttribute('data-tab'))));

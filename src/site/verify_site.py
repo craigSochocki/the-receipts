@@ -690,6 +690,21 @@ def main():
           and "Sep 30, 2026" in html and "Oct 14, 2026" in html
           and "Oct 31, 2026" in html)
 
+    # ---- Wave 2 (redesign): D6/FE3 compact/exact money toggle ----
+    # A persisted toggle (Compact default, Exact shows dollars and
+    # cents) governs the Explore data views; the drill-down header
+    # always shows exact figures. The option labels use format
+    # examples ($1.23M / $1,234,567.89), never a real figure.
+    check("D6/FE3: compact/exact money toggle exists, Compact default, persisted",
+          'id="f-money"' in html and 'value="compact" selected' in html
+          and 'value="exact"' in html and 'localStorage' in html
+          and "function moneyShort" in html and "function setMoneyFmt" in html
+          and "return 'compact';" in html)
+    check("D6/FE3: detail header always shows exact figures",
+          'class="detail-head"' in html
+          and "fmtMoney(p.dirty_2026)" in html
+          and "fmtMoney(p.total_accepted_career)" in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)
