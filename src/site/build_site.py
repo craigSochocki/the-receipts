@@ -1597,6 +1597,7 @@ function modeFromHash(){
   return h.replace(/^#/,'')==='explore' ? 'explore' : 'front';
 }
 function setMode(mode, updateHash){
+  if(mode==='explore') ensureExplore();
   state.mode = mode;
   const front = mode==='front';
   document.getElementById('front-door').hidden = !front;
@@ -1686,6 +1687,20 @@ function runCountUp(el){
   })(start);
 }
 
+/* ---- deferred Explore render (FE7) ----
+   The full-data workspace is hidden on the front door, so its table,
+   stats, and view buttons render on first entry into Explore instead
+   of at load. Entering Explore — setMode, showTab, or the finder
+   handoff — renders it; a #explore load renders it eagerly at init
+   because setMode runs from the hash there. */
+let exploreRendered = false;
+function ensureExplore(){
+  if(exploreRendered) return;
+  exploreRendered = true;
+  renderStats(); renderViewBtns(); renderTable();
+  state.rendered.tracker = true;
+}
+
 /* ---- tabs + init ---- */
 function showTab(name){
   if(state.mode!=='explore') setMode('explore');
@@ -1714,9 +1729,8 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderStats(); renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder(); renderViewBtns(); renderTable();
+  renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder();
   initReveals();
-  state.rendered.tracker = true;
   setMode(modeFromHash(), false);
   document.getElementById('home-link').addEventListener('click', e=>{
     e.preventDefault();

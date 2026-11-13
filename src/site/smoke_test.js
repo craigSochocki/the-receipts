@@ -869,17 +869,16 @@ vm.runInThisContext(appScripts[1], { filename: "site-app-2.js" });
 
 /* ---- assertions ---- */
 assert.strictEqual(PEOPLE.length, 664, "PEOPLE.length");
-const statsHtml = document.getElementById("stats").innerHTML;
-assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
-assert.ok(statsHtml.includes("203") && statsHtml.includes("not dirty"), "stats mention 203 not dirty (Balanced)");
-const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
-assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
-assert.ok(
-  tbodyHtml.indexOf("Stevens") < tbodyHtml.indexOf("Boafo"),
-  "default sort is Dirty 2026 desc (Stevens before Boafo)");
-assert.ok(
-  document.getElementById("totals").innerHTML.includes("Total accepted"),
-  "totals strip rendered");
+/* ---- FE7: hidden Explore does not render at load ---- */
+assert.strictEqual(
+  document.getElementById("stats").innerHTML, "",
+  "stats do not render at load on the front door");
+assert.strictEqual(
+  document.querySelector("#main-table tbody").innerHTML, "",
+  "table does not render at load on the front door");
+assert.strictEqual(
+  document.getElementById("totals").innerHTML, "",
+  "totals strip does not render at load on the front door");
 
 /* ---- front door (landing-first): dirtiest, clean story, default mode ---- */
 const headlineHtml = document.getElementById("dirtiest-headline").innerHTML;
@@ -900,11 +899,6 @@ assert.ok(
 assert.ok(
   hookDef.includes("any AIPAC direct or UDP benefit dollar always counts"),
   "hook definition states the flag rule");
-setPreset("strict");
-assert.ok(
-  document.getElementById("hook-definition").textContent.includes("any dirty dollar counts"),
-  "hook definition follows the Strict preset");
-setPreset("balanced");
 const dirtiestHtml = document.getElementById("dirtiest-list").innerHTML;
 ["Stevens", "Boafo", "Gallrein", "Bell", "Guthrie"].forEach((n) =>
   assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));
@@ -932,6 +926,23 @@ assert.strictEqual(
 assert.strictEqual(
   document.getElementById("main").hidden, false,
   "explore mode shows the full-data workspace");
+/* ---- FE7: first entry into Explore renders the workspace ---- */
+const statsHtml = document.getElementById("stats").innerHTML;
+assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
+assert.ok(statsHtml.includes("203") && statsHtml.includes("not dirty"), "stats mention 203 not dirty (Balanced)");
+const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
+assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
+assert.ok(
+  tbodyHtml.indexOf("Stevens") < tbodyHtml.indexOf("Boafo"),
+  "default sort is Dirty 2026 desc (Stevens before Boafo)");
+assert.ok(
+  document.getElementById("totals").innerHTML.includes("Total accepted"),
+  "totals strip rendered");
+setPreset("strict");
+assert.ok(
+  document.getElementById("hook-definition").textContent.includes("any dirty dollar counts"),
+  "hook definition follows the Strict preset");
+setPreset("balanced");
 setMode("front");
 assert.strictEqual(
   document.getElementById("front-door").hidden, false,
