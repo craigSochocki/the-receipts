@@ -1437,6 +1437,27 @@ assert.strictEqual(
   document.querySelectorAll("#main-table tbody tr").length, 664,
   "party filter reset restores 664 rows");
 
+/* ---- U7: leadership filter excludes TBD (would return everyone) ---- */
+assert.ok(
+  document.querySelector("#f-leader").parentNode.textContent.includes("Leadership (119th; 120th TBD)"),
+  "leadership filter is labeled 119th; 120th TBD");
+const leaderBox = document.getElementById("f-leader");
+const leaderCount = PEOPLE.filter(
+  (p) => p.leadership_119 || (p.leadership_120 && p.leadership_120 !== "TBD")).length;
+leaderBox.checked = true;
+leaderBox.dispatchEvent("change");
+assert.strictEqual(
+  document.querySelectorAll("#main-table tbody tr").length, leaderCount,
+  "leadership filter returns the " + leaderCount + " 119th leaders, not all 664");
+assert.ok(
+  document.getElementById("filter-chips").innerHTML.includes("Leadership (119th; 120th TBD)"),
+  "leadership filter shows as a chip");
+leaderBox.checked = false;
+leaderBox.dispatchEvent("change");
+assert.strictEqual(
+  document.querySelectorAll("#main-table tbody tr").length, 664,
+  "leadership filter reset restores 664 rows");
+
 /* ---- tolerance select re-renders (targets28 tab must be showing) ---- */
 document.querySelector('.tabs button[data-tab="targets28"]').dispatchEvent("click");
 assert.ok(

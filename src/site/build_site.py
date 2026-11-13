@@ -342,7 +342,7 @@ TEMPLATE_BODY = """
 <select id="f-chamber" aria-label="Chamber"><option value="all">House + Senate</option><option value="House">House</option><option value="Senate">Senate</option></select>
 <select id="f-party" aria-label="Party"><option value="all">All parties</option><option value="Democrat">Democrat</option><option value="Republican">Republican</option><option value="Independent">Independent</option><option value="PPD">PPD</option></select>
 <select id="f-state" aria-label="State"><option value="all">All states</option></select>
-<label><input type="checkbox" id="f-leader"> Leadership only</label>
+<label><input type="checkbox" id="f-leader"> Leadership (119th; 120th TBD)</label>
 <label><input type="checkbox" id="f-clean"> Not dirty in 2026 only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
@@ -658,7 +658,7 @@ function applyFilters(){
     if(state.chamber!=='all' && !(p.chamber_119===state.chamber||p.chamber_120===state.chamber)) return false;
     if(state.party!=='all' && !(p.party_119===state.party||p.party_120===state.party)) return false;
     if(state.state!=='all' && p.state!==state.state) return false;
-    if(state.leadership && !p.leadership_119) return false;
+    if(state.leadership && !(p.leadership_119 || (p.leadership_120 && p.leadership_120!=='TBD'))) return false;
     if(state.clean && !isNotDirty(p)) return false;
     return true;
   });
