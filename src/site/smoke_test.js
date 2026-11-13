@@ -17,7 +17,10 @@
  * lists, finder results, drill-down header, and full table; the
  * dirty-first leaderboards and Dirty-2026 default sort; and the
  * composition charts: the House waffle grid and the Senate state
- * tiles (dot/tile counts per party/status category).
+ * tiles (dot/tile counts per party/status category). And the
+ * scrollytelling front door: 7 chapters in narrative order, count-up
+ * spans whose data-values are the computed figures (hook, clean story,
+ * dirty explainer), and staggered waffle/tile/row reveals.
  */
 "use strict";
 const fs = require("fs");
@@ -303,5 +306,45 @@ const finderPersonHtml = document.getElementById("find-person").innerHTML;
 assert.ok(finderPersonHtml.includes("Jeremy Moss"), "MI-11 finder result is Moss");
 assert.ok(finderPersonHtml.includes("pchip d"), "finder result has the D chip");
 assert.ok(finderPersonHtml.includes("Won"), "finder result says Won");
+
+/* ---- scrollytelling: chapters, count-ups, stagger ---- */
+// Chapter order is in the static template.
+const chapterOrder = [...html.matchAll(/data-chapter="([^"]+)"/g)].map((m) => m[1]);
+assert.deepStrictEqual(
+  chapterOrder,
+  ["hook", "dirtiest", "dirty-definition", "clean", "chamber", "finder", "data"],
+  "front door chapters in narrative order: " + chapterOrder.join(","));
+// Count-up spans: data-value is the computed figure, initial text is
+// the final formatted figure. The stub has no IntersectionObserver,
+// so reveals run immediately — values must already be final.
+const stevens = PEOPLE.find((p) => p.full_name.includes("Stevens"));
+const hookCountups = [...headlineHtml.matchAll(/<span class="countup" data-value="([\d.]+)" data-format="([^"]+)">([^<]+)<\/span>/g)];
+assert.ok(hookCountups.length === 2, "hook has two count-up spans, got " + hookCountups.length);
+assert.strictEqual(parseFloat(hookCountups[0][1]), stevens.dirty_2026, "hook count-up targets Stevens dirty 2026");
+assert.strictEqual(hookCountups[0][3], "$31.03M", "hook count-up shows $31.03M");
+const dirtyTop5 = PEOPLE.filter((p) => typeof p.dirty_2026 === "number")
+  .sort((a, b) => b.dirty_2026 - a.dirty_2026).slice(0, 5);
+const nextFour = dirtyTop5.slice(1).reduce((s, p) => s + p.dirty_2026, 0);
+assert.strictEqual(parseFloat(hookCountups[1][1]), nextFour, "hook count-up targets the next-four total");
+assert.strictEqual(hookCountups[1][3], "$15.21M", "hook count-up shows $15.21M next-four total");
+const storyCountups = [...storyHtml.matchAll(/<span class="countup" data-value="(\d+)" data-format="int">(\d+)<\/span>/g)].map((m) => m[1]);
+assert.deepStrictEqual(storyCountups, [String(clean120), String(incoming120.length)], "story count-ups are 74 and 535");
+// Dirty explainer: big number counts up to the career dirty total;
+// the three components sum to it exactly.
+const explainerHtml = document.getElementById("dirty-explainer").innerHTML;
+const dcTotal = PEOPLE.reduce((s, p) => s + (typeof p.dirty_career === "number" ? p.dirty_career : 0), 0);
+assert.ok(explainerHtml.includes("$1.07B"), "explainer shows $1.07B career dirty");
+const explainerCountup = explainerHtml.match(/<span class="countup" data-value="([\d.]+)" data-format="compact">([^<]+)<\/span>/);
+assert.ok(explainerCountup, "explainer has a count-up span");
+assert.strictEqual(parseFloat(explainerCountup[1]), dcTotal, "explainer count-up targets the computed career dirty total");
+assert.strictEqual(explainerCountup[2], "$1.07B", "explainer count-up shows $1.07B");
+assert.ok(explainerHtml.includes("Individual contributions are <b>not</b> dirty money"), "explainer says individual contributions are not dirty");
+const dcParts = ["corporate_pac_career", "aipac_pac_direct_career", "udp_ie_total_benefit_career"]
+  .reduce((s, k) => s + PEOPLE.reduce((a, p) => a + (typeof p[k] === "number" ? p[k] : 0), 0), 0);
+assert.ok(Math.abs(dcParts - dcTotal) < 0.01, "explainer components sum to the career dirty total");
+// Stagger: waffle dots carry per-column delays, senate tiles per-tile.
+assert.ok(housePart.includes("transition-delay"), "waffle dots stagger by column");
+assert.ok(senPart.includes("transition-delay"), "senate tiles stagger");
+assert.ok(dirtiestHtml.includes("transition-delay"), "dirtiest rows stagger");
 
 console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work.");

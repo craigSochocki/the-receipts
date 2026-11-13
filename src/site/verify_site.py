@@ -19,6 +19,13 @@ Checks:
     table sort is Dirty 2026; dirty_career recomputes and Stevens is
     the career dirty #1; composition charts reconcile to 435 / 100
     with per-category counts matching the dataset exactly.
+    Scrollytelling: 7 front-door chapters in narrative order
+    (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
+    IntersectionObserver reveals gated on html.js (no-JS shows
+    everything); prefers-reduced-motion renders everything visible;
+    count-up end values equal the computed figures (career dirty total
+    $1,070,633,247.20, components reconciling); waffle dots and senate
+    tiles stagger on reveal.
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
@@ -253,6 +260,58 @@ def main():
     check("Stevens headline row is MI-11 and not in the 120th",
           dirty[0]["in_120th"] == "no" and dirty[0]["state"] == "MI"
           and dirty[0]["district_119"] == "11")
+
+    # ---- scrollytelling: chapters, reveals, count-ups, stagger ----
+    found_chapters = re.findall(r'data-chapter="([^"]+)"', html)
+    check("front door has 7 chapters in narrative order",
+          found_chapters == ["hook", "dirtiest", "dirty-definition", "clean",
+                             "chamber", "finder", "data"],
+          f"got {found_chapters}")
+    check("chapter order: hook, dirtiest, explainer, clean, chamber, finder, data",
+          html.index('data-chapter="hook"') < html.index('data-chapter="dirtiest"')
+          < html.index('data-chapter="dirty-definition"')
+          < html.index('data-chapter="clean"')
+          < html.index('data-chapter="chamber"')
+          < html.index('data-chapter="finder"')
+          < html.index('data-chapter="data"'))
+    check("scroll reveals use IntersectionObserver; hidden state is JS-gated",
+          "IntersectionObserver" in html and "initReveals" in html
+          and "html.js .chapter" in html
+          and "document.documentElement.classList.add('js')" in html)
+    check("reduced-motion path renders everything visible",
+          "@media (prefers-reduced-motion: reduce)" in html
+          and "opacity:1 !important" in html
+          and "matchMedia('(prefers-reduced-motion: reduce)')" in html)
+    check("count-up mechanism present (data-value + formatter + rAF)",
+          "data-value" in html and "data-format" in html
+          and "requestAnimationFrame" in html
+          and "function runCountUp" in html
+          and "function formatCountUp" in html)
+    check("waffle dots and senate tiles stagger on reveal",
+          "transition-delay" in html)
+    # Explainer: career dirty total recomputes from the embedded data,
+    # and its three components sum to it exactly.
+    dc_total = sum(num(r["dirty_career"]) for r in decoded)
+    dc_parts = (sum(num(r["corporate_pac_career"]) for r in decoded)
+                + sum(num(r["aipac_pac_direct_career"]) for r in decoded)
+                + sum(num(r["udp_ie_total_benefit_career"]) for r in decoded))
+    check("career dirty total is $1,070,633,247.20 (components reconcile)",
+          abs(dc_total - 1070633247.20) < 0.01
+          and abs(dc_parts - dc_total) < 0.01,
+          f"total {dc_total}, parts {dc_parts}")
+    check("dirty explainer chapter exists",
+          'id="dirty-explainer"' in html and "What counts as dirty" in html
+          and "Individual contributions are <b>not</b> dirty money" in html)
+    # The explainer's $1.07B must be computed at render, never typed:
+    # extend the literal scan the same way the dirtiest figures are
+    # guarded, with a negative test proving the detector works.
+    EXPLAINER_LITERALS = ["$1.07B", "1,070,633,247", "1,070,633,247.20"]
+    check("explainer figures are computed, not hardcoded",
+          not any(lit in prose for lit in EXPLAINER_LITERALS),
+          "a literal explainer figure survives in the built page")
+    check("negative test: injected explainer literal trips the check",
+          any(lit in (prose + "career dirty totals $1,070,633,247.20")
+              for lit in EXPLAINER_LITERALS))
 
     # ---- leaderboards lead with dirty; default sort is Dirty 2026 ----
     check("leaderboard order: dirtiest 2026, dirtiest career, total accepted",
