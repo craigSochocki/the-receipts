@@ -729,6 +729,15 @@ def main():
           '.visually-hidden{' in html and 'function chartAltText' in html
           and 'class="visually-hidden"' in html)
 
+    # ---- U5: skip link ----
+    # One Tab from the top of the page jumps straight to the data
+    # (Explore). Hidden until focused; the slim sticky front-door
+    # header stays dropped this round.
+    check("U5: skip link to the data exists, hidden until focused",
+          'id="skip-link"' in html and 'Skip to the data' in html
+          and '.skip-link{position:absolute' in html
+          and '.skip-link:focus{top:0}' in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

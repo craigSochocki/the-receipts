@@ -1647,6 +1647,13 @@ assert.strictEqual(document.getElementById("front-door").hidden, true, "hashchan
 location.hash = "";
 assert.strictEqual(document.getElementById("front-door").hidden, false, "hashchange back to empty shows the front door");
 
+/* ---- U5: skip link jumps to the data ---- */
+assert.ok(document.getElementById("skip-link"), "U5: skip link exists");
+document.getElementById("skip-link").dispatchEvent("click");
+assert.strictEqual(document.getElementById("front-door").hidden, true, "U5: skip link leaves the front door");
+assert.strictEqual(document.getElementById("main").hidden, false, "U5: skip link shows the workspace");
+setMode("front");
+
 /* ---- bubbling + closest() (what FE2's delegated tbody listener
  * and U4's delegated chart listener will rely on) ---- */
 const tbodyEl = document.querySelector("#main-table tbody");

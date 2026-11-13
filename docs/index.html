@@ -9,6 +9,8 @@
 :root{--ink:#1a1a1a;--muted:#5b5b5b;--line:#d8d8d8;--bg:#fff;--soft:#f4f4f2;--accent:#14532d;--accent-soft:#e8f3ec;--chip:#eef2f7}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
+.skip-link{position:absolute;left:16px;top:-60px;z-index:100;background:var(--ink);color:#fff;padding:10px 14px;border-radius:0 0 8px 8px;text-decoration:none;font-size:.95rem}
+.skip-link:focus{top:0}
 header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
 h1{font-size:1.15rem;margin:0 0 4px;letter-spacing:-.01em}
 h1 a{color:inherit;text-decoration:none}
@@ -160,6 +162,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 </style>
 </head>
 <body>
+<a class="skip-link" href="#explore" id="skip-link">Skip to the data</a>
 <header>
 <h1 tabindex="-1"><a href="#" id="home-link">The Receipts</a></h1>
 <p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, 2026 clean/dirty flags, self-funding, and outside spending.</p>
@@ -1750,6 +1753,12 @@ function init(){
   document.getElementById('home-link').addEventListener('click', e=>{
     e.preventDefault();
     setMode('front');
+  });
+  // U5: skip link — one Tab from the top of the page jumps straight
+  // to the data (Explore), with focus on the tab bar.
+  document.getElementById('skip-link').addEventListener('click', e=>{
+    e.preventDefault();
+    setMode('explore');
   });
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
   document.getElementById('targets28-btn').addEventListener('click', ()=>showTab('targets28'));
