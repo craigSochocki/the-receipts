@@ -856,6 +856,10 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
 - `dirty_career` — `corporate_pac_career` + `aipac_pac_direct_career` +
   `udp_ie_total_benefit_career`, the career analog of `dirty_2026` (see §12
   for the top 10). Null for Alan Armstrong (money unknown, not zero).
+- `senate_class` — 1, 2, or 3 for every senator in either chamber, null for
+  everyone else. Read from the Senate-term `class` field in
+  `legislators-current.yaml` — see the 2028 primary-targets subsection below
+  for the derivation. 120th class counts: C1 33 / C2 32 / C3 34.
 - `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
   `total_receipts_2026`, `total_disbursements_2026` — summed from the
   `self_funding_per_cycle` entries with `cycle == 2026`. `cash_on_hand_2026` is
@@ -952,6 +956,61 @@ leadership itself: Aguilar $1,354,750, Jeffries $1,259,000, Clark $1,156,250
 five). Highest dependence shares among them: Sewell 69.6%, Neal 61.6%, Clark
 48.0%, Aguilar 37.5% — against Jeffries at 9.0%, whose $12.7M in 2026
 individual contributions dwarfs his corporate PAC take.
+
+**2028 primary targets — the dirtiest Democrats to watch (Nov 12, 2026).**
+The site's "2028 primary targets" tab is a watchlist built from 2026-cycle
+dirty money — "the dirtiest Democrats to watch for 2028 primaries" — NOT a
+prediction of who will be on the ballot. Retirements are unknown, 2028 filings
+are not open, and 2026 is partial (cutoffs in §15). The rule is mechanical
+(dirty money only); the tracker does not judge electability or anything else.
+
+- **The 2026 tab's rule (documented here for the first time — it was
+  previously only in the site's tab copy):** 120th House Democrats with
+  `dirty_2026 > 0`, ranked by `dirty_2026` descending — 192 rows. Columns:
+  Dirty 2026, Corp PAC 2026, AIPAC 2026, UDP benefit 2026, Individual 2026.
+  Rows open the drill-down. The tab is kept untouched as history.
+- **The 2028 tab, House:** the same rule — all House seats are up in 2028,
+  so the pool carries over directly (192 rows, same top five: Boafo
+  $5,745,013.28, Bell $3,446,667.69, Aguilar $1,359,750.00, Jeffries
+  $1,259,000.00, Clark $1,166,250.00). One extra column: Dirty career.
+- **The 2028 tab, Senate:** 120th Democratic senators whose seats are up in
+  2028 — Class 3 (`senate_class == 3`) with `dirty_2026 > 0`, ranked by
+  `dirty_2026` descending — 13 rows. Same columns as the House section. Top
+  three: Margaret Wood Hassan $407,388.00, Ron Wyden $304,500.00, Brian
+  Schatz $279,400.00. All thirteen are corporate-PAC-only dirty in 2026 (no
+  AIPAC direct, no UDP benefit in 2026).
+- **Who is Class 3 and who is not on the list:** 16 Democrats in the 120th
+  are Class 3. Three are not on the tab because their `dirty_2026` is not
+  above zero: Mark Kelly and Michael F. Bennet ($0) and Raphael G. Warnock
+  (−$3,500 — a negative corporate PAC total in 2026, a refund/reversal in
+  the filings; the rule is mechanical, `> 0` only).
+- **How the class is derived (`senate_class`).** The class comes from the
+  legislators data (`data/source/legislators-current.yaml`,
+  unitedstates/congress-legislators, fetched Nov 12, 2026): every Senate term
+  in that file carries a `class` field (1/2/3) directly, so no arithmetic on
+  term dates is needed. A person holding a Senate seat into 2026 takes their
+  own latest term's class (Schumer 3, Kelly 3, Warnock 3, Schiff 1, Kim 1,
+  Ossoff 2, Moody 3). A new senator with no Senate term of their own takes the
+  class of whoever held that seat during 2026 — the appointee or outgoing
+  holder, whose term carries the seat's class (Brown 3 via appointed Jon
+  Husted; El-Sayed, Flanagan, Andrews and the other 2026 winners 2 via the
+  outgoing holder). Computed in `src/transform/build_roster.py`, carried
+  through `merge_dataset.py` and `config.yaml`, and re-derived independently
+  in `src/validate/verify_dataset.py` (check (n)): 0 mismatches across all
+  664 rows; 120th class counts C1 33 / C2 32 / C3 34.
+- **Why not derive it on the page from FEC data.** Three render-time
+  derivations were tested against the dataset and all fail: (a) "has a 2022
+  per-cycle entry under a Senate candidate ID" — every senator fundraises
+  every cycle, so it separates nobody; (b) "earliest Senate-ID cycle mod 6"
+  — special-election winners break it (Kelly, Warnock, and Padilla first won
+  their Class 3 seats in 2020 specials, which predicts Class 2; Schumer first
+  elected 1998, which predicts Class 1); (c) "the FEC candidate-ID digit" —
+  no correlation with class. Cycle presence carries no election information;
+  the class lives in the legislators data, not in the FEC data.
+- **Front door.** The Data chapter carries a compact pointer ("Looking ahead
+  to 2028…") whose button opens the 2028 tab directly by in-page navigation
+  (`showTab('targets28')`). It is an onclick, not a URL — full URL state for
+  tabs and filters is a separate queued change (Change 2).
 
 **Data gaps — read before quoting any 2026 zero.** Three returning former
 members have broken 2026 committee linkage in the roster, and their 2026
