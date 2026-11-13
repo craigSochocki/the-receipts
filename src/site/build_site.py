@@ -700,7 +700,7 @@ function renderDirtiest(){
   }
   document.getElementById('dirtiest-headline').innerHTML = h;
   document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
-    '<li><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
+    '<li style="transition-delay:'+(i*90)+'ms"><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
     + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
     + '<span class="pl">'+partyChip(p)+' '+esc(place(p))+' · '+outcomeLabel(p)+'</span></span>'
     + '<span class="amt">'+fmtMoney(p.dirty_2026)+'</span></button></li>').join('');
@@ -789,7 +789,7 @@ function compositionSeats(chamber){
   return {seats, total, named: named.length};
 }
 const WAFFLE_ROWS = 15, WAFFLE_COLS = 29, WAFFLE_STEP = 12, WAFFLE_R = 5;
-function waffleDotSVG(s, x, y){
+function waffleDotSVG(s, x, y, col){
   const label = {dirty:'took dirty money in 2026',
     clean:'verified clean in 2026',
     unopposed:'ran unopposed — not judged',
@@ -810,7 +810,8 @@ function waffleDotSVG(s, x, y){
   } else {
     inner = '<circle cx="'+x+'" cy="'+y+'" r="'+WAFFLE_R+'" fill="none" stroke="#d1d5db" stroke-width="1.4" stroke-dasharray="2.5 2"/>';
   }
-  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'">'+inner
+  // Stagger by column so the waffle fills left to right on reveal.
+  return '<g class="dot '+s.status+'" data-party="'+esc(s.letter)+'" style="transition-delay:'+(col*40)+'ms">'+inner
     + '<title>'+esc(title)+'</title></g>';
 }
 function waffleSVG(seats){
@@ -821,7 +822,7 @@ function waffleSVG(seats){
   for(let i=0;i<seats.length;i++){
     const col = Math.floor(i/WAFFLE_ROWS), row = i%WAFFLE_ROWS;
     dots += waffleDotSVG(seats[i], WAFFLE_STEP/2 + col*WAFFLE_STEP,
-      WAFFLE_STEP/2 + row*WAFFLE_STEP);
+      WAFFLE_STEP/2 + row*WAFFLE_STEP, col);
   }
   return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'
     + seats.length + ' seats: one dot per seat">'+dots+'</svg>';
@@ -890,7 +891,7 @@ function senateTilesSVG(){
       : h.name+' ('+h.letter+', '+({dirty:'took dirty money in 2026',
         clean:'verified clean in 2026', unopposed:'ran unopposed',
         unverified:'unverified'}[h.status])+')').join('; ');
-    tiles += '<g class="tile" data-state="'+st.code+'">'
+    tiles += '<g class="tile" data-state="'+st.code+'" style="transition-delay:'+(i*30)+'ms">'
       + tileHalfSVG(st.halves[0], x, y, TILE_W/2, TILE_H)
       + tileHalfSVG(st.halves[1], x+TILE_W/2, y, TILE_W/2, TILE_H)
       + '<rect x="'+x+'" y="'+y+'" width="'+TILE_W+'" height="'+TILE_H+'" fill="none" stroke="#6b7280" stroke-width="1"/>'
