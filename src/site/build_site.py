@@ -173,7 +173,7 @@ TEMPLATE_HEAD = """<!DOCTYPE html>
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
 header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
-h1{font-size:1.7rem;margin:0 0 4px;letter-spacing:-.01em}
+h1{font-size:1.15rem;margin:0 0 4px;letter-spacing:-.01em}
 h1 a{color:inherit;text-decoration:none}
 h1 a:hover{text-decoration:underline}
 .sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
@@ -280,7 +280,7 @@ html.js .chapter.in .tile{opacity:1}
 @media (prefers-reduced-motion: reduce){
 html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
 }
-@media(max-width:560px){.hook{font-size:1.55rem}.big-number{font-size:1.8rem}}
+@media(max-width:560px){.hook{font-size:1.9rem}.big-number{font-size:1.8rem}}
 .comp{display:flex;flex-direction:column;gap:18px}
 .comp figure{margin:0;min-width:0}
 .comp svg{width:100%;height:auto;display:block}

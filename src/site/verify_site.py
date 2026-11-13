@@ -587,6 +587,15 @@ def main():
           and 'badge below' in html and 'Below threshold' in html
           and "Corporate PAC tolerance presets" in html)
 
+    # ---- Wave 2 (redesign): D2 masthead demotion ----
+    # The masthead title used to be bigger than the hook (1.7rem vs
+    # 1.55rem on mobile) — the wordmark led, not the story. D2 shrinks
+    # the title to ~1.15rem and lets the hook lead at 1.9rem on mobile.
+    check("D2: masthead title demoted to 1.15rem, hook leads at 1.9rem on mobile",
+          "h1{font-size:1.15rem" in html
+          and ".hook{font-size:1.9rem}" in html
+          and "h1{font-size:1.7rem" not in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)
