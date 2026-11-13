@@ -16,6 +16,7 @@
   "fec_candidate_ids": [
    "H4NC12100"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1727589.79,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -410,6 +411,7 @@
   "fec_candidate_ids": [
    "H6AL04098"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8479475.61,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -1102,6 +1104,7 @@
   "fec_candidate_ids": [
    "H6NC11248"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5040487.66,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -1291,6 +1294,7 @@
   "fec_candidate_ids": [
    "H2CA31125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13027649.11,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -1720,6 +1724,7 @@
   "fec_candidate_ids": [
    "H6WI07223"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1262143.7,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -1909,6 +1914,7 @@
   "fec_candidate_ids": [
    "H2MO04207"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2274982.48,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -2162,6 +2168,7 @@
   "fec_candidate_ids": [
    "H2GA12121"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5776392.31,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -2558,6 +2565,7 @@
   "fec_candidate_ids": [
    "H8TX32098"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16558507.07,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -2885,6 +2893,7 @@
   "fec_candidate_ids": [
    "S6MT00295"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 1745069.73,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -3072,6 +3081,7 @@
   "fec_candidate_ids": [
    "S4MD00327"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 24703709.51,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -3298,6 +3308,7 @@
   "fec_candidate_ids": [
    "H4RI01265"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3054612.63,
   "aipac_pac_direct_career": 16000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -3502,6 +3513,7 @@
    "H1NV02017",
    "S0NV00237"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4610977.34,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -4037,6 +4049,7 @@
   "fec_candidate_ids": [
    "S6SC04239"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 23563373.64,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -4226,6 +4239,7 @@
   "fec_candidate_ids": [
    "H4AZ03109"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3293265.38,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -4448,6 +4462,7 @@
   "in_119th": "yes",
   "in_120th": "no",
   "fec_candidate_ids": [],
+  "senate_class": 2,
   "individual_contribution_total_career": "unknown",
   "aipac_pac_direct_career": "unknown",
   "aipac_earmark_transmitted_career": "unknown",
@@ -4545,6 +4560,7 @@
   "fec_candidate_ids": [
    "H6TX19099"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4613454.39,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -4893,6 +4909,7 @@
   "fec_candidate_ids": [
    "H0MA04192"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9348380.78,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -5175,6 +5192,7 @@
   "fec_candidate_ids": [
    "H6NY13279"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1468580.67,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -5362,6 +5380,7 @@
   "fec_candidate_ids": [
    "H6TX02079"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4489804.71,
   "aipac_pac_direct_career": 28400.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -5910,6 +5929,7 @@
   "fec_candidate_ids": [
    "H6NE02125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9463090.41,
   "aipac_pac_direct_career": 12100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -6302,6 +6322,7 @@
   "fec_candidate_ids": [
    "H8IN04199"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 764686.1,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -6647,6 +6668,7 @@
   "fec_candidate_ids": [
    "H8OH12180"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4805376.75,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -6951,6 +6973,7 @@
    "H8WI00018",
    "S2WI00219"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 102353876.29,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -7847,6 +7870,7 @@
   "fec_candidate_ids": [
    "H2VT01076"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3452714.44,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -8119,6 +8143,7 @@
    "H6IN03229",
    "S4IN00196"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 14380620.23,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -8591,6 +8616,7 @@
    "H0KY06104",
    "S6KY00286"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 29055081.15,
   "aipac_pac_direct_career": 12100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -9137,6 +9163,7 @@
   "fec_candidate_ids": [
    "H6CA44103"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4142799.24,
   "aipac_pac_direct_career": 7100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -9481,6 +9508,7 @@
   "fec_candidate_ids": [
    "S6WY00068"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 13121998.65,
   "aipac_pac_direct_career": 6000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -10047,6 +10075,7 @@
   "fec_candidate_ids": [
    "H2MI07123"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9879219.06,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -10328,6 +10357,7 @@
   "fec_candidate_ids": [
    "H6NC13228"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 727723.01,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -10465,6 +10495,7 @@
   "fec_candidate_ids": [
    "H4WA05234"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2712553.76,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -10697,6 +10728,7 @@
   "fec_candidate_ids": [
    "H2FL04211"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2527607.3,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -10934,6 +10966,7 @@
   "fec_candidate_ids": [
    "H2IL08088"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6186371.74,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -11281,6 +11314,7 @@
   "fec_candidate_ids": [
    "H2OH03125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3464998.52,
   "aipac_pac_direct_career": 12100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -11713,6 +11747,7 @@
   "fec_candidate_ids": [
    "H2AK01083"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6548368.55,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -11995,6 +12030,7 @@
    "H4MO01134",
    "S4MO00250"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8357126.95,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 5000.0,
@@ -12284,6 +12320,7 @@
   "fec_candidate_ids": [
    "H6NV02362"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 875997.34,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -12471,6 +12508,7 @@
   "fec_candidate_ids": [
    "S0CO00211"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 41015618.44,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -12962,6 +13000,7 @@
   "fec_candidate_ids": [
    "H6NJ07201"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7664973.26,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -13152,6 +13191,7 @@
   "fec_candidate_ids": [
    "H0OR02127"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2978743.22,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -13404,6 +13444,7 @@
   "fec_candidate_ids": [
    "H0CA03078"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14749305.94,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -13896,6 +13937,7 @@
   "fec_candidate_ids": [
    "H6MI01226"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4178924.42,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -14288,6 +14330,7 @@
   "fec_candidate_ids": [
    "H6WI01283"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1785790.56,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -14477,6 +14520,7 @@
   "fec_candidate_ids": [
    "H4VA08224"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9659178.21,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -14866,6 +14910,7 @@
   "fec_candidate_ids": [
    "H0OK05205"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5921130.49,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -15174,6 +15219,7 @@
   "fec_candidate_ids": [
    "H6AZ05083"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5384315.16,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -15522,6 +15568,7 @@
   "fec_candidate_ids": [
    "H4SC01313"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 520896.62,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -15746,6 +15793,7 @@
   "fec_candidate_ids": [
    "H6FL09070"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9595459.57,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -16316,6 +16364,7 @@
   "fec_candidate_ids": [
    "H2GA02031"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7343986.38,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -17146,6 +17195,7 @@
   "fec_candidate_ids": [
    "H6IL09228"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3131741.22,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -17336,6 +17386,7 @@
    "H2TN06030",
    "S8TN00337"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 21348356.49,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -18123,6 +18174,7 @@
   "fec_candidate_ids": [
    "H6GA13062"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 0.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -18220,6 +18272,7 @@
   "fec_candidate_ids": [
    "S0CT00177"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 17217339.05,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -18690,6 +18743,7 @@
    "H6DE00206",
    "S4DE00060"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 10560201.96,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -19109,6 +19163,7 @@
   "fec_candidate_ids": [
    "H6MD05321"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1662599.38,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -19302,6 +19357,7 @@
   "fec_candidate_ids": [
    "H0CO03165"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14556315.64,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -19618,6 +19674,7 @@
   "fec_candidate_ids": [
    "H2IA02111"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16916614.66,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -19901,6 +19958,7 @@
   "fec_candidate_ids": [
    "H2OR01133"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4646003.74,
   "aipac_pac_direct_career": 6000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -20323,6 +20381,7 @@
   "fec_candidate_ids": [
    "H6TX02244"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1118386.57,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -20512,6 +20571,7 @@
   "fec_candidate_ids": [
    "S4NJ00185"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 50535413.34,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -20890,6 +20950,7 @@
    "H2AR03176",
    "S0AR00150"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 10269017.86,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -21674,6 +21735,7 @@
   "fec_candidate_ids": [
    "H4IL12060"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6654837.32,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -22099,6 +22161,7 @@
   "fec_candidate_ids": [
    "H4PA13199"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3484877.67,
   "aipac_pac_direct_career": 22100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -22528,6 +22591,7 @@
   "fec_candidate_ids": [
    "H2OK02315"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 873240.05,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -22789,6 +22853,7 @@
   "fec_candidate_ids": [
    "H4PA08124"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4279746.49,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -23023,6 +23088,7 @@
   "fec_candidate_ids": [
    "S2AL00145"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 14545298.2,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -23286,6 +23352,7 @@
   "fec_candidate_ids": [
    "H4TN04270"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 195333.47,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -23460,6 +23527,7 @@
   "fec_candidate_ids": [
    "H6CT01206"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3786426.01,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -23647,6 +23715,7 @@
   "fec_candidate_ids": [
    "H6PA07188"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4181508.28,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -23838,6 +23907,7 @@
    "H2OH13033",
    "S6OH00163"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 195719509.72,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -24841,6 +24911,7 @@
   "fec_candidate_ids": [
    "H2OH11169"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4653982.26,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -25163,6 +25234,7 @@
   "fec_candidate_ids": [
    "H2CA00120"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11285923.27,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -25623,6 +25695,7 @@
   "fec_candidate_ids": [
    "H6FL13148"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14755317.34,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -26153,6 +26226,7 @@
    "H6NC13129",
    "S2NC00505"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 26516580.44,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -26627,6 +26701,7 @@
   "fec_candidate_ids": [
    "H2IL13153"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7459850.21,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -26913,6 +26988,7 @@
   "fec_candidate_ids": [
    "H8TN02119"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7207506.34,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -27216,6 +27292,7 @@
   "fec_candidate_ids": [
    "H2MO07143"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2679265.31,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -27487,6 +27564,7 @@
   "fec_candidate_ids": [
    "H4OR05304"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9457137.56,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -27724,6 +27802,7 @@
   "fec_candidate_ids": [
    "H2CA37023"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 18019524.66,
   "aipac_pac_direct_career": 26402.0,
   "aipac_earmark_transmitted_career": 3502.0,
@@ -28573,6 +28652,7 @@
   "fec_candidate_ids": [
    "H0FL03175"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4393402.9,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -28876,6 +28956,7 @@
    "S8WA00194",
    "H2WA01054"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 54021217.78,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -29672,6 +29753,7 @@
    "H0WV02138",
    "S4WV00159"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 18662150.57,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -30508,6 +30590,7 @@
   "fec_candidate_ids": [
    "H6CA24303"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9883985.17,
   "aipac_pac_direct_career": 2900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -30883,6 +30966,7 @@
   "fec_candidate_ids": [
    "H2OH15228"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3518600.87,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -31160,6 +31244,7 @@
   "fec_candidate_ids": [
    "H0AL01055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3378864.67,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -31458,6 +31543,7 @@
   "fec_candidate_ids": [
    "H8IN07184"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4842848.74,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -31953,6 +32039,7 @@
    "H4GA01039",
    "S6GA00374"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7255510.81,
   "aipac_pac_direct_career": 18900.0,
   "aipac_earmark_transmitted_career": 1000.0,
@@ -32354,6 +32441,7 @@
   "fec_candidate_ids": [
    "H2TX31044"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7582664.88,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -32985,6 +33073,7 @@
   "fec_candidate_ids": [
    "H2LA02149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3978128.14,
   "aipac_pac_direct_career": 19400.0,
   "aipac_earmark_transmitted_career": 4400.0,
@@ -33279,6 +33368,7 @@
   "fec_candidate_ids": [
    "H2TX35144"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3065072.09,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -33542,6 +33632,7 @@
   "fec_candidate_ids": [
    "H2HI02128"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3791566.5,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -34050,6 +34141,7 @@
    "H8LA00017",
    "S4LA00107"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 26397342.99,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -34720,6 +34812,7 @@
   "fec_candidate_ids": [
    "H8IL06139"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 17609697.3,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -35080,6 +35173,7 @@
    "H6FL11126",
    "H6FL11134"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8265169.76,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -35640,6 +35734,7 @@
   "fec_candidate_ids": [
    "H2TX35011"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4290834.14,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -36062,6 +36157,7 @@
   "fec_candidate_ids": [
    "H0CA32101"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8862221.79,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -36515,6 +36611,7 @@
   "fec_candidate_ids": [
    "H2AZ02360"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9091981.48,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -36795,6 +36892,7 @@
    "H8CA39174",
    "H4CA31170"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4872578.21,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -37103,6 +37201,7 @@
   "fec_candidate_ids": [
    "H6GA13070"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2246680.18,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -37274,6 +37373,7 @@
   "fec_candidate_ids": [
    "H4MA05084"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8020685.3,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -37645,6 +37745,7 @@
   "fec_candidate_ids": [
    "H4NY11138"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3957079.55,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -38213,6 +38314,7 @@
   "fec_candidate_ids": [
    "H4MO05234"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4856405.62,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -38793,6 +38895,7 @@
   "fec_candidate_ids": [
    "H6SC05202"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 765595.92,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -38930,6 +39033,7 @@
   "fec_candidate_ids": [
    "H8VA06104"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3350467.25,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -39253,6 +39357,7 @@
   "fec_candidate_ids": [
    "H8TX27049"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3576588.94,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -39574,6 +39679,7 @@
   "fec_candidate_ids": [
    "H2SC02042"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9132667.0,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -40362,6 +40468,7 @@
   "fec_candidate_ids": [
    "H0GA09246"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1772112.74,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -40662,6 +40769,7 @@
   "fec_candidate_ids": [
    "H6PA08293"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6295019.69,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -40852,6 +40960,7 @@
   "fec_candidate_ids": [
    "H6TN09068"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3814950.87,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -41417,6 +41526,7 @@
   "fec_candidate_ids": [
    "H2OK04055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13447732.44,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -42059,6 +42169,7 @@
    "H4GA10071",
    "S6GA00390"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15670839.08,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -42508,6 +42619,7 @@
   "fec_candidate_ids": [
    "S6ME00159"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 53580981.04,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -43264,6 +43376,7 @@
   "fec_candidate_ids": [
    "S6MS00133"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 3591840.45,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -43451,6 +43564,7 @@
   "fec_candidate_ids": [
    "H6KY01110"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10433651.65,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -43773,6 +43887,7 @@
   "fec_candidate_ids": [
    "H4NJ03080"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1422234.56,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -44032,6 +44147,7 @@
   "fec_candidate_ids": [
    "H6NY17171"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9386799.09,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -44221,6 +44337,7 @@
   "fec_candidate_ids": [
    "H6NY21157"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 0.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -44413,6 +44530,7 @@
   "fec_candidate_ids": [
    "H4WI03169"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16728901.6,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -44652,6 +44770,7 @@
   "fec_candidate_ids": [
    "S0DE00092"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 14733223.49,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -45111,6 +45230,7 @@
   "fec_candidate_ids": [
    "S6NC00407"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 17985377.33,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -45301,6 +45421,7 @@
   "fec_candidate_ids": [
    "S2TX00106"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 59385318.38,
   "aipac_pac_direct_career": 7000.0,
   "aipac_earmark_transmitted_career": 2000.0,
@@ -45940,6 +46061,7 @@
   "fec_candidate_ids": [
    "H6CA46116"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2488866.85,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -46282,6 +46404,7 @@
   "fec_candidate_ids": [
    "S6NV00200"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 82380322.83,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -46673,6 +46796,7 @@
   "fec_candidate_ids": [
    "H4CA20082"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9280926.0,
   "aipac_pac_direct_career": 32903.0,
   "aipac_earmark_transmitted_career": 3.0,
@@ -47222,6 +47346,7 @@
    "H2AR04083",
    "S4AR00103"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 35676957.7,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -47785,6 +47910,7 @@
   "fec_candidate_ids": [
    "H2CT02112"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9640036.33,
   "aipac_pac_direct_career": 13900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -48386,6 +48512,7 @@
   "fec_candidate_ids": [
    "H0GA14048"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1632174.9,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -48635,6 +48762,7 @@
    "H6MN02131",
    "S6MN00499"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 32472592.83,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -49073,6 +49201,7 @@
    "H6ND00074",
    "S8ND00120"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 10930948.4,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -49848,6 +49977,7 @@
   "fec_candidate_ids": [
    "H2AZ01354"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 22412468.83,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -50128,6 +50258,7 @@
   "fec_candidate_ids": [
    "H6CO05142"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2539076.49,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -50465,6 +50596,7 @@
    "S8ID00027",
    "H2ID02034"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 10595797.93,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -51461,6 +51593,7 @@
   "fec_candidate_ids": [
    "H0AR01083"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4312649.49,
   "aipac_pac_direct_career": 28150.0,
   "aipac_earmark_transmitted_career": 250.0,
@@ -51894,6 +52027,7 @@
   "fec_candidate_ids": [
    "H8TX02166"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 36844938.58,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -52242,6 +52376,7 @@
    "H2TX30178",
    "S6TX00552"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16859952.33,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -52556,6 +52691,7 @@
   "fec_candidate_ids": [
    "H8CO06229"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15094358.83,
   "aipac_pac_direct_career": 10500.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -52886,6 +53022,7 @@
   "fec_candidate_ids": [
    "S2TX00312"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 152064880.63,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -53353,6 +53490,7 @@
   "fec_candidate_ids": [
    "H2TX23082"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13504616.45,
   "aipac_pac_direct_career": 34700.0,
   "aipac_earmark_transmitted_career": 11800.0,
@@ -54010,6 +54148,7 @@
    "H8UT03238",
    "S4UT00282"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 4625879.62,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -54410,6 +54549,7 @@
    "H2MT01060",
    "S2MT00096"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 63884234.28,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -55021,6 +55161,7 @@
   "fec_candidate_ids": [
    "H6FL21059"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3600518.96,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -55208,6 +55349,7 @@
   "fec_candidate_ids": [
    "H8KS03155"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 21801553.85,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -55570,6 +55712,7 @@
   "fec_candidate_ids": [
    "H6OH08315"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2285242.42,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -55958,6 +56101,7 @@
   "fec_candidate_ids": [
    "H4IL07037"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2501824.72,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -56877,6 +57021,7 @@
   "fec_candidate_ids": [
    "H2NC02287"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8477338.44,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -57167,6 +57312,7 @@
   "fec_candidate_ids": [
    "H0TX15124"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13368740.41,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -57486,6 +57632,7 @@
   "fec_candidate_ids": [
    "H8PA04116"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4297500.38,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -57822,6 +57969,7 @@
   "fec_candidate_ids": [
    "H6CO01141"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6983383.41,
   "aipac_pac_direct_career": 2900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -58568,6 +58716,7 @@
   "fec_candidate_ids": [
    "H0CT03072"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10722112.28,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -59375,6 +59524,7 @@
   "fec_candidate_ids": [
    "H0WA08046"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11668615.58,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -59849,6 +59999,7 @@
   "fec_candidate_ids": [
    "H2PA17103"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9131175.06,
   "aipac_pac_direct_career": 1000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -60133,6 +60284,7 @@
   "fec_candidate_ids": [
    "H6KY06184"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2900486.96,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -60320,6 +60472,7 @@
   "fec_candidate_ids": [
    "H0CA10073"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2227708.02,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -60773,6 +60926,7 @@
   "fec_candidate_ids": [
    "H0TN04195"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3446116.94,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -61206,6 +61360,7 @@
   "fec_candidate_ids": [
    "H4OR03192"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2360944.26,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -61406,6 +61561,7 @@
   "fec_candidate_ids": [
    "H2FL25018"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8867758.88,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -61989,6 +62145,7 @@
   "fec_candidate_ids": [
    "H4MI12079"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4317184.95,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -62406,6 +62563,7 @@
   "fec_candidate_ids": [
    "H4TX10028"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10009086.39,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -63139,6 +63297,7 @@
   "fec_candidate_ids": [
    "H2FL14186"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10123106.01,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -63483,6 +63642,7 @@
   "fec_candidate_ids": [
    "H4MT02098"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2966579.79,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -63692,6 +63852,7 @@
    "H6IL06141",
    "S6IL00292"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 48843694.29,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -64324,6 +64485,7 @@
   "fec_candidate_ids": [
    "H6FL02208"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4074574.44,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -64665,6 +64827,7 @@
    "S6IL00151",
    "H2IL20026"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 31445865.26,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -65633,6 +65796,7 @@
   "fec_candidate_ids": [
    "H2NC14050"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2054096.17,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -65910,6 +66074,7 @@
   "fec_candidate_ids": [
    "S6MI00418"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 47199664.7,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -66099,6 +66264,7 @@
   "fec_candidate_ids": [
    "H4MD03156"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2797878.0,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -66321,6 +66487,7 @@
   "fec_candidate_ids": [
    "H6FL07231"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 520460.2,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -66508,6 +66675,7 @@
   "fec_candidate_ids": [
    "H8TX06266"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13743657.15,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -66846,6 +67014,7 @@
   "fec_candidate_ids": [
    "H4MN06087"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11716584.72,
   "aipac_pac_direct_career": 30500.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -67244,6 +67413,7 @@
   "fec_candidate_ids": [
    "S4IA00129"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 36958545.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -67641,6 +67811,7 @@
   "fec_candidate_ids": [
    "H8TX16109"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3368984.19,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -67951,6 +68122,7 @@
   "fec_candidate_ids": [
    "H2NY13096"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6804357.78,
   "aipac_pac_direct_career": 19200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -68407,6 +68579,7 @@
   "fec_candidate_ids": [
    "H8KS04112"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3557306.3,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -68710,6 +68883,7 @@
   "fec_candidate_ids": [
    "H6PA02171"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2961807.78,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -69091,6 +69265,7 @@
   "fec_candidate_ids": [
    "H4CO08034"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4747462.21,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -69327,6 +69502,7 @@
   "fec_candidate_ids": [
    "H2MS04258"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2021770.94,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -69580,6 +69756,7 @@
   "fec_candidate_ids": [
    "H0TX04219"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 979726.79,
   "aipac_pac_direct_career": 22000.0,
   "aipac_earmark_transmitted_career": 2000.0,
@@ -69830,6 +70007,7 @@
   "fec_candidate_ids": [
    "H4ND00061"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1837475.56,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -70064,6 +70242,7 @@
   "fec_candidate_ids": [
    "H0IA04145"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5148933.34,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -70348,6 +70527,7 @@
   "fec_candidate_ids": [
    "S6PA00274"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 78126240.34,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -70675,6 +70855,7 @@
   "fec_candidate_ids": [
    "H4LA06211"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1768698.49,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -70867,6 +71048,7 @@
   "fec_candidate_ids": [
    "H4AL02170"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2989373.56,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -71103,6 +71285,7 @@
   "fec_candidate_ids": [
    "H6FL06258"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2722010.62,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -71322,6 +71505,7 @@
   "fec_candidate_ids": [
    "H2MN01223"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2767170.8,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -71591,6 +71775,7 @@
   "fec_candidate_ids": [
    "H0MN07091"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4359554.27,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -71893,6 +72078,7 @@
   "fec_candidate_ids": [
    "S2NE00094"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 11051493.28,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -72345,6 +72531,7 @@
   "fec_candidate_ids": [
    "H0WI05113"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2583760.36,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -72663,6 +72850,7 @@
   "fec_candidate_ids": [
    "H6PA08277"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10928734.87,
   "aipac_pac_direct_career": 22600.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -73057,6 +73245,7 @@
   "fec_candidate_ids": [
    "S6MN00440"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 10629226.03,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -73246,6 +73435,7 @@
   "fec_candidate_ids": [
    "H0TN03254"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7827191.45,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -73679,6 +73869,7 @@
   "fec_candidate_ids": [
    "H8TX07140"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13291201.0,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -74020,6 +74211,7 @@
   "fec_candidate_ids": [
    "H2NE01118"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3846176.68,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -74297,6 +74489,7 @@
   "fec_candidate_ids": [
    "H4CA20181"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2446109.69,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -74501,6 +74694,7 @@
   "fec_candidate_ids": [
    "H6IN05307"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1278197.71,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -74688,6 +74882,7 @@
   "fec_candidate_ids": [
    "H6IL07354"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 511698.34,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -74845,6 +75040,7 @@
   "fec_candidate_ids": [
    "H6MT01137"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3488567.92,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -75035,6 +75231,7 @@
    "H8IL14067",
    "H2IL11124"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 19741052.66,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -75575,6 +75772,7 @@
   "fec_candidate_ids": [
    "H2NC06114"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1802011.01,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -75863,6 +76061,7 @@
   "fec_candidate_ids": [
    "H4NC05146"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11946148.63,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -76454,6 +76653,7 @@
    "H2FL14053",
    "H2FL22080"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10561113.83,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -77036,6 +77236,7 @@
   "fec_candidate_ids": [
    "H0FL15104"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2076639.0,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -77302,6 +77503,7 @@
   "fec_candidate_ids": [
    "H4CA30149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2154175.01,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -77504,6 +77706,7 @@
   "fec_candidate_ids": [
    "H2FL10259"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9846848.68,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -77774,6 +77977,7 @@
    "H2SC07280",
    "S6SC04403"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4197269.52,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -78080,6 +78284,7 @@
   "fec_candidate_ids": [
    "H8ID01124"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1794741.56,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -78365,6 +78570,7 @@
   "fec_candidate_ids": [
    "H0GA14030"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1413318.86,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -78591,6 +78797,7 @@
   "fec_candidate_ids": [
    "H6GA10175"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2323941.44,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -78778,6 +78985,7 @@
   "fec_candidate_ids": [
    "H6CA01285"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1111977.22,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -78916,6 +79124,7 @@
    "H4AZ07043",
    "S4AZ00139"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 68028228.72,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -79401,6 +79610,7 @@
   "fec_candidate_ids": [
    "H6KY04171"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3873077.84,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -79596,6 +79806,7 @@
   "fec_candidate_ids": [
    "H0CA10149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5589724.11,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -80034,6 +80245,7 @@
   "fec_candidate_ids": [
    "H0NY02234"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4450536.42,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -80356,6 +80568,7 @@
   "fec_candidate_ids": [
    "H6TX35095"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1764055.84,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -80545,6 +80758,7 @@
   "fec_candidate_ids": [
    "H2CA47188"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4829576.7,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -80816,6 +81030,7 @@
   "fec_candidate_ids": [
    "H8TX29052"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1703159.89,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -81171,6 +81386,7 @@
   "fec_candidate_ids": [
    "H8IL04134"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1931152.62,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -81486,6 +81702,7 @@
   "fec_candidate_ids": [
    "H6IL04153"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 246390.59,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -81623,6 +81840,7 @@
   "fec_candidate_ids": [
    "H6TN06213"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1361871.88,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -81802,6 +82020,7 @@
   "fec_candidate_ids": [
    "H6IA03268"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7230292.81,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -81992,6 +82211,7 @@
   "fec_candidate_ids": [
    "H6FL24095"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1328355.31,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -82179,6 +82399,7 @@
   "fec_candidate_ids": [
    "H4TX26149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7850272.24,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -82412,6 +82633,7 @@
    "H4NY04158",
    "H2NY04244"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4971964.57,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -82736,6 +82958,7 @@
    "H6NY20167",
    "S0NY00410"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 56635923.95,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -83336,6 +83559,7 @@
   "fec_candidate_ids": [
    "H0FL26036"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3194016.32,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -83622,6 +83846,7 @@
   "fec_candidate_ids": [
    "H2WA03217"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 17299580.92,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -83905,6 +84130,7 @@
   "fec_candidate_ids": [
    "H6TX10221"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 764651.02,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -84094,6 +84320,7 @@
   "fec_candidate_ids": [
    "H8ME02185"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 22273009.36,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -84451,6 +84678,7 @@
   "fec_candidate_ids": [
    "H4TX12065"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2738054.65,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -84680,6 +84908,7 @@
   "fec_candidate_ids": [
    "H2NY10308"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10067662.91,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -84961,6 +85190,7 @@
   "fec_candidate_ids": [
    "H8CA34266"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3877764.18,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -85320,6 +85550,7 @@
   "fec_candidate_ids": [
    "H6CA34286"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 481409.25,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -85507,6 +85738,7 @@
   "fec_candidate_ids": [
    "H6TX15162"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7176468.02,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -85903,6 +86135,7 @@
   "fec_candidate_ids": [
    "H8TX05144"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2643068.79,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -86188,6 +86421,7 @@
   "fec_candidate_ids": [
    "H4NH02399"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7415804.67,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -86420,6 +86654,7 @@
   "fec_candidate_ids": [
    "H0AZ01259"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4888906.84,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -86909,6 +87144,7 @@
   "fec_candidate_ids": [
    "H6NJ05171"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 30958908.44,
   "aipac_pac_direct_career": 93630.0,
   "aipac_earmark_transmitted_career": 65730.0,
@@ -87295,6 +87531,7 @@
   "fec_candidate_ids": [
    "S6SC04437"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 724282.27,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -87482,6 +87719,7 @@
   "fec_candidate_ids": [
    "S0IA00028"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 23715879.41,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -88528,6 +88766,7 @@
   "fec_candidate_ids": [
    "H0MO06073"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7260655.09,
   "aipac_pac_direct_career": 27100.0,
   "aipac_earmark_transmitted_career": 2100.0,
@@ -89146,6 +89385,7 @@
   "fec_candidate_ids": [
    "H2CA13115"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10082405.23,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -89430,6 +89670,7 @@
   "fec_candidate_ids": [
    "H6WY00217"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 280758.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -89601,6 +89842,7 @@
   "fec_candidate_ids": [
    "H4TX09095"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3967267.43,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -90185,6 +90427,7 @@
   "fec_candidate_ids": [
    "H0VA09055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4268965.31,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -90646,6 +90889,7 @@
   "fec_candidate_ids": [
    "H6AZ07121"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2029799.59,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -90833,6 +91077,7 @@
   "fec_candidate_ids": [
    "H4WI06048"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6589518.62,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -91228,6 +91473,7 @@
   "fec_candidate_ids": [
    "H6FL16141"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1212438.56,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -91415,6 +91661,7 @@
   "fec_candidate_ids": [
    "H8MS03125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2816154.82,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -91728,6 +91975,7 @@
   "fec_candidate_ids": [
    "H8KY02031"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6365757.26,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -92218,6 +92466,7 @@
   "fec_candidate_ids": [
    "H6TX09231"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 214302.56,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -92406,6 +92655,7 @@
    "H2WY00166",
    "S6WY00209"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 9190433.29,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -92709,6 +92959,7 @@
   "fec_candidate_ids": [
    "S0TN00169"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 18022789.65,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -93026,6 +93277,7 @@
   "fec_candidate_ids": [
    "H4AZ08108"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2043959.77,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -93258,6 +93510,7 @@
   "fec_candidate_ids": [
    "H6NJ12417"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1881025.58,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -93445,6 +93698,7 @@
   "fec_candidate_ids": [
    "S6KS00312"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 16526007.87,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -93632,6 +93886,7 @@
   "fec_candidate_ids": [
    "H8CA10126"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 27177613.55,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -93986,6 +94241,7 @@
   "fec_candidate_ids": [
    "H4FL08168"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2257654.85,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -94220,6 +94476,7 @@
   "fec_candidate_ids": [
    "H2NC13243"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2391759.33,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -94497,6 +94754,7 @@
   "fec_candidate_ids": [
    "H8MD01094"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13435829.47,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -95020,6 +95278,7 @@
    "H6NC09200",
    "H4NC08066"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3448553.61,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -95383,6 +95642,7 @@
   "fec_candidate_ids": [
    "H0TN01118"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3132686.88,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -95659,6 +95919,7 @@
   "fec_candidate_ids": [
    "H6PA01181"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2740073.05,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -95848,6 +96109,7 @@
   "fec_candidate_ids": [
    "S6NH00091"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 57077819.77,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -96238,6 +96500,7 @@
   "fec_candidate_ids": [
    "H6TN05405"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1490168.06,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -96409,6 +96672,7 @@
   "fec_candidate_ids": [
    "S8MO00160"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 29483359.82,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -96760,6 +97024,7 @@
   "fec_candidate_ids": [
    "H8CT05245"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8165333.65,
   "aipac_pac_direct_career": 2900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -97116,6 +97381,7 @@
   "fec_candidate_ids": [
    "H6TX30245"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 597599.87,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -97288,6 +97554,7 @@
    "H8NM01224",
    "S2NM00088"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 25109716.31,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -97965,6 +98232,7 @@
    "H8OK01157",
    "S6OK04247"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 5264033.9,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -98337,6 +98605,7 @@
   "fec_candidate_ids": [
    "H4PR01010"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2357071.51,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -98511,6 +98780,7 @@
   "fec_candidate_ids": [
    "S0CO00575"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 48302925.71,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -98823,6 +99093,7 @@
   "fec_candidate_ids": [
    "H6LA03148"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2812251.13,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -99173,6 +99444,7 @@
   "fec_candidate_ids": [
    "H4AR02141"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11857934.46,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -99600,6 +99872,7 @@
   "fec_candidate_ids": [
    "H8CT04172"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13617165.79,
   "aipac_pac_direct_career": 8400.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -100092,6 +100365,7 @@
   "fec_candidate_ids": [
    "H6MI10276"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3380348.82,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -100281,6 +100555,7 @@
   "fec_candidate_ids": [
    "H0IA01174"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 20454377.37,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -100602,6 +100877,7 @@
    "H6HI02251",
    "S2HI00106"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 13441951.39,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -101195,6 +101471,7 @@
   "fec_candidate_ids": [
    "S0ND00093"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 6018658.45,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -101670,6 +101947,7 @@
   "fec_candidate_ids": [
    "H2NV04011"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11500007.26,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -102144,6 +102422,7 @@
   "fec_candidate_ids": [
    "H6IN09143"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1845890.49,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -102438,6 +102717,7 @@
   "fec_candidate_ids": [
    "H8PA06087"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10744800.54,
   "aipac_pac_direct_career": 7100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -102791,6 +103071,7 @@
   "fec_candidate_ids": [
    "H2MD05155"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14758272.99,
   "aipac_pac_direct_career": 14200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -103762,6 +104043,7 @@
   "fec_candidate_ids": [
    "H2OR04095"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4053922.82,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -104048,6 +104330,7 @@
   "fec_candidate_ids": [
    "H4NC05294"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1243766.04,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -104240,6 +104523,7 @@
   "fec_candidate_ids": [
    "H2NC08185"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8650961.53,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -104678,6 +104962,7 @@
   "fec_candidate_ids": [
    "H2CA06259"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4909489.24,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -105074,6 +105359,7 @@
   "fec_candidate_ids": [
    "H0MI02094"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8121583.35,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -105576,6 +105862,7 @@
    "H0TX07170",
    "S6TX00511"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13965766.14,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -105916,6 +106203,7 @@
   "fec_candidate_ids": [
    "H4CO03357"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4516639.74,
   "aipac_pac_direct_career": 11875.0,
   "aipac_earmark_transmitted_career": 1875.0,
@@ -106152,6 +106440,7 @@
   "fec_candidate_ids": [
    "S6OH00304"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 9843192.51,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -106342,6 +106631,7 @@
   "fec_candidate_ids": [
    "S8MS00261"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 9170207.52,
   "aipac_pac_direct_career": 11000.0,
   "aipac_earmark_transmitted_career": 1000.0,
@@ -106687,6 +106977,7 @@
   "fec_candidate_ids": [
    "H6CA26266"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 860402.31,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -106843,6 +107134,7 @@
    "H0CA48024",
    "S8CA00135"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16320426.05,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -107696,6 +107988,7 @@
    "H2MD04315",
    "H2MD04232"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1545846.28,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -108031,6 +108324,7 @@
   "fec_candidate_ids": [
    "H4GA03126"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2265001.34,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -108263,6 +108557,7 @@
   "fec_candidate_ids": [
    "H6SD01109"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1417725.65,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -108442,6 +108737,7 @@
   "fec_candidate_ids": [
    "H2IL01349"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1174461.93,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 2900.0,
@@ -108705,6 +109001,7 @@
   "fec_candidate_ids": [
    "H0TX13228"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14640474.18,
   "aipac_pac_direct_career": 35000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -108971,6 +109268,7 @@
   "fec_candidate_ids": [
    "S6ME00464"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 23977118.53,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -109160,6 +109458,7 @@
   "fec_candidate_ids": [
    "H8CA49074"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3151007.58,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -109451,6 +109750,7 @@
    "H2MI10150",
    "S8MI00372"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 65947145.11,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -109914,6 +110214,7 @@
   "fec_candidate_ids": [
    "H6IA02211"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3400087.8,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -110103,6 +110404,7 @@
   "fec_candidate_ids": [
    "H6WA07458"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14041638.49,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -110461,6 +110763,7 @@
   "fec_candidate_ids": [
    "H6NC06164"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 212714.57,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -110598,6 +110901,7 @@
   "fec_candidate_ids": [
    "H2NY10092"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 37408580.56,
   "aipac_pac_direct_career": 11700.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -111042,6 +111346,7 @@
   "fec_candidate_ids": [
    "H8SD01055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7325145.42,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -111403,6 +111708,7 @@
   "fec_candidate_ids": [
    "H6GA04129"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1613424.99,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -111932,6 +112238,7 @@
   "fec_candidate_ids": [
    "H6MN01190"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3063275.23,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -112121,6 +112428,7 @@
   "fec_candidate_ids": [
    "H4TX32089"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1513181.22,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -112316,6 +112624,7 @@
   "fec_candidate_ids": [
    "H6LA04138"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 27767588.73,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -112684,6 +112993,7 @@
   "fec_candidate_ids": [
    "S0WI00197"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 58599358.36,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -113185,6 +113495,7 @@
   "fec_candidate_ids": [
    "H6OH04082"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 52050792.14,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -113763,6 +114074,7 @@
   "fec_candidate_ids": [
    "H2OH14064"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7526070.44,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -114209,6 +114521,7 @@
   "fec_candidate_ids": [
    "H8PA13125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1655872.85,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -114536,6 +114849,7 @@
   "fec_candidate_ids": [
    "S4WV00332"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 2773681.11,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -114764,6 +115078,7 @@
   "fec_candidate_ids": [
    "S2VA00142"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 41205635.19,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -115219,6 +115534,7 @@
   "fec_candidate_ids": [
    "H2CA37304"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2439570.49,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -115484,6 +115800,7 @@
   "fec_candidate_ids": [
    "H2OH09031"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11811914.69,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -116512,6 +116829,7 @@
   "fec_candidate_ids": [
    "H0NJ07261"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 12583712.41,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -116828,6 +117146,7 @@
   "fec_candidate_ids": [
    "H0MA10082"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4631310.61,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -117263,6 +117582,7 @@
   "fec_candidate_ids": [
    "S0AZ00350"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 242078530.22,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -117588,6 +117908,7 @@
   "fec_candidate_ids": [
    "H0PA03271"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5325838.29,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -118028,6 +118349,7 @@
    "H2IL02172",
    "S6IL00474"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4887723.28,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -118522,6 +118844,7 @@
   "fec_candidate_ids": [
    "H6MS01131"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3261374.41,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -118844,6 +119167,7 @@
   "fec_candidate_ids": [
    "S4LA00065"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 73178038.91,
   "aipac_pac_direct_career": 2100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -119359,6 +119683,7 @@
   "fec_candidate_ids": [
    "H4UT03260"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1054749.38,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -119559,6 +119884,7 @@
   "fec_candidate_ids": [
    "H4NY26078"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3840478.05,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -119751,6 +120077,7 @@
   "fec_candidate_ids": [
    "H4CA12055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 45620257.32,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -120188,6 +120515,7 @@
   "fec_candidate_ids": [
    "H2VA02064"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10229252.96,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -120467,6 +120795,7 @@
   "fec_candidate_ids": [
    "H2CA03157"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8247144.35,
   "aipac_pac_direct_career": 10003.0,
   "aipac_earmark_transmitted_career": 3.0,
@@ -120744,6 +121073,7 @@
   "fec_candidate_ids": [
    "H6CO05324"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4014988.31,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -120935,6 +121265,7 @@
    "H8NJ03206",
    "S4NJ00466"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 29373153.62,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -121342,6 +121673,7 @@
   "fec_candidate_ids": [
    "H8CA39240"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 27146015.87,
   "aipac_pac_direct_career": 24710.0,
   "aipac_earmark_transmitted_career": 1810.0,
@@ -121703,6 +122035,7 @@
   "fec_candidate_ids": [
    "S2ME00109"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 10228265.48,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -122122,6 +122455,7 @@
   "fec_candidate_ids": [
    "H4MP01022"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 122885.19,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -122283,6 +122617,7 @@
   "fec_candidate_ids": [
    "H6GA01109"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1951208.39,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -122470,6 +122805,7 @@
   "fec_candidate_ids": [
    "H6CO01273"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1214663.94,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -122657,6 +122993,7 @@
   "fec_candidate_ids": [
    "S6MN00267"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 38151724.78,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -123206,6 +123543,7 @@
   "fec_candidate_ids": [
    "H6OH10121"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 900424.82,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -123395,6 +123733,7 @@
   "fec_candidate_ids": [
    "H4NC13116"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1893050.5,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -123603,6 +123942,7 @@
   "fec_candidate_ids": [
    "H8MA03072"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7859805.81,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -123865,6 +124205,7 @@
    "H6IL08147",
    "S6IL00482"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 42654115.76,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -124284,6 +124625,7 @@
   "fec_candidate_ids": [
    "H2TN07103"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6698962.59,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -124759,6 +125101,7 @@
   "fec_candidate_ids": [
    "H6SC01359"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4573914.67,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -124946,6 +125289,7 @@
   "fec_candidate_ids": [
    "H6IL18088"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6300185.28,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -125318,6 +125662,7 @@
   "fec_candidate_ids": [
    "H2NY01190"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3476759.92,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -125599,6 +125944,7 @@
   "fec_candidate_ids": [
    "H6AZ05265"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1601555.83,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -125788,6 +126134,7 @@
   "fec_candidate_ids": [
    "H6NY10176"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2681103.94,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -125975,6 +126322,7 @@
   "fec_candidate_ids": [
    "H2OH01194"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8595728.72,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -126258,6 +126606,7 @@
   "fec_candidate_ids": [
    "H2NY23228"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2478758.45,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -126508,6 +126857,7 @@
    "H0OK05114",
    "S4OK00232"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 11685004.27,
   "aipac_pac_direct_career": 4200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -127118,6 +127468,7 @@
   "fec_candidate_ids": [
    "H0WA02080"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9236195.88,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -127758,6 +128109,7 @@
   "fec_candidate_ids": [
    "H8CT01046"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10140041.44,
   "aipac_pac_direct_career": 23900.0,
   "aipac_earmark_transmitted_career": 1000.0,
@@ -128441,6 +128793,7 @@
   "fec_candidate_ids": [
    "H6NY12172"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2897558.11,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -128604,6 +128957,7 @@
   "fec_candidate_ids": [
    "H4NY16087"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6863872.41,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -128834,6 +129188,7 @@
   "fec_candidate_ids": [
    "H8OH05036"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5799857.94,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -129394,6 +129749,7 @@
   "fec_candidate_ids": [
    "H6CO04202"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13638017.3,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -129581,6 +129937,7 @@
   "fec_candidate_ids": [
    "H2NY17162"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8792799.67,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -129858,6 +130215,7 @@
   "fec_candidate_ids": [
    "H6MI07298"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3804135.29,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -130047,6 +130405,7 @@
   "fec_candidate_ids": [
    "H2FL15241"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2026307.73,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -130329,6 +130688,7 @@
   "fec_candidate_ids": [
    "S0UT00165"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 21940968.91,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -130828,6 +131188,7 @@
   "fec_candidate_ids": [
    "H2PA18200"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5238551.74,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -131107,6 +131468,7 @@
   "fec_candidate_ids": [
    "H6NV04020"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 19487224.55,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -131507,6 +131869,7 @@
   "fec_candidate_ids": [
    "H0NM03102"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7399140.52,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -131819,6 +132182,7 @@
   "fec_candidate_ids": [
    "H6OH15112"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1094107.61,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -132006,6 +132370,7 @@
   "fec_candidate_ids": [
    "H6ME02148"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1689499.2,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -132194,6 +132559,7 @@
    "H2LA05126",
    "S6LA00664"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 5073155.17,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -132500,6 +132866,7 @@
   "fec_candidate_ids": [
    "H8CA49058"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 18819899.53,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -132867,6 +133234,7 @@
   "fec_candidate_ids": [
    "H4CA16197"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7527128.86,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -133095,6 +133463,7 @@
   "fec_candidate_ids": [
    "H4CA33119"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9350118.18,
   "aipac_pac_direct_career": 36302.0,
   "aipac_earmark_transmitted_career": 8402.0,
@@ -133474,6 +133843,7 @@
   "fec_candidate_ids": [
    "H6GU01032"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 49831.03,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -133597,6 +133967,7 @@
   "fec_candidate_ids": [
    "H6MN02230"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1155422.3,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -133784,6 +134155,7 @@
   "fec_candidate_ids": [
    "H4CA16049"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9899349.51,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -134557,6 +134929,7 @@
   "fec_candidate_ids": [
    "H4GA11061"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2196679.89,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -134918,6 +135291,7 @@
   "fec_candidate_ids": [
    "H4OK06056"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5297017.76,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -135684,6 +136058,7 @@
    "H8NM03196",
    "S0NM00058"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 16760966.29,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -136301,6 +136676,7 @@
    "H8WY00148",
    "S0WY00137"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 5679725.35,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -136891,6 +137267,7 @@
   "fec_candidate_ids": [
    "H0FL13158"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11401525.97,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -137209,6 +137586,7 @@
   "fec_candidate_ids": [
    "H8VA02111"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15946322.3,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -137547,6 +137925,7 @@
   "fec_candidate_ids": [
    "H2TX08182"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5747053.27,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -137819,6 +138198,7 @@
    "H2MA09072",
    "S0MA00083"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10269090.57,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -138522,6 +138902,7 @@
   "fec_candidate_ids": [
    "H0SC01394"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10223520.17,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -138830,6 +139211,7 @@
   "fec_candidate_ids": [
    "H8PA15195"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3006572.08,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -139133,6 +139515,7 @@
   "fec_candidate_ids": [
    "H2RI02184"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5255992.96,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -139404,6 +139787,7 @@
   "fec_candidate_ids": [
    "H0NY11078"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8925343.49,
   "aipac_pac_direct_career": 19200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -139660,6 +140044,7 @@
   "fec_candidate_ids": [
    "H4UT02296"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1625408.22,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -139894,6 +140279,7 @@
   "fec_candidate_ids": [
    "H0KS01123"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3036212.7,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -140297,6 +140683,7 @@
   "fec_candidate_ids": [
    "H4NY22085"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5484912.52,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -140536,6 +140923,7 @@
    "H6MA07101",
    "S4MA00028"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 36905729.29,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -141752,6 +142140,7 @@
    "H6KS01179",
    "S0KS00315"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 13340715.75,
   "aipac_pac_direct_career": 11000.0,
   "aipac_earmark_transmitted_career": 1000.0,
@@ -142235,6 +142624,7 @@
   "fec_candidate_ids": [
    "H2KY04121"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13525148.19,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -142697,6 +143087,7 @@
   "fec_candidate_ids": [
    "H6FL18097"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 23637718.29,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -143089,6 +143480,7 @@
   "fec_candidate_ids": [
    "H6CA05195"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5380137.52,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -143646,6 +144038,7 @@
   "fec_candidate_ids": [
    "H8UT04053"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9421210.37,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -143961,6 +144354,7 @@
   "fec_candidate_ids": [
    "H8GA06393"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16564080.02,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -144318,6 +144712,7 @@
   "fec_candidate_ids": [
    "H4DE00045"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8315755.71,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -144522,6 +144917,7 @@
   "fec_candidate_ids": [
    "H6MI04204"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4037502.97,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -144711,6 +145107,7 @@
   "fec_candidate_ids": [
    "H4TX10093"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10375645.25,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -145301,6 +145698,7 @@
   "fec_candidate_ids": [
    "H0MI10287"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5293692.87,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -145575,6 +145973,7 @@
   "fec_candidate_ids": [
    "H4MD06340"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2630374.3,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -145809,6 +146208,7 @@
   "fec_candidate_ids": [
    "H4VA04066"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2671552.34,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -146075,6 +146475,7 @@
    "H8CA04152",
    "H6CA21135"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14900963.66,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -146738,6 +147139,7 @@
   "fec_candidate_ids": [
    "H0MN04049"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8134454.85,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -147408,6 +147810,7 @@
   "fec_candidate_ids": [
    "S2KY00012"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 111336188.16,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -148376,6 +148779,7 @@
   "fec_candidate_ids": [
    "S2PA00661"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 30218480.71,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -148651,6 +149055,7 @@
   "fec_candidate_ids": [
    "H0GA07273"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6786605.13,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -148967,6 +149372,7 @@
   "fec_candidate_ids": [
    "H4MI08218"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9346559.99,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -149205,6 +149611,7 @@
   "fec_candidate_ids": [
    "H4NC06177"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1286680.32,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -149421,6 +149828,7 @@
   "fec_candidate_ids": [
    "H2KY03206"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4748941.77,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -149692,6 +150100,7 @@
   "fec_candidate_ids": [
    "H4MA03022"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10655759.89,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -150427,6 +150836,7 @@
   "fec_candidate_ids": [
    "H6IA04167"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 630423.24,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -150607,6 +151017,7 @@
    "H2VA07196",
    "H0VA07133"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2489315.04,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -150906,6 +151317,7 @@
   "fec_candidate_ids": [
    "H6CA01269"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1863207.83,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -151069,6 +151481,7 @@
   "fec_candidate_ids": [
    "H4NJ10176"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2298384.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -151261,6 +151674,7 @@
   "fec_candidate_ids": [
    "H6WA04216"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1022798.07,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -151448,6 +151862,7 @@
   "fec_candidate_ids": [
    "H6MI13254"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1599208.64,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -151635,6 +152050,7 @@
   "fec_candidate_ids": [
    "H8NY06048"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5833700.62,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -152317,6 +152733,7 @@
   "fec_candidate_ids": [
    "H6NJ11286"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1761568.48,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -152504,6 +152921,7 @@
   "fec_candidate_ids": [
    "H6AZ06099"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9269440.83,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -152694,6 +153112,7 @@
   "fec_candidate_ids": [
    "H6TX18232"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3463952.99,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -152881,6 +153300,7 @@
   "fec_candidate_ids": [
    "H2NJ08232"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4161728.91,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -153160,6 +153580,7 @@
   "fec_candidate_ids": [
    "H2NY06116"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8899109.82,
   "aipac_pac_direct_career": 19200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -153576,6 +153997,7 @@
   "fec_candidate_ids": [
    "S8OR00207"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 31387183.81,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -154058,6 +154480,7 @@
   "fec_candidate_ids": [
    "H4IN08249"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1317231.58,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -154284,6 +154707,7 @@
   "fec_candidate_ids": [
    "H8PA10147"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4150548.59,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -154608,6 +155032,7 @@
    "H6MD07020",
    "H0MD07114"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2831889.03,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -155319,6 +155744,7 @@
   "fec_candidate_ids": [
    "H8WV03097"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3015483.42,
   "aipac_pac_direct_career": 27100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -155662,6 +156088,7 @@
   "fec_candidate_ids": [
    "H6IL02355"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2482296.49,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -155827,6 +156254,7 @@
   "fec_candidate_ids": [
    "H0IL15129"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5080245.27,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -156143,6 +156571,7 @@
   "fec_candidate_ids": [
    "H2OH16051"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3376959.14,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -156424,6 +156853,7 @@
   "fec_candidate_ids": [
    "H8IA02043"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11818825.35,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -156922,6 +157352,7 @@
   "fec_candidate_ids": [
    "H2FL07156"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2318796.85,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -157183,6 +157614,7 @@
   "fec_candidate_ids": [
    "H4CA47085"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8733028.89,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -157420,6 +157852,7 @@
   "fec_candidate_ids": [
    "S6FL00640"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 6832682.27,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -157610,6 +158043,7 @@
   "fec_candidate_ids": [
    "H4MI04126"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6470193.66,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -157988,6 +158422,7 @@
    "H8AL02171",
    "S6AL00476"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 7126228.47,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -158391,6 +158826,7 @@
   "fec_candidate_ids": [
    "H0UT01205"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3367010.77,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -158681,6 +159117,7 @@
   "fec_candidate_ids": [
    "H4WI04183"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3826134.5,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -159256,6 +159693,7 @@
   "fec_candidate_ids": [
    "H4WV02205"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1495665.88,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -159527,6 +159965,7 @@
   "fec_candidate_ids": [
    "H4NC14015"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3079806.0,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -159738,6 +160177,7 @@
    "H6KS01096",
    "S0KS00091"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 10830712.49,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -160639,6 +161079,7 @@
   "fec_candidate_ids": [
    "H2TX01112"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2108608.84,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -160870,6 +161311,7 @@
   "fec_candidate_ids": [
    "H8NY25105"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3780563.12,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -161201,6 +161643,7 @@
   "fec_candidate_ids": [
    "S4OH00192"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 15688182.1,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -161435,6 +161878,7 @@
   "fec_candidate_ids": [
    "H4MN03118"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3471159.47,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -161627,6 +162071,7 @@
   "fec_candidate_ids": [
    "H2FL22171"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6889382.25,
   "aipac_pac_direct_career": 35000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -161900,6 +162345,7 @@
   "fec_candidate_ids": [
    "H6MI11191"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1532988.61,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -162072,6 +162518,7 @@
    "H4MA06090",
    "S6MA00296"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16949868.48,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -162501,6 +162948,7 @@
   "fec_candidate_ids": [
    "H2GU01031"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 564787.62,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -162699,6 +163147,7 @@
   "fec_candidate_ids": [
    "H0IN01150"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5338765.21,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -163021,6 +163470,7 @@
   "fec_candidate_ids": [
    "H2CA14162"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1637257.86,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -163269,6 +163719,7 @@
   "fec_candidate_ids": [
    "H6NJ02251"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 799598.05,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -163456,6 +163907,7 @@
   "fec_candidate_ids": [
    "S4AK00099"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 16722371.55,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -164065,6 +164517,7 @@
    "H6CT05124",
    "S2CT00132"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 54767283.95,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -164681,6 +165134,7 @@
   "fec_candidate_ids": [
    "H0NC03172"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4318108.84,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -164979,6 +165433,7 @@
   "fec_candidate_ids": [
    "S2WA00189"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 57416178.0,
   "aipac_pac_direct_career": 4200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -165799,6 +166254,7 @@
   "fec_candidate_ids": [
    "H2NY17071"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11815365.82,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -166594,6 +167050,7 @@
   "fec_candidate_ids": [
    "H8MA02041"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8910797.22,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -167452,6 +167909,7 @@
   "fec_candidate_ids": [
    "H8CO02160"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6715175.86,
   "aipac_pac_direct_career": 24200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -167744,6 +168202,7 @@
   "fec_candidate_ids": [
    "H6TX22283"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 136107.89,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -167907,6 +168366,7 @@
   "fec_candidate_ids": [
    "H0TX22302"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2590084.47,
   "aipac_pac_direct_career": 7100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -168189,6 +168649,7 @@
   "fec_candidate_ids": [
    "H4WA04104"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4368065.54,
   "aipac_pac_direct_career": 17000.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -168608,6 +169069,7 @@
   "fec_candidate_ids": [
    "H4NJ01084"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7702560.14,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -168990,6 +169452,7 @@
    "H8SC05158",
    "S6SC04445"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3937403.6,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -169362,6 +169825,7 @@
   "fec_candidate_ids": [
    "H0DC00058"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2349518.22,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -170165,6 +170629,7 @@
   "fec_candidate_ids": [
    "H2IA03119"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6042635.37,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -170447,6 +170912,7 @@
   "fec_candidate_ids": [
    "H0CA08135"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2218846.16,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -170721,6 +171187,7 @@
   "fec_candidate_ids": [
    "H8NY15148"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 87012374.3,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -171074,6 +171541,7 @@
   "fec_candidate_ids": [
    "H2TN05446"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1993287.38,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -171353,6 +171821,7 @@
   "fec_candidate_ids": [
    "H6NC09218"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2895423.47,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -171508,6 +171977,7 @@
   "fec_candidate_ids": [
    "H4MD02232"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2068915.58,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -171710,6 +172180,7 @@
   "fec_candidate_ids": [
    "H8MN05239"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 24925101.43,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -172062,6 +172533,7 @@
    "H8MO09146",
    "H4MO03221"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1488007.28,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -172398,6 +172870,7 @@
    "H8GA06195",
    "S8GA00180"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 295701989.71,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -172790,6 +173263,7 @@
   "fec_candidate_ids": [
    "H0UT04076"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8959866.75,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -173056,6 +173530,7 @@
   "fec_candidate_ids": [
    "S2CA00955"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 10869922.96,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -173322,6 +173797,7 @@
   "fec_candidate_ids": [
    "H6TX23273"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1017398.32,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -173510,6 +173986,7 @@
    "H8NJ03073",
    "S6NJ00263"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15379294.4,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -174506,6 +174983,7 @@
   "fec_candidate_ids": [
    "H4AL06098"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5639989.4,
   "aipac_pac_direct_career": 17100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -174883,6 +175361,7 @@
   "fec_candidate_ids": [
    "H6CA03158"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1763631.37,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -175070,6 +175549,7 @@
   "fec_candidate_ids": [
    "H6CA20152"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6813179.62,
   "aipac_pac_direct_career": 23402.0,
   "aipac_earmark_transmitted_career": 502.0,
@@ -175457,6 +175937,7 @@
    "H8NH01210",
    "S6NH00141"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 31349154.79,
   "aipac_pac_direct_career": 24200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -175848,6 +176329,7 @@
   "fec_candidate_ids": [
    "H6FL01390"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3615971.16,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -176067,6 +176549,7 @@
   "fec_candidate_ids": [
    "S0KY00156"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 51504838.61,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -176566,6 +177049,7 @@
   "fec_candidate_ids": [
    "H8CA05035"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 73415016.76,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -177434,6 +177918,7 @@
   "fec_candidate_ids": [
    "H2PA04135"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15628259.71,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -177902,6 +178387,7 @@
    "H8MI09068",
    "S4MI00355"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 64830493.96,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -178569,6 +179055,7 @@
   "fec_candidate_ids": [
    "H2CA52089"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9066411.33,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -179004,6 +179491,7 @@
   "fec_candidate_ids": [
    "H8CO07045"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4531643.63,
   "aipac_pac_direct_career": 17900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -179334,6 +179822,7 @@
   "fec_candidate_ids": [
    "H0TX11230"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5018931.06,
   "aipac_pac_direct_career": 22100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -179619,6 +180108,7 @@
    "H8ME01120",
    "S0ME00038"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9595228.05,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -180219,6 +180709,7 @@
   "fec_candidate_ids": [
    "H2VI00082"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2278264.58,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -180604,6 +181095,7 @@
   "fec_candidate_ids": [
    "H2WI02124"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4230078.67,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -181010,6 +181502,7 @@
   "fec_candidate_ids": [
    "H6OH07168"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3301196.18,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -181199,6 +181692,7 @@
   "fec_candidate_ids": [
    "H4NJ09194"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2022103.84,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -181401,6 +181895,7 @@
   "fec_candidate_ids": [
    "H6NE02174"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4090635.77,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -181590,6 +182085,7 @@
   "fec_candidate_ids": [
    "H8MA07032"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6672547.79,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -181917,6 +182413,7 @@
   "fec_candidate_ids": [
    "H6TX15246"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4891187.48,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -182107,6 +182604,7 @@
   "fec_candidate_ids": [
    "H0IL05096"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4288272.56,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -182570,6 +183068,7 @@
   "fec_candidate_ids": [
    "H6PA03203"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1305435.83,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -182757,6 +183256,7 @@
   "fec_candidate_ids": [
    "H4AS00036"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 585617.87,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -183443,6 +183943,7 @@
   "fec_candidate_ids": [
    "H2IL03162"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2434362.4,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -183706,6 +184207,7 @@
   "fec_candidate_ids": [
    "H4WA06117"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2577567.14,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -183932,6 +184434,7 @@
   "fec_candidate_ids": [
    "H6MD08457"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 21181370.15,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -184287,6 +184790,7 @@
    "S6RI00163",
    "H0RI02071"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 13965239.84,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -185099,6 +185603,7 @@
   "fec_candidate_ids": [
    "H8PA18199"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8878492.86,
   "aipac_pac_direct_career": 22100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -185410,6 +185915,7 @@
   "fec_candidate_ids": [
    "S6NE00129"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 5752972.86,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -185718,6 +186224,7 @@
   "fec_candidate_ids": [
    "H8NY22177"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16170730.55,
   "aipac_pac_direct_career": 40181.0,
   "aipac_earmark_transmitted_career": 40181.0,
@@ -186001,6 +186508,7 @@
   "fec_candidate_ids": [
    "S8ID00092"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 8397113.05,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -186497,6 +187005,7 @@
   "fec_candidate_ids": [
    "H4CA29141"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1137741.62,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -186671,6 +187180,7 @@
   "fec_candidate_ids": [
    "H6FL02331"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 800464.69,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -186858,6 +187368,7 @@
   "fec_candidate_ids": [
    "H0KY05015"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6996697.53,
   "aipac_pac_direct_career": 22100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -187848,6 +188359,7 @@
   "fec_candidate_ids": [
    "H2AL03032"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10834428.51,
   "aipac_pac_direct_career": 12100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -188429,6 +188941,7 @@
   "fec_candidate_ids": [
    "H8TN06094"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3849633.95,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -188715,6 +189228,7 @@
    "H6NV03139",
    "S8NV00156"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 64877000.09,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -189227,6 +189741,7 @@
   "fec_candidate_ids": [
    "H0NC02125"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5574039.14,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -189497,6 +190012,7 @@
   "fec_candidate_ids": [
    "S4SD00049"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 8156818.7,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -189948,6 +190464,7 @@
   "fec_candidate_ids": [
    "H2NC07096"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6088561.76,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -190378,6 +190895,7 @@
   "fec_candidate_ids": [
    "H8TX21307"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10552356.94,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -190715,6 +191233,7 @@
   "fec_candidate_ids": [
    "H2CA36439"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13031602.33,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -191114,6 +191633,7 @@
   "fec_candidate_ids": [
    "H4OH06165"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 867695.73,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -191324,6 +191844,7 @@
   "fec_candidate_ids": [
    "H6FL04105"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2351965.59,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -191696,6 +192217,7 @@
   "fec_candidate_ids": [
    "H6CO08013"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8269828.34,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -191885,6 +192407,7 @@
   "fec_candidate_ids": [
    "H8NY19223"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 15449132.56,
   "aipac_pac_direct_career": -10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -192223,6 +192746,7 @@
   "fec_candidate_ids": [
    "H8FL27185"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10274482.98,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -192572,6 +193096,7 @@
   "fec_candidate_ids": [
    "H2OR06066"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7580840.14,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -192850,6 +193375,7 @@
    "H8VT01016",
    "S4VT00033"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 87052275.73,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -193716,6 +194242,7 @@
   "fec_candidate_ids": [
    "H6VI01065"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 72507.62,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -193839,6 +194366,7 @@
   "fec_candidate_ids": [
    "H0LA01087"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 49824040.91,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -194408,6 +194936,7 @@
   "fec_candidate_ids": [
    "H8PA07200"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4815167.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -194742,6 +195271,7 @@
   "fec_candidate_ids": [
    "H8IL09067"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14157218.39,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -195409,6 +195939,7 @@
    "S4HI00136",
    "H6HI02244"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 11273728.31,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -195881,6 +196412,7 @@
    "H0CA27085",
    "S4CA00555"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 108856103.98,
   "aipac_pac_direct_career": 12900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -196613,6 +197145,7 @@
   "fec_candidate_ids": [
    "H4KS02164"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1880334.36,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -196845,6 +197378,7 @@
   "fec_candidate_ids": [
    "S2MO00544"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 9519498.74,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -197125,6 +197659,7 @@
   "fec_candidate_ids": [
    "H2IL10068"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 22461010.88,
   "aipac_pac_direct_career": 24200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -197581,6 +198116,7 @@
   "fec_candidate_ids": [
    "H0MI03316"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11691903.52,
   "aipac_pac_direct_career": 35564.0,
   "aipac_earmark_transmitted_career": 20564.0,
@@ -197902,6 +198438,7 @@
   "fec_candidate_ids": [
    "H8WA08189"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 26825224.97,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -198262,6 +198799,7 @@
    "S8NY00082",
    "H0NY16010"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 109755537.29,
   "aipac_pac_direct_career": 2100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -199351,6 +199889,7 @@
   "fec_candidate_ids": [
    "H6FL19137"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1217866.52,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -199525,6 +200064,7 @@
    "H4AZ06045",
    "H8AZ05097"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9240422.41,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -200100,6 +200640,7 @@
   "fec_candidate_ids": [
    "H0GA08099"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3739297.62,
   "aipac_pac_direct_career": 26900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -200559,6 +201100,7 @@
   "fec_candidate_ids": [
    "S8FL00273"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 27609934.69,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -200904,6 +201446,7 @@
   "fec_candidate_ids": [
    "H6VA01117"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3527696.8,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -201764,6 +202307,7 @@
    "H0SC01279",
    "S4SC00240"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 78160103.7,
   "aipac_pac_direct_career": 7900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -202431,6 +202975,7 @@
    "H2TX03290",
    "H2TX00064"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 716724.37,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -202678,6 +203223,7 @@
   "fec_candidate_ids": [
    "H6TX19206"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1699990.38,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -202865,6 +203411,7 @@
   "fec_candidate_ids": [
    "H2TX03126"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16579947.25,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -203649,6 +204196,7 @@
   "fec_candidate_ids": [
    "H0AL07086"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5507569.54,
   "aipac_pac_direct_career": 25450.0,
   "aipac_earmark_transmitted_career": 7550.0,
@@ -204126,6 +204674,7 @@
   "fec_candidate_ids": [
    "H4AZ01194"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9449695.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -204364,6 +204913,7 @@
   "fec_candidate_ids": [
    "S0NH00219"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 42345867.35,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -204926,6 +205476,7 @@
   "fec_candidate_ids": [
    "H6NH01321"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2933741.9,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -205113,6 +205664,7 @@
   "fec_candidate_ids": [
    "S4MT00183"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 22980101.18,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -205347,6 +205899,7 @@
   "fec_candidate_ids": [
    "H6CA24113"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13453382.29,
   "aipac_pac_direct_career": 28400.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -206065,6 +206618,7 @@
   "fec_candidate_ids": [
    "H4IN06185"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 274558.8,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -206259,6 +206813,7 @@
   "fec_candidate_ids": [
    "H4CA12154"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3218418.51,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -206471,6 +207026,7 @@
   "fec_candidate_ids": [
    "H8ID02064"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5518542.55,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -207179,6 +207735,7 @@
    "H8MI08102",
    "S4MI00470"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 73755444.58,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -207586,6 +208143,7 @@
   "fec_candidate_ids": [
    "H6WA09025"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8216824.05,
   "aipac_pac_direct_career": 17100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -208302,6 +208860,7 @@
   "fec_candidate_ids": [
    "H6NE03115"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4509032.11,
   "aipac_pac_direct_career": 25001.0,
   "aipac_earmark_transmitted_career": 1.0,
@@ -208851,6 +209410,7 @@
   "fec_candidate_ids": [
    "H8NJ04014"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8838398.73,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -209907,6 +210467,7 @@
   "fec_candidate_ids": [
    "H4MO08162"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8217508.71,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -210286,6 +210847,7 @@
   "fec_candidate_ids": [
    "H6NC03229"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 319614.84,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -210465,6 +211027,7 @@
   "fec_candidate_ids": [
    "S8MN00578"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 23176887.38,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -210771,6 +211334,7 @@
   "fec_candidate_ids": [
    "H6PA16320"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2502748.21,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -211093,6 +211657,7 @@
   "fec_candidate_ids": [
    "H0CA31087"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1831072.36,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -211553,6 +212118,7 @@
   "fec_candidate_ids": [
    "H2IL17147"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7408500.73,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -211838,6 +212404,7 @@
   "fec_candidate_ids": [
    "H6FL09179"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4455094.59,
   "aipac_pac_direct_career": 29200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -212233,6 +212800,7 @@
   "fec_candidate_ids": [
    "H0IN05326"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6892290.87,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -212549,6 +213117,7 @@
   "fec_candidate_ids": [
    "H2NM01144"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5278556.99,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -212858,6 +213427,7 @@
   "fec_candidate_ids": [
    "H8AZ09040"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10193750.01,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -213211,6 +213781,7 @@
   "fec_candidate_ids": [
    "H8MN08043"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6319574.67,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -213526,6 +214097,7 @@
   "fec_candidate_ids": [
    "H4NY21079"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 30071951.49,
   "aipac_pac_direct_career": 14200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -213941,6 +214513,7 @@
   "fec_candidate_ids": [
    "H8WI01156"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9833523.99,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -214294,6 +214867,7 @@
   "fec_candidate_ids": [
    "H6TX08209"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 889795.84,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -214481,6 +215055,7 @@
   "fec_candidate_ids": [
    "H4PA10104"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 12731010.35,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -214718,6 +215293,7 @@
   "fec_candidate_ids": [
    "H8FL17053"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3043179.63,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -215006,6 +215582,7 @@
    "H8MI11254",
    "S6MI00426"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 23864769.35,
   "aipac_pac_direct_career": 22100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -215416,6 +215993,7 @@
   "fec_candidate_ids": [
    "H6MO06310"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 752003.26,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -215595,6 +216173,7 @@
   "fec_candidate_ids": [
    "H6FL11332"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 413825.39,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -215766,6 +216345,7 @@
   "fec_candidate_ids": [
    "S6IL00458"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 5373026.85,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -215953,6 +216533,7 @@
   "fec_candidate_ids": [
    "H0WA10034"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4690030.95,
   "aipac_pac_direct_career": 24200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -216261,6 +216842,7 @@
   "fec_candidate_ids": [
    "H2AL05102"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2916609.19,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -216507,6 +217089,7 @@
    "H0IN03198",
    "S0IN00095"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4484800.1,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -217012,6 +217595,7 @@
   "fec_candidate_ids": [
    "H4VA10279"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3532879.64,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -217230,6 +217814,7 @@
   "fec_candidate_ids": [
    "S4AK00214"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 20322901.85,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -217641,6 +218226,7 @@
   "fec_candidate_ids": [
    "H6NY03247"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 19313278.43,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -218027,6 +218613,7 @@
   "fec_candidate_ids": [
    "H2OH13264"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7782228.98,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -218312,6 +218899,7 @@
   "fec_candidate_ids": [
    "H2CA39078"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4830291.2,
   "aipac_pac_direct_career": 16900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -218915,6 +219503,7 @@
   "fec_candidate_ids": [
    "H2CA43245"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6631997.45,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -219508,6 +220097,7 @@
   "fec_candidate_ids": [
    "S6TX00479"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 139776602.82,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -219698,6 +220288,7 @@
   "fec_candidate_ids": [
    "H6TN09464"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 967896.01,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -219885,6 +220476,7 @@
   "fec_candidate_ids": [
    "H4OH02248"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1567699.1,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -220109,6 +220701,7 @@
   "fec_candidate_ids": [
    "H6VA01299"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3606484.39,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -220298,6 +220891,7 @@
   "fec_candidate_ids": [
    "H6OK01235"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 594882.82,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -220461,6 +221055,7 @@
   "fec_candidate_ids": [
    "H6TX21301"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 836171.96,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -220642,6 +221237,7 @@
   "fec_candidate_ids": [
    "H4NY22051"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8526247.62,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -221009,6 +221605,7 @@
   "fec_candidate_ids": [
    "H2MI13204"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2024807.34,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -221286,6 +221883,7 @@
   "fec_candidate_ids": [
    "H4MS02068"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6158722.37,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -222019,6 +222617,7 @@
   "fec_candidate_ids": [
    "H8PA05071"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8235089.93,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -222533,6 +223132,7 @@
   "fec_candidate_ids": [
    "H8CA01109"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 14125556.38,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -223249,6 +223849,7 @@
    "S2SD00068",
    "H6SD00085"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 42553806.09,
   "aipac_pac_direct_career": 2100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -224062,6 +224663,7 @@
   "fec_candidate_ids": [
    "H0WI07101"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4305617.83,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -224328,6 +224930,7 @@
   "fec_candidate_ids": [
    "S4NC00162"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 31464728.77,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -224729,6 +225332,7 @@
   "fec_candidate_ids": [
    "H8SC04250"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1700067.31,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -225072,6 +225676,7 @@
   "fec_candidate_ids": [
    "H8NV03036"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9197896.09,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -225621,6 +226226,7 @@
   "fec_candidate_ids": [
    "H8MI13250"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 19135849.77,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -225974,6 +226580,7 @@
   "fec_candidate_ids": [
    "H2HI02581"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2143940.83,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -226227,6 +226834,7 @@
   "fec_candidate_ids": [
    "H8NY21203"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4889976.17,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -226703,6 +227311,7 @@
   "fec_candidate_ids": [
    "H4CA35031"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1422158.91,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -227062,6 +227671,7 @@
   "fec_candidate_ids": [
    "H0NY15160"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 13794900.65,
   "aipac_pac_direct_career": 30500.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -227378,6 +227988,7 @@
   "fec_candidate_ids": [
    "H6TX08175"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 976611.41,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -227602,6 +228213,7 @@
   "fec_candidate_ids": [
    "H8MA03106"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6342770.6,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -227889,6 +228501,7 @@
   "fec_candidate_ids": [
    "H4CA45170"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8971525.11,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -228129,6 +228742,7 @@
   "fec_candidate_ids": [
    "S0AL00230"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 10708966.8,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -228419,6 +229033,7 @@
   "fec_candidate_ids": [
    "S6IA00298"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 21987599.53,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -228611,6 +229226,7 @@
    "H2OH03067",
    "H2OH03091"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 8377388.79,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -229250,6 +229866,7 @@
   "fec_candidate_ids": [
    "H8IL14174"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 21394228.27,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -229610,6 +230227,7 @@
   "fec_candidate_ids": [
    "H2CA20094"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 12656580.49,
   "aipac_pac_direct_career": 23400.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -230076,6 +230694,7 @@
   "fec_candidate_ids": [
    "H6NY07214"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1708398.16,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -230263,6 +230882,7 @@
   "fec_candidate_ids": [
    "H8NJ02166"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11087321.17,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -230604,6 +231224,7 @@
   "fec_candidate_ids": [
    "H0TX24209"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5464962.12,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -230914,6 +231535,7 @@
   "fec_candidate_ids": [
    "H6TN07161"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1855955.77,
   "aipac_pac_direct_career": 18500.0,
   "aipac_earmark_transmitted_career": 3500.0,
@@ -231104,6 +231726,7 @@
    "H2MD08126",
    "S6MD03441"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 24411167.92,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -231833,6 +232456,7 @@
   "fec_candidate_ids": [
    "H0WI03175"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 17741056.58,
   "aipac_pac_direct_career": 20000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -232151,6 +232775,7 @@
   "fec_candidate_ids": [
    "H2CA50026"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2942278.84,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -232760,6 +233385,7 @@
   "fec_candidate_ids": [
    "H2NM02191"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 12104282.22,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -233044,6 +233670,7 @@
   "fec_candidate_ids": [
    "H2TX33073"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4662424.04,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -233462,6 +234089,7 @@
   "fec_candidate_ids": [
    "H2NY00010"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4672090.19,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -234233,6 +234861,7 @@
   "fec_candidate_ids": [
    "H6CA22190"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5082726.0,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -234422,6 +235051,7 @@
   "fec_candidate_ids": [
    "H4VA07234"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 32396394.75,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -234660,6 +235290,7 @@
   "fec_candidate_ids": [
    "H2MO02102"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 16771122.3,
   "aipac_pac_direct_career": 24200.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -235118,6 +235749,7 @@
   "fec_candidate_ids": [
    "H0CA15213"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 998684.49,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -235329,6 +235961,7 @@
   "fec_candidate_ids": [
    "H4MI07103"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11540937.97,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -235880,6 +236513,7 @@
   "fec_candidate_ids": [
    "H6VA11066"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2089822.37,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -236046,6 +236680,7 @@
    "S6VA00093",
    "P80003023"
   ],
+  "senate_class": 2,
   "individual_contribution_total_career": 49858221.3,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -236769,6 +237404,7 @@
   "fec_candidate_ids": [
    "S0GA00559"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 316226119.1,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -237084,6 +237720,7 @@
   "fec_candidate_ids": [
    "S2MA00170"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 96511816.17,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -237516,6 +238153,7 @@
   "fec_candidate_ids": [
    "H4FL20023"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 20197028.82,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -238132,6 +238770,7 @@
   "fec_candidate_ids": [
    "H4CA23011"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5592118.52,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -239042,6 +239681,7 @@
   "fec_candidate_ids": [
    "H4NJ12149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3169255.44,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -239372,6 +240012,7 @@
   "fec_candidate_ids": [
    "H2TX14149"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 4225006.14,
   "aipac_pac_direct_career": 25500.0,
   "aipac_earmark_transmitted_career": 500.0,
@@ -239787,6 +240428,7 @@
    "H0FL08208",
    "S4FL00256"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6445964.08,
   "aipac_pac_direct_career": 25000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -240416,6 +241058,7 @@
    "H8VT00034",
    "S2VT00235"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 6665474.76,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -241106,6 +241749,7 @@
   "fec_candidate_ids": [
    "H6MO02343"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 2040179.5,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -241285,6 +241929,7 @@
   "fec_candidate_ids": [
    "H4AR04048"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5602790.19,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -241672,6 +242317,7 @@
   "fec_candidate_ids": [
    "H6DC01079"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 854273.88,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -241835,6 +242481,7 @@
   "fec_candidate_ids": [
    "S6RI00221"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 18117245.96,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -242366,6 +243013,7 @@
   "fec_candidate_ids": [
    "H4CA27111"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 10715902.4,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -242605,6 +243253,7 @@
    "H4MS01078",
    "S8MS00196"
   ],
+  "senate_class": 1,
   "individual_contribution_total_career": 16883768.42,
   "aipac_pac_direct_career": 5000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -243523,6 +244172,7 @@
   "fec_candidate_ids": [
    "H4WI08119"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 938368.5,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -243739,6 +244389,7 @@
   "fec_candidate_ids": [
    "H8CA11116"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5561983.88,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -243926,6 +244577,7 @@
   "fec_candidate_ids": [
    "H0GA05301"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1360765.36,
   "aipac_pac_direct_career": 27900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -244245,6 +244897,7 @@
    "H2TX33040",
    "S2TX00270"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 7919968.58,
   "aipac_pac_direct_career": 27100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -244808,6 +245461,7 @@
   "fec_candidate_ids": [
    "H6CA48310"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 3879384.59,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -244997,6 +245651,7 @@
   "fec_candidate_ids": [
    "H0FL17068"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 1119683.12,
   "aipac_pac_direct_career": 15000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -245448,6 +246103,7 @@
   "fec_candidate_ids": [
    "H2SC02059"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 11352447.4,
   "aipac_pac_direct_career": 22900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -246033,6 +246689,7 @@
   "fec_candidate_ids": [
    "H8VA01147"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 9099482.22,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -246555,6 +247212,7 @@
   "fec_candidate_ids": [
    "H6NC14069"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 53778.51,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -246692,6 +247350,7 @@
   "fec_candidate_ids": [
    "H0AR03055"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 5803272.39,
   "aipac_pac_direct_career": 32900.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -247154,6 +247813,7 @@
    "S6OR00110",
    "H0OR03026"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 32141787.67,
   "aipac_pac_direct_career": 2100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -248233,6 +248893,7 @@
   "fec_candidate_ids": [
    "H2IN02295"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 6608670.5,
   "aipac_pac_direct_career": 30000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -248480,6 +249141,7 @@
   "fec_candidate_ids": [
    "H6TX32225"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 620071.55,
   "aipac_pac_direct_career": 10000.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -248668,6 +249330,7 @@
    "H0IN09070",
    "S6IN00191"
   ],
+  "senate_class": 3,
   "individual_contribution_total_career": 21376451.31,
   "aipac_pac_direct_career": 2100.0,
   "aipac_earmark_transmitted_career": 0.0,
@@ -249302,6 +249965,7 @@
   "fec_candidate_ids": [
    "H4MT01041"
   ],
+  "senate_class": null,
   "individual_contribution_total_career": 22165717.04,
   "aipac_pac_direct_career": 0.0,
   "aipac_earmark_transmitted_career": 0.0,
