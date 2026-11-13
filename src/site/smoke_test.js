@@ -1172,6 +1172,7 @@ assert.ok(
   "story renders the computed Balanced not-dirty count: " + storyHtml);
 assert.ok(storyText.includes("Balanced tolerance"), "story labels the tolerance");
 assert.ok(storyHtml.includes("story-clean-link"), "story links to the clean list");
+assert.ok(storyHtml.includes("big-number"), "D3: clean story count uses the big-number treatment");
 const findStateHtml = document.getElementById("find-state").innerHTML;
 assert.ok(findStateHtml.includes("Michigan"), "finder state list has Michigan");
 assert.ok(findStateHtml.includes("American Samoa"), "finder state list has American Samoa");

@@ -596,6 +596,25 @@ def main():
           and ".hook{font-size:1.9rem}" in html
           and "h1{font-size:1.7rem" not in html)
 
+    # ---- Wave 2 (redesign): D3 orientation ----
+    # Chapter headings at 1.3rem with eyebrow kickers (one per
+    # chapter with an h2), the clean count in the same .big-number
+    # treatment as the dirty total, and a slim footer that lives
+    # inside #front-door (the page footer stays hidden there).
+    check("D3: chapter h2s are 1.3rem with eyebrow kickers",
+          ".frontdoor h2{font-size:1.3rem" in html
+          and html.count('class="kicker"') == 5
+          and ".frontdoor .kicker{" in html)
+    check("D3: slim front-door footer lives inside #front-door",
+          'class="frontfoot"' in html
+          and html.index('id="front-door"')
+          < html.index('class="frontfoot"')
+          < html.index('<footer>'))
+    _cs = html.index('function renderCleanStory')
+    _ce = html.index('function renderDirtyExplainer', _cs)
+    check("D3: clean story count uses the same big-number treatment",
+          'big-number' in html[_cs:_ce])
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

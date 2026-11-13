@@ -261,7 +261,9 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
 .story{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;font-size:1.05rem;margin:0 0 10px}
 .frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
-.frontdoor h2{font-size:1.05rem;letter-spacing:.02em;margin:32px 0 6px}
+.frontdoor h2{font-size:1.3rem;letter-spacing:.02em;margin:32px 0 6px}
+.frontdoor .kicker{display:block;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.frontfoot{border-top:1px solid var(--line);padding-top:12px;margin-top:8px;color:var(--muted);font-size:.85rem}
 .frontdoor h2:first-child{margin-top:12px}
 /* Scrollytelling chapters: one chapter per beat of the story, revealed
    as the reader scrolls (see initReveals). Chapters are visible by
@@ -403,23 +405,28 @@ TEMPLATE_BODY = """
 <p class="fine" id="hook-definition"></p>
 </section>
 <section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest in 2026">
+<span class="kicker">The dirtiest five</span>
 <h2>Dirtiest in 2026</h2>
 <ol class="dirtiest" id="dirtiest-list"></ol>
 <p class="fine">Dirty money in 2026 is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. 2026 is partial; see the methodology for the coverage cutoffs.</p>
 </section>
 <section class="chapter" data-chapter="dirty-definition" aria-label="What counts as dirty">
+<span class="kicker">The definition</span>
 <h2>What counts as dirty</h2>
 <div id="dirty-explainer"></div>
 </section>
 <section class="chapter" data-chapter="clean" aria-label="Clean money">
+<span class="kicker">The clean ones</span>
 <h2>Clean money</h2>
 <div class="story" id="landing-story"></div>
 </section>
 <section class="chapter" data-chapter="chamber" aria-label="Composition of Congress">
+<span class="kicker">The whole chamber</span>
 <h2>Who sits in the 120th</h2>
 <div id="composition"></div>
 </section>
 <section class="chapter" data-chapter="finder" aria-label="Find your member">
+<span class="kicker">Your seat</span>
 <h2>Find your member</h2>
 <div class="finder" id="finder">
 <label for="find-state">Your state</label>
@@ -433,6 +440,7 @@ TEMPLATE_BODY = """
 <p>Looking ahead to 2028: the dirtiest Democrats to watch for 2028 primaries. <button class="btn" id="targets28-btn" type="button">2028 primary targets</button></p>
 <p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
 </section>
+<p class="frontfoot">Source: FEC bulk filings · Dataset md5: <code>%%DATASET_MD5%%</code> · Full methodology in Explore.</p>
 </div>
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
 <footer>
@@ -888,10 +896,11 @@ function renderCleanStory(){
   const sND = nd.filter(p=>p.chamber_120==='Senate').length;
   const preset = PRESETS[state.preset];
   document.getElementById('landing-story').innerHTML =
-    '<b><span class="countup" data-value="'+nd.length+'" data-format="int">'+nd.length+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></b> took no dirty money in 2026 — '
-    + hND+' House + '+sND+' Senate. '
+    '<p class="big-number"><span class="countup" data-value="'+nd.length+'" data-format="int">'+nd.length+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></p>'
+    + '<p class="big-label">took no dirty money in 2026</p>'
+    + '<p>'+hND+' House + '+sND+' Senate. '
     + preset.label+' tolerance: '+preset.short+'. Any AIPAC direct or UDP benefit dollar always counts. '
-    + '<button type="button" class="linklike" id="story-clean-link">See the list</button>';
+    + '<button type="button" class="linklike" id="story-clean-link">See the list</button></p>';
   document.getElementById('story-clean-link').addEventListener('click', ()=>showTab('clean'));
 }
 /* ---- front door: what counts as dirty, computed from the data ----
