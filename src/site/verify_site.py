@@ -615,6 +615,22 @@ def main():
     check("D3: clean story count uses the same big-number treatment",
           'big-number' in html[_cs:_ce])
 
+    # ---- Wave 2 (redesign): D4/D5 colour semantics ----
+    # Green means clean and only clean: the only remaining green
+    # uses are the Clean badge and the two clean boxes (story,
+    # callout). Actions, the selected tab, the pressed view button
+    # and the Dirty badge are ink; the selected tab also gets a
+    # non-colour cue (bold + underline). The "Not clean" label was
+    # already renamed to "Dirty" (eddcb1c) — verified absent here,
+    # not duplicated.
+    check("D4/D5: green is clean-only; actions, selected tab, Dirty badge are ink",
+          'button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline' in html
+          and '.badge.dirty{background:var(--ink);color:#fff}' in html
+          and 'border:1px solid var(--ink);background:var(--ink)' in html
+          and html.count('var(--accent)') == 3
+          and html.count('var(--accent-soft)') == 3
+          and 'Not clean' not in html)
+
     # ---- JS syntax ----
     app_scripts = re.findall(
         r'<script>(.*?)</script>', html, re.DOTALL)

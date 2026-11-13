@@ -169,7 +169,7 @@ TEMPLATE_HEAD = """<!DOCTYPE html>
 <title>The Receipts — Who funds Congress</title>
 <meta name="description" content="Every person in Congress and the money behind them, from FEC filings. Career totals, 2026 clean/dirty flags, self-funding, outside spending.">
 <style>
-:root{--ink:#1a1a1a;--muted:#5b5b5b;--line:#d8d8d8;--bg:#fff;--soft:#f4f4f2;--accent:#14532d;--accent-soft:#e8f3ec;--warn:#7c2d12;--chip:#eef2f7}
+:root{--ink:#1a1a1a;--muted:#5b5b5b;--line:#d8d8d8;--bg:#fff;--soft:#f4f4f2;--accent:#14532d;--accent-soft:#e8f3ec;--chip:#eef2f7}
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
 header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
@@ -177,7 +177,7 @@ h1{font-size:1.15rem;margin:0 0 4px;letter-spacing:-.01em}
 h1 a{color:inherit;text-decoration:none}
 h1 a:hover{text-decoration:underline}
 .sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
-.stamp{font-size:.9rem;background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
+.stamp{font-size:.9rem;background:var(--soft);border-left:4px solid var(--ink);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
 .stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 .stat{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
 .stat b{display:block;font-size:1.15rem}
@@ -185,7 +185,7 @@ h1 a:hover{text-decoration:underline}
 .cutoffs b{color:var(--ink)}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;max-width:1120px;margin:0 auto;padding:0 16px}
 .tabs button{border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 main{max-width:1120px;margin:0 auto;padding:16px}
 section[hidden]{display:none}
 #front-door[hidden],#explore-head[hidden],#tabs-nav[hidden],main[hidden],footer[hidden]{display:none}
@@ -193,15 +193,15 @@ section[hidden]{display:none}
 .controls input[type="search"],.controls select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px}
 .controls input[type="search"]{flex:1 1 200px}
 .controls label{font-size:.9rem;display:flex;align-items:center;gap:5px}
-.btn{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;min-height:40px}
-.btn.ghost{background:#fff;color:var(--accent)}
+.btn{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;min-height:40px}
+.btn.ghost{background:#fff;color:var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .chips:empty{display:none}
 .chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 11px;font-size:.85rem;cursor:pointer}
 .chip.reset{background:#fff;border-color:var(--ink);font-weight:600}
 .viewbtns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .viewbtns button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:.88rem;cursor:pointer}
-.viewbtns button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:600}
+.viewbtns button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
 .totals{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
 .totals .t{background:var(--chip);border-radius:8px;padding:7px 11px;font-size:.88rem}
 .totals .t b{display:block;font-size:1rem}
@@ -218,7 +218,7 @@ td.name{font-weight:600;white-space:normal;min-width:150px}
 .name-btn:hover{text-decoration:underline}
 .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.8rem;font-weight:600}
 .badge.clean{background:var(--accent-soft);color:var(--accent)}
-.badge.dirty{background:#fdeede;color:var(--warn)}
+.badge.dirty{background:var(--ink);color:#fff}
 .badge.unver{background:#f3f3f3;color:var(--muted)}
 .badge.unopp{background:#fff3d6;color:#7a5b00}
 .badge.below{background:#fef3c7;color:#92400e}
@@ -305,7 +305,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .fresh{color:var(--muted);font-size:.88rem;margin:28px 0 12px}
 #explore-btn{width:100%}
 .story b{font-size:1.2rem}
-.linklike{background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.linklike{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .finder label{font-weight:600;font-size:.95rem}
 .finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
