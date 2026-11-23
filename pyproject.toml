@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = ["pyyaml>=6.0", "pandas>=2.0", "duckdb>=1.1", "dbt-duckdb>=1.9"]
 
 [project.optional-dependencies]
-test = ["pytest>=8.0", "ruff>=0.15"]
+test = ["pytest>=8.0", "ruff>=0.15", "radon>=6.0", "mypy>=1.10", "types-PyYAML", "pytest-cov>=5.0"]
 
 [tool.setuptools.packages.find]
 include = ["receipts*"]
@@ -20,6 +20,24 @@ include = ["receipts*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["receipts"]
+
+[tool.coverage.report]
+# A floor that only goes up: raise it as tests are added.
+fail_under = 32
+
+[tool.mypy]
+# Typed so far; widen one package at a time.
+files = ["receipts/domain", "receipts/fec"]
+python_version = "3.12"
+check_untyped_defs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["duckdb.*", "pandas.*"]
+ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100

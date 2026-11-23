@@ -313,6 +313,10 @@ The points that matter for interpreting the numbers:
   The pull also emits `data/intermediate/all_ie_top_committees.json` (top 5 committees per person by
   career all-IE total, support/oppose split; grouped by `committee_id`, name from the
   largest single (candidate, cycle) total).
+  The brief's rounded targets above are no longer checked. The all-IE step now pins, in
+  `data/source/baseline.json`, the current cycle's roster-targeted Senate / House and
+  support / oppose split (`all_ie_roster_2026.*`) and the top 5 roster-targeted spenders'
+  committee IDs and totals (`all_ie_top_spenders_2026.*`); any change stops the build.
 - **Rivet collapse validation extended.** The merge's collapse check now covers ALL
   per-cycle files (self-funding, other-committees, all-IE): both Rivet person_keys share
   FEC ID `H4MI08218`, so the values must be identical in each file, and the merge fails

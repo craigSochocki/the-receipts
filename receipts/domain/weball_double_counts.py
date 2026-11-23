@@ -7,6 +7,8 @@ zeroes receipts, transfers and disbursements, behind exact guards.
 Evidence: research/self-funding-notes.md.
 """
 
+from collections import defaultdict
+
 from receipts.domain.money import ZERO, Money
 
 FINANCIAL_FIELDS = [
@@ -106,9 +108,9 @@ def _check_extension(record, kept, dropped):
 
 def correction_notes(records):
     """The data note each corrected person carries: {person_key: note}."""
-    by_person = {}
+    by_person = defaultdict(list)
     for record in records:
-        by_person.setdefault(record['person_key'], []).append(record)
+        by_person[record['person_key']].append(record)
     return {
         person_key: _note(person_records)
         for person_key, person_records in sorted(by_person.items())

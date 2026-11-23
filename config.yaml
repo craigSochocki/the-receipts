@@ -59,8 +59,6 @@ paths:
   roster_facts: data/source/roster_facts.yaml
   primary_targets: data/intermediate/primary-targets.md
   opposition_computed: data/intermediate/opposition-computed.json
-  dataset_csv: congress-money-tracker.csv
-  dataset_json: congress-money-tracker.json
 
 # Date of the pinned FEC snapshot the money came from; carried on every
 # dataset row. The roster is still as crawled Nov 12, 2026.
