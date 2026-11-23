@@ -101,6 +101,7 @@ Internal consistency asserts (fail loudly, exit non-zero):
 """
 import csv, json
 from collections import defaultdict
+from datetime import datetime
 from decimal import Decimal
 
 import pandas as pd
@@ -123,17 +124,38 @@ RIVET_FIX_NOTES = {
                 'identical money totals); collapsed to a single row. Money totals counted once, '
                 'not twice. She served in the 119th (MI-08) and was re-elected to the 120th (MI-08).'),
 }
-# Mark Lamb (marklambazhouse, AZ House): the staged pas2 2026 file
-# effectively ends Sep 30, while weball runs through Oct 14 — his
-# other-committee 2026 money is $96,500 pas2-derived vs $129,150 in
-# weball col 26, a $32,650 residual not reproducible until the mid-Dec
-# re-pull. Recorded, not adjusted.
-LAMB_NOTE = ('2026 PENDING RECONCILIATION: other-committee money in 2026 is $96,500.00 by pas2 '
-             '(leadership $43,000; labor $5,000; trade $6,000; membership $8,000; '
-             'other-unclassified $34,500) but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
-             '$129,150.00 — $32,650.00 residual, not reproducible until the mid-Dec re-pull '
-             '(staged pas2 2026 effectively ends Sep 30, weball runs through Oct 14). '
-             'Do not adjust either figure.')
+# Mark Lamb's 2026 other-committee money by pas2 does not reach his weball
+# col 26 figure (methodology §8.17). Recorded, not adjusted.
+LAMB_LABELS = [('party_committees', 'party'), ('leadership_pacs', 'leadership'),
+               ('labor_pacs', 'labor'), ('trade_pacs', 'trade'),
+               ('membership_pacs', 'membership'), ('cooperative_pacs', 'cooperative'),
+               ('other_unclassified', 'other-unclassified')]
+
+
+def lamb_note(validation, coverage):
+    residual = validation['weball_minus_pas2_cents']
+    if residual == 0:
+        return ''
+
+    def usd(cents):
+        return f'${cents / 100:,.2f}'
+
+    def month_day(iso_date):
+        date = datetime.strptime(str(iso_date), '%Y-%m-%d')
+        return f'{date:%b} {date.day}'
+
+    by_class = '; '.join(f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
+                         for bucket, label in LAMB_LABELS
+                         if validation['pas2_breakdown_cents'][bucket])
+    cycle = validation['cycle']
+    return (f'{cycle} PENDING RECONCILIATION: other-committee money in {cycle} is '
+            f'{usd(validation["pas2_total_cents"])} by pas2 ({by_class}) '
+            f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
+            f'{usd(validation["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
+            f'not reproducible from the staged bulk files (pas2 judged complete through '
+            f'{month_day(coverage["committee_money_pas2"])}, weball through '
+            f'{month_day(coverage["weball"])}). Do not adjust either figure.')
+
 
 ROSTER_FIELDS = ['person_key', 'full_name', 'chamber_119', 'chamber_120', 'state',
                  'district_119', 'district_120', 'party_119', 'party_120',
@@ -183,6 +205,9 @@ with open(ROOT / CFG['paths']['all_ie_csv'], newline='') as f:
 aie_top = json.load(open(ROOT / CFG['paths']['all_ie_top_committees']))
 opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
 dedup_notes = json.load(open(ROOT / CFG['paths']['dedup_notes']))
+LAMB_NOTE = lamb_note(
+    json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))['lamb_validation'],
+    CFG['verification']['coverage_end'])
 roster_json = json.load(open(ROOT / CFG['paths']['roster']))
 
 # All-IE per-cycle entries, grouped per person from the pull's
@@ -488,7 +513,7 @@ for r in rows:
     note = ' | '.join(parts)
     if pk in dedup_notes:
         note = f'{note} {dedup_notes[pk]}' if note else dedup_notes[pk]
-    if pk == 'marklambazhouse':
+    if pk == 'marklambazhouse' and LAMB_NOTE:
         note = f'{note} | {LAMB_NOTE}' if note else LAMB_NOTE
     winred_segments = [s for s in (oc_row['data_notes'] or '').split(' | ')
                        if 'WinRed' in s]

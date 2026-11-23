@@ -102,6 +102,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -305,7 +306,7 @@ for yr in CYCLES:
           f"included ${exclusions[yr]['included']['amount']:,.2f}")
 
 # ---------- 2. HARD CHECK: UDP 2024 reproduces the tracker total ----------
-prior = {int(k): v for k, v in CFG['verification']['udp_prior_cycle_totals'].items()}
+prior = {yr: expected(f'udp_prior_cycle_totals.{yr}', udp_totals[yr]) for yr in CYCLES}
 for yr in CYCLES:
     mark = 'OK' if abs(udp_totals[yr] - prior[yr]) < 0.005 else 'MISMATCH'
     print(f'UDP cycle {yr}: deduped S+O ${udp_totals[yr]:,.2f} vs prior '

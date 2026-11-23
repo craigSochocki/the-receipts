@@ -348,7 +348,7 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 <div id="explore-head">
 <p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
-<details class="cutoffs"><summary>2026 is partial — coverage end dates</summary><p>Committee money (corporate PAC, AIPAC, other committees) through <b>Sep 30, 2026</b>; individual / self-funding / topline through <b>Oct 14, 2026</b>; independent expenditures through <b>Oct 31, 2026</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p></details>
+<details class="cutoffs"><summary>2026 is partial — coverage end dates</summary><p>Committee money (corporate PAC, AIPAC, other committees) through <b>%%COV_PAS2%%</b>; individual / self-funding / topline through <b>%%COV_WEBALL%%</b>; independent expenditures through <b>%%COV_IE%%</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p></details>
 <div class="controls" id="tolerance-controls">
 <label for="f-tolerance">Corporate PAC tolerance:</label>
 <select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
@@ -414,7 +414,7 @@ TEMPLATE_BODY = """
 
 <section id="tab-targets" hidden tabindex="-1">
 <h2 class="sec">2026 primary targets — House Democrats, by dirty money in 2026</h2>
-<p style="color:var(--muted)">192 House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
+<p style="color:var(--muted)">%%TARGETS_2026_HOUSE%% House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
 <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
@@ -2187,9 +2187,9 @@ METHOD_HTML = """
 <p>Dirty money always includes any AIPAC PAC direct dollar and any UDP benefit dollar — that flag (%%FLAG_120%% of the incoming 120th) is not tolerance-based and is always on. Corporate PAC money counts as dirty under a tolerance preset: <b>Strict</b> — any net dirty dollar above $0 is dirty (the verified-clean count is in the paragraph above); <b>Balanced (default)</b> — corporate PAC over $100,000 and over 5% of 2026 receipts (%%BALANCED_NOT_DIRTY%% of 535 not dirty); <b>Lenient</b> — corporate PAC over $250,000 and over 10% of 2026 receipts (%%LENIENT_NOT_DIRTY%% of 535 not dirty). The middle tier — “Below threshold” — took corporate PAC money below the preset’s thresholds; it is never called clean, and the dollar amount is always shown. The full definitions are in methodology.md §14, which wins if this page ever disagrees.</p>
 <h3>Coverage end dates</h3>
 <table><thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead><tbody>
-<tr><td>Individual, self-funding, topline</td><td>weball</td><td>Oct 14, 2026</td></tr>
-<tr><td>Corporate PAC, AIPAC, other committees</td><td>pas2</td><td>Sep 30, 2026</td></tr>
-<tr><td>UDP + all independent expenditures</td><td>IE bulk files</td><td>Oct 31, 2026</td></tr>
+<tr><td>Individual, self-funding, topline</td><td>weball</td><td>%%COV_WEBALL%%</td></tr>
+<tr><td>Corporate PAC, AIPAC, other committees</td><td>pas2</td><td>%%COV_PAS2%%</td></tr>
+<tr><td>UDP + all independent expenditures</td><td>IE bulk files</td><td>%%COV_IE%%</td></tr>
 </tbody></table>
 <p>2026 is partial. Re-pull plan: mid-Dec 2026 (after the Dec 3 post-general deadline) and Feb 2027 (after the Jan 31 year-end deadline). A freshness layer reports late money (Form 6 48-Hour Notices, F24 24/48-hour IE) between pulls; it is never merged into these totals.</p>
 <h3>Known limitations — read before quoting a number</h3>
@@ -2337,9 +2337,18 @@ def main():
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
     html = html.replace("%%OPP_JSON%%", safe_json(opp_payload))
+    targets_2026_house = sum(
+        1 for r in dataset
+        if r["in_120th"] == "yes" and r["chamber_120"] == "House"
+        and r["party_120"] == "Democrat"
+        and isinstance(r["dirty_2026"], (int, float)) and r["dirty_2026"] > 0)
+    html = html.replace("%%TARGETS_2026_HOUSE%%", str(targets_2026_house))
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
     html = html.replace("%%STAMP%%", stamp)
+    html = html.replace("%%COV_PAS2%%", fmt_cov(coverage["committee_money_pas2"]))
+    html = html.replace("%%COV_WEBALL%%", fmt_cov(coverage["weball"]))
+    html = html.replace("%%COV_IE%%", fmt_cov(coverage["independent_expenditures"]))
     html = html.replace("%%FRESH_LINE%%", fresh_line)
     html = html.replace("%%GENERATED_AT%%", generated_at)
     SITE_DIR.mkdir(parents=True, exist_ok=True)

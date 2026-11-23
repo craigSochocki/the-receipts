@@ -235,7 +235,7 @@ layout mirrors the future tables — `data/source/` (inputs),
 - Keep the public/private boundary explicit: a flag for what is publishable.
   A public build must never show unverified or partial-cycle figures without
   labeling them as such (e.g. "2026 cycle partial — committee money through
-  Sep 30, weball through Oct 14, independent expenditures through Oct 31").
+  Oct 14, weball through Oct 14, independent expenditures through Nov 3").
 
 ## 10. Methodology ships with the data
 - Every new column, rule, or definition lands in `methodology.md` in the same

@@ -49,10 +49,18 @@
 
 name: Scheduled refresh
 
+# SCHEDULE PAUSED (Nov 22, 2026). This workflow has never completed: it
+# rebuilds from a LIVE FEC download, and any new filing moves the totals
+# the pipeline checks itself against, so both scheduled runs (Nov 15,
+# Nov 22) failed at "Rebuild dataset" and committed nothing. As of the
+# baseline change (src/common/baseline.py) src/rebuild.py also refuses
+# unpinned inputs outright, so this job as written cannot pass.
+# New data now lands through: "FEC snapshot" workflow -> ./fetch_snapshot.sh
+# <tag> -> python3 src/rebuild.py --rebaseline -> reviewed PR.
+# Automating exactly that (snapshot + rebaseline + open a PR, never a
+# direct push to master) is the planned replacement for this file; until
+# then it is manual-dispatch only so it stops failing every Sunday.
 on:
-  schedule:
-    # Weekly, Sunday 09:00 UTC (see header comment for why).
-    - cron: "0 9 * * 0"
   workflow_dispatch:
 
 permissions:

@@ -133,6 +133,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -327,16 +328,15 @@ for cy in CYCLES:
                            'unclassified_composition_cents': dict(comp)})
 
 # ---------------- cross-check vs pull_money / config methodology totals ----------------
-meth = CFG['verification']['methodology_totals']
 tot_corp = sum(acc_corp.values())
 tot_corp_e = sum(acc_corp_earmark.values())
 tot_aipac = sum(acc_aipac.values())
 tot_aipac_e = sum(acc_aipac_earmark.values())
 checks = {
-    'corporate_pac_career': (tot_corp, int(Decimal(str(meth['corporate_pac_career'])) * 100)),
-    'corporate_earmark_transmitted_career': (tot_corp_e, int(Decimal(str(meth['corporate_earmark_transmitted_career'])) * 100)),
-    'aipac_pac_direct_career': (tot_aipac, int(Decimal(str(meth['aipac_pac_direct_career'])) * 100)),
-    'aipac_earmark_transmitted_career': (tot_aipac_e, int(Decimal(str(meth['aipac_earmark_transmitted_career'])) * 100)),
+    'corporate_pac_career': (tot_corp, int(Decimal(str(expected('methodology_totals.corporate_pac_career', tot_corp / 100))) * 100)),
+    'corporate_earmark_transmitted_career': (tot_corp_e, int(Decimal(str(expected('methodology_totals.corporate_earmark_transmitted_career', tot_corp_e / 100))) * 100)),
+    'aipac_pac_direct_career': (tot_aipac, int(Decimal(str(expected('methodology_totals.aipac_pac_direct_career', tot_aipac / 100))) * 100)),
+    'aipac_earmark_transmitted_career': (tot_aipac_e, int(Decimal(str(expected('methodology_totals.aipac_earmark_transmitted_career', tot_aipac_e / 100))) * 100)),
 }
 
 # ---------------- reconciliation vs weball OTHER_POL_CMTE_CONTRIB (col 26) ----------------

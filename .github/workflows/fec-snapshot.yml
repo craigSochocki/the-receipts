@@ -1,0 +1,83 @@
+# Publishes the live FEC bulk files as an immutable Release
+# (fec-bulk-<date>: raw files, SHA256SUMS, PROVENANCE.tsv).
+# The FEC updates these files in place, so a rebuild is only
+# reproducible against a pinned copy. Does not touch the dataset.
+
+name: FEC snapshot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write  # create the Release
+
+concurrency:
+  group: fec-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    name: Snapshot FEC bulk
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Download FEC bulk
+        run: ./download_bulk.sh
+
+      - name: Record provenance
+        run: |
+          set -euo pipefail
+          BASE="https://www.fec.gov/files/bulk-downloads"
+          cd data/raw
+          find weball cm pas2 -maxdepth 1 -name '*.zip' > ../../files.txt
+          find ie -name 'independent_expenditure_*.csv' >> ../../files.txt
+          sort -o ../../files.txt ../../files.txt
+          printf 'path\turl\tlast_modified\tbytes\tsha256\n' > ../../PROVENANCE.tsv
+          while read -r f; do
+            name=$(basename "$f")
+            case "$name" in
+              independent_expenditure_*) cy=${name#independent_expenditure_}; cy=${cy%.csv} ;;
+              *) yy=$(echo "$name" | grep -oE '[0-9]{2}\.zip$' | cut -c1-2)
+                 if [ "$yy" -ge 80 ]; then cy=19$yy; else cy=20$yy; fi ;;
+            esac
+            url="$BASE/$cy/$name"
+            lm=$(curl -sIL --retry 3 "$url" | grep -i '^last-modified:' | tail -1 | cut -d' ' -f2- | tr -d '\r' || true)
+            printf '%s\t%s\t%s\t%s\t%s\n' "$f" "$url" "${lm:-unknown}" \
+              "$(stat -c %s "$f")" "$(sha256sum "$f" | cut -d' ' -f1)" >> ../../PROVENANCE.tsv
+          done < ../../files.txt
+          xargs sha256sum < ../../files.txt > ../../SHA256SUMS
+          wc -l < ../../files.txt
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          echo "SNAP_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
+          tar -C data/raw -cf "fec-bulk-$(date -u +%F).tar" -T files.txt
+          ls -l fec-bulk-*.tar
+
+      - name: Publish Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="fec-bulk-$SNAP_DATE"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "::error::Release $tag already exists — snapshots are immutable; not overwriting."
+            exit 1
+          fi
+          {
+            echo "FEC bulk inputs as downloaded $SNAP_DATE (UTC) by ./download_bulk.sh."
+            echo
+            echo "Pinned input for rebuilds — see .github/workflows/fec-snapshot.yml."
+            echo "Verify: \`tar -xf fec-bulk-$SNAP_DATE.tar -C data/raw && (cd data/raw && sha256sum -c ../../SHA256SUMS)\`"
+          } > notes.md
+          gh release create "$tag" \
+            "fec-bulk-$SNAP_DATE.tar" SHA256SUMS PROVENANCE.tsv \
+            --title "FEC bulk snapshot $SNAP_DATE" \
+            --notes-file notes.md \
+            --target "$GITHUB_SHA" \
+            --latest=false

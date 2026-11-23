@@ -1,8 +1,20 @@
 # Congress money tracker — methodology
 
-**Data as of: November 12, 2026.** All source files were pulled on that date; nothing in this
-dataset reflects filings or results after it. Re-pull after the 2026 cycle closes and after the
-remaining 2026 races are called and certified.
+**Data as of: November 22, 2026 (money) / November 12, 2026 (roster).** The money columns are
+rebuilt from the pinned FEC bulk snapshot `fec-bulk-2026-11-22` (the FEC files as served that
+day; GitHub Release with checksums and per-file Last-Modified). The roster — who is in the
+119th / 120th, uncalled seats, leadership — is still as crawled on Nov 12. Re-pull after the
+2026 cycle closes and after the remaining 2026 races are called and certified.
+
+> **Read this before quoting a figure from the prose below.** The method, definitions, and
+> limitations in this document are current. The specific **dollar totals and counts quoted in
+> the prose were written against the Nov 12, 2026 pull** and have not been re-typed for the
+> Nov 22 snapshot (the FEC processed more filings in between: e.g. corporate PAC career
+> +$3,234,500.00, all-IE 2026 +$469,098.24; Strict clean 98 → 96 roster-wide). The
+> authoritative current figures are `data/source/baseline.json` (every total, count, and named
+> spot case the pipeline checks itself against, recorded from the snapshot above) and the
+> dataset itself. Where the two disagree, the baseline and dataset win. The coverage end
+> dates (§8.1, §15) and the Lamb reconciliation (§8.17) ARE updated for this snapshot.
 
 **Files:** `congress-money-tracker.csv` (one row per person) and `congress-money-tracker.json`
 (same data; `fec_candidate_ids` is a list; each person also carries `per_cycle` and
@@ -438,7 +450,7 @@ record (person, cycle, amount, kept/dropped candidate ID) is saved as
   reported Nov 4, 2026 for UDP's Michigan effort — within 0.2%. Adrian Boafo 2026
   $5,734,013.28 vs $5.73M reported — match. 2022 deduped total $26,107,515.77 vs ~$26.1M
   reported — match. 2026 deduped total $54,322,881.51 vs "≈$54M as of Oct 24, 2026" —
-  consistent within ~1.7% (different vintages; this file runs through Oct 31, 2026).
+  consistent within ~1.7% (different vintages; the Nov 12 file ran through Oct 31, 2026).
 - **Verification pass, Nov 12, 2026 (after the §8.15 de-duplication)** — 5-person
   spot-check, full detail in `research/verification-log.md`. Career individual totals match
   the FEC API candidate-totals endpoint **exactly, to the cent, for all five** (Pelosi
@@ -492,13 +504,18 @@ total still 535.
 ## 8. Known limitations — read before using these numbers
 
 1. **2026 cycle is partial — and the cutoff date differs by column family.**
-   Pulled Nov 12, 2026. Committee-money columns (corporate, AIPAC, other-committee —
-   all pas2-derived) run through **Sep 30, 2026** (the staged pas2 2026 zip effectively
-   ends then; only 991 October rows). Weball-derived columns (individual, self-funding,
-   topline) run through **Oct 14, 2026**. All-IE columns (UDP too) run through **Oct 31,
-   2026**. So a 2026 figure from one family is not directly comparable to a 2026 figure
-   from another — e.g. a candidate's October corporate PAC money is missing while their
-   October individual money is present. Re-pull after the cycle closes (planned: mid-Dec
+   Snapshot `fec-bulk-2026-11-22`. Committee-money columns (corporate, AIPAC,
+   other-committee — all pas2-derived) run through **Oct 14, 2026**: the pas2 2026 file is
+   dense through the pre-general report cutoff (3,187 rows dated Oct 1–14) and stops there
+   (2 rows after). Weball-derived columns (individual, self-funding, topline) run through
+   **Oct 14, 2026** (1,138 committees' latest report ends that day; 78 end later). All-IE
+   columns (UDP too) run through **Nov 3, 2026**, Election Day: expenditures are dense
+   through it (182 rows that day) and a trickle after (158 rows Nov 4–25). These are
+   judgments read off the snapshot, recorded in `config.yaml` (`verification.coverage_end`),
+   not computed. *History:* on the Nov 12 pull pas2 effectively ended Sep 30 (only 991
+   October rows) and the IE cutoff was judged Oct 31. A 2026 figure from one family is
+   still not directly comparable to one from another — independent expenditures run about
+   three weeks past the committee and candidate reports. Re-pull after the cycle closes (planned: mid-Dec
    2026 after the Dec 3 post-general deadline, and Feb 2027 after the Jan 31 year-end
    deadline); expect 2026 totals to rise and some amounts to be amended.
 2. **120th results are media calls, uncertified** (see §1); 5 seats are still TBD/uncalled.
@@ -626,14 +643,17 @@ total still 535.
     counted as 120th-only pending confirmation of whether she is seated before Jan 3,
     2027 (Wikipedia says she was elected in a special election to replace David Scott).
 17. **Lamb 2026 other-committee total is pending reconciliation.** Mark Lamb's 2026
-    other-committee total from the staged pas2 file is **$96,500** (leadership $43,000;
-    labor $5,000 ALPA; trade $6,000 incl. ABC $5,000 + NSSF $1,000; membership $8,000;
-    other_unclassified $34,500; party $0; cooperative $0), but his weball col 26 figure
-    for 2026 is **$129,150** — a **$32,650 residual** that the pas2-derived classes
-    cannot account for. The gap is consistent with the pas2 Sep-30 staleness (item 1):
-    the missing $32,650 is presumably October committee money not yet in the staged
-    pas2 file. Recorded as `PENDING RECONCILIATION` in Lamb's `data_notes`; no figure
-    was adjusted to force a match. The mid-Dec re-pull settles it.
+    other-committee total from the pas2 file is **$105,750** on snapshot
+    `fec-bulk-2026-11-22` (leadership $44,000; labor $5,000; trade $6,000; membership
+    $8,000; other_unclassified $42,750; party $0; cooperative $0), but his weball col 26
+    figure for 2026 is **$129,150** — a **$23,400 residual** that the pas2-derived classes
+    cannot account for. On the Nov 12 pull the pas2 side was $96,500 and the residual
+    $32,650; the October rows that arrived since closed $9,250 of it, which supports the
+    reading that the gap is committee-side money not yet in pas2 — but both files are now
+    judged complete through Oct 14 and $23,400 remains, so that reading is not proven.
+    Recorded as `PENDING RECONCILIATION` in Lamb's `data_notes` (the note is generated
+    from the pull's own Lamb validation, so it states the current figures); no figure was
+    adjusted to force a match.
 18. **Scalise-type negative residual (other-committee reconciliation).** For a handful
     of people the pas2-derived other-committee total plus corporate plus AIPAC does not
     reconcile against the weball col 26 figure, leaving a negative residual the classes
@@ -677,8 +697,11 @@ total still 535.
   re-verification (Nov 12, 2026) confirms `per_cycle` still sums to the career columns
   with **0 mismatches** and CSV ↔ JSON agreement is **0 mismatches** (see
   `research/verification-log.md`).
-- **To refresh:** re-download the FEC bulk files after the 2026 cycle closes, re-run the
-  pulls, re-run the merge, and update `data_as_of`. The 5 TBD seats and the 120th
+- **To refresh:** publish a new pinned snapshot ("FEC snapshot" workflow), stage it with
+  `./fetch_snapshot.sh <tag>`, set `data_as_of`, run `python3 src/rebuild.py --rebaseline`,
+  and review the diff of `data/source/baseline.json` (see README, "Pinned snapshots and the
+  baseline"). The FEC updates its bulk files in place, so a rebuild is only reproducible
+  against a pinned snapshot. The 5 TBD seats and the 120th
   leadership (Nov 18–19, 2026) will also need updating.
 
 ---
@@ -941,10 +964,10 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
     $250,000` AND `corp_2026 / total_receipts_2026 > 10%`. Tiers in
     the 120th: clean 84 / below_threshold 173 / dirty 274 (null 4).
     Not dirty under Lenient: **257 of 535**.
-  - **Share-denominator cutoff note:** `corp_2026` is pas2 through
-    Sep 30, 2026 while `total_receipts_2026` is weball through Oct 14,
-    2026 — the denominator runs two weeks longer than the numerator,
-    slightly understating shares (see §15). A non-positive
+  - **Share-denominator cutoff note:** `corp_2026` (pas2) and
+    `total_receipts_2026` (weball) both run through Oct 14, 2026 on
+    snapshot `fec-bulk-2026-11-22` (see §15); on the Nov 12 pull pas2
+    stopped at Sep 30, which slightly understated shares. A non-positive
     `total_receipts_2026` leaves the share undefined and the share
     test cannot pass; no member in the current data has corporate PAC
     above an amount threshold with non-positive receipts (the only
@@ -1152,8 +1175,8 @@ The authoritative cutoffs, also recorded in `config.yaml` (`verification.coverag
 | Column family | Source | Coverage ends |
 |---|---|---|
 | Individual, self-funding, topline | weball | **2026-10-14** |
-| Corporate PAC, AIPAC, other-committee | pas2 | **2026-09-30** |
-| UDP + all independent expenditures | IE bulk files | **2026-10-31** |
+| Corporate PAC, AIPAC, other-committee | pas2 | **2026-10-14** |
+| UDP + all independent expenditures | IE bulk files | **2026-11-03** |
 
 **Re-pull plan.** Mid-Dec 2026 (after the Dec 3 post-general filing deadline) and
 Feb 2027 (after the Jan 31 year-end deadline): re-download the bulk files, re-run the

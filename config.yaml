@@ -46,6 +46,7 @@ paths:
   roster: data/intermediate/roster.json
   roster_intermediate: data/intermediate/roster_intermediate.json
   fec_lookup_results: data/source/fec_lookup_results.json
+  baseline: data/source/baseline.json
   manual_roster_notes: data/source/manual_roster_notes.json
   money_per_cycle: data/intermediate/money_per_cycle.json
   money_pas2_weball: data/intermediate/money_pas2_weball.csv
@@ -68,9 +69,9 @@ paths:
   dataset_csv: congress-money-tracker.csv
   dataset_json: congress-money-tracker.json
 
-# As-of date carried on every dataset row (data_as_of). Update when the
-# pulls are re-run on newer filings.
-data_as_of: "2026-11-12"
+# Date of the pinned FEC snapshot the money came from; carried on every
+# dataset row. The roster is still as crawled Nov 12, 2026.
+data_as_of: "2026-11-22"
 
 fec_api:
   base_url: "https://api.open.fec.gov/v1/candidates/"
@@ -102,8 +103,8 @@ freshness:
   # candidate it targeted, roster or not) and attributes rows to roster
   # people by candidate_id. The five are the top 5 by 2026
   # roster-targeted IE (data/intermediate/all_ie_per_cycle.json ->
-  # per_cycle_summaries.2026.top_committees_roster_targeted, 2026 totals
-  # through Oct 31); UDP is #10 by total but included by design:
+  # per_cycle_summaries.2026.top_committees_roster_targeted, as ranked
+  # on the Nov 12 pull, 2026 totals then through Oct 31); UDP is #10 by total but included by design:
   # AIPAC-affiliated, and the source of the $20.9M vs El-Sayed F24
   # finding. The dollar figures in the notes are those same 2026
   # roster-targeted totals (S support / O oppose), recorded here for
@@ -152,99 +153,20 @@ party_codes:
   PPD: DEM
 
 verification:
-  # Prior UDP pull's deduped S+O totals per cycle, used to reconcile the
-  # opposition-credit computation against the original UDP support pull.
-  udp_prior_cycle_totals:
-    2022: 26107515.77
-    2024: 38044932.69
-    2026: 54322881.51
+  # Policy values only. Figures that new FEC data can move live in
+  # data/source/baseline.json (src/common/baseline.py).
   # Uncredited races are only listed in the opposition report when the
   # opposing spend reaches this threshold (dollars).
   opposition_uncredited_report_threshold: 100000
-  # Roster-wide career totals from methodology.md §6, as of Nov 12, 2026.
-  # verify_dataset.py checks the rebuilt dataset against these to the cent.
-  # (Armstrong's "unknown" money is excluded from every sum.)
-  methodology_totals:
-    individual_contribution_total_career: 8763847353.73
-    aipac_pac_direct_career: 7567773.00
-    aipac_earmark_transmitted_career: 191573.00
-    corporate_pac_career: 972228584.00
-    corporate_earmark_transmitted_career: 26850.00
-    udp_ie_support_career: 42415003.76
-    udp_ie_opposing_opponents_career: 48421886.44
-    udp_ie_total_benefit_career: 90836890.20
-    dirty_career: 1070633247.20
-    # Complete-financial-picture columns (664 distinct persons; Rivet
-    # counted once). Self-funding / topline are Curtis-corrected
-    # (decision: receipts -$5,640,855.75, disbursements -$5,239,012.32,
-    # transfers-from-auth -$1,261,797.03, transfers-to-auth -$3,300.00).
-    cand_contrib_career: 127959956.91
-    cand_loans_career: 325314576.77
-    self_funding_career: 453274533.68
-    loan_repayments_career: 117267525.92
-    total_receipts_career: 13123758383.28
-    total_disbursements_career: 12119674234.67
-    transfers_from_auth_career: 1084116950.90
-    transfers_to_auth_career: 196548621.70
-    cash_on_hand_career: 1011890622.93
-    debts_owed_by_career: 191691118.19
-    party_committees_career: 12452000.00
-    leadership_pacs_career: 232556005.00
-    labor_pacs_career: 293658668.00
-    trade_pacs_career: 476385811.00
-    membership_pacs_career: 220580356.00
-    cooperative_pacs_career: 30134616.00
-    other_unclassified_career: 302968291.00
-    other_committees_total_career: 1568735747.00
-    party_committees_earmark_transmitted_career: 18743.00
-    leadership_pacs_earmark_transmitted_career: 786779.00
-    labor_pacs_earmark_transmitted_career: 790.00
-    trade_pacs_earmark_transmitted_career: 456352.00
-    membership_pacs_earmark_transmitted_career: 2479868.00
-    cooperative_pacs_earmark_transmitted_career: 0.00
-    other_unclassified_earmark_transmitted_career: 1633442.00
-    all_ie_support_career: 1490363373.56
-    all_ie_oppose_career: 2351872876.19
-    all_ie_total_career: 3842257481.18
-  # All-IE roster-targeted totals per cycle (distinct persons; from
-  # pull_all_ie.py per-cycle summaries). 2026 is partial through Oct 31.
-  all_ie_cycle_totals:
-    2022: 635983318.22
-    2024: 957619902.44
-    2026: 2248654260.52
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
-  # re-pull replaces it.
+  # re-pull replaces it. Judged from the pinned snapshot at each
+  # rebaseline, not computed; the evidence is in methodology §8.1.
   coverage_end:
-    committee_money_pas2: "2026-09-30"   # corporate, AIPAC, other-committee
+    committee_money_pas2: "2026-10-14"   # corporate, AIPAC, other-committee
     weball: "2026-10-14"                 # individual, self-funding, topline
-    independent_expenditures: "2026-10-31"  # all-IE (UDP too)
+    independent_expenditures: "2026-11-03"  # all-IE (UDP too)
     freshness_window_start: "2026-10-15"
-  # Clean-in-2026 expectations from methodology.md §14, as of Nov 12, 2026.
-  # clean_2026 counts are over the whole roster; the 64 / 53 figures are
-  # the incoming (120th) House subset. null_total 4 = Luria unverified +
-  # 3 unopposed (Pressley, Jacobs, Radewagen).
-  # NET-NEGATIVE FIX (Nov 12, 2026, methodology §14): clean_2026 is now
-  # True when dirty_2026 <= 0 (took no NET dirty money), not only when
-  # all four dirty components are exactly zero. 17 members had
-  # dirty_2026 < 0 from refunds exceeding contributions (10 in the
-  # 120th, 7 in the 119th only) and flip False -> True, so the pre-fix
-  # counts (True 81 / False 579; 120th House clean 64 — 61 D, 3 R;
-  # 2026-clean but not career-clean 11) become the values below.
-  # The 10 in-120th flippers are all Democrats (6 House, 4 Senate);
-  # the House flippers are Ansari, Balint, Casar, Frost, Ryan, Tokuda.
-  clean_2026:
-    true_total: 98
-    false_total: 562
-    null_total: 4
-    house_120th_verified_clean: 70
-    house_120th_verified_clean_democrat: 67
-    house_120th_verified_clean_republican: 3
-    house_120th_career_clean: 53
-    house_120th_career_clean_democrat: 50
-    house_120th_career_clean_republican: 3
-    house_120th_clean_2026_not_career_clean: 17
-
   # Corporate PAC tolerance presets (methodology §14, Nov 12, 2026).
   # Under a preset, a member's corporate PAC take counts as dirty only
   # when BOTH the dollar amount AND the share of 2026 total receipts
@@ -253,10 +175,10 @@ verification:
   # flags the member under every preset. Strict has no thresholds of
   # its own — it is clean_2026 itself (any net dirty dollar > $0 is
   # dirty; net dirty <= $0 is clean). Balanced is the DEFAULT preset.
-  # Share denominator note: corp_2026 is pas2 through Sep 30, 2026
-  # while total_receipts_2026 is weball through Oct 14, 2026 — the
-  # denominator runs two weeks longer than the numerator, slightly
-  # understating shares. A non-positive total_receipts_2026 leaves the
+  # Share denominator note: corp_2026 (pas2) and total_receipts_2026
+  # (weball) now both run through Oct 14, 2026 (coverage_end above); on
+  # the Nov 12 pull pas2 stopped at Sep 30, which understated shares.
+  # A non-positive total_receipts_2026 leaves the
   # share undefined and the share test cannot pass (no case in the
   # current data has corp above an amount threshold with non-positive
   # receipts; the only corp>0 / receipts<=0 member is Melissa Bean,
@@ -269,53 +191,6 @@ verification:
       corp_amount: 250000
       corp_share: 0.10
 
-  # Tiered dirty rule — expected counts (methodology §14, Nov 12, 2026).
-  # All counts are over the 120th (535) unless marked _all (664 rows).
-  # tier_* is null exactly where clean_2026 is null (the 4 unverified /
-  # unopposed members); otherwise its domain is clean / below_threshold
-  # / dirty. "Not dirty" = clean + below_threshold (the middle tier is
-  # never called clean, but it is not dirty under the preset).
-  # NOTE on the spec discrepancy: an earlier recount put Balanced
-  # not-dirty at 201 and Lenient at 253. Those figures exclude Patrick
-  # Ryan (corp $0, AIPAC -$15,000 refund — the recount assumed his corp
-  # was positive) and the members with corp above $0 but below the
-  # threshold who also carry a negative AIPAC component (Balanced:
-  # Emily Randall; Lenient: Randall, Sylvia R. Garcia, Suhas
-  # Subramanyam). Under the coherent partition below they are
-  # clean (Ryan) / below_threshold (the other three), so the actual
-  # not-dirty counts are 203 / 257. The tier dirty counts and the
-  # 2028-target counts below DO match the earlier recount exactly.
-  tiered_2026:
-    aipac_udp_flag_120th: 231
-    aipac_udp_flag_all: 291
-    balanced:
-      clean: 84
-      below_threshold: 119
-      dirty: 328
-      'null': 4
-      not_dirty: 203
-    lenient:
-      clean: 84
-      below_threshold: 173
-      dirty: 274
-      'null': 4
-      not_dirty: 257
-    # Corp-only members in the 120th (corp > 0, AIPAC == 0, UDP == 0):
-    # 211 total; the split is how many stay dirty under each preset.
-    corp_only_2026_120th: 211
-    corp_only_staying_dirty_balanced: 93
-    corp_only_below_balanced: 118
-    corp_only_staying_dirty_lenient: 41
-    corp_only_below_lenient: 170
-    # 2028 primary targets under each preset: House Democrats in the
-    # 120th / Class 3 Senate Democrats whose tier is dirty (flagged OR
-    # corporate-PAC-material under the preset). Strict is dirty_2026 > 0.
-    targets_2028_strict_house: 192
-    targets_2028_strict_senate_class3: 13
-    targets_2028_balanced_house: 133
-    targets_2028_balanced_senate_class3: 6
-    targets_2028_lenient_house: 103
-    targets_2028_lenient_senate_class3: 3
 
 # The dataset's column order (CSV) and key order (JSON). The two differ
 # in the 2026 trio (the CSV lists individual_2026 first, the JSON lists
