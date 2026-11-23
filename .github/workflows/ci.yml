@@ -56,10 +56,9 @@ jobs:
             exit 1
           fi
 
-      - name: Build the silver store and check its gold views
-        run: |
-          python3 src/store/build_store.py
-          python3 src/store/check_gold.py
+      - name: Check the store's seats and terms
+        # rebuild.py builds the store; this checks what the dataset can't.
+        run: python3 src/store/check_store.py
 
       - name: Build static site
         run: python3 src/site/build_site.py

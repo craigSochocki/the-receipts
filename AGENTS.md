@@ -87,20 +87,20 @@ the-receipts/
 ├── config.yaml                # single source of truth for shared values
 ├── congress-money-tracker.csv / .json   # the dataset (stays at repo root)
 ├── src/
-│   ├── common/                # config loader, baseline
+│   ├── common/                # settings, baseline, file writers
 │   ├── domain/                # the rules, free of file formats: Money,
 │   │                          # which committee money counts
 │   ├── store/                 # silver tables (DuckDB, every FEC candidate and
-│   │                          # committee) + gold views; check_gold.py proves
-│   │                          # each view matches the old pipeline byte for byte
+│   │                          # committee) + the views read from them;
+│   │                          # check_store.py checks seats and terms
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
-│   │                          # pull_money, pull_udp, pull_self_funding,
+│   │                          # pull_udp, pull_self_funding,
 │   │                          # pull_other_committees, pull_all_ie,
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
-│   │                          # apply_dedup, compute_opposition,
+│   │                          # compute_opposition,
 │   │                          # merge_dataset, compute_ranking, compute_2026
 │   ├── validate/              # verify_dataset.py — the standing audits
 │   └── rebuild.py             # the one command that runs the whole pipeline

@@ -10,10 +10,11 @@ import pandas as pd
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.common.config import load_config
+from src.common.settings import (AIPAC_PAC, CAREER_CYCLES, IE_CYCLES, PATHS,
+                                 load_double_count_records, load_roster)
 from src.domain.committee_classes import committee_class
-from src.domain.committee_money import ReportedOnce, is_voided_earmark
-from src.domain.outside_spending import LatestFiling, exclusion
+from src.domain.committee_money import is_voided_earmark, reported_once
+from src.domain.outside_spending import exclusion, latest_filings
 from src.domain.roster import candidate_ids
 from src.domain.seats import house_seat_id
 from src.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
@@ -23,15 +24,8 @@ from src.fec.independent_expenditures import independent_expenditures
 from src.fec.weball import candidate_summaries
 from src.store import congress
 
-CFG = load_config()
-ROOT = CFG['_root']
-BULK = ROOT / CFG['paths']['bulk']
-STORE = ROOT / CFG['paths']['store']
-SOURCE = ROOT / CFG['paths']['source']
-CAREER_CYCLES = range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2)
-IE_CYCLES = CFG['cycles']['udp']
-AIPAC_PAC = CFG['committees']['aipac_pac']
-CANDIDATE_SNAPSHOT = ROOT / CFG['paths']['bulk'] / 'cn' / 'SNAPSHOT'
+BULK, STORE, SOURCE = PATHS.bulk, PATHS.store, PATHS.source
+CANDIDATE_SNAPSHOT = BULK / 'cn' / 'SNAPSHOT'
 VOIDED_EARMARK = 'voided_earmark'
 REPORTED_AGAIN = 'reported_again'
 
@@ -114,17 +108,17 @@ def contribution_rows():
     money pulls have always done.
     """
     for cycle in CAREER_CYCLES:
-        reported_once = ReportedOnce()
+        filed_once = reported_once()
         for contribution in committee_contributions(BULK, cycle):
             if not contribution.is_to_candidate:
                 continue
             if is_voided_earmark(contribution):
                 yield contribution_row(contribution, cycle, VOIDED_EARMARK)
                 continue
-            reported_once.add(contribution)
-        for contribution in reported_once:
+            filed_once.add(contribution)
+        for contribution in filed_once:
             yield contribution_row(contribution, cycle, None)
-        for contribution in reported_once.dropped_contributions:
+        for contribution in filed_once.dropped:
             yield contribution_row(contribution, cycle, REPORTED_AGAIN)
 
 
@@ -139,7 +133,7 @@ def outside_spending_rows(roster):
     identified = identified_candidates(roster)
     for cycle in IE_CYCLES:
         registered = {c.committee_id for c in committees(BULK, cycle)}
-        filings = LatestFiling()
+        filings = latest_filings()
         for expenditure in independent_expenditures(BULK / 'ie', cycle):
             filings.add(expenditure)
         for e in filings:
@@ -203,10 +197,8 @@ def insert(db, table, rows):
 
 
 def main():
-    with open(ROOT / CFG['paths']['roster']) as f:
-        roster = json.load(f)
-    with open(SOURCE / 'dedup-applied.json') as f:
-        dedup_records = json.load(f)
+    roster = load_roster()
+    dedup_records = load_double_count_records()
     check_candidate_snapshot()
     legislators_119th, seats, terms, candidacies = congress_rows(roster)
     STORE.parent.mkdir(parents=True, exist_ok=True)

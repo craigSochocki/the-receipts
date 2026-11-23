@@ -21,3 +21,8 @@ class Roster:
         return sorted({key for candidate_id in candidate_ids(person)
                        for key in self._people_by_candidate[candidate_id]
                        if key != person['person_key']})
+
+    def shared_id_note(self, person):
+        """The data note for a person listed twice under one FEC ID, or None."""
+        others = self.others_sharing_an_id_with(person)
+        return 'duplicate roster entry: FEC ID shared with ' + ', '.join(others) if others else None

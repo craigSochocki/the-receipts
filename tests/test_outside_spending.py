@@ -2,7 +2,8 @@ import pytest
 
 from src.domain.money import ZERO, Money
 from src.domain.outside_spending import (BLANK_CANDIDATE, CANDIDATE_NOT_IDENTIFIED,
-                                         UNREGISTERED_COMMITTEE, LatestFiling, exclusion)
+                                         UNREGISTERED_COMMITTEE, exclusion,
+                                         latest_filings)
 from src.fec.independent_expenditures import IndependentExpenditure, independent_expenditures
 
 
@@ -22,17 +23,17 @@ def test_amounts_are_exact_and_tolerate_currency_formatting():
 
 
 def test_an_amended_filing_replaces_the_original():
-    filings = LatestFiling()
+    filings = latest_filings()
     filings.add(expenditure(exp_amo='100', receipt_dat='01-OCT-26'))
     filings.add(expenditure(exp_amo='150', receipt_dat='05-OCT-26'))
     filings.add(expenditure(exp_amo='90', receipt_dat='03-OCT-26'))
 
     assert [e.amount for e in filings] == [Money(15000)]
-    assert filings.dropped_rows == 2
+    assert len(filings.dropped) == 2
 
 
 def test_same_receipt_date_keeps_the_higher_file_number():
-    filings = LatestFiling()
+    filings = latest_filings()
     filings.add(expenditure(exp_amo='100', file_num='12'))
     filings.add(expenditure(exp_amo='200', file_num='11'))
 
@@ -40,7 +41,7 @@ def test_same_receipt_date_keeps_the_higher_file_number():
 
 
 def test_rows_without_a_transaction_id_never_merge():
-    filings = LatestFiling()
+    filings = latest_filings()
     filings.add(expenditure(position=1, tran_id=''))
     filings.add(expenditure(position=2, tran_id=''))
 
@@ -48,7 +49,7 @@ def test_rows_without_a_transaction_id_never_merge():
 
 
 def test_the_same_transaction_id_from_two_spenders_stays_separate():
-    filings = LatestFiling()
+    filings = latest_filings()
     filings.add(expenditure(spe_id='C1'))
     filings.add(expenditure(spe_id='C2'))
 

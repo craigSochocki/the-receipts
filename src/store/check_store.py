@@ -1,25 +1,12 @@
 #!/usr/bin/env python3
-"""Fail unless every gold view reproduces the old pipeline's file byte for byte,
-and the store's seats and terms hold together.
-
-Run after src/rebuild.py and src/store/build_store.py.
-"""
-import filecmp
+"""Fail unless the store's seats and terms hold together. Run after src/rebuild.py."""
 import sys
-import tempfile
 from pathlib import Path
 
 import duckdb
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.common.config import load_config
-from src.store import accepted_money
-
-CFG = load_config()
-INTERMEDIATE = CFG['_root'] / CFG['paths']['intermediate']
-STORE = CFG['_root'] / CFG['paths']['store']
-GOLD_WRITERS = {accepted_money.write: ['money_pas2_weball.csv', 'money_per_cycle.json']}
-
+from src.common.settings import PATHS
 
 SEATS_IN_FORCE = """
     SELECT seat_id FROM seats
@@ -42,9 +29,9 @@ STORE_FACTS = {
 }
 
 
-def check_store_facts():
+def failed_facts():
     failed = []
-    with duckdb.connect(str(STORE), read_only=True) as db:
+    with duckdb.connect(str(PATHS.store), read_only=True) as db:
         for fact, (query, expected) in STORE_FACTS.items():
             found = db.execute(query).fetchone()[0]
             print(f"{'ok' if found == expected else 'WRONG':>7}  {fact}: {found}")
@@ -53,20 +40,6 @@ def check_store_facts():
     return failed
 
 
-def main():
-    mismatches = check_store_facts()
-    with tempfile.TemporaryDirectory() as scratch:
-        scratch = Path(scratch)
-        for write, files in GOLD_WRITERS.items():
-            write(scratch)
-            for name in files:
-                same = filecmp.cmp(scratch / name, INTERMEDIATE / name, shallow=False)
-                print(f"{'same' if same else 'DIFFERS'}  {name}")
-                if not same:
-                    mismatches.append(name)
-    if mismatches:
-        sys.exit(f'store checks failed: {mismatches}')
-
-
 if __name__ == '__main__':
-    main()
+    if failed := failed_facts():
+        sys.exit(f'store checks failed: {failed}')

@@ -15,10 +15,11 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.transform.apply_fec_lookup   enrich the roster with the lookup
                                      results + the recorded manual notes;
                                      writes roster.json
-    src.ingest.pull_money            weball + pas2 money per cycle
+    src.store.build_store            silver store: every FEC candidate,
+                                     committee and filing, in DuckDB
+    src.store.accepted_money         the roster's counted money, read from
+                                     the store (double counts removed)
     src.ingest.pull_udp              UDP independent-expenditure support
-    src.transform.apply_dedup        apply the recorded weball double-count
-                                     dedup
     src.ingest.pull_self_funding     self-funding + topline from weball
                                      (Curtis-corrected for cols 6-9)
     src.ingest.pull_other_committees other-committee contributions (pas2 + cm)
@@ -77,9 +78,9 @@ INTERMEDIATE = ROOT / CFG['paths']['intermediate']
 STEPS = [
     'src.transform.build_roster',
     'src.transform.apply_fec_lookup',
-    'src.ingest.pull_money',
+    'src.store.build_store',
+    'src.store.accepted_money',
     'src.ingest.pull_udp',
-    'src.transform.apply_dedup',
     'src.ingest.pull_self_funding',
     'src.ingest.pull_other_committees',
     'src.ingest.pull_all_ie',
