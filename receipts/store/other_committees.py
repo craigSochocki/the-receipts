@@ -84,7 +84,7 @@ def unclassified_composition(rows, cycle=None):
     return dict(sorted(composition.items()))
 
 
-FILE_READS = 'SELECT rows_read, malformed_rows FROM files_read WHERE file = ? AND cycle = ?'
+FILE_READS = 'SELECT rows_read FROM files_read WHERE file = ? AND cycle = ?'
 EXCLUDED = """
     SELECT count(*), COALESCE(SUM(amount_cents), 0), count(DISTINCT committee_id)
     FROM committee_contributions AS money
@@ -99,8 +99,8 @@ def cycle_diagnostics(db, cycle, roster_ids, ledger, rows):
     def excluded(condition):
         return for_candidates(db, EXCLUDED.format(condition=condition), roster_ids, cycle)[0]
 
-    cm_rows, cm_bad = db.execute(FILE_READS, ['cm', cycle]).fetchone()
-    pas2_rows, pas2_bad = db.execute(FILE_READS, ['pas2', cycle]).fetchone()
+    (cm_rows,) = db.execute(FILE_READS, ['cm', cycle]).fetchone()
+    (pas2_rows,) = db.execute(FILE_READS, ['pas2', cycle]).fetchone()
     matched = excluded('TRUE')[0]
     voided_rows, voided_cents, _ = excluded("excluded_because = 'voided_earmark'")
     unregistered_rows, _, unregistered_committees = excluded(
@@ -116,9 +116,7 @@ def cycle_diagnostics(db, cycle, roster_ids, ledger, rows):
     return {
         'cycle': cycle,
         'cm_rows': cm_rows,
-        'cm_bad_fields': cm_bad,
         'pas2_rows': pas2_rows,
-        'pas2_bad_fields': pas2_bad,
         'pas2_matched_roster': matched,
         'cm_missing_committees': unregistered_committees,
         'cm_missing_rows': unregistered_rows,
