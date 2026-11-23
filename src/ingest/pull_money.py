@@ -68,7 +68,7 @@ def read_individual_contributions(cycle, roster, ledger, candidates_seen):
             matched += 1
             candidates_seen.add(summary.candidate_id)
             ledger.add(summary.candidate_id, cycle, 'individual',
-                       summary.individual_contributions)
+                       summary.amount('individual_contributions'))
         if cycle == CURRENT_CYCLE:
             latest_coverage_end = max(latest_coverage_end, summary.coverage_end)
     return {'cycle': cycle, 'weball_rows': summaries.rows_read, 'weball_matched': matched,
