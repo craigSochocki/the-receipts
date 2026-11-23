@@ -7,6 +7,12 @@ name: FEC snapshot
 
 on:
   workflow_dispatch:
+    inputs:
+      set:
+        description: "bulk (money files) or candidates (candidate master, cn)"
+        default: bulk
+        type: choice
+        options: [bulk, candidates]
 
 permissions:
   contents: write  # create the Release
@@ -20,6 +26,9 @@ jobs:
     name: Snapshot FEC bulk
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      SET: ${{ inputs.set || 'bulk' }}
+      PREFIX: ${{ inputs.set == 'candidates' && 'fec-candidates' || 'fec-bulk' }}
 
     steps:
       - name: Check out repo
@@ -33,8 +42,12 @@ jobs:
           set -euo pipefail
           BASE="https://www.fec.gov/files/bulk-downloads"
           cd data/raw
-          find weball cm pas2 -maxdepth 1 -name '*.zip' > ../../files.txt
-          find ie -name 'independent_expenditure_*.csv' >> ../../files.txt
+          if [ "$SET" = candidates ]; then
+            find cn -maxdepth 1 -name '*.zip' > ../../files.txt
+          else
+            find weball cm pas2 -maxdepth 1 -name '*.zip' > ../../files.txt
+            find ie -name 'independent_expenditure_*.csv' >> ../../files.txt
+          fi
           sort -o ../../files.txt ../../files.txt
           printf 'path\turl\tlast_modified\tbytes\tsha256\n' > ../../PROVENANCE.tsv
           while read -r f; do
@@ -56,28 +69,28 @@ jobs:
         run: |
           set -euo pipefail
           echo "SNAP_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
-          tar -C data/raw -cf "fec-bulk-$(date -u +%F).tar" -T files.txt
-          ls -l fec-bulk-*.tar
+          tar -C data/raw -cf "$PREFIX-$(date -u +%F).tar" -T files.txt
+          ls -l "$PREFIX"-*.tar
 
       - name: Publish Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          tag="fec-bulk-$SNAP_DATE"
+          tag="$PREFIX-$SNAP_DATE"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "::error::Release $tag already exists — snapshots are immutable; not overwriting."
             exit 1
           fi
           {
-            echo "FEC bulk inputs as downloaded $SNAP_DATE (UTC) by ./download_bulk.sh."
+            echo "FEC $SET files as downloaded $SNAP_DATE (UTC) by SET=$SET ./download_bulk.sh."
             echo
             echo "Pinned input for rebuilds — see .github/workflows/fec-snapshot.yml."
-            echo "Verify: \`tar -xf fec-bulk-$SNAP_DATE.tar -C data/raw && (cd data/raw && sha256sum -c ../../SHA256SUMS)\`"
+            echo "Verify: \`tar -xf $PREFIX-$SNAP_DATE.tar -C data/raw && (cd data/raw && sha256sum -c ../../SHA256SUMS)\`"
           } > notes.md
           gh release create "$tag" \
-            "fec-bulk-$SNAP_DATE.tar" SHA256SUMS PROVENANCE.tsv \
-            --title "FEC bulk snapshot $SNAP_DATE" \
+            "$PREFIX-$SNAP_DATE.tar" SHA256SUMS PROVENANCE.tsv \
+            --title "FEC $SET snapshot $SNAP_DATE" \
             --notes-file notes.md \
             --target "$GITHUB_SHA" \
             --latest=false

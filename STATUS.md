@@ -25,8 +25,18 @@
   filed; the 586 double-count corrections are rows in
   `summary_corrections`. The `accepted_money` view reproduces
   `money_pas2_weball.csv` and `money_per_cycle.json` (after
-  `apply_dedup`) byte for byte; CI checks it (`check_gold.py`). Next:
-  seats/terms/races, then the other gold views. **Reconciliation fix (Craig, Nov 22):** the
+  `apply_dedup`) byte for byte; CI checks it (`check_gold.py`). **Seats, terms,
+  candidacies (Nov 22):** `seats` (714: 435 voting House + 6 delegates
+  on the 2024 map, 173 new seats in the 9 states with a new map for 2026
+  per `data/source/house_maps.yaml`, 100 Senate), `terms` (555 in the
+  119th from congress-legislators, 535 in the 120th from the roster,
+  labeled unofficial), `candidacies` (130,952 from the FEC candidate
+  master, pinned as `fec-candidates-2026-11-23`, linked to seats for
+  2024/2026 where the file allows; Senate specials and filing errors
+  such as MI-80 stay unlinked). The 6 seats with no 120th member are
+  the 5 uncalled House seats and Alaska's Senate seat. Next: races and
+  results (MIT Election Lab for history, media calls for 2026, labeled
+  by source and officialness). **Reconciliation fix (Craig, Nov 22):** the
   weball col-26 comparison now excludes party committees, as col 26
   does (Form 3 line 11(b) vs 11(c)), and reports party money as its own
   line (`pas2_party_committees_cents`). It had been including them,

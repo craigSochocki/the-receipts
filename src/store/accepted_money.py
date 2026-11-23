@@ -22,7 +22,8 @@ CAREER = {column: ('individual_contribution_total_career' if column == 'individu
 
 
 def load(db):
-    people = db.execute('SELECT person_key, full_name FROM people').fetchall()
+    people = db.execute('SELECT person_key, full_name FROM people '
+                        'WHERE roster_position IS NOT NULL ORDER BY roster_position').fetchall()
     ids = {}
     for person_key, candidate_id in db.execute(
             'SELECT person_key, candidate_id FROM person_candidate_ids ORDER BY person_key, position'

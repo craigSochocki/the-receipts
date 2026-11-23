@@ -15,6 +15,9 @@
 #
 #   Overrides (for testing): CYCLES="1980 2026" SKIP_IE=1 ./download_bulk.sh
 #
+#   SET=candidates fetches only the candidate master files (cn) instead,
+#   into data/raw/cn/<cycle>/cn.txt.
+#
 #   This fetches the LIVE files, which the FEC updates in place. The
 #   committed dataset is rebuilt from a pinned copy: ./fetch_snapshot.sh.
 set -euo pipefail
@@ -24,6 +27,20 @@ RAW="$ROOT/data/raw"
 BASE="https://www.fec.gov/files/bulk-downloads"
 CYCLES="${CYCLES:-$(seq 1980 2 2026)}"
 IE_CYCLES="2022 2024 2026"
+
+if [ "${SET:-bulk}" = "candidates" ]; then
+  mkdir -p "$RAW/cn"
+  for cy in $CYCLES; do
+    yy=$(printf %02d $((cy % 100)))
+    if [ "${SKIP_DOWNLOAD:-0}" != "1" ]; then
+      curl -L --fail --retry 3 --retry-delay 5 -C - -o "$RAW/cn/cn$yy.zip" "$BASE/$cy/cn$yy.zip"
+    fi
+    mkdir -p "$RAW/cn/$cy"
+    unzip -o -q -j "$RAW/cn/cn$yy.zip" cn.txt -d "$RAW/cn/$cy"
+  done
+  echo "Done. Candidate master files staged under $RAW/cn."
+  exit 0
+fi
 
 mkdir -p "$RAW/weball" "$RAW/cm" "$RAW/pas2" "$RAW/ie"
 
