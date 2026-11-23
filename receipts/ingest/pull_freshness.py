@@ -81,7 +81,7 @@ import sys
 from datetime import datetime, timezone
 
 from receipts.common.config import load_config
-from receipts.common.fec_api import API_KEY, api_get
+from receipts.common.fec_api import fec_api
 from receipts.common.files import read_json
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
@@ -95,7 +95,7 @@ F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
 
 def principal_committees(candidate_id, cycle=2026):
     """Principal campaign committee IDs (designation P) for a candidate."""
-    data = api_get(f'/candidate/{candidate_id}/committees/', {'cycle': cycle, 'per_page': 100})
+    data = fec_api.get(f'/candidate/{candidate_id}/committees/', {'cycle': cycle, 'per_page': 100})
     return [c['committee_id'] for c in data.get('results', []) if c.get('designation') == 'P']
 
 
@@ -107,7 +107,7 @@ def totals_refresh(candidate_id, cycle=2026):
     election_full=true is NOT used here: it returns only the aggregate
     row (cycle null), which conflates 2024 and 2026.
     """
-    data = api_get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
+    data = fec_api.get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
     rows = [r for r in data.get('results', []) if r.get('cycle') == cycle]
     if not rows:
         return {'candidate_id': candidate_id, 'cycle': cycle, 'found': False}
@@ -388,7 +388,7 @@ def main():
         help='snapshot path (default data/intermediate/freshness_snapshot.json)',
     )
     args = ap.parse_args()
-    if args.all and CFG['fec_api']['api_key_default'] == API_KEY:
+    if args.all and fec_api.is_demo_key:
         sys.exit(
             'ERROR: --all needs a registered api.data.gov key '
             '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
@@ -397,7 +397,7 @@ def main():
     dataset = read_json(ROOT / CFG['paths']['dataset_json'])
     by_key = {r['person_key']: r for r in dataset}
     by_candidate = {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
-    if args.f24_committee_sweep and CFG['fec_api']['api_key_default'] == API_KEY:
+    if args.f24_committee_sweep and fec_api.is_demo_key:
         sys.exit(
             'ERROR: --f24-committee-sweep needs a registered api.data.gov key '
             '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
@@ -418,9 +418,7 @@ def main():
             'generated_at': datetime.now(timezone.utc).isoformat(),
             'window_start': WINDOW_START,
             'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
-            'api_key_type': (
-                'demo' if CFG['fec_api']['api_key_default'] == API_KEY else 'registered'
-            ),
+            'api_key_type': fec_api.key_type,
             'cadence_note': (
                 'Final 20 days before an election: daily. '
                 'Cycle in progress outside final 20 days: weekly. '
@@ -553,7 +551,7 @@ def main():
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': WINDOW_START,
         'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
-        'api_key_type': ('demo' if CFG['fec_api']['api_key_default'] == API_KEY else 'registered'),
+        'api_key_type': fec_api.key_type,
         'cadence_note': (
             'Final 20 days before an election: daily. '
             'Cycle in progress outside final 20 days: weekly. '
