@@ -146,7 +146,7 @@ def cross_checks(ledger):
 
 
 def weball_other_committee_money(cycle, roster):
-    return {summary.candidate_id: summary.other_committee_contributions
+    return {summary.candidate_id: summary.amount('other_committee_contributions')
             for summary in candidate_summaries(BULK, cycle) if summary.candidate_id in roster}
 
 
@@ -230,7 +230,7 @@ def reconcile_cycle(cycle, roster, ledger, dedup_records):
 def lamb_validation(ledger):
     by_bucket = {b: ledger.amount(LAMB_CANDIDATE, LAMB_CYCLE, b) for b in BUCKETS}
     pas2_total = Money.total(by_bucket.values())
-    weball = next((summary.other_committee_contributions
+    weball = next((summary.amount('other_committee_contributions')
                    for summary in candidate_summaries(BULK, LAMB_CYCLE)
                    if summary.candidate_id == LAMB_CANDIDATE), None)
     earmarked = {b: ledger.amount(LAMB_CANDIDATE, LAMB_CYCLE, earmark(b)) for b in BUCKETS}

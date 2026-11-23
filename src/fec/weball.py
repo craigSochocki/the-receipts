@@ -23,7 +23,7 @@ class CandidateSummary(NamedTuple):
     candidate_loan_repayments: str
     other_loan_repayments: str
     debts_owed_by: str
-    individual_contributions_text: str
+    individual_contributions: str
     office_state: str
     office_district: str
     special_election: str
@@ -31,19 +31,14 @@ class CandidateSummary(NamedTuple):
     runoff_election: str
     general_election: str
     general_election_percent: str
-    other_committee_contributions_text: str
+    other_committee_contributions: str
     party_contributions: str
     coverage_end: str
     individual_refunds: str
     committee_refunds: str
 
-    @property
-    def individual_contributions(self):
-        return Money.parse(self.individual_contributions_text)
-
-    @property
-    def other_committee_contributions(self):
-        return Money.parse(self.other_committee_contributions_text)
+    def amount(self, field):
+        return Money.parse(getattr(self, field))
 
 
 def candidate_summaries(bulk_dir, cycle):
