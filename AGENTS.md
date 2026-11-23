@@ -19,8 +19,8 @@ signals, priorities), follow-through on campaign promises and how
 funding shapes platforms — as a **voter guide for 2028**.
 
 This tracker is layer 1: every person in Congress and the money behind
-them, from FEC filings. **664 rows** — the union of the 119th Congress
-(540 served) and the incoming 120th (535 named).
+them, from FEC filings: everyone who served in the 119th Congress or is
+named to the incoming 120th, one row per person.
 
 The ethos is audit-first: **show the evidence, never just the number.**
 Every figure traces to an FEC filing, and the method for every column is
@@ -50,7 +50,7 @@ documented is not done.
   GIT_SSH_COMMAND="ssh -i /home/hatch/.ssh/id_ed25519 -o IdentitiesOnly=yes -o UserKnownHostsFile=/home/hatch/.ssh/known_hosts -o ProxyCommand='nc -X connect -x 198.19.0.1:3128 %h %p'" git push
   ```
 
-- **SSH home-dir split (Nov 12, 2026):** the shell's `$HOME` is
+- **SSH home-dir split:** the shell's `$HOME` is
   `/home/hatch` but ssh resolves `~` from the passwd entry, which is
   `/root` — so the `~` form of the push command fails with "Host key
   verification failed". The command above (and `~/.ssh/config`) uses
@@ -73,7 +73,7 @@ documented is not done.
 
 ## 3. Layout
 
-The staged layout (Nov 12, 2026 restructure). Paths below are
+Paths below are
 repo-relative; `config.yaml` is the single source of truth for shared
 values (committee IDs, cycles, paths, thresholds, API settings) — change
 a value there, never in a script. Scripts resolve all paths from the repo
@@ -107,7 +107,7 @@ the-receipts/
 │   │                          # run_history.py — the FEC input checks
 │   └── rebuild.py             # the one command that runs the whole pipeline
 ├── data/
-│   ├── raw/                   # staged FEC bulk (~5.6 GB), GITIGNORED,
+│   ├── raw/                   # staged FEC bulk (several GB), GITIGNORED,
 │   │                          # re-downloadable — see research/bulk-inventory.md
 │   ├── source/                # committed TRUE inputs: legislators yaml,
 │   │                          # dedup-applied.json, manual_roster_notes.json,
@@ -127,7 +127,7 @@ the-receipts/
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
                                # from receipts/site/build_site.py; never hand-edited)
-                               # — live on GitHub Pages since Nov 12, 2026
+                               # — live on GitHub Pages
 ```
 
 - The dataset (`congress-money-tracker.csv` / `.json`) stays at the repo
@@ -167,26 +167,22 @@ the-receipts/
   in ANY money source**. A member who ran unopposed in 2026
   (`unopposed_2026` — no other candidate in the race with receipts over
   $0 in weball26; the race comes from the filing's own row, not the
-  roster district) is also null, not clean. Verified-clean in 2026:
-  **74 total (64 House + 10 Senate)**. Nulls: Elaine Luria (unverified
-  — her real 2026 campaign H6VA02198, $8.04M receipts, is not linked in
-  the roster; linking it is a roster change, not something to do
-  unilaterally) plus three unopposed (Pressley MA-07, Jacobs CA-51,
-  Radewagen AS). Career-clean is derived from career money columns only
-  and is untouched by the unopposed rule.
+  roster district) is also null, not clean. When a member's real 2026
+  campaign is not linked in the roster, linking it is a roster change,
+  never something to do unilaterally. Career-clean is derived from
+  career money columns only and is untouched by the unopposed rule.
 - **Cutoffs differ by data family and must be labeled everywhere.**
-  Committee money (pas2) through **Oct 14, 2026**; weball-derived
-  figures (individual, self-funding, topline) through **Oct 14, 2026**;
-  all-IE (UDP too) through **Nov 3, 2026** — as judged for snapshot
-  `fec-bulk-2026-11-22`; `config.yaml` `verification.coverage_end` is
-  the one place they are set, and they are re-judged at every rebaseline. 2026 is partial — say so
-  wherever 2026 figures appear.
+  Committee money (pas2), weball-derived figures (individual,
+  self-funding, topline) and all-IE (UDP too) each have their own
+  coverage end date. `config.yaml` `verification.coverage_end` is the
+  one place they are set, and they are re-judged at every rebaseline.
+  The current cycle is partial — say so wherever its figures appear.
 - **Weball is a lower bound where the FEC API runs ahead — document the
-  gap, never paper over it.** Constantino: weball loans $14.4M vs API
-  $17M. Spot-check named cases against the FEC API where the bulk lags.
+  gap, never paper over it.** Spot-check named cases against the FEC
+  API where the bulk lags.
 - **All-IE "career" means 2022–2026 only** (the 2010–2020 IE files are
-  not staged) — label it as such everywhere. IE files contain tens of
-  billions in bogus filings, so the filter (registered committee +
+  not staged) — label it as such everywhere. IE files contain large
+  amounts of bogus filings, so the filter (registered committee +
   identified candidate) and the excluded amounts are part of the method
   (methodology §4, §8), not an implementation detail.
 - **Freshness is an overlay, not part of the dataset.**
@@ -231,10 +227,6 @@ figure to get past it.
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
    FEC updates its bulk files in place, so a live download is a
    different input and can never reproduce a committed dataset.
-   Verified Nov 22, 2026 on `fec-bulk-2026-11-22`: byte-identical on
-   Python 3.11 / 3.12 / 3.13 (CSV md5
-   `6ada15a535ce1865b9485ff2f2b4ebbf`, JSON md5
-   `f5b46dbcb954c4443c4fa9edb81797c1`).
    The run checks (`receipts/validate/run_history.py`) stop a rebuild when
    a FEC file lost rows since the last snapshot in
    `data/source/run_history.csv`, or the newest current-cycle file is
@@ -264,8 +256,8 @@ figure to get past it.
    cannot catch a missing money dimension.** Any new money type needs a
    **coverage check** — what the FEC reports vs what the tracker
    covers — not just a math check. (This is how the self-funding blind
-   spot survived: 474 people self-funded something, 17 with
-   self-funding exceeding their total_accepted, and no audit fired.)
+   spot survived: candidate loans and own contributions were never
+   pulled, so no audit could notice them missing.)
 5. New columns, rules, or definitions land in `methodology.md` **in the
    same change** that lands the data.
 
@@ -273,7 +265,7 @@ figure to get past it.
 
 - **Nothing goes public without Craig's explicit go-ahead.** The live
   site (GitHub Pages, publishing source `docs/` on `master`, enabled by
-  Craig Nov 12, 2026) is the one public surface; nothing BEYOND it goes
+  Craig) is the one public surface; nothing BEYOND it goes
   public — do not share or publish anything else derived from the repo,
   do not enable any other publishing. The intro page stays private.
   Public launch beyond the live site is his call, in his words.
@@ -319,7 +311,7 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
 - **`fec-snapshot.yml`** — manual, and called by the refresh. Publishes the live FEC bulk files as
   an immutable `fec-bulk-<date>` Release (raw files + `SHA256SUMS` +
   `PROVENANCE.tsv`). Public FEC data; Craig approved publishing these
-  snapshots Nov 22, 2026. Does not touch the dataset.
+  snapshots. Does not touch the dataset.
 - **`fec-refresh.yml`** — weekly (Sundays 09:17 UTC), on demand, or on
   a push to `refresh-now`. Automates §5 step 2a: snapshot today's bulk
   and candidate files (via `fec-snapshot.yml`), stage them, set
@@ -330,8 +322,8 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
   older open refresh pull request as superseded. **It never pushes to
   `master` and never force-pushes**; merging is Craig's call (§6), after
   re-judging `verification.coverage_end`, which the workflow leaves as
-  it was. Replaces `scheduled-refresh.yml` (retired Nov 23, 2026; it
-  rebuilt from a live download and never completed a run).
+  it was. It replaced `scheduled-refresh.yml`, which rebuilt from a
+  live download.
 
 **Pinned, not cached.** CI stages the pinned snapshot Release on every
 run and verifies every sha256, so its inputs are identified by content.
@@ -341,8 +333,7 @@ different input every day. Only the snapshot step downloads live files.
 **Freshness overlay — not scheduled.** `pull_freshness.py --all` ran only
 in the retired scheduled refresh, which never completed a run. No
 workflow runs it now; it is run by hand with the `FEC_API_KEY` key
-(registered by Craig at api.data.gov, also a repository secret since
-Nov 12, 2026; rotate it in Settings → Secrets and variables → Actions if
+(registered by Craig at api.data.gov, also a repository secret; rotate it in Settings → Secrets and variables → Actions if
 it leaks or expires). `--all` runs the six F24 committee sweeps (gated
 per committee by `receipts/ingest/pull_gate.py`); `--no-gate` forces the full run.
 
@@ -350,7 +341,7 @@ per committee by `receipts/ingest/pull_gate.py`); `--no-gate` forces the full ru
 (§2), and a workflow change is its own commit, never bundled with a data
 or pipeline change.
 
-## 9. Code style (Craig, Nov 22, 2026)
+## 9. Code style (Craig)
 
 Code should read without commentary: small functions, names that say
 what a thing is, one level of abstraction per function. Use comments
@@ -375,7 +366,7 @@ apply, in human form:
   (`craig/<thing>`) or state the area you're touching; never work the
   same files as a running agent job.
 - Never hand-edit generated files (dataset, `data/intermediate/`).
-- The bulk data (~5.6 GB, gitignored) is **not in the clone** — a local
+- The bulk data (several GB, gitignored) is **not in the clone** — a local
   rebuild needs the documented download (`README.md`,
   `research/bulk-inventory.md`). Editing code, methodology, or docs
   doesn't need it.
