@@ -1,0 +1,122 @@
+# Weekly FEC refresh: freeze today's FEC files as snapshots, rebaseline
+# against them, and open a pull request showing every figure that moved.
+# It never pushes to master: merging changes public figures, so it waits
+# for Craig's go-ahead (AGENTS.md §5 step 2a, §6). A week with no moved
+# figure opens nothing. A newer refresh closes the older open one as
+# superseded; it never force-pushes over anyone's commits.
+
+name: FEC refresh
+
+on:
+  schedule:
+    - cron: "17 9 * * 0"  # Sundays 09:17 UTC (04:17 ET), off-hours
+  workflow_dispatch:
+  push:
+    branches: [refresh-now]  # push this branch to run a refresh on demand
+
+permissions:
+  contents: write       # snapshot Releases, the refresh branch
+  pull-requests: write  # open the refresh pull request
+  actions: write        # start CI on the refresh branch
+
+concurrency:
+  group: fec-refresh
+  cancel-in-progress: false
+
+jobs:
+  bulk:
+    uses: ./.github/workflows/fec-snapshot.yml
+    with:
+      set: bulk
+
+  candidates:
+    uses: ./.github/workflows/fec-snapshot.yml
+    with:
+      set: candidates
+
+  rebaseline:
+    name: Rebaseline and open a pull request
+    needs: [bulk, candidates]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BULK_TAG: ${{ needs.bulk.outputs.tag }}
+      CANDIDATES_TAG: ${{ needs.candidates.outputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Stage the new snapshots
+        run: |
+          ./fetch_snapshot.sh "$BULK_TAG"
+          ./fetch_snapshot.sh "$CANDIDATES_TAG"
+
+      - name: Date the data by the snapshot
+        run: |
+          sed -i -E "s/^data_as_of: \".*\"/data_as_of: \"${BULK_TAG#fec-bulk-}\"/" config.yaml
+          grep '^data_as_of:' config.yaml
+
+      - name: Rebaseline
+        run: python3 src/rebuild.py --rebaseline
+
+      - name: Count the figures that moved
+        id: moved
+        run: |
+          git show HEAD:data/source/baseline.json > "$RUNNER_TEMP/baseline-before.json"
+          count=$(python3 -m src.validate.baseline_changes \
+            "$RUNNER_TEMP/baseline-before.json" data/source/baseline.json --count)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "$count baseline figures moved since the pinned snapshot." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open the refresh pull request
+        if: steps.moved.outputs.count != '0'
+        env:
+          MOVED: ${{ steps.moved.outputs.count }}
+        run: |
+          set -euo pipefail
+          branch="fec-refresh-${BULK_TAG#fec-bulk-}-r$GITHUB_RUN_NUMBER"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add -u
+          git commit -q -m "data: refresh from $BULK_TAG and $CANDIDATES_TAG" \
+            -m "Rebaselined by the FEC refresh workflow; $MOVED baseline figures moved."
+          git push origin "$branch"
+
+          {
+            echo "Weekly FEC refresh, rebuilt from \`$BULK_TAG\` and \`$CANDIDATES_TAG\`: **$MOVED baseline figures moved.**"
+            echo
+            echo "Merging changes the public site, so this waits for Craig's go-ahead. Before merging:"
+            echo "- Re-judge \`verification.coverage_end\` in \`config.yaml\`. The dates still say what they said for the previous snapshot."
+            echo "- Check the page figures (\`site.*\`) in the table below."
+            echo
+            python3 -m src.validate.baseline_changes "$RUNNER_TEMP/baseline-before.json" data/source/baseline.json
+          } > "$RUNNER_TEMP/body.md"
+
+          if ! url=$(gh pr create --base master --head "$branch" \
+                       --title "FEC refresh: ${BULK_TAG#fec-bulk-} ($MOVED figures moved)" \
+                       --body-file "$RUNNER_TEMP/body.md"); then
+            echo "::error::Could not open the pull request. Turn on Settings → Actions → General → 'Allow GitHub Actions to create and approve pull requests', or open it by hand: https://github.com/$GITHUB_REPOSITORY/compare/master...$branch"
+            exit 1
+          fi
+          echo "Opened $url" >> "$GITHUB_STEP_SUMMARY"
+
+          gh pr list --state open --json number,headRefName \
+            --jq ".[] | select(.headRefName | startswith(\"fec-refresh-\")) | select(.headRefName != \"$branch\") | .number" |
+          while read -r older; do
+            gh pr close "$older" --comment "Superseded by $url."
+          done
+
+          gh workflow run ci.yml --ref "$branch"
