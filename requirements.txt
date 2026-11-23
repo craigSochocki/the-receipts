@@ -3,3 +3,4 @@
 # (./init.sh creates a venv and installs these for you.)
 pyyaml>=6.0
 pandas>=2.0
+pytest>=8.0
