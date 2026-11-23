@@ -431,6 +431,12 @@
   the gate automatically); `--no-gate` forces the full run. On Sunday
   check the snapshot artifact's `gate` record: `calls_used`,
   `affected_person_keys`, and whether the state file advanced.
+  **Nov 23: the gate had never gated.** `check_family` called an
+  `api_get` that `pull_gate` never imported, so every gated `--all`
+  logged a gate error and ran in full (safe, never a skip). Fixed in #34;
+  replayed on recorded responses a gated `--all` drops from 3,028 calls
+  to 23. Still unconfirmed live: no workflow runs the freshness layer and
+  no registered key has run it since.
 - Add the 16 members who served in the 119th but left before Nov 2026
   (Vance, Rubio, Graham, D. Scott, Turner, Grijalva, Connolly, Green,
   Sherrill, Greene, LaMalfa, Gonzales, Swalwell, Cherfilus-McCormick,
