@@ -38,17 +38,12 @@ import csv
 import hashlib
 import json
 from collections import defaultdict
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from receipts.common.config import load_config
+from receipts.common.settings import settings
 from receipts.store.read import connect
-
-CFG = load_config()
-ROOT = CFG['_root']
-SITE_DIR = ROOT / CFG['paths']['site']
-DATASET_JSON = ROOT / CFG['paths']['dataset_json']
-DATASET_CSV = ROOT / CFG['paths']['dataset_csv']
 
 # ---- compact encoding: column lists (fixed order) ----
 # Scalar fields, in the order they appear in each row array. Must cover
@@ -370,10 +365,10 @@ def clean_method_html(dataset):
 
 
 def main():
-    dataset = json.loads(DATASET_JSON.read_text())
+    dataset = json.loads(settings().paths.dataset_json.read_text())
     if not isinstance(dataset, list):
         raise SystemExit('dataset JSON is not a list')
-    with open(DATASET_CSV, newline='') as f:
+    with open(settings().paths.dataset_csv, newline='') as f:
         csv_cols = next(csv.reader(f))
     missing = [k for k in SCALARS if k not in dataset[0]]
     if missing:
@@ -390,14 +385,14 @@ def main():
         'tc': TC_COLS,
         'csv': csv_cols,
     }
-    dataset_md5 = hashlib.md5(DATASET_JSON.read_bytes()).hexdigest()
+    dataset_md5 = hashlib.md5(settings().paths.dataset_json.read_bytes()).hexdigest()
     data_as_of = sorted({r.get('data_as_of', '') for r in dataset})
     # Visible data-as-of stamp (header). Coverage end dates come from
     # config.yaml verification.coverage_end — never hardcoded here.
     # The build time reuses the exact "Generated <ts>" string the footer
     # uses, so the verifier's strip_ts regex normalizes both occurrences
     # and the generator stays deterministic apart from that timestamp.
-    coverage = CFG['verification']['coverage_end']
+    coverage = asdict(settings().verification.coverage_end)
 
     def fmt_cov(iso):
         return datetime.strptime(iso, '%Y-%m-%d').strftime('%b %d, %Y')
@@ -442,8 +437,8 @@ def main():
     html = html.replace('%%COV_IE%%', fmt_cov(coverage['independent_expenditures']))
     html = html.replace('%%FRESH_LINE%%', fresh_line)
     html = html.replace('%%GENERATED_AT%%', generated_at)
-    SITE_DIR.mkdir(parents=True, exist_ok=True)
-    out = SITE_DIR / 'index.html'
+    settings().paths.site.mkdir(parents=True, exist_ok=True)
+    out = settings().paths.site / 'index.html'
     out.write_text(html, encoding='utf-8')
     print(f'rows: {len(rows)}')
     print(f'dataset md5: {dataset_md5}')

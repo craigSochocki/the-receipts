@@ -57,21 +57,17 @@ import tempfile
 import threading
 import time
 import urllib.request
+from dataclasses import asdict
 from datetime import datetime
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from receipts.common.config import load_config
+from receipts.common.settings import settings
 from receipts.site.build_site import SCALARS, build_opp_payload
 from receipts.site.build_site import main as build_main
 from receipts.site.expectations import figure_literals, site_expectations
 from receipts.validate.audit import Audit
-
-CFG = load_config()
-ROOT = CFG['_root']
-SITE_DIR = ROOT / CFG['paths']['site']
-DATASET_JSON = ROOT / CFG['paths']['dataset_json']
 
 
 def extract_payload(html, script_id):
@@ -149,7 +145,7 @@ def coverage_stamp(audit, page):
     the ones in config.yaml verification.coverage_end (formatted
     "Sep 30, 2026" style), and it must carry the "Data as of" label.
     """
-    cov = CFG['verification']['coverage_end']
+    cov = asdict(settings().verification.coverage_end)
     cov_dates = [
         datetime.strptime(cov[k], '%Y-%m-%d').strftime('%b %d, %Y')
         for k in ('committee_money_pas2', 'weball', 'independent_expenditures')
@@ -164,7 +160,7 @@ def coverage_stamp(audit, page):
 
 def data_round_trip(audit, page):
     """The embedded rows decode to exactly the published dataset."""
-    dataset = json.loads(DATASET_JSON.read_text())
+    dataset = json.loads(settings().paths.dataset_json.read_text())
     audit.check('embedded row count is 664', len(page.rows) == 664, f'got {len(page.rows)}')
     audit.check(
         'column lists match generator',
@@ -924,7 +920,7 @@ def tabular_numerals(audit, page):
 
 
 def explore_stats(audit, page):
-    cov = CFG['verification']['coverage_end']
+    cov = asdict(settings().verification.coverage_end)
     # ---- Wave 2 (redesign): D7 Explore stats 7 -> 3 ----
     # Only three cards: people tracked, the not-dirty count, and one
     # combined "not judged" card (9 ran unopposed + 1 unverified,
@@ -1047,7 +1043,7 @@ def javascript_parses(audit, page):
 
 def served_page(audit, page):
     """serve docs/ locally"""
-    handler = partial(SimpleHTTPRequestHandler, directory=str(SITE_DIR))
+    handler = partial(SimpleHTTPRequestHandler, directory=str(settings().paths.site))
     srv = ThreadingHTTPServer(('127.0.0.1', 0), handler)
     port = srv.server_address[1]
     t = threading.Thread(target=srv.serve_forever, daemon=True)
@@ -1087,11 +1083,11 @@ def runtime_smoke_test(audit, page):
     """runtime smoke test (runs the page's JS against a DOM stub)"""
     import shutil
 
-    smoke = ROOT / 'receipts' / 'site' / 'smoke_test.js'
+    smoke = settings().root / 'receipts' / 'site' / 'smoke_test.js'
     if shutil.which('node') is None:
         print('SKIP runtime smoke test (node not found)')
     else:
-        exp_path = ROOT / CFG['paths']['intermediate'] / 'site_expectations.json'
+        exp_path = settings().paths.intermediate / 'site_expectations.json'
         exp_path.parent.mkdir(parents=True, exist_ok=True)
         exp_path.write_text(json.dumps(page.expected, indent=1))
         r = subprocess.run(
@@ -1149,7 +1145,7 @@ SECTIONS = [
 
 
 def main():
-    path = SITE_DIR / 'index.html'
+    path = settings().paths.site / 'index.html'
     if not path.exists():
         raise SystemExit('FAIL docs/index.html does not exist: run build_site.py')
     audit = Audit()
@@ -1161,7 +1157,7 @@ def main():
             section(audit, page)
     audit.finish(
         'All site checks passed.\n'
-        f'dataset md5: {hashlib.md5(DATASET_JSON.read_bytes()).hexdigest()}'
+        f'dataset md5: {hashlib.md5(settings().paths.dataset_json.read_bytes()).hexdigest()}'
     )
 
 
