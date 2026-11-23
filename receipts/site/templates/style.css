@@ -1,0 +1,168 @@
+
+:root{--ink:#1a1a1a;--muted:#5b5b5b;--line:#d8d8d8;--bg:#fff;--soft:#f4f4f2;--accent:#14532d;--accent-soft:#e8f3ec;--chip:#eef2f7}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
+.skip-link{position:absolute;left:16px;top:-60px;z-index:100;background:var(--ink);color:#fff;padding:10px 14px;border-radius:0 0 8px 8px;text-decoration:none;font-size:.95rem}
+.skip-link:focus{top:0}
+header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
+h1{font-size:1.15rem;margin:0 0 4px;letter-spacing:-.01em}
+h1 a{color:inherit;text-decoration:none}
+h1 a:hover{text-decoration:underline}
+.sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
+.stamp{font-size:.9rem;background:var(--soft);border-left:4px solid var(--ink);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.stat{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
+.stat b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+.cutoffs{font-size:.82rem;color:var(--muted);margin:6px 0 0}
+.cutoffs b{color:var(--ink)}
+details.cutoffs summary{cursor:pointer;font-weight:600}
+details.cutoffs p{margin:6px 0 0}
+/* U1 (leftovers): the tab bar sticks in Explore only — the tabs are
+   hidden in front-door mode anyway, so there is nothing to stick
+   there. The background keeps table rows from showing through the
+   strip's gaps while it sticks. */
+.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin;position:sticky;top:0;z-index:10;background:var(--bg)}
+.tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+main{max-width:1120px;margin:0 auto;padding:16px}
+section[hidden]{display:none}
+#front-door[hidden],#explore-head[hidden],#tabs-nav[hidden],main[hidden],footer[hidden]{display:none}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.controls-rows{flex-direction:column;align-items:stretch}
+.controls-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls-label{font-size:.9rem;font-weight:700}
+.controls input[type="search"],.controls select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px}
+.controls input[type="search"]{flex:1 1 200px}
+.controls label{font-size:.9rem;display:flex;align-items:center;gap:5px}
+.btn{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;min-height:40px}
+.btn.ghost{background:#fff;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.chips:empty{display:none}
+.chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 11px;font-size:.85rem;cursor:pointer}
+.chip.reset{background:#fff;border-color:var(--ink);font-weight:600}
+.viewbtns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.viewbtns button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:.88rem;cursor:pointer}
+.viewbtns button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
+.totals{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.totals .t{background:var(--chip);border-radius:8px;padding:7px 11px;font-size:.88rem}
+.totals .t b{display:block;font-size:1rem;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{position:sticky;top:0;background:var(--soft);cursor:pointer;user-select:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#f7f9f7}
+td.name{font-weight:600;white-space:normal;min-width:150px}
+.name-btn{background:none;border:none;padding:0;font:inherit;font-weight:600;text-align:left;cursor:pointer;color:inherit}
+.name-btn:hover{text-decoration:underline}
+.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.8rem;font-weight:600}
+.badge.clean{background:var(--accent-soft);color:var(--accent)}
+.badge.dirty{background:var(--ink);color:#fff}
+.badge.unver{background:#f3f3f3;color:var(--muted)}
+.badge.unopp{background:#fff3d6;color:#7a5b00}
+.badge.below{background:#fef3c7;color:#92400e}
+.badge.flag{background:#ede9fe;color:#5b21b6}
+.tol-note{font-size:.88rem;color:var(--muted)}
+.pchip{display:inline-block;min-width:1.35em;text-align:center;padding:0 6px;border-radius:999px;font-size:.8rem;font-weight:700;line-height:1.55;vertical-align:1px}
+.pchip.d{background:#dbeafe;color:#1e40af}
+.pchip.r{background:#fee2e2;color:#991b1b}
+.pchip.o{background:#e5e7eb;color:#374151}
+.ostatus{color:var(--muted);font-size:.85rem;white-space:nowrap}
+footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);font-size:.85rem}
+.foot-totals{font-size:.9rem;color:var(--ink);margin-bottom:8px}
+.detail{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:50}
+.detail.open{display:block}
+.detail .sheet{position:absolute;inset:auto 0 0 0;max-height:92vh;overflow-y:auto;background:#fff;border-radius:14px 14px 0 0;padding:20px 16px 32px;max-width:900px;margin:0 auto}
+@media(min-width:700px){.detail .sheet{inset:5vh 0;max-height:90vh;border-radius:14px}}
+.detail h2{margin:0 0 2px}
+.detail .meta{color:var(--muted);margin:0 0 14px}
+.detail .detail-head{font-size:.95rem;margin:0 0 4px}
+.detail h3{margin:18px 0 6px;font-size:1.05rem}
+.detail .cycle summary{font-weight:600;font-size:1.05rem;margin:18px 0 6px;cursor:pointer}
+.detail table{min-width:0}
+.detail th{cursor:default}
+/* U10: one combined sticky header row in the sheet — name + prev/next
+   + Close — with the anchor nav under it. The sheet is the scroll
+   container, so sticky works here (unlike the table header, FE10). */
+.detail-top{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:8px;padding:10px 0 8px;z-index:2}
+.detail-top h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
+.detail-actions{display:flex;gap:6px;flex:none}
+.detail-actions .btn{padding:4px 8px;font-size:.85rem}
+.detail-nav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
+.detail-nav .btn{padding:4px 8px;font-size:.85rem}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:.92rem}
+.kv div{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:4px 0}
+.kv span:first-child{color:var(--muted)}
+.notes{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:.9rem}
+.leader{list-style:none;margin:0 0 20px;padding:0}
+.leader li{border-bottom:1px solid var(--line)}
+.leader-row{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:none;padding:8px 4px;font:inherit;cursor:pointer;color:inherit}
+.leader-row:hover{background:#f7f9f7}
+.leader li b{font-weight:600}
+.leader .amt{font-variant-numeric:tabular-nums;white-space:nowrap}
+.leader .who{color:var(--muted);font-size:.85rem}
+h2.sec{font-size:1.25rem;margin:4px 0 10px}
+.method h3{margin:16px 0 4px}
+.method p,.method li{font-size:.95rem}
+.method ul{padding-left:20px}
+.method table{min-width:0}
+.method th{cursor:default}
+.callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.story{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;font-size:1.05rem;margin:0 0 10px}
+.frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
+.frontdoor h2{font-size:1.3rem;letter-spacing:.02em;margin:32px 0 6px}
+.frontdoor .kicker{display:block;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.frontfoot{border-top:1px solid var(--line);padding-top:12px;margin-top:8px;color:var(--muted);font-size:.85rem}
+.frontdoor h2:first-child{margin-top:12px}
+/* Scrollytelling chapters: one chapter per beat of the story, revealed
+   as the reader scrolls (see initReveals). Chapters are visible by
+   default; the hidden-before-reveal state lives under html.js only,
+   so no-JS (or a failed observer) still shows every chapter. */
+.frontdoor .chapter{margin:0 0 48px}
+.frontdoor .chapter:first-child{margin-top:8px}
+html.js .chapter{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
+html.js .chapter.in{opacity:1;transform:none}
+html.js .chapter .dirtiest li{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
+html.js .chapter.in .dirtiest li{opacity:1;transform:none}
+html.js .chapter .dot{opacity:0;transition:opacity .4s ease}
+html.js .chapter.in .dot{opacity:1}
+html.js .chapter .tile{opacity:0;transition:opacity .45s ease}
+html.js .chapter.in .tile{opacity:1}
+@media (prefers-reduced-motion: reduce){
+html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
+}
+@media(max-width:560px){.hook{font-size:1.9rem}.big-number{font-size:1.8rem}.detail .kv{grid-template-columns:1fr}}
+.comp{display:flex;flex-direction:column;gap:18px}
+.comp figure{margin:0;min-width:0}
+.comp svg{width:100%;height:auto;display:block}
+.comp [data-key]{cursor:pointer}
+.comp figcaption{text-align:center;font-weight:600;margin-top:2px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
+.legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
+.hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600;font-variant-numeric:tabular-nums}
+.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2;font-variant-numeric:tabular-nums}
+.big-label{color:var(--muted);margin:2px 0 10px}
+.dirtiest{list-style:none;margin:6px 0 0;padding:0}
+.dirtiest li{border-bottom:1px solid #ececec}
+.dirty-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%;text-align:left;background:none;border:none;padding:12px 2px;font:inherit;cursor:pointer;color:inherit}
+.dirty-row:hover{background:#f7f9f7}
+.dirty-row .nm{font-weight:600}
+.dirty-row .pl{color:var(--muted);font-size:.88rem;display:block}
+.dirty-row .amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.fine{color:var(--muted);font-size:.88rem;margin:10px 0 0}
+.fresh{color:var(--muted);font-size:.88rem;margin:28px 0 12px}
+#explore-btn{width:100%}
+.story b{font-size:1.2rem}
+.linklike{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
+.finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.finder-slot{margin:0 0 12px}
+.finder-slot summary{cursor:pointer;font-weight:600}
+.finder label{font-weight:600;font-size:.95rem}
+.finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
+.finder .person-btn{white-space:normal;text-align:left}
+@media(max-width:560px){.finder select{flex:1 1 100%}.finder label{flex:1 1 100%}}
