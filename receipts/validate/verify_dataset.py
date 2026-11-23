@@ -79,16 +79,11 @@ from collections import Counter
 
 import pandas as pd
 
-from receipts.common.config import load_config
 from receipts.common.files import read_json, read_yaml
+from receipts.common.settings import settings
 from receipts.fec.weball import candidate_summaries
 from receipts.store.read import connect
 from receipts.validate.audit import Audit
-
-CFG = load_config()
-ROOT = CFG['_root']
-CURRENT = CFG['cycles']['current']
-
 
 METHODOLOGY_TOTAL_COLS = [
     'individual_contribution_total_career',
@@ -156,7 +151,7 @@ def competition_ranks(records, col):
 
 
 def cycle_sum(entries, field):
-    vals = [e[field] for e in entries if e['cycle'] == CURRENT]
+    vals = [e[field] for e in entries if e['cycle'] == settings().cycles.current]
     return round(sum(vals), 2) if vals else 0
 
 
@@ -183,7 +178,7 @@ def load_weball_2026_races():
     """
     race_map = {}
     by_cid = {}
-    for row in candidate_summaries(ROOT / CFG['paths']['bulk'], CURRENT):
+    for row in candidate_summaries(settings().paths.bulk, settings().cycles.current):
         try:
             receipts = float(row.total_receipts or 0)
         except ValueError:
@@ -200,7 +195,7 @@ def rows_and_order(audit, dataset):
     audit.check('person_keys unique', len(dataset.by_key) == len(dataset.records))
     roster_keys = [
         r['person_key']
-        for r in read_json(ROOT / CFG['paths']['roster'])
+        for r in read_json(settings().paths.roster)
         if r['person_key'] != 'kristen-mcdonaldrivetmihouse'
     ]
     audit.check(
@@ -263,7 +258,9 @@ def other_committees(audit, dataset):
         'other_unclassified',
     ]
     lamb = dataset.by_key['marklambazhouse']
-    lamb_pc26 = [e for e in lamb['other_committees_per_cycle'] if e['cycle'] == CURRENT]
+    lamb_pc26 = [
+        e for e in lamb['other_committees_per_cycle'] if e['cycle'] == settings().cycles.current
+    ]
     lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
     audit.check(
         'Lamb 2026 other-committee column equals its per-cycle pas2 sum',
@@ -279,7 +276,7 @@ def other_committees(audit, dataset):
         lamb_weball, *_ = db.execute(
             'SELECT other_committee_contributions_cents FROM candidate_summaries '
             "WHERE candidate_id = 'H6AZ05265' AND cycle = ?",
-            [CURRENT],
+            [settings().cycles.current],
         ).fetchone()
     lamb_residual = round(lamb_weball / 100 - lamb_total, 2)
     audit.pin(
@@ -459,8 +456,8 @@ def clean_counts(audit, dataset):
 # The tier logic is re-derived from the config thresholds, independently of
 # compute_2026.py (same definitions, separate code).
 def corp_material(corp, total_receipts, preset):
-    th = CFG['verification']['tolerance_presets'][preset]
-    if corp <= th['corp_amount']:
+    th = settings().verification.tolerance_presets[preset]
+    if corp <= th.corp_amount:
         return False
     if (
         not isinstance(total_receipts, (int, float))
@@ -468,7 +465,7 @@ def corp_material(corp, total_receipts, preset):
         or total_receipts <= 0
     ):
         return False
-    return corp / total_receipts > th['corp_share']
+    return corp / total_receipts > th.corp_share
 
 
 def tier_for(clean, flag, corp, total_receipts, preset):
@@ -614,7 +611,7 @@ def tiered_rule(audit, dataset):
 def columns_2026(audit, dataset):
     """(e) 2026 columns, clean rule, dep_share"""
     race_map, by_cid = load_weball_2026_races()
-    credit_2026 = opposition_credit(cycle=CURRENT)
+    credit_2026 = opposition_credit(cycle=settings().cycles.current)
     oc_buckets_e = [
         'party_committees',
         'leadership_pacs',
@@ -645,7 +642,7 @@ def columns_2026(audit, dataset):
             if denom > 0
             else None
         )
-        sf26 = [e for e in r['self_funding_per_cycle'] if e['cycle'] == CURRENT]
+        sf26 = [e for e in r['self_funding_per_cycle'] if e['cycle'] == settings().cycles.current]
         expect['self_funding_2026'] = (
             round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf26), 2)
             if sf26
@@ -662,7 +659,9 @@ def columns_2026(audit, dataset):
         expect['cash_on_hand_2026'] = (
             round(sum(e['cash_on_hand'] for e in sf26), 2) if sf26 else None
         )
-        oc26 = [e for e in r['other_committees_per_cycle'] if e['cycle'] == CURRENT]
+        oc26 = [
+            e for e in r['other_committees_per_cycle'] if e['cycle'] == settings().cycles.current
+        ]
         expect['other_committees_total_2026'] = (
             round(sum(sum(e[b] for b in oc_buckets_e) for e in oc26), 2) if oc26 else 0
         )
@@ -673,10 +672,11 @@ def columns_2026(audit, dataset):
         # 2026 entry, or a self-funding 2026 entry whose coverage end
         # date falls in calendar 2026.
         has_linkage = (
-            any(e['cycle'] == CURRENT for e in r['per_cycle'])
-            or any(e['cycle'] == CURRENT for e in r['udp_per_cycle'])
+            any(e['cycle'] == settings().cycles.current for e in r['per_cycle'])
+            or any(e['cycle'] == settings().cycles.current for e in r['udp_per_cycle'])
             or any(
-                e['cycle'] == CURRENT and str(e.get('coverage_end_date', '')).endswith('/2026')
+                e['cycle'] == settings().cycles.current
+                and str(e.get('coverage_end_date', '')).endswith('/2026')
                 for e in r['self_funding_per_cycle']
             )
         )
@@ -731,7 +731,7 @@ def clean_spot_cases(audit, dataset):
         return [
             {'coverage_end_date': e['coverage_end_date'], 'candidate_loans': e['candidate_loans']}
             for e in rec['self_funding_per_cycle']
-            if e['cycle'] == CURRENT
+            if e['cycle'] == settings().cycles.current
         ]
 
     const = dataset.by_key['anthonyconstantinonyhouse']
@@ -809,7 +809,7 @@ def senate_class(audit, dataset):
     the person holds a seat into 2026, else the class of whoever held
     that seat during 2026 (appointee/outgoing holder, same state).
     """
-    leg = read_yaml(ROOT / CFG['paths']['source'] / 'legislators-current.yaml')
+    leg = read_yaml(settings().paths.source / 'legislators-current.yaml')
     leg_terms = {
         e['id'].get('bioguide'): [t for t in e['terms'] if t.get('type') == 'sen'] for e in leg
     }
@@ -927,7 +927,7 @@ def csv_matches_json(audit, dataset):
     csv_by_key = {row['person_key']: row for _, row in df.iterrows()}
     audit.check('CSV person_keys match JSON', set(csv_by_key) == set(dataset.by_key))
     mism = 0
-    json_keys = CFG['dataset']['json_keys']
+    json_keys = settings().dataset.json_keys
     for pk, r in dataset.by_key.items():
         crow = csv_by_key.get(pk)
         if crow is None:
@@ -986,12 +986,12 @@ SECTIONS = [
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('--dataset-csv', default=CFG['paths']['dataset_csv'])
-    ap.add_argument('--dataset-json', default=CFG['paths']['dataset_json'])
+    ap.add_argument('--dataset-csv', default=settings().paths.dataset_csv)
+    ap.add_argument('--dataset-json', default=settings().paths.dataset_json)
     args = ap.parse_args()
 
     audit = Audit()
-    dataset = Published(ROOT / args.dataset_json, ROOT / args.dataset_csv)
+    dataset = Published(settings().root / args.dataset_json, settings().root / args.dataset_csv)
     for section in SECTIONS:
         section(audit, dataset)
     audit.finish(
