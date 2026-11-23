@@ -7,7 +7,7 @@ that carry one, across all cycles, a later row winning a name collision.
 
 from typing import NamedTuple
 
-from receipts.common.settings import UDP
+from receipts.common.settings import settings
 from receipts.domain.blank_candidates import name_key, resolve
 from receipts.store.read import connect
 
@@ -36,7 +36,9 @@ class UdpRow(NamedTuple):
 class UdpRows:
     def __init__(self, people):
         with connect() as db:
-            filed = [UdpRow(*row) for row in db.execute(ROWS, [UDP]).fetchall()]
+            filed = [
+                UdpRow(*row) for row in db.execute(ROWS, [settings().committees.udp]).fetchall()
+            ]
         self.index, self.collisions = self._name_index(filed)
         self.rows, self.unresolved = [], []
         for row in filed:

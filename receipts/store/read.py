@@ -2,11 +2,11 @@
 
 import duckdb
 
-from receipts.common.settings import PATHS
+from receipts.common.settings import settings
 
 
 def connect():
-    return duckdb.connect(str(PATHS.store), read_only=True)
+    return duckdb.connect(str(settings().paths.store), read_only=True)
 
 
 def for_candidates(db, query, candidate_ids, *params):

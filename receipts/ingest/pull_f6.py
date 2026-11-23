@@ -39,7 +39,7 @@ import io
 import json
 import sys
 
-from receipts.common.fec_api import fec_api
+from receipts.common.fec_api import client
 
 
 def discover_f6(committee_id, since=None):
@@ -52,7 +52,7 @@ def discover_f6(committee_id, since=None):
     filings = []
     page = 1
     while True:
-        data = fec_api.get(
+        data = client().get(
             '/filings/',
             {
                 'form_type': 'F6',
@@ -80,7 +80,7 @@ def discover_f6(committee_id, since=None):
 def fetch_f6_csv(file_number):
     """One filing's docquery CSV as text (no API key needed)."""
     last3 = str(file_number)[-3:]
-    return fec_api.fetch_text(f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv')
+    return client().fetch_text(f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv')
 
 
 # Field positions in the docquery CSV records, counted from the live Constantino

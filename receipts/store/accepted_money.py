@@ -3,8 +3,7 @@
 
 import duckdb
 
-from receipts.common.settings import CAREER_CYCLES as CYCLES
-from receipts.common.settings import PATHS
+from receipts.common.settings import settings
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
 from receipts.store.gold import per_cycle_rows, write_gold
@@ -73,7 +72,7 @@ def notes_for(person, career, roster, on_file):
 
 
 def write():
-    with duckdb.connect(str(PATHS.store), read_only=True) as db:
+    with duckdb.connect(str(settings().paths.store), read_only=True) as db:
         people = tracked_people(db)
         roster_ids = {i for p in people for i in p['fec_candidate_ids']}
         counted, filed = money_by_candidate_cycle(db, roster_ids)
@@ -87,7 +86,7 @@ def write():
         ids = person['fec_candidate_ids']
         entries = [
             (cycle, candidate_id, counted[candidate_id, cycle])
-            for cycle in CYCLES
+            for cycle in settings().cycles.career
             for candidate_id in ids
             if (candidate_id, cycle) in filed
         ]

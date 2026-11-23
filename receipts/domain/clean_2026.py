@@ -6,7 +6,18 @@ money in 2026, judged only where there is 2026 data to judge and the race
 was contested.
 """
 
+from dataclasses import dataclass
+
 UNLINKED, UNOPPOSED = 'unlinked', 'unopposed'
+
+
+@dataclass(frozen=True)
+class TolerancePreset:
+    """How much corporate PAC money a preset tolerates before it counts as dirty."""
+
+    corp_amount: int
+    corp_share: float
+
 
 UNLINKED_NOTE = (
     " | 2026 DATA GAP: no 2026 per-cycle data found under the roster's linked candidate ID "
@@ -61,11 +72,11 @@ def verdict(in_120th, linked, unopposed, dirty):
 def corporate_money_material(corporate, total_receipts, preset):
     """Corporate PAC money counts as dirty under a preset only above BOTH its dollar and its
     share-of-receipts thresholds; with no positive receipts the share is undefined."""
-    if corporate <= preset['corp_amount']:
+    if corporate <= preset.corp_amount:
         return False
     if isinstance(total_receipts, bool) or not isinstance(total_receipts, int | float):
         return False
-    return total_receipts > 0 and corporate / total_receipts > preset['corp_share']
+    return total_receipts > 0 and corporate / total_receipts > preset.corp_share
 
 
 def tier(clean, flagged, corporate, total_receipts, preset):

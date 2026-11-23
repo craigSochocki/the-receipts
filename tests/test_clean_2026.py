@@ -1,13 +1,14 @@
 from receipts.domain.clean_2026 import (
     UNLINKED,
     UNOPPOSED,
+    TolerancePreset,
     race_label,
     races_and_unopposed,
     tier,
     verdict,
 )
 
-PRESET = {'corp_amount': 5000, 'corp_share': 0.05}
+PRESET = TolerancePreset(corp_amount=5000, corp_share=0.05)
 
 
 def test_a_race_whose_only_rivals_raised_nothing_is_unopposed():

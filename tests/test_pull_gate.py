@@ -130,11 +130,11 @@ def test_the_gate_names_who_has_new_filings_per_leg():
 
 
 def test_an_f24_from_a_sweep_committee_runs_that_sweep():
-    sweep_id = pull_gate.F24_SWEEP_COMMITTEES[0]['committee_id']
+    sweep_id = pull_gate.sweep_committees()[0]['committee_id']
     rows = [{**RECENT_F6[0], 'committee_id': sweep_id}]
     decision = gate(RecordedFilings(rows), families=['F24'])
     assert [c['committee_id'] for c in decision['f24_sweep_committees']] == [sweep_id]
-    assert len(decision['f24_sweeps_skipped']) == len(pull_gate.F24_SWEEP_COMMITTEES) - 1
+    assert len(decision['f24_sweeps_skipped']) == len(pull_gate.sweep_committees()) - 1
 
 
 def test_non_principal_committees_are_recorded():

@@ -4,6 +4,10 @@ Show the money behind politics — who funds every member of Congress, and what
 that money buys. Audit-first: every number traces back to an FEC filing, and
 the method for every column is written down in `methodology.md`.
 
+**New to the code?** Open `onboarding/index.html` in a browser: a start-to-finish
+tour of the pipeline that follows one real contribution from the FEC file to
+the site.
+
 ## What you get by cloning
 
 The finished dataset is already here: `congress-money-tracker.csv` /
@@ -278,8 +282,10 @@ https://github.com/craigSochocki/the-receipts/actions.
 
 `config.yaml` at the repo root is the single source of truth for committee
 IDs, cycles, paths, thresholds, and API settings. Change values there, never
-in the scripts. Scripts resolve all paths relative to the repo, so a checkout
-works from any directory on any machine.
+in the scripts. Code reads it through `settings()` (`receipts/common/settings.py`),
+which checks every key and type and stops the run naming any that is missing,
+unknown or wrong; a new key is added to its classes too. Paths resolve relative
+to the repo, so a checkout works from any directory on any machine.
 
 ## Layout
 

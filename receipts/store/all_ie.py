@@ -13,16 +13,7 @@ from typing import NamedTuple
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
-from receipts.common.settings import (
-    CURRENT_CYCLE,
-    DATA_AS_OF,
-    PATHS,
-    UDP,
-    load_roster,
-)
-from receipts.common.settings import (
-    IE_CYCLES as CYCLES,
-)
+from receipts.common.settings import load_roster, settings
 from receipts.domain.blank_candidates import name_key, roster_matches
 from receipts.store.gold import write_gold
 from receipts.store.read import connect
@@ -319,7 +310,7 @@ def person_totals(person, totals):
     ids = Roster.ids(person)
     if not ids:
         return None
-    by_cycle = {cycle: totals.of(ids, {cycle}) for cycle in CYCLES}
+    by_cycle = {cycle: totals.of(ids, {cycle}) for cycle in settings().cycles.ie}
     career = [sum(amounts[i] for amounts in by_cycle.values()) for i in range(3)]
     return {'support': career[0], 'oppose': career[1], 'total': career[2], 'by_cycle': by_cycle}
 
@@ -343,7 +334,7 @@ def csv_row(person, found):
             ),
             'data_notes': 'No FEC candidate ID on file; not searchable in IE data.',
         }
-    support, oppose, current_total = found['by_cycle'][CURRENT_CYCLE]
+    support, oppose, current_total = found['by_cycle'][settings().cycles.current]
     return {
         **row,
         'fec_candidate_ids': ';'.join(Roster.ids(person)),
@@ -410,10 +401,10 @@ def check_current_cycle(summary):
     """The current cycle's roster split and top spenders must match the baseline."""
     roster_targeted = summary['roster_targeted']
     for field in ('senate', 'house', 'support', 'oppose'):
-        pin_dollars(f'all_ie_roster_{CURRENT_CYCLE}.{field}', roster_targeted[field])
+        pin_dollars(f'all_ie_roster_{settings().cycles.current}.{field}', roster_targeted[field])
     top = summary['top_committees_roster_targeted'][:TOP_SPENDERS_PINNED]
     for rank, committee in enumerate(top, 1):
-        key = f'all_ie_top_spenders_{CURRENT_CYCLE}.{rank}'
+        key = f'all_ie_top_spenders_{settings().cycles.current}.{rank}'
         pin_text(f'{key}.committee_id', committee['committee_id'])
         pin_dollars(f'{key}.total', committee['total'])
 
@@ -452,7 +443,7 @@ def roster_career_totals(roster, per_person, totals):
     for candidate_id, person_keys in sorted(sharing.items()):
         if len(person_keys) < 2:
             continue
-        amounts = totals.of({candidate_id}, set(CYCLES))
+        amounts = totals.of({candidate_id}, set(settings().cycles.ie))
         extra = len(person_keys) - 1
         overcount = [o + extra * a for o, a in zip(overcount, amounts, strict=True)]
         shared.append(
@@ -482,23 +473,26 @@ def roster_career_totals(roster, per_person, totals):
     }
 
 
-META = {
-    'script': 'receipts/store/all_ie.py',
-    'data_as_of': DATA_AS_OF,
-    'cycles': list(CYCLES),
-    'current_cycle': CURRENT_CYCLE,
-    'note': 'Career totals cover the staged IE cycles (2022+2024+2026) ONLY. '
-    'No IE files are staged for earlier cycles; these are not full-career totals. '
-    'All-IE columns are separate from total_accepted and are never blended into it.',
-    'filter_rules': [
-        'dedup by (spe_id, tran_id): keep latest receipt_dat, tie-break highest file_num; '
-        'blank tran_id never deduped against another row',
-        'registered committee only: spe_id in same-cycle data/raw/cm/<cycle>/cm.txt',
-        'identified candidate only: non-blank cand_id in any staged weball file (1980-2026) '
-        'OR a roster FEC candidate ID; blank cand_id rows excluded from published totals',
-        'support and oppose summed separately, never netted; blank sup_opp rows count in total only',
-    ],
-}
+def meta():
+    return {
+        'script': 'receipts/store/all_ie.py',
+        'data_as_of': settings().data_as_of,
+        'cycles': list(settings().cycles.ie),
+        'current_cycle': settings().cycles.current,
+        'note': 'Career totals cover the staged IE cycles (2022+2024+2026) ONLY. '
+        'No IE files are staged for earlier cycles; these are not full-career totals. '
+        'All-IE columns are separate from total_accepted and are never blended into it.',
+        'filter_rules': [
+            'dedup by (spe_id, tran_id): keep latest receipt_dat, tie-break highest file_num; '
+            'blank tran_id never deduped against another row',
+            'registered committee only: spe_id in same-cycle data/raw/cm/<cycle>/cm.txt',
+            'identified candidate only: non-blank cand_id in any staged weball file (1980-2026) '
+            'OR a roster FEC candidate ID; blank cand_id rows excluded from published totals',
+            'support and oppose summed separately, never netted; blank sup_opp rows count in total only',
+        ],
+    }
+
+
 FORM_TYPE_FINDING = (
     'No form-type column exists in the bulk IE files, so F24/F3X cannot be '
     'separated by form. The bulk file carries ONE copy per expenditure (the '
@@ -510,16 +504,19 @@ FORM_TYPE_FINDING = (
     'different tran_id AND different image_num = different filings) are '
     'treated as separate expenditures and quantified per cycle in exclusions[].'
 )
-COVERAGE = {
-    'staged_cycles': list(CYCLES),
-    'earlier_cycles_available': 'Per the FEC independent-expenditures file description '
-    '(fetched Nov 12, 2026), historical data is available beginning with the 2010 '
-    'cycle, and the FEC bulk-data index publishes independent_expenditure_YYYY.csv '
-    'per cycle. Files for 2010/2012/2014/2016/2018/2020 exist and are NOT staged '
-    'here (each ~14-19 MB, same format) — expanding to them is a follow-up, not '
-    'done in this pull. Pre-2010 cycles have no such file.',
-    'files_not_staged': [2010, 2012, 2014, 2016, 2018, 2020],
-}
+
+
+def coverage():
+    return {
+        'staged_cycles': list(settings().cycles.ie),
+        'earlier_cycles_available': 'Per the FEC independent-expenditures file description '
+        '(fetched Nov 12, 2026), historical data is available beginning with the 2010 '
+        'cycle, and the FEC bulk-data index publishes independent_expenditure_YYYY.csv '
+        'per cycle. Files for 2010/2012/2014/2016/2018/2020 exist and are NOT staged '
+        'here (each ~14-19 MB, same format) — expanding to them is a follow-up, not '
+        'done in this pull. Pre-2010 cycles have no such file.',
+        'files_not_staged': [2010, 2012, 2014, 2016, 2018, 2020],
+    }
 
 
 def read_store():
@@ -534,28 +531,33 @@ def read_store():
 def main():
     rows, columns = read_store()
     roster = Roster(load_roster())
-    of_cycle = {cycle: [x for x in rows if x.cycle == cycle] for cycle in CYCLES}
+    of_cycle = {cycle: [x for x in rows if x.cycle == cycle] for cycle in settings().cycles.ie}
     kept = [x for x in rows if x.excluded_because != REPLACED]
     included = [x for x in kept if x.counted]
 
-    exclusions = {cycle: file_exclusions(of_cycle[cycle], columns[cycle]) for cycle in CYCLES}
+    exclusions = {
+        cycle: file_exclusions(of_cycle[cycle], columns[cycle]) for cycle in settings().cycles.ie
+    }
     udp_totals = {
         cycle: dollars(
             total(
-                x for x in of_cycle[cycle] if x.excluded_because != REPLACED and x.spender_id == UDP
+                x
+                for x in of_cycle[cycle]
+                if x.excluded_because != REPLACED and x.spender_id == settings().committees.udp
             )
         )
-        for cycle in CYCLES
+        for cycle in settings().cycles.ie
     }
     prior = {
-        cycle: expected(f'udp_prior_cycle_totals.{cycle}', udp_totals[cycle]) for cycle in CYCLES
+        cycle: expected(f'udp_prior_cycle_totals.{cycle}', udp_totals[cycle])
+        for cycle in settings().cycles.ie
     }
-    for cycle in CYCLES:
+    for cycle in settings().cycles.ie:
         if abs(udp_totals[cycle] - prior[cycle]) >= 0.005:
             raise SystemExit(f'UDP S+O total for {cycle} does not reconcile with the prior pull')
 
     blank_diagnostic, collisions = {}, 0
-    for cycle in CYCLES:
+    for cycle in settings().cycles.ie:
         index, found = name_index(x for x in included if x.cycle == cycle)
         collisions += found
         blank_diagnostic[cycle] = blank_attribution(
@@ -564,9 +566,10 @@ def main():
 
     totals = CandidateTotals(included)
     summaries = {
-        cycle: cycle_summary([x for x in included if x.cycle == cycle], roster) for cycle in CYCLES
+        cycle: cycle_summary([x for x in included if x.cycle == cycle], roster)
+        for cycle in settings().cycles.ie
     }
-    check_current_cycle(summaries[CURRENT_CYCLE])
+    check_current_cycle(summaries[settings().cycles.current])
     per_person = {p['person_key']: person_totals(p, totals) for p in roster.people}
 
     top = {p['person_key']: top_committees_for(p, totals) for p in roster.people}
@@ -588,28 +591,30 @@ def main():
         {'support', 'oppose', 'total'},
     )
     write_json(
-        PATHS.intermediate / 'all_ie_per_cycle.json',
+        settings().paths.intermediate / 'all_ie_per_cycle.json',
         {
             'meta': {
-                **META,
+                **meta(),
                 'form_type_double_count_check': {
                     'bulk_file_has_form_type_column': any(
                         e['has_form_type_column'] for e in exclusions.values()
                     ),
                     'finding': FORM_TYPE_FINDING,
                 },
-                'coverage': COVERAGE,
+                'coverage': coverage(),
             },
-            'exclusions_by_cycle': {str(c): exclusions[c] for c in CYCLES},
-            'blank_attribution_diagnostic': {str(c): blank_diagnostic[c] for c in CYCLES},
+            'exclusions_by_cycle': {str(c): exclusions[c] for c in settings().cycles.ie},
+            'blank_attribution_diagnostic': {
+                str(c): blank_diagnostic[c] for c in settings().cycles.ie
+            },
             'name_index_collisions': collisions,
-            'per_cycle_summaries': {str(c): summaries[c] for c in CYCLES},
+            'per_cycle_summaries': {str(c): summaries[c] for c in settings().cycles.ie},
             'per_candidate_per_cycle': by_candidate,
             'bogus_examples': bogus_examples(kept),
             'roster_career_totals': roster_career_totals(roster, per_person, totals),
         },
     )
-    for cycle in CYCLES:
+    for cycle in settings().cycles.ie:
         roster_targeted = summaries[cycle]['roster_targeted']
         print(
             f'{cycle} roster: S ${roster_targeted["support"]:,.2f} / '

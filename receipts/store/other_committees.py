@@ -9,20 +9,13 @@ Evidence and findings: research/other-committees-notes.md.
 """
 
 import sys
+from dataclasses import asdict
 from datetime import datetime
 from decimal import Decimal
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
-from receipts.common.settings import (
-    CAREER_CYCLES as CYCLES,
-)
-from receipts.common.settings import (
-    COVERAGE_END,
-    PATHS,
-    load_double_count_records,
-    load_roster,
-)
+from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES, CommitteeClass
 from receipts.domain.ledger import Ledger
 from receipts.domain.money import ZERO, Money
@@ -288,7 +281,7 @@ def notes_for(person, ledger, roster, other_total, winred):
         any_money = any(
             ledger.amount(candidate_id, cycle, column)
             for candidate_id in ids
-            for cycle in CYCLES
+            for cycle in settings().cycles.career
             for column in BUCKETS + [CORPORATE, AIPAC]
         )
         if not any_money:
@@ -304,10 +297,10 @@ def notes_for(person, ledger, roster, other_total, winred):
 
 def career_row(person, ledger, roster):
     ids = candidate_ids(person)
-    totals = {b: ledger.total(ids, CYCLES, b) for b in BUCKETS}
-    earmarks = {b: ledger.total(ids, CYCLES, earmark(b)) for b in BUCKETS}
+    totals = {b: ledger.total(ids, settings().cycles.career, b) for b in BUCKETS}
+    earmarks = {b: ledger.total(ids, settings().cycles.career, earmark(b)) for b in BUCKETS}
     other_total = Money.total(totals.values())
-    winred = ledger.total(ids, CYCLES, WINRED_COLUMN)
+    winred = ledger.total(ids, settings().cycles.career, WINRED_COLUMN)
 
     def shown(amount):
         return str(amount) if ids else ''
@@ -325,7 +318,7 @@ def career_row(person, ledger, roster):
 
 def per_cycle_record(person, ledger):
     entries = []
-    for cycle in CYCLES:
+    for cycle in settings().cycles.career:
         for candidate_id in candidate_ids(person):
             amounts = {b: ledger.amount(candidate_id, cycle, b) for b in BUCKETS}
             earmarks = {b: ledger.amount(candidate_id, cycle, earmark(b)) for b in BUCKETS}
@@ -393,7 +386,9 @@ def flat_entry(row):
 
 
 def roster_total(roster, ledger, column):
-    return Money.total(ledger.total(candidate_ids(p), CYCLES, column) for p in roster.people)
+    return Money.total(
+        ledger.total(candidate_ids(p), settings().cycles.career, column) for p in roster.people
+    )
 
 
 def main():
@@ -403,8 +398,13 @@ def main():
     with connect() as db:
         rows = money_by_class(db, roster_ids)
         ledger = fill_ledger(rows)
-        diagnostics = [cycle_diagnostics(db, c, roster_ids, ledger, rows) for c in CYCLES]
-        reconciliation = [reconcile_cycle(db, c, roster_ids, ledger, dedup_records) for c in CYCLES]
+        diagnostics = [
+            cycle_diagnostics(db, c, roster_ids, ledger, rows) for c in settings().cycles.career
+        ]
+        reconciliation = [
+            reconcile_cycle(db, c, roster_ids, ledger, dedup_records)
+            for c in settings().cycles.career
+        ]
         lamb = lamb_validation(db, ledger)
     checks = cross_checks(ledger)
     if mismatched := [column for column, (got, want) in checks.items() if got != want]:
@@ -412,7 +412,7 @@ def main():
 
     people = [career_row(person, ledger, roster) for person in roster.people]
     cycles = {p['person_key']: per_cycle_record(p, ledger) for p in roster.people}
-    note = reconciliation_note(lamb, COVERAGE_END)
+    note = reconciliation_note(lamb, asdict(settings().verification.coverage_end))
     write_gold(
         'other_committees_people',
         [
@@ -430,7 +430,7 @@ def main():
         {*BUCKETS, *(f'earmark_{b}' for b in BUCKETS), 'winred_included'},
     )
     write_json(
-        PATHS.other_committees_diagnostics,
+        settings().paths.other_committees_diagnostics,
         {
             'per_cycle': diagnostics,
             'unclassified_composition_career_cents': unclassified_composition(rows),

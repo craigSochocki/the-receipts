@@ -77,8 +77,8 @@ The staged layout (Nov 12, 2026 restructure). Paths below are
 repo-relative; `config.yaml` is the single source of truth for shared
 values (committee IDs, cycles, paths, thresholds, API settings) — change
 a value there, never in a script. Scripts resolve all paths from the repo
-root via `receipts/common/config.py`, never from an absolute path or the
-current working directory.
+root via `settings()` in `receipts/common/settings.py`, never from an absolute path,
+the current working directory, or at import time.
 
 ```
 the-receipts/
@@ -122,6 +122,8 @@ the-receipts/
 │                              # (dbt-duckdb; run by receipts.store.models):
 │                              # models/silver over the FEC tables, models/marts
 │                              # over the gold tables the money steps write
+├── onboarding/index.html      # the codebase tour for newcomers; private, so
+│                              # never under docs/ (GitHub Pages serves docs/)
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
                                # from receipts/site/build_site.py; never hand-edited)
@@ -137,6 +139,12 @@ the-receipts/
   change, not a rewrite of every script.
 - Before changing the dataset, back it up to `data/snapshots/` with a
   dated, descriptive name (`congress-money-tracker-pre-<change>.csv/.json`).
+- **Keep the tour current.** A change that adds, removes or renames a
+  pipeline step, a rule, a path or code the tour quotes updates
+  `onboarding/index.html` in the same change; `tests/test_onboarding.py`
+  fails until it does. The worked example's figures belong to the snapshot
+  the tour names: after a rebaseline that test skips with a reminder, and
+  the example is refreshed in a follow-up.
 
 ## 4. Data rules
 

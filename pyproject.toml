@@ -30,7 +30,7 @@ fail_under = 32
 
 [tool.mypy]
 # Typed so far; widen one package at a time.
-files = ["receipts/domain", "receipts/fec"]
+files = ["receipts/domain", "receipts/fec", "receipts/common/settings.py"]
 python_version = "3.12"
 check_untyped_defs = true
 warn_unused_ignores = true

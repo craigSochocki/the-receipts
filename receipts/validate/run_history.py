@@ -14,12 +14,10 @@ import csv
 from datetime import date
 
 from receipts.common import baseline
-from receipts.common.config import load_config
-from receipts.common.settings import CURRENT_CYCLE, PATHS
+from receipts.common.settings import settings
 from receipts.store.read import connect
 
 FIELDS = ['snapshot', 'file', 'cycle', 'rows_read', 'last_modified']
-LIMITS = load_config()['run_checks']
 
 
 def observed(snapshot):
@@ -33,9 +31,9 @@ def observed(snapshot):
 
 
 def recorded():
-    if not PATHS.run_history.exists():
+    if not settings().paths.run_history.exists():
         return []
-    with open(PATHS.run_history) as f:
+    with open(settings().paths.run_history) as f:
         return [
             {**r, 'cycle': int(r['cycle']), 'rows_read': int(r['rows_read'])}
             for r in csv.DictReader(f)
@@ -44,7 +42,7 @@ def recorded():
 
 def row_drops(previous, current):
     rows_now = {(r['file'], r['cycle']): r['rows_read'] for r in current}
-    floor = 1 - LIMITS['max_row_drop']
+    floor = 1 - settings().run_checks.max_row_drop
     return [
         f'{r["file"]} {r["cycle"]}: {rows_now.get((r["file"], r["cycle"]), 0):,} rows, '
         f'was {r["rows_read"]:,} in {r["snapshot"]}'
@@ -55,7 +53,9 @@ def row_drops(previous, current):
 
 def file_age_days(current, snapshot):
     newest = max(
-        r['last_modified'] for r in current if r['cycle'] == CURRENT_CYCLE and r['last_modified']
+        r['last_modified']
+        for r in current
+        if r['cycle'] == settings().cycles.current and r['last_modified']
     )
     return (
         date.fromisoformat(snapshot.removeprefix('fec-bulk-')) - date.fromisoformat(newest[:10])
@@ -63,7 +63,7 @@ def file_age_days(current, snapshot):
 
 
 def main():
-    snapshot = (PATHS.bulk / 'SNAPSHOT').read_text().strip()
+    snapshot = (settings().paths.bulk / 'SNAPSHOT').read_text().strip()
     current = observed(snapshot)
     history = recorded()
     earlier = [s for s in {r['snapshot'] for r in history} if s <= snapshot]
@@ -71,14 +71,18 @@ def main():
 
     problems = row_drops(previous, current)
     age = file_age_days(current, snapshot)
-    if age > LIMITS['max_file_age_days']:
-        problems.append(f'the newest {CURRENT_CYCLE} FEC file was {age} days old on {snapshot}')
+    if age > settings().run_checks.max_file_age_days:
+        problems.append(
+            f'the newest {settings().cycles.current} FEC file was {age} days old on {snapshot}'
+        )
     if problems:
         raise SystemExit('FEC inputs look wrong:\n  ' + '\n  '.join(problems))
-    print(f'{snapshot}: {len(current)} files read, newest {CURRENT_CYCLE} file {age} days old')
+    print(
+        f'{snapshot}: {len(current)} files read, newest {settings().cycles.current} file {age} days old'
+    )
 
     if baseline.rebaselining():
-        with open(PATHS.run_history, 'w', newline='') as f:
+        with open(settings().paths.run_history, 'w', newline='') as f:
             writer = csv.DictWriter(f, FIELDS)
             writer.writeheader()
             writer.writerows([r for r in history if r['snapshot'] != snapshot] + current)
