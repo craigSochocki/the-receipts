@@ -14,6 +14,15 @@
 #   INCLUDE_OPPEXP=1 to fetch them anyway (another ~573 MB down).
 #
 #   Overrides (for testing): CYCLES="1980 2026" SKIP_IE=1 ./download_bulk.sh
+#
+#   PINNED vs LIVE. The FEC updates these files in place, so this script
+#   fetches whatever is live today — an UNPINNED input set. The committed
+#   dataset is rebuilt from a PINNED snapshot instead: use
+#   ./fetch_snapshot.sh, which downloads a `fec-bulk-<date>` GitHub
+#   Release, verifies its checksums, and calls this script with
+#   SKIP_DOWNLOAD=1 for the extraction. A live download removes the
+#   data/raw/SNAPSHOT marker, so src/rebuild.py will refuse to treat it
+#   as the baseline's input (see src/common/baseline.py).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,6 +37,8 @@ dl() { # dl <url> <dest>
   curl -L --fail --retry 3 --retry-delay 5 -C - -o "$2" "$1"
 }
 
+if [ "${SKIP_DOWNLOAD:-0}" != "1" ]; then
+rm -f "$RAW/SNAPSHOT"  # live download = unpinned input
 for cy in $CYCLES; do
   yy=$(printf %02d $((cy % 100)))
   dl "$BASE/$cy/weball$yy.zip" "$RAW/weball/weball$yy.zip"
@@ -45,6 +56,7 @@ if [ "${SKIP_IE:-0}" != "1" ]; then
     dl "$BASE/$cy/independent_expenditure_$cy.csv" "$RAW/ie/$cy/independent_expenditure_$cy.csv"
   done
 fi
+fi  # SKIP_DOWNLOAD
 
 # Extract. cm/pas2 zips all contain a generically-named file (cm.txt /
 # itpas2.txt), so extracting them flat would overwrite every cycle but the
