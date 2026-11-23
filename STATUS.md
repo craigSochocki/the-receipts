@@ -7,7 +7,17 @@
 - **Refactor in progress (Nov 22).** One pipeline step at a time onto
   `src/domain/` (rules, Money in exact cents) and `src/fec/` (typed
   readers), each step byte-identical. Done: `pull_money`,
-  `pull_other_committees`, `pull_self_funding`. **Reconciliation fix (Craig, Nov 22):** the
+  `pull_other_committees`, `pull_self_funding`. **Direction change (Craig, Nov 22):** stop migrating
+  the old scripts one by one; build silver tables (people,
+  candidacies, money facts) in DuckDB from the typed readers, for all
+  candidates, and rebuild today's dataset as a view over them,
+  byte-identical. **Floats:** an exact-decimal recomputation of every
+  all-IE candidate-cycle (2,228) and every baseline roster total (37)
+  on `fec-bulk-2026-11-22` matches the float pipeline to the cent, so
+  float drift is latent, not active; the IE reader
+  (`src/fec/independent_expenditures.py`) is exact by construction and
+  reproduces the pipeline's per-candidate totals and exclusion counts
+  exactly. The three old IE scripts are left as they are until retired. **Reconciliation fix (Craig, Nov 22):** the
   weball col-26 comparison now excludes party committees, as col 26
   does (Form 3 line 11(b) vs 11(c)), and reports party money as its own
   line (`pas2_party_committees_cents`). It had been including them,
