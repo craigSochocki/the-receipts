@@ -43,6 +43,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from receipts.common.settings import settings
+from receipts.domain.clean_2026 import is_not_dirty, is_primary_target_2026
 from receipts.store.read import connect
 
 # ---- compact encoding: column lists (fixed order) ----
@@ -351,10 +352,10 @@ def clean_method_html(dataset):
         '%%UNOPPOSED_SENTENCE%%': unopp_sentence,
         '%%CAREER_CLEAN_HOUSE%%': str(sum(1 for r in house if is_career_clean(r))),
         '%%BALANCED_NOT_DIRTY%%': str(
-            sum(1 for r in incoming if r['tier_balanced_2026'] in ('clean', 'below_threshold'))
+            sum(1 for r in incoming if is_not_dirty(r['tier_balanced_2026']))
         ),
         '%%LENIENT_NOT_DIRTY%%': str(
-            sum(1 for r in incoming if r['tier_lenient_2026'] in ('clean', 'below_threshold'))
+            sum(1 for r in incoming if is_not_dirty(r['tier_lenient_2026']))
         ),
         '%%FLAG_120%%': str(sum(1 for r in incoming if r['aipac_udp_flag_2026'] is True)),
     }
@@ -419,15 +420,7 @@ def main():
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
     html = html.replace('%%DATA_JSON%%', safe_json(rows))
     html = html.replace('%%OPP_JSON%%', safe_json(opp_payload))
-    targets_2026_house = sum(
-        1
-        for r in dataset
-        if r['in_120th'] == 'yes'
-        and r['chamber_120'] == 'House'
-        and r['party_120'] == 'Democrat'
-        and isinstance(r['dirty_2026'], (int, float))
-        and r['dirty_2026'] > 0
-    )
+    targets_2026_house = sum(1 for r in dataset if is_primary_target_2026(r))
     html = html.replace('%%TARGETS_2026_HOUSE%%', str(targets_2026_house))
     html = html.replace('%%DATASET_MD5%%', dataset_md5)
     html = html.replace('%%DATA_AS_OF%%', ', '.join(data_as_of))

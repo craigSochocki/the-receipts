@@ -159,6 +159,7 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED,
     UNOPPOSED_NOTE,
     aipac_udp_flagged,
+    is_primary_target_2026,
     race_label,
     races_and_unopposed,
     tier,
@@ -302,11 +303,7 @@ def check_against_baseline(records):
 
 
 def write_primary_targets(records):
-    targets = sorted(
-        (r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House'
-         and r['party_120'] == 'Democrat' and r['dirty_2026'] > 0),
-        key=lambda r: -r['dirty_2026'],
-    )  # fmt: skip
+    targets = sorted(filter(is_primary_target_2026, records), key=lambda r: -r['dirty_2026'])
     lines = [
         '# Primary targets — House Democrats in the 120th Congress, by dirty money in 2026',
         '',

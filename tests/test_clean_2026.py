@@ -3,6 +3,8 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED,
     TolerancePreset,
     aipac_udp_flagged,
+    is_not_dirty,
+    is_primary_target_2026,
     race_label,
     races_and_unopposed,
     tier,
@@ -55,3 +57,21 @@ def test_any_aipac_or_udp_dollar_flags_a_member():
     assert aipac_udp_flagged(0, 2500.0) is True
     assert aipac_udp_flagged(0, 0) is False
     assert aipac_udp_flagged(-15000.0, 0) is False  # a refund flags no one
+
+
+def test_not_dirty_means_clean_or_below_threshold():
+    assert [is_not_dirty(t) for t in ('clean', 'below_threshold', 'dirty', None)] == [
+        True,
+        True,
+        False,
+        False,
+    ]
+
+
+def test_a_primary_target_is_a_120th_house_democrat_with_dirty_money():
+    person = {'in_120th': 'yes', 'chamber_120': 'House', 'party_120': 'Democrat'}
+    assert is_primary_target_2026({**person, 'dirty_2026': 0.01})
+    assert not is_primary_target_2026({**person, 'dirty_2026': -1000.0})
+    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'party_120': 'Republican'})
+    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'chamber_120': 'Senate'})
+    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'in_120th': 'no'})
