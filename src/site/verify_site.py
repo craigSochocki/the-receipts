@@ -57,6 +57,7 @@ import threading
 import time
 import urllib.request
 from functools import partial
+from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -647,8 +648,9 @@ def main():
     check("D7: cutoffs survive, collapsed into a details element",
           '<details class="cutoffs">' in html
           and "2026 is partial — coverage end dates" in html
-          and "Sep 30, 2026" in html and "Oct 14, 2026" in html
-          and "Oct 31, 2026" in html)
+          and all(f"<b>{datetime.strptime(str(cov[k]), '%Y-%m-%d').strftime('%b %d, %Y')}</b>"
+                  in html for k in ("committee_money_pas2", "weball",
+                                    "independent_expenditures")))
 
     # ---- Wave 2 (redesign): D6/FE3 compact/exact money toggle ----
     # A persisted toggle (Compact default, Exact shows dollars and

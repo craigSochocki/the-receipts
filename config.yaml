@@ -107,8 +107,8 @@ freshness:
   # candidate it targeted, roster or not) and attributes rows to roster
   # people by candidate_id. The five are the top 5 by 2026
   # roster-targeted IE (data/intermediate/all_ie_per_cycle.json ->
-  # per_cycle_summaries.2026.top_committees_roster_targeted, 2026 totals
-  # through Oct 31); UDP is #10 by total but included by design:
+  # per_cycle_summaries.2026.top_committees_roster_targeted, as ranked
+  # on the Nov 12 pull, 2026 totals then through Oct 31); UDP is #10 by total but included by design:
   # AIPAC-affiliated, and the source of the $20.9M vs El-Sayed F24
   # finding. The dollar figures in the notes are those same 2026
   # roster-targeted totals (S support / O oppose), recorded here for
@@ -167,11 +167,24 @@ verification:
   opposition_uncredited_report_threshold: 100000
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
-  # re-pull replaces it.
+  # re-pull replaces it. These are JUDGMENTS read off the pinned
+  # snapshot, not computed — revisit them at every rebaseline. Every
+  # place that shows them (the site, the dataset notes) reads them from
+  # here. As judged for fec-bulk-2026-11-22 (Craig: "move the dates",
+  # Nov 22, 2026):
+  #   pas2   — 2026 rows are dense through Oct 14 (the pre-general
+  #            report cutoff: 3,187 rows dated Oct 1-14) and stop there
+  #            (2 rows after). Was Sep 30 on the Nov 12 pull (991
+  #            October rows then).
+  #   weball — unchanged: 1,138 committees' latest report ends Oct 14;
+  #            only 78 rows end later.
+  #   IE     — expenditures are dense through Election Day, Nov 3
+  #            (182 rows that day, 337 / 537 the two days before), then
+  #            a trickle (158 rows Nov 4-25). Was Oct 31.
   coverage_end:
-    committee_money_pas2: "2026-09-30"   # corporate, AIPAC, other-committee
+    committee_money_pas2: "2026-10-14"   # corporate, AIPAC, other-committee
     weball: "2026-10-14"                 # individual, self-funding, topline
-    independent_expenditures: "2026-10-31"  # all-IE (UDP too)
+    independent_expenditures: "2026-11-03"  # all-IE (UDP too)
     freshness_window_start: "2026-10-15"
   # Corporate PAC tolerance presets (methodology §14, Nov 12, 2026).
   # Under a preset, a member's corporate PAC take counts as dirty only
@@ -181,10 +194,10 @@ verification:
   # flags the member under every preset. Strict has no thresholds of
   # its own — it is clean_2026 itself (any net dirty dollar > $0 is
   # dirty; net dirty <= $0 is clean). Balanced is the DEFAULT preset.
-  # Share denominator note: corp_2026 is pas2 through Sep 30, 2026
-  # while total_receipts_2026 is weball through Oct 14, 2026 — the
-  # denominator runs two weeks longer than the numerator, slightly
-  # understating shares. A non-positive total_receipts_2026 leaves the
+  # Share denominator note: corp_2026 (pas2) and total_receipts_2026
+  # (weball) now both run through Oct 14, 2026 (coverage_end above); on
+  # the Nov 12 pull pas2 stopped at Sep 30, which understated shares.
+  # A non-positive total_receipts_2026 leaves the
   # share undefined and the share test cannot pass (no case in the
   # current data has corp above an amount threshold with non-positive
   # receipts; the only corp>0 / receipts<=0 member is Melissa Bean,
