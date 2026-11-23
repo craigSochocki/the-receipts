@@ -675,6 +675,14 @@ def main():
           all(r['clean_2026'] is None for r in records
               if r['unopposed_2026'] is True and is_num(r['dirty_2026'])
               and r['dirty_2026'] <= 0))
+    check('UNOPPOSED note sits exactly on the unopposed members held null',
+          all(('UNOPPOSED' in r['data_notes'])
+              == (r['unopposed_2026'] is True and r['clean_2026'] is None)
+              for r in records))
+    check('UNVERIFIED note sits exactly on the null members who are not unopposed',
+          all(('UNVERIFIED' in r['data_notes'])
+              == (r['clean_2026'] is None and r['unopposed_2026'] is not True)
+              for r in records))
     king_hinds = by_key['K000404']
     check('King-Hinds contested, not unopposed — MP race is district 01',
           king_hinds['unopposed_2026'] is False

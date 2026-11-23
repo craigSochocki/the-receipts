@@ -419,9 +419,6 @@ def main():
     house_voting = [r for r in incoming if r["chamber_120"] == "House"
                     and r["state"] not in TERR]
     sen = [r for r in incoming if r["chamber_120"] == "Senate"]
-    h_counts = _Counter((party_letter(r), seat_status(r))
-                        for r in house_voting)
-    s_counts = _Counter((party_letter(r), seat_status(r)) for r in sen)
     check("House composition reconciles: 430 named voting + 5 uncalled = 435",
           len(house_voting) == 430 and 435 - len(house_voting) == 5,
           f"named {len(house_voting)}")
@@ -437,8 +434,6 @@ def main():
           "senateTilesSVG or dotted patterns missing from the built page")
     delegates = [r for r in incoming if r["chamber_120"] == "House"
                  and r["state"] in TERR]
-    d_counts = _Counter((party_letter(r), seat_status(r))
-                        for r in delegates)
     check("delegates not plotted: 6", len(delegates) == 6, f"got {len(delegates)}")
 
     # ---- party chips + outcome labels (person marks) ----
@@ -520,12 +515,6 @@ def main():
     check("negative test: injected 2028 count trips the check",
           re.search(r"\d+ House Democrats",
                     t28_html + "999 House Democrats") is not None)
-    career_clean_house = [r for r in incoming
-                          if r["chamber_120"] == "House"
-                          and num(r["corporate_pac_career"]) == 0
-                          and num(r["aipac_pac_direct_career"]) == 0
-                          and num(r["udp_ie_support_career"]) == 0
-                          and num(r["udp_ie_opposing_opponents_career"]) == 0]
     # ---- tolerance presets (methodology §14): flag + tiers ----
     check("embedded payload carries the tolerance columns",
           all(k in cols["scalars"] for k in
