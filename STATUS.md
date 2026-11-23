@@ -38,17 +38,22 @@
   133/6 → 135/6, Lenient 103/3 → 105/3. Dirtiest top 5 order unchanged
   (Bell +$1,000, Guthrie +$16,500; next-four $15.21M → $15.23M).
   Verification: rebuild byte-identical on re-run and on Python 3.11 /
-  3.12 / 3.13 (csv md5 09d66b6ae2ebc2cba91e4dcf06186bc6, json md5
-  db779b261343cf772a39b443d2ef648b); 151 dataset audits pass; site
+  3.12 / 3.13 (csv md5 6ada15a535ce1865b9485ff2f2b4ebbf, json md5
+  f5b46dbcb954c4443c4fa9edb81797c1, after the coverage-date / Lamb-note
+  change below); 152 dataset audits pass; site
   verifier passes incl. the runtime smoke test; a tampered baseline
   fails both gates (negative test). The Nov 12 baseline was seeded from
   the old literals and the committed Nov 12 dataset, so the
   `baseline.json` diff between the two commits is the full old → new
-  record. **Open, for Craig:** (a) coverage end dates in `config.yaml`
-  are still the Nov 12 judgments (pas2 Sep 30 / weball Oct 14 / IE Oct
-  31) — the new pas2 file has 3,188 October rows (was 991) and the IE
-  file has 1,410 November rows, so the labels need a decision;
-  (b) methodology.md prose still quotes Nov 12 figures (banner added at
+  record. **Coverage dates moved (Craig, Nov 22):** pas2 Sep 30 → Oct 14
+  (dense through the pre-general cutoff, 2 rows after), weball
+  unchanged at Oct 14, IE Oct 31 → Nov 3 (dense through Election Day,
+  a trickle after); the page's cutoffs line and methodology table now
+  read them from `config.yaml` (they were typed). **Lamb note fixed:**
+  his `data_notes` reconciliation sentence was typed ($96,500 pas2 /
+  $32,650 residual) and went stale on this snapshot; it is now
+  generated ($105,750.00 pas2 / $129,150.00 weball / $23,400.00
+  residual) and audited. **Open, for Craig:** (b) methodology.md prose still quotes Nov 12 figures (banner added at
   the top; baseline.json is authoritative); (c) the one-cent all-IE
   mismatch CI reported Nov 13 could not be reproduced (the inputs are
   gone) — money is still summed as floats in `pull_all_ie.py`, to be
