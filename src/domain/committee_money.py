@@ -42,6 +42,7 @@ class ReportedOnce:
     def __init__(self):
         self._kept = {}
         self.dropped = Tally()
+        self.dropped_contributions = []
 
     def add(self, contribution):
         kept = self._kept.get(contribution.identity)
@@ -49,6 +50,8 @@ class ReportedOnce:
             self._kept[contribution.identity] = contribution
         if kept is not None:
             self.dropped.add(contribution.amount)
+            replaced = self._kept[contribution.identity] is contribution
+            self.dropped_contributions.append(kept if replaced else contribution)
 
     def __iter__(self):
         return iter(self._kept.values())
