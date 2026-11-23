@@ -9,7 +9,7 @@ Inputs (all staged; see config.yaml `paths`):
 - `money_udp.csv` + `money_udp_per_cycle.json` — UDP support (from
   `pull_udp.py`).
 - `self_funding_per_cycle.json` + `self_funding.csv` — self-funding +
-  topline from weball (from `pull_self_funding.py`, Curtis-corrected
+  topline from weball (from `src/store/self_funding.py`, Curtis-corrected
   for cols 6-9 via the recorded dedup extension).
 - `other_committees_per_cycle.json` + `other_committees.csv` — other
   committee contributions from pas2 + cm (from

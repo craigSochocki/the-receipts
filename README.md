@@ -32,7 +32,7 @@ python3 src/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `build_store` → `accepted_money` → `pull_udp` → `pull_self_funding` →
+→ `build_store` → `accepted_money` → `pull_udp` → `self_funding` →
 `other_committees` → `pull_all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
@@ -97,7 +97,7 @@ What each step does (each script documents its own rules in its header):
   `data/intermediate/dedup-notes.json`.
 - `pull_udp.py` — UDP independent-expenditure support; also writes the
   per-cycle breakdown `data/intermediate/money_udp_per_cycle.json`.
-- `pull_self_funding.py` — self-funding + topline from weball
+- `store/self_funding.py` — self-funding + topline from weball, read from the store
   (candidate contributions/loans, loan repayments, debts owed by,
   total receipts/disbursements, transfers, cash on hand);
   writes `data/intermediate/self_funding_per_cycle.json` / `data/intermediate/self_funding.csv`.

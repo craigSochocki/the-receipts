@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Self-funding, topline and transfer columns from weball.
+"""Self-funding, topline and transfer columns from weball, read from the store.
 
 Separate columns, never blended into total_accepted. Flows are summed
 across cycles; cash on hand and debts are stocks, taken from the latest
@@ -14,8 +14,9 @@ from src.common.settings import (CAREER_CYCLES as CYCLES, CURRENT_CYCLE, DATA_AS
 from src.domain.campaign_finances import FLOWS, STOCKS, CampaignFinances
 from src.domain.money import Money
 from src.domain.roster import Roster, candidate_ids
-from src.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
-from src.fec.weball import CandidateSummary, candidate_summaries
+from src.domain.weball_double_counts import FINANCIAL_FIELDS
+from src.fec.weball import CandidateSummary
+from src.store.read import connect, for_candidates
 
 PER_CYCLE_FIELDS = ['candidate_contributions', 'candidate_loans', 'loan_repayments',
                     'debts_owed_by', 'debts_owed_to', 'total_receipts', 'total_disbursements',
@@ -58,21 +59,28 @@ def weball_column(field):
     return CandidateSummary._fields.index(field) + 1
 
 
-def read_weball(roster):
-    amounts, coverage_end = {}, {}
-    counts = {'weball_rows_scanned': 0, 'weball_rows_matched_roster': 0,
-              'weball_bad_field_count_rows': 0}
-    for cycle in CYCLES:
-        summaries = candidate_summaries(PATHS.bulk, cycle)
-        for summary in summaries:
-            if summary.candidate_id in roster:
-                counts['weball_rows_matched_roster'] += 1
-                amounts[summary.candidate_id, cycle] = {
-                    field: summary.amount(field) for field in FINANCIAL_FIELDS}
-                coverage_end[summary.candidate_id, cycle] = summary.coverage_end
-        counts['weball_rows_scanned'] += summaries.rows_read
-        counts['weball_bad_field_count_rows'] += summaries.malformed_rows
-    return amounts, coverage_end, counts
+COUNTED = ('SELECT candidate_id, cycle, coverage_end, '
+           + ', '.join(f'{field}_cents' for field in FINANCIAL_FIELDS)
+           + ' FROM counted_summaries WHERE TRUE')
+DIFFERING = ('SELECT person_key, cycle, kept_id, candidate_id, field, kept_cents, dropped_cents '
+             'FROM summary_differences ORDER BY position')
+WEBALL_READS = ("SELECT SUM(rows_read), SUM(malformed_rows) FROM files_read "
+                "WHERE file = 'weball'")
+
+
+def read_store(roster_ids):
+    with connect() as db:
+        counted = for_candidates(db, COUNTED, roster_ids)
+        differing = db.execute(DIFFERING).fetchall()
+        cells_zeroed = db.execute('SELECT count(*) FROM summary_corrections').fetchone()[0]
+        rows_read, malformed = db.execute(WEBALL_READS).fetchone()
+    finances = {(candidate_id, cycle): CampaignFinances.from_weball(
+                    {field: Money(cents) for field, cents in zip(FINANCIAL_FIELDS, amounts)})
+                for candidate_id, cycle, _, *amounts in counted}
+    coverage_end = {(candidate_id, cycle): end for candidate_id, cycle, end, *_ in counted}
+    counts = {'weball_rows_scanned': int(rows_read), 'weball_rows_matched_roster': len(counted),
+              'weball_bad_field_count_rows': int(malformed)}
+    return finances, coverage_end, differing, cells_zeroed, counts
 
 
 def per_cycle_entries(person, finances, coverage_end):
@@ -151,23 +159,22 @@ def csv_row(person, finances, roster, differing):
             'data_notes': notes_for(person, finances, roster, differing)}
 
 
-def describe(differing):
-    return [{'person_key': record['person_key'], 'name': record['name'],
-             'cycle': record['cycle'], 'kept_id': record['kept_id'],
-             'dropped_id': dropped_id, 'column_1indexed': weball_column(field),
-             'kept_value': str(kept), 'dropped_value': str(dropped)}
-            for record, dropped_id, field, kept, dropped in differing]
+def describe(differing, dedup_records):
+    names = {record['person_key']: record['name'] for record in dedup_records}
+    return [{'person_key': person_key, 'name': names[person_key], 'cycle': cycle,
+             'kept_id': kept_id, 'dropped_id': dropped_id,
+             'column_1indexed': weball_column(field),
+             'kept_value': str(Money(kept)), 'dropped_value': str(Money(dropped))}
+            for person_key, cycle, kept_id, dropped_id, field, kept, dropped in differing]
 
 
 def main():
     roster = Roster(load_roster())
     dedup_records = load_double_count_records()
 
-    amounts, coverage_end, counts = read_weball(roster)
-    report = remove_double_counts(amounts, dedup_records,
-                                  {p['person_key'] for p in roster.people})
-    differing = describe(report.differing)
-    finances = {key: CampaignFinances.from_weball(found) for key, found in amounts.items()}
+    roster_ids = {i for p in roster.people for i in candidate_ids(p)}
+    finances, coverage_end, found_differing, cells_zeroed, counts = read_store(roster_ids)
+    differing = describe(found_differing, dedup_records)
 
     rows = [csv_row(person, finances, roster, differing) for person in roster.people]
     write_csv(PATHS.self_funding_csv, rows, CSV_FIELDS)
@@ -178,15 +185,15 @@ def main():
                for p in roster.people}
     meta = {**META_TEXT,
             'dedup': {'groups_in_record': len(dedup_records),
-                      'groups_applied': report.groups_applied,
-                      'identical_cells_zeroed': report.cells_zeroed,
+                      'groups_applied': len(dedup_records),
+                      'identical_cells_zeroed': cells_zeroed,
                       'differing_columns_flagged_not_corrected': differing},
             **counts}
     write_json(PATHS.self_funding_per_cycle, {'meta': meta, 'persons': persons})
 
     print('persons:', len(rows))
-    print('dedup groups applied:', report.groups_applied,
-          'identical cells zeroed:', report.cells_zeroed, 'differing columns flagged:', len(differing))
+    print('dedup groups applied:', len(dedup_records),
+          'identical cells zeroed:', cells_zeroed, 'differing columns flagged:', len(differing))
 
 
 if __name__ == '__main__':
