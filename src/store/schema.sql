@@ -76,6 +76,17 @@ CREATE TABLE summary_corrections (  -- every cell counted_summaries changed, and
     kept_id       VARCHAR NOT NULL
 );
 
+CREATE TABLE summary_differences (  -- dropped-copy cells left as filed: they differ from the kept copy
+    position      INTEGER NOT NULL,  -- order the double-count record yields them
+    person_key    VARCHAR NOT NULL,
+    candidate_id  VARCHAR NOT NULL,
+    cycle         INTEGER NOT NULL,
+    field         VARCHAR NOT NULL,
+    kept_id       VARCHAR NOT NULL,
+    kept_cents    BIGINT NOT NULL,
+    dropped_cents BIGINT NOT NULL
+);
+
 CREATE TABLE committees (  -- cm
     committee_id       VARCHAR NOT NULL,
     cycle              INTEGER NOT NULL,

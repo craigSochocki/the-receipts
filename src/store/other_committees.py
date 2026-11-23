@@ -10,8 +10,6 @@ Evidence and findings: research/other-committees-notes.md.
 import sys
 from decimal import Decimal
 
-import duckdb
-
 from src.common.baseline import expected
 from src.common.files import write_csv, write_json
 from src.common.settings import (CAREER_CYCLES as CYCLES, PATHS,
@@ -20,6 +18,7 @@ from src.domain.committee_classes import OTHER_COMMITTEE_CLASSES, CommitteeClass
 from src.domain.ledger import Ledger
 from src.domain.money import ZERO, Money
 from src.domain.roster import Roster, candidate_ids
+from src.store.read import connect, for_candidates
 
 LAMB_CANDIDATE, LAMB_CYCLE = 'H6AZ05265', 2026
 WINRED_KIND = 'winred_conduit'
@@ -50,13 +49,8 @@ TRACKED_COLUMNS = BUCKETS + [AIPAC, CORPORATE]
 LEDGER_COLUMNS = TRACKED_COLUMNS + [earmark(c) for c in TRACKED_COLUMNS] + [WINRED_COLUMN]
 
 
-def roster_rows(db, query, roster_ids, *params):
-    return db.execute(query + ' AND list_contains(?, candidate_id)',
-                      [*params, sorted(roster_ids)]).fetchall()
-
-
 def money_by_class(db, roster_ids):
-    return roster_rows(db, 'SELECT candidate_id, cycle, committee_class, kind, amount_cents, '
+    return for_candidates(db, 'SELECT candidate_id, cycle, committee_class, kind, amount_cents, '
                            'earmark_cents FROM committee_money_by_class WHERE TRUE', roster_ids)
 
 
@@ -89,7 +83,7 @@ REGISTERED = ('EXISTS (SELECT 1 FROM committees AS registry '
 
 def cycle_diagnostics(db, cycle, roster_ids, ledger, rows):
     def excluded(condition):
-        return roster_rows(db, EXCLUDED.format(condition=condition), roster_ids, cycle)[0]
+        return for_candidates(db, EXCLUDED.format(condition=condition), roster_ids, cycle)[0]
 
     cm_rows, cm_bad = db.execute(FILE_READS, ['cm', cycle]).fetchone()
     pas2_rows, pas2_bad = db.execute(FILE_READS, ['pas2', cycle]).fetchone()
@@ -139,7 +133,7 @@ def cross_checks(ledger):
 
 
 def weball_other_committee_money(db, cycle, roster_ids):
-    return {candidate_id: Money(cents) for candidate_id, cents in roster_rows(
+    return {candidate_id: Money(cents) for candidate_id, cents in for_candidates(
         db, 'SELECT candidate_id, other_committee_contributions_cents FROM candidate_summaries '
             'WHERE cycle = ?', roster_ids, cycle)}
 
@@ -302,7 +296,7 @@ def main():
     roster = Roster(load_roster())
     roster_ids = {i for p in roster.people for i in candidate_ids(p)}
     dedup_records = load_double_count_records()
-    with duckdb.connect(str(PATHS.store), read_only=True) as db:
+    with connect() as db:
         rows = money_by_class(db, roster_ids)
         ledger = fill_ledger(rows)
         diagnostics = [cycle_diagnostics(db, c, roster_ids, ledger, rows) for c in CYCLES]

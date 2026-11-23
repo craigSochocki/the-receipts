@@ -47,13 +47,15 @@ def people_rows(roster, legislators_119th):
     return people, ids
 
 
-def read_summaries():
+def read_summaries(files_read):
     """{(candidate_id, cycle): (summary, {field: Money})} for every weball row."""
     found = {}
     for cycle in CAREER_CYCLES:
-        for summary in candidate_summaries(BULK, cycle):
+        weball = candidate_summaries(BULK, cycle)
+        for summary in weball:
             amounts = {field: summary.amount(field) for field in FINANCIAL_FIELDS}
             found[summary.candidate_id, cycle] = (summary, amounts)
+        files_read.append(read_counts('weball', cycle, weball))
     return found
 
 
@@ -71,7 +73,7 @@ def summary_row(key, summary, amounts):
 def counted_once(summaries, dedup_records, person_keys):
     """Apply the recorded double-count corrections; return counted amounts and the audit rows."""
     counted = {key: dict(amounts) for key, (_, amounts) in summaries.items()}
-    remove_double_counts(counted, dedup_records, person_keys)
+    report = remove_double_counts(counted, dedup_records, person_keys)
     kept_by_dropped = {(dropped_id, record['cycle']): (record['person_key'], record['kept_id'])
                        for record in dedup_records for dropped_id in record['dropped_ids']}
     corrections = [
@@ -80,7 +82,12 @@ def counted_once(summaries, dedup_records, person_keys):
          'kept_id': kept_by_dropped[key][1]}
         for key, (_, amounts) in summaries.items() if key in kept_by_dropped
         for field, filed in amounts.items() if counted[key][field] != filed]
-    return counted, corrections
+    differences = [
+        {'position': position, 'person_key': record['person_key'], 'candidate_id': dropped_id,
+         'cycle': record['cycle'], 'field': field, 'kept_id': record['kept_id'],
+         'kept_cents': kept.cents, 'dropped_cents': dropped.cents}
+        for position, (record, dropped_id, field, kept, dropped) in enumerate(report.differing)]
+    return counted, corrections, differences
 
 
 def read_counts(file, cycle, bulk_file):
@@ -216,15 +223,16 @@ def main():
         people, ids = people_rows(roster, legislators_119th)
         insert(db, 'people', people)
         insert(db, 'person_candidate_ids', ids)
-        summaries = read_summaries()
-        counted, corrections = counted_once(summaries, dedup_records,
-                                            {p['person_key'] for p in roster})
+        files_read = []
+        summaries = read_summaries(files_read)
+        counted, corrections, differences = counted_once(summaries, dedup_records,
+                                                         {p['person_key'] for p in roster})
         insert(db, 'candidate_summaries',
                (summary_row(key, s, amounts) for key, (s, amounts) in summaries.items()))
         insert(db, 'counted_summaries',
                (summary_row(key, s, counted[key]) for key, (s, _) in summaries.items()))
         insert(db, 'summary_corrections', corrections)
-        files_read = []
+        insert(db, 'summary_differences', differences)
         insert(db, 'committees', committee_rows(files_read))
         insert(db, 'committee_contributions', contribution_rows(files_read))
         insert(db, 'files_read', files_read)

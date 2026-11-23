@@ -269,7 +269,7 @@ The points that matter for interpreting the numbers:
   `ORG_TP=C` in cm24 despite being labor-affiliated; it counts as corporate under the
   Q/N + C/W rule as written. Any reclassification is a methodology decision, not a data
   error.
-- **Self-funding / topline pull (`src/ingest/pull_self_funding.py`).** Reads the same 24 weball
+- **Self-funding / topline pull (`src/store/self_funding.py`, read from the store).** Reads the same 24 weball
   files as the individual pull and emits one row per (candidate, cycle) with the flow
   columns, the two stock columns, and `coverage_end_date` (col 28). Career stocks take
   the latest cycle's value; a person with no weball rows at all has null stocks (not $0).
@@ -634,7 +634,7 @@ total still 535.
     row, so counting both double-counts the House row's activity. The extension zeroes
     the dropped copy for weball cols 6–9 as well as 10–18 (recorded in
     `data/source/dedup-applied.json` as `extend_to_columns_6_9` with the expected cents;
-    `src/ingest/pull_self_funding.py` fails loudly if the arithmetic ever stops matching).
+    `src/domain/weball_double_counts.py` fails loudly if the arithmetic ever stops matching).
     Effect on roster totals vs the pre-extension figures: receipts −$5,640,855.75,
     disbursements −$5,239,012.32, transfers-from-auth −$1,261,797.03, transfers-to-auth
     −$3,300.00. Only Curtis's row changed; the four dedup-partial flags are gone.

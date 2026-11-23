@@ -20,7 +20,7 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.store.accepted_money         the roster's counted money, read from
                                      the store (double counts removed)
     src.ingest.pull_udp              UDP independent-expenditure support
-    src.ingest.pull_self_funding     self-funding + topline from weball
+    src.store.self_funding           self-funding + topline, from the store
                                      (Curtis-corrected for cols 6-9)
     src.store.other_committees       other-committee contributions, from the store
     src.ingest.pull_all_ie           all independent expenditures 2022-2026
@@ -79,7 +79,7 @@ STEPS = [
     'src.store.build_store',
     'src.store.accepted_money',
     'src.ingest.pull_udp',
-    'src.ingest.pull_self_funding',
+    'src.store.self_funding',
     'src.store.other_committees',
     'src.ingest.pull_all_ie',
     'src.transform.compute_opposition',
