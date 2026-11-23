@@ -27,6 +27,7 @@ jsonschema-specifications==2025.9.1
 jsonschema==4.26.0
 lazy-importer==0.1.0
 leather==0.4.1
+mando==0.7.1
 MarkupSafe==3.0.4
 mashumaro==3.17
 metricflow==0.214.0
@@ -52,6 +53,7 @@ python-slugify==9.2.0
 pytimeparse==1.1.10
 pytz==2026.6
 pyyaml==6.0.4
+radon==6.0.1
 rapidfuzz==3.14.6
 referencing==0.37.0
 requests==2.34.2
