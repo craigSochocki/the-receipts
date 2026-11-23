@@ -1105,7 +1105,7 @@ are not open, and 2026 is partial (cutoffs in §15). The rule is mechanical
   holder, whose term carries the seat's class (Brown 3 via appointed Jon
   Husted; El-Sayed, Flanagan, Andrews and the other 2026 winners 2 via the
   outgoing holder). Computed in `receipts/transform/build_roster.py`, carried
-  through `merge_dataset.py` and `config.yaml`, and re-derived independently
+  through `receipts/transform/assemble.py` and `config.yaml`, and re-derived independently
   in `receipts/validate/verify_dataset.py` (check (n)): 0 mismatches across all
   664 rows; 120th class counts C1 33 / C2 32 / C3 34.
 - **Why not derive it on the page from FEC data.** Three render-time
