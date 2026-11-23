@@ -79,7 +79,6 @@ their absence). A new money dimension needs a new audit, not just a
 re-run of this one.
 """
 import argparse
-import csv
 import json
 import sys
 from collections import Counter

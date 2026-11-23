@@ -64,8 +64,7 @@ from pathlib import Path
 from src.common.config import load_config
 from src.common.baseline import expected as baseline_figure
 from src.site.expectations import figure_literals, site_expectations
-from src.site.build_site import (SCALARS, NESTED, NESTED_COLS, build_opp_payload,
-                               main as build_main)
+from src.site.build_site import SCALARS, build_opp_payload, main as build_main
 
 CFG = load_config()
 ROOT = CFG["_root"]
@@ -408,7 +407,6 @@ def main():
         if r["clean_2026"] is False:
             return "dirty"
         return "unopposed" if r["unopposed_2026"] is True else "unverified"
-    from collections import Counter as _Counter
     house_voting = [r for r in incoming if r["chamber_120"] == "House"
                     and r["state"] not in TERR]
     sen = [r for r in incoming if r["chamber_120"] == "Senate"]

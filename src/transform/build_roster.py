@@ -6,7 +6,7 @@ Sources:
    transcribed to 120th_roster.json; new-members page cross-checked.
  - Returning former members: legislators-historical.yaml via historical_lookup.json
 """
-import json, re, unicodedata, csv, collections
+import json, re, unicodedata, collections
 import yaml
 
 from src.common.config import load_config
