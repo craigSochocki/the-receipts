@@ -15,14 +15,8 @@
 #
 #   Overrides (for testing): CYCLES="1980 2026" SKIP_IE=1 ./download_bulk.sh
 #
-#   PINNED vs LIVE. The FEC updates these files in place, so this script
-#   fetches whatever is live today — an UNPINNED input set. The committed
-#   dataset is rebuilt from a PINNED snapshot instead: use
-#   ./fetch_snapshot.sh, which downloads a `fec-bulk-<date>` GitHub
-#   Release, verifies its checksums, and calls this script with
-#   SKIP_DOWNLOAD=1 for the extraction. A live download removes the
-#   data/raw/SNAPSHOT marker, so src/rebuild.py will refuse to treat it
-#   as the baseline's input (see src/common/baseline.py).
+#   This fetches the LIVE files, which the FEC updates in place. The
+#   committed dataset is rebuilt from a pinned copy: ./fetch_snapshot.sh.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

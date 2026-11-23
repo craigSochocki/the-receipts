@@ -2337,8 +2337,6 @@ def main():
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
     html = html.replace("%%OPP_JSON%%", safe_json(opp_payload))
-    # 2026 primary-target intro count: computed, never typed (it was a
-    # typed "192" until the Nov 22, 2026 snapshot moved it).
     targets_2026_house = sum(
         1 for r in dataset
         if r["in_120th"] == "yes" and r["chamber_120"] == "House"
@@ -2348,8 +2346,6 @@ def main():
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
     html = html.replace("%%STAMP%%", stamp)
-    # Coverage dates in the cutoffs line and the methodology table: from
-    # config, never typed (they were typed until the Nov 22 rebaseline).
     html = html.replace("%%COV_PAS2%%", fmt_cov(coverage["committee_money_pas2"]))
     html = html.replace("%%COV_WEBALL%%", fmt_cov(coverage["weball"]))
     html = html.replace("%%COV_IE%%", fmt_cov(coverage["independent_expenditures"]))

@@ -99,8 +99,6 @@ CURRENT = CFG['cycles']['current']
 FAILURES = []
 
 
-# Career money columns whose roster-wide total is pinned in the baseline
-# (and quoted in methodology.md §6).
 METHODOLOGY_TOTAL_COLS = [
     'individual_contribution_total_career',
     'aipac_pac_direct_career',
@@ -150,13 +148,9 @@ def check(label, condition, detail=''):
 
 
 def pin(label, key, observed):
-    """Check a data-dependent figure against the committed baseline
-    (data/source/baseline.json — see src/common/baseline.py). These are
-    the figures a new FEC filing can legitimately move; a rebaseline
-    records the new value and the baseline diff is the review."""
+    """Check a figure that new FEC data can move against the baseline."""
     want = baseline_figure(key, observed)
-    check(f'{label} [{key}]', observed == want,
-          f'got {observed!r}, baseline {want!r}')
+    check(f'{label} [{key}]', observed == want, f'got {observed!r}, baseline {want!r}')
 
 
 def is_num(v):
@@ -460,7 +454,6 @@ def main():
     # (o) tiered dirty rule: flag, tiers, corp-only splits, targets.
     # The tier logic is re-derived here from the config thresholds,
     # independently of compute_2026.py (same definitions, separate code).
-    # Counts are pinned in the baseline (tiered_2026.*).
     def corp_material(corp, total_receipts, preset):
         th = CFG['verification']['tolerance_presets'][preset]
         if corp <= th['corp_amount']:
@@ -541,10 +534,7 @@ def main():
         pin(f'2028 targets {preset} Senate Class 3',
             f'tiered_2026.targets_2028_{preset}_senate_class3',
             sum(1 for r in sen3_dem if r[f'tier_{preset}_2026'] == 'dirty'))
-    # Spot cases: the three members whose tier turns on a net-negative
-    # AIPAC component (refunds). Pinned as observed — methodology §14
-    # explains each; a change here is a finding to read, not a failure
-    # to silence.
+    # Members whose tier turns on a net-negative AIPAC component (refunds).
     spot_fields = ('clean_2026', 'corp_2026', 'aipac_direct_2026', 'dirty_2026',
                    'aipac_udp_flag_2026', 'tier_balanced_2026', 'tier_lenient_2026')
     for slug, name in (('ryan', 'Patrick Ryan'), ('randall', 'Emily Randall'),
@@ -641,11 +631,7 @@ def main():
     check('2026 columns + clean rule + dep_share recompute exactly',
           mism == 0, f'{mism} mismatches')
 
-    # (m) clean-rule generalization spot cases — pinned as observed
-    # (methodology §14 tells each story). Constantino: verified through
-    # 2026 linkage evidence. Luria: the linked ID has no 2026-coverage
-    # weball row, so she stays unverified (null); her stale-ID 2026
-    # money exists but does not verify her.
+    # (m) clean-rule spot cases (methodology §14).
     def sf26_view(rec):
         return [{'coverage_end_date': e['coverage_end_date'],
                  'candidate_loans': e['candidate_loans']}
@@ -664,8 +650,7 @@ def main():
     check('Luria: real 2026 campaign ID H6VA02198 is still not linked in the roster',
           'H6VA02198' not in luria['fec_candidate_ids'])
 
-    # (m) unopposed exclusion: who ran unopposed in 2026 is pinned; an
-    # unopposed member with no net dirty money is null, never clean.
+    # (m) unopposed exclusion.
     unopposed = sorted(r['person_key'] for r in records if r['unopposed_2026'] is True)
     pin('members unopposed in 2026', 'spot.unopposed_2026', unopposed)
     pin('members with clean_2026 null (unverified or unopposed-and-not-dirty)',

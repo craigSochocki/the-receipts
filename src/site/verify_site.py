@@ -83,10 +83,7 @@ def check(name, ok, detail=""):
 
 
 def pin(name, key, observed):
-    """Check a data-dependent figure against the committed baseline
-    (data/source/baseline.json — see src/common/baseline.py). A new FEC
-    snapshot legitimately moves these; `rebuild.py --rebaseline` records
-    the new values and the baseline diff is the review."""
+    """Check a figure that new FEC data can move against the baseline."""
     want = baseline_figure(key, observed)
     check(f"{name} [{key}]", observed == want,
           "" if observed == want else f"got {observed!r}, baseline {want!r}")
@@ -180,11 +177,8 @@ def main():
           values_equal(opp_embedded, opp_expected, "opp"),
           f"{len(opp_embedded)} persons, "
           f"{sum(len(v) for v in opp_embedded.values())} race-phases")
-    # ---- what the page should show, computed here from the embedded data
-    # (src/site/expectations.py) and pinned section by section against the
-    # committed baseline. The dataset-level counts are pinned under the
-    # SAME keys verify_dataset.py uses, so the site and the dataset cannot
-    # disagree; the page-only figures live under site.*. ----
+    # Dataset-level counts use the same baseline keys as verify_dataset.py,
+    # so the site and the dataset cannot disagree.
     EXP = site_expectations(decoded, opp_embedded)
     for section in ("headline", "career_dirty", "charts", "detail"):
         pin(f"site figures: {section}", f"site.{section}", EXP[section])
@@ -501,10 +495,7 @@ def main():
           > html.index('data-chapter="finder"')
           and html.index('id="targets28-btn"')
           < html.index('id="explore-btn"'))
-    # The 2028 intro is rendered from the filtered rows, so its counts
-    # must not appear as literals in the tab's static HTML (the scan is
-    # scoped to the 2028 section; the 2026 tab's intro count is filled
-    # in by the generator from the dataset and checked above).
+    # The 2028 intro counts are rendered at runtime; none may be typed.
     t28_html = html[html.index('id="tab-targets28"'):html.index('id="tab-method"')]
     check("2028 intro counts are computed, not hardcoded",
           re.search(r"\d+ House Democrats", t28_html) is None

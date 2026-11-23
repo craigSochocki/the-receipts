@@ -124,40 +124,37 @@ RIVET_FIX_NOTES = {
                 'identical money totals); collapsed to a single row. Money totals counted once, '
                 'not twice. She served in the 119th (MI-08) and was re-elected to the 120th (MI-08).'),
 }
-# Mark Lamb (marklambazhouse, AZ House): his 2026 other-committee money
-# by pas2 does not reach the weball col 26 figure. The note is built
-# from pull_other_committees.py's own Lamb validation and the config
-# coverage dates — it was a typed sentence until the Nov 22, 2026
-# snapshot moved the pas2 side ($96,500.00 -> $105,750.00) and left the
-# typed figures wrong. Recorded, not adjusted.
+# Mark Lamb's 2026 other-committee money by pas2 does not reach his weball
+# col 26 figure (methodology §8.17). Recorded, not adjusted.
 LAMB_LABELS = [('party_committees', 'party'), ('leadership_pacs', 'leadership'),
                ('labor_pacs', 'labor'), ('trade_pacs', 'trade'),
                ('membership_pacs', 'membership'), ('cooperative_pacs', 'cooperative'),
                ('other_unclassified', 'other-unclassified')]
 
 
-def lamb_note(check, coverage):
-    """The Lamb PENDING RECONCILIATION note, or '' when pas2 and weball agree."""
-    residual = check['weball_minus_pas2_cents']
+def lamb_note(validation, coverage):
+    residual = validation['weball_minus_pas2_cents']
     if residual == 0:
         return ''
 
     def usd(cents):
         return f'${cents / 100:,.2f}'
 
-    def day(iso):
-        d = datetime.strptime(str(iso), '%Y-%m-%d')
-        return f'{d:%b} {d.day}'
+    def month_day(iso_date):
+        date = datetime.strptime(str(iso_date), '%Y-%m-%d')
+        return f'{date:%b} {date.day}'
 
-    parts = '; '.join(f'{label} {usd(check["pas2_breakdown_cents"][b])}'
-                      for b, label in LAMB_LABELS if check['pas2_breakdown_cents'][b])
-    return (f'{check["cycle"]} PENDING RECONCILIATION: other-committee money in '
-            f'{check["cycle"]} is {usd(check["pas2_total_cents"])} by pas2 ({parts}) '
+    by_class = '; '.join(f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
+                         for bucket, label in LAMB_LABELS
+                         if validation['pas2_breakdown_cents'][bucket])
+    cycle = validation['cycle']
+    return (f'{cycle} PENDING RECONCILIATION: other-committee money in {cycle} is '
+            f'{usd(validation["pas2_total_cents"])} by pas2 ({by_class}) '
             f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
-            f'{usd(check["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
+            f'{usd(validation["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
             f'not reproducible from the staged bulk files (pas2 judged complete through '
-            f'{day(coverage["committee_money_pas2"])}, weball through {day(coverage["weball"])}). '
-            f'Do not adjust either figure.')
+            f'{month_day(coverage["committee_money_pas2"])}, weball through '
+            f'{month_day(coverage["weball"])}). Do not adjust either figure.')
 
 
 ROSTER_FIELDS = ['person_key', 'full_name', 'chamber_119', 'chamber_120', 'state',

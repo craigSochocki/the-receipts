@@ -39,18 +39,10 @@ and writes data/intermediate/freshness_snapshot.json — new money found
 since bulk coverage (Oct 14), labeled by source and date, NEVER merged
 into the dataset totals. See methodology.md §16.
 
-Baseline and snapshots. Every data-dependent expected figure the steps
-check themselves against lives in data/source/baseline.json, recorded
-from ONE pinned FEC bulk snapshot (a `fec-bulk-<date>` GitHub Release;
-stage it with ./fetch_snapshot.sh, which writes data/raw/SNAPSHOT).
-A normal run REFUSES to start unless the staged snapshot is the one the
-baseline was recorded from — the FEC updates its bulk files in place,
-so any other input legitimately produces different figures.
-`--rebaseline` is how new data is accepted: it runs the same pipeline,
-records every figure it observes into baseline.json (cross-step
-agreement is still enforced), and stamps the new snapshot tag. Review
-`git diff data/source/baseline.json` — every figure that moved, old
-next to new — before committing. See src/common/baseline.py.
+Each step checks its figures against data/source/baseline.json, which is
+tied to one pinned FEC snapshot (./fetch_snapshot.sh). `--rebaseline`
+accepts a new snapshot: it records the observed figures, and the diff of
+baseline.json is the review.
 
 Prerequisites: the staged FEC bulk data in data/raw/ (see README.md).
 The script fails fast with a clear message when bulk is not staged.
@@ -122,42 +114,30 @@ REQUIRED_ROSTER_SOURCES = [
 
 
 def staged_snapshot():
-    """Tag of the bulk snapshot staged in data/raw/ (written by
-    ./fetch_snapshot.sh), or None for an unpinned live download."""
     marker = ROOT / CFG['paths']['raw'] / 'SNAPSHOT'
     return marker.read_text().strip() if marker.exists() else None
 
 
 def check_data_as_of(tag):
-    """config.yaml data_as_of must be the snapshot's date — every dataset
-    row carries it, so a stale value mislabels the whole dataset."""
-    snap_date = tag.removeprefix('fec-bulk-')
-    if str(CFG['data_as_of']) != snap_date:
+    snapshot_date = tag.removeprefix('fec-bulk-')
+    if str(CFG['data_as_of']) != snapshot_date:
         raise SystemExit(
-            f"config.yaml data_as_of is {CFG['data_as_of']} but the staged "
-            f"snapshot is {tag}. Set data_as_of: \"{snap_date}\" in the same "
-            f"change as the rebaseline.")
+            f"config.yaml data_as_of is {CFG['data_as_of']} but the staged snapshot is "
+            f"{tag}; set data_as_of: \"{snapshot_date}\" in the same change")
 
 
 def check_snapshot(rebaseline):
     staged, pinned = staged_snapshot(), baseline.snapshot()
-    if rebaseline:
-        if staged is None:
-            raise SystemExit(
-                'cannot rebaseline from an unpinned download: data/raw/SNAPSHOT is '
-                'missing, so the inputs could not be reproduced later.\n'
-                'Publish a snapshot (the "FEC snapshot" workflow) and stage it with '
-                './fetch_snapshot.sh <tag> first.')
-        print(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
-        check_data_as_of(staged)
-        return
-    if staged != pinned:
+    if rebaseline and staged is None:
+        raise SystemExit('cannot rebaseline from an unpinned download; '
+                         'stage a snapshot with ./fetch_snapshot.sh <tag>')
+    if not rebaseline and staged != pinned:
         raise SystemExit(
-            f'staged bulk data is {staged or "an unpinned live download"}, but '
-            f'data/source/baseline.json was recorded from {pinned}.\n'
-            f'Stage the pinned snapshot with ./fetch_snapshot.sh, or accept the '
-            f'new data with `python3 src/rebuild.py --rebaseline` and review the '
-            f'baseline diff.')
+            f'staged bulk data is {staged or "an unpinned live download"}, but the baseline '
+            f'was recorded from {pinned}; run ./fetch_snapshot.sh, or accept the new data '
+            f'with --rebaseline and review the baseline diff')
+    if rebaseline:
+        print(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
     check_data_as_of(staged)
 
 
@@ -234,7 +214,7 @@ def main():
     ensure_dirs()
     check_snapshot(args.rebaseline)
     if args.rebaseline:
-        os.environ['RECEIPTS_REBASELINE'] = '1'  # inherited by every step
+        os.environ['RECEIPTS_REBASELINE'] = '1'
         baseline.start_rebaseline_run()
     backup_dataset()
 
@@ -259,13 +239,10 @@ def main():
             continue
         run(step)
     if args.rebaseline:
-        # The baseline also pins what the public page says (site.* keys),
-        # so a rebaseline rebuilds and verifies the site in the same run —
-        # the site's figures must agree with the dataset figures recorded
-        # by the steps above.
+        # The baseline also pins what the page says, so the site is rebuilt and verified too.
         run('src.site.build_site')
         run('src.site.verify_site')
-        baseline.start_rebaseline_run()  # clear the per-run record
+        baseline.start_rebaseline_run()
         baseline.set_snapshot(staged_snapshot())
         print(f'\nbaseline recorded from {staged_snapshot()} — review '
               f'`git diff {CFG["paths"]["baseline"]}` before committing.')

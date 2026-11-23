@@ -69,12 +69,8 @@ paths:
   dataset_csv: congress-money-tracker.csv
   dataset_json: congress-money-tracker.json
 
-# As-of date carried on every dataset row (data_as_of): the date of the
-# pinned FEC bulk snapshot the money was pulled from (`_snapshot` in
-# data/source/baseline.json — src/rebuild.py refuses to run if the two
-# disagree). Update it in the same change as a rebaseline. NOTE: this is
-# the MONEY date. The roster (who is in the 119th/120th, uncalled seats,
-# leadership) is still as crawled Nov 12, 2026 — see methodology §1.
+# Date of the pinned FEC snapshot the money came from; carried on every
+# dataset row. The roster is still as crawled Nov 12, 2026.
 data_as_of: "2026-11-22"
 
 fec_api:
@@ -157,30 +153,15 @@ party_codes:
   PPD: DEM
 
 verification:
-  # POLICY values only. Every data-dependent expected figure (roster
-  # totals, clean/tier counts, UDP per-cycle totals, named spot cases)
-  # lives in data/source/baseline.json, recorded from the pinned bulk
-  # snapshot — see src/common/baseline.py. The test for which file a
-  # value belongs in: would a new FEC filing change it?
+  # Policy values only. Figures that new FEC data can move live in
+  # data/source/baseline.json (src/common/baseline.py).
   # Uncredited races are only listed in the opposition report when the
   # opposing spend reaches this threshold (dollars).
   opposition_uncredited_report_threshold: 100000
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
-  # re-pull replaces it. These are JUDGMENTS read off the pinned
-  # snapshot, not computed — revisit them at every rebaseline. Every
-  # place that shows them (the site, the dataset notes) reads them from
-  # here. As judged for fec-bulk-2026-11-22 (Craig: "move the dates",
-  # Nov 22, 2026):
-  #   pas2   — 2026 rows are dense through Oct 14 (the pre-general
-  #            report cutoff: 3,187 rows dated Oct 1-14) and stop there
-  #            (2 rows after). Was Sep 30 on the Nov 12 pull (991
-  #            October rows then).
-  #   weball — unchanged: 1,138 committees' latest report ends Oct 14;
-  #            only 78 rows end later.
-  #   IE     — expenditures are dense through Election Day, Nov 3
-  #            (182 rows that day, 337 / 537 the two days before), then
-  #            a trickle (158 rows Nov 4-25). Was Oct 31.
+  # re-pull replaces it. Judged from the pinned snapshot at each
+  # rebaseline, not computed; the evidence is in methodology §8.1.
   coverage_end:
     committee_money_pas2: "2026-10-14"   # corporate, AIPAC, other-committee
     weball: "2026-10-14"                 # individual, self-funding, topline

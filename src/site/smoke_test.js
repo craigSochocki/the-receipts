@@ -869,17 +869,14 @@ vm.runInThisContext(appScripts[1], { filename: "site-app-2.js" });
 
 /* ---- assertions ---- */
 assert.strictEqual(PEOPLE.length, 664, "PEOPLE.length");
-// EXP: what the page should show, computed in Python from the embedded
-// dataset by src/site/expectations.py and handed over by verify_site.py
-// (node smoke_test.js <index.html> <site_expectations.json>). No figure
-// below is typed in: a new FEC snapshot moves EXP with the data.
+// EXP: what the page should show (src/site/expectations.py, via verify_site.py).
 if (!process.argv[3]) {
   throw new Error("usage: node smoke_test.js <index.html> <site_expectations.json> — run via src/site/verify_site.py");
 }
 const EXP = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
 const TOP5 = EXP.headline.top5.map((x) => x[0]);
 const T28 = EXP.targets_2028;
-const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1); // "dirty D" -> "Dirty D"
+const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1);
 /* ---- FE7: hidden Explore does not render at load ---- */
 assert.strictEqual(
   document.getElementById("stats").innerHTML, "",
@@ -1035,9 +1032,7 @@ Object.entries(EXP.charts.senate).forEach(([k, n]) => {
   assert.strictEqual(countHalves(senPart, status, party), n, "Senate " + seatLabel(k) + " " + n);
 });
 assert.strictEqual(countHalves(senPart, "uncalled", ""), 100 - EXP.charts.senate_named, "Senate Uncalled");
-// Every state tile shows its senators' halves as the embedded data says
-// (status from clean_2026 / unopposed_2026, party from party_120), and an
-// uncalled half for each seat with no named senator (Alaska, for now).
+// Each state tile shows its senators' halves, plus an uncalled half per unnamed seat.
 const tileStatus = (p) => p.clean_2026 === true ? "clean" : p.clean_2026 === false ? "dirty"
   : (p.unopposed_2026 === true ? "unopposed" : "unverified");
 const tileParty = (p) => ({ Democrat: "D", Republican: "R", Independent: "I" }[p.party_120] || p.party_120);

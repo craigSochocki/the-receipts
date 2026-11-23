@@ -1,23 +1,9 @@
 #!/usr/bin/env bash
-# Stage a PINNED FEC bulk snapshot under data/raw/.
+# Stage a pinned FEC bulk snapshot (a fec-bulk-<date> GitHub Release)
+# under data/raw/, verifying every checksum.
 #
-# Usage: ./fetch_snapshot.sh [tag]
-#   tag defaults to the snapshot the committed baseline was recorded from
-#   (`_snapshot` in data/source/baseline.json), e.g. fec-bulk-2026-11-22.
-#
-# Why: the FEC updates its bulk files in place, so a live download
-# (./download_bulk.sh) is a different input every day. Snapshots are
-# immutable GitHub Releases made by the "FEC snapshot" workflow
-# (.github/workflows/fec-snapshot.yml): the raw files exactly as the FEC
-# served them, a SHA256SUMS, and a PROVENANCE.tsv (URL + Last-Modified).
-# This script downloads one, verifies EVERY checksum, extracts it into
-# the layout src/rebuild.py expects, and writes data/raw/SNAPSHOT so the
-# rebuild can prove which inputs it ran on.
-#
-# Offline: SNAPSHOT_DIR=/path/with/the/three/release/assets ./fetch_snapshot.sh
-#
-# To accept a NEWER snapshot: ./fetch_snapshot.sh <new tag>, then
-# `python3 src/rebuild.py --rebaseline`, then review the baseline diff.
+# Usage: ./fetch_snapshot.sh [tag]     default: the baseline's snapshot
+#        SNAPSHOT_DIR=<dir with the release assets> ./fetch_snapshot.sh   (offline)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,14 +22,12 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 for f in "fec-bulk-$DATE.tar" SHA256SUMS PROVENANCE.tsv; do
   if [ -n "${SNAPSHOT_DIR:-}" ]; then
-    cp "$SNAPSHOT_DIR/$f" "$TMP/$f"   # already-downloaded release assets
+    cp "$SNAPSHOT_DIR/$f" "$TMP/$f"
   else
     curl -L --fail --retry 3 --retry-delay 5 -o "$TMP/$f" "$URL/$f"
   fi
 done
 
-# Start clean: a half-staged or live-downloaded data/raw must never be
-# mistaken for the snapshot.
 rm -rf "$RAW/weball" "$RAW/cm" "$RAW/pas2" "$RAW/ie" "$RAW/SNAPSHOT"
 mkdir -p "$RAW"
 tar -xf "$TMP/fec-bulk-$DATE.tar" -C "$RAW"
