@@ -75,20 +75,19 @@ re-run of this one.
 """
 
 import argparse
-import sys
 from collections import Counter
 
 import pandas as pd
 
-from receipts.common.baseline import expected as baseline_figure
 from receipts.common.config import load_config
 from receipts.common.files import read_json, read_yaml
+from receipts.fec.weball import candidate_summaries
 from receipts.store.read import connect
+from receipts.validate.audit import Audit
 
 CFG = load_config()
 ROOT = CFG['_root']
 CURRENT = CFG['cycles']['current']
-FAILURES = []
 
 
 METHODOLOGY_TOTAL_COLS = [
@@ -132,17 +131,16 @@ METHODOLOGY_TOTAL_COLS = [
 ]
 
 
-def check(label, condition, detail=''):
-    status = 'ok ' if condition else 'FAIL'
-    print(f'[{status}] {label}' + (f' — {detail}' if detail and not condition else ''))
-    if not condition:
-        FAILURES.append(f'{label}: {detail}')
+class Published:
+    """The published dataset as the audits read it: the JSON records and the CSV beside them."""
 
-
-def pin(label, key, observed):
-    """Check a figure that new FEC data can move against the baseline."""
-    want = baseline_figure(key, observed)
-    check(f'{label} [{key}]', observed == want, f'got {observed!r}, baseline {want!r}')
+    def __init__(self, json_path, csv_path):
+        self.records = read_json(json_path)
+        self.by_key = {r['person_key']: r for r in self.records}
+        self.with_known_money = [
+            r for r in self.records if r['individual_contribution_total_career'] != 'unknown'
+        ]
+        self.csv_path = csv_path
 
 
 def is_num(v):
@@ -179,53 +177,41 @@ def load_weball_2026_races():
 
     Same rule as compute_2026.py, recomputed independently here:
     race_map maps (office, state, district) to [(candidate_id, total
-    receipts)]; by_cid maps candidate_id to its race. weball is
-    pipe-delimited, 30 fields, no header: p[0] candidate ID (H/S/P
-    prefix = office), p[5] total receipts, p[18] state, p[19]
-    district. The race comes from the filing's own row, not the
-    roster district (MP delegate race is filed under district 01).
+    receipts)]; by_cid maps candidate_id to its race. The race comes from
+    the filing's own row, not the roster district (MP delegate race is
+    filed under district 01); the ID's H/S/P prefix is the office.
     """
-    yy = f'{CURRENT % 100:02d}'
-    path = ROOT / CFG['paths']['bulk'] / 'weball' / f'weball{yy}.txt'
     race_map = {}
     by_cid = {}
-    with open(path) as f:
-        for line in f:
-            p = line.rstrip('\n').split('|')
-            if len(p) != 30:
-                continue
-            try:
-                receipts = float(p[5] or 0)
-            except ValueError:
-                receipts = 0.0
-            race = (p[0][0], p[18], p[19])
-            race_map.setdefault(race, []).append((p[0], receipts))
-            by_cid[p[0]] = race
+    for row in candidate_summaries(ROOT / CFG['paths']['bulk'], CURRENT):
+        try:
+            receipts = float(row.total_receipts or 0)
+        except ValueError:
+            receipts = 0.0
+        race = (row.candidate_id[0], row.office_state, row.office_district)
+        race_map.setdefault(race, []).append((row.candidate_id, receipts))
+        by_cid[row.candidate_id] = race
     return race_map, by_cid
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('--dataset-csv', default=CFG['paths']['dataset_csv'])
-    ap.add_argument('--dataset-json', default=CFG['paths']['dataset_json'])
-    args = ap.parse_args()
-
-    records = read_json(ROOT / args.dataset_json)
-    by_key = {r['person_key']: r for r in records}
-    numeric = [r for r in records if r['individual_contribution_total_career'] != 'unknown']
-
-    # (i) row count, uniqueness, order
-    check('row count is 664', len(records) == 664, f'got {len(records)}')
-    check('person_keys unique', len(by_key) == len(records))
+def rows_and_order(audit, dataset):
+    """(i) row count, uniqueness, order"""
+    audit.check('row count is 664', len(dataset.records) == 664, f'got {len(dataset.records)}')
+    audit.check('person_keys unique', len(dataset.by_key) == len(dataset.records))
     roster_keys = [
         r['person_key']
         for r in read_json(ROOT / CFG['paths']['roster'])
         if r['person_key'] != 'kristen-mcdonaldrivetmihouse'
     ]
-    check('row order matches roster.json', [r['person_key'] for r in records] == roster_keys)
+    audit.check(
+        'row order matches roster.json', [r['person_key'] for r in dataset.records] == roster_keys
+    )
 
-    # (j) self-funding spot cases; debts owed to is null. The per-cycle sums
-    # are dbt tests on the gold tables (dbt/tests/*_career_is_its_cycles.sql).
+
+def self_funding(audit, dataset):
+    """(j) self-funding spot cases; debts owed to is null. The per-cycle sums
+    are dbt tests on the gold tables (dbt/tests/*_career_is_its_cycles.sql).
+    """
     named_sf = {
         'anthonyconstantinonyhouse': 'Constantino',
         'S001217': 'Rick Scott',
@@ -237,25 +223,25 @@ def main():
         'S001229': 'Jefferson Shreve',
     }
     for pk, name in named_sf.items():
-        pin(
+        audit.pin(
             f'{name} self_funding_career',
             f'spot.self_funding_career.{pk}',
-            by_key[pk]['self_funding_career'],
+            dataset.by_key[pk]['self_funding_career'],
         )
-    const = by_key['anthonyconstantinonyhouse']
+    const = dataset.by_key['anthonyconstantinonyhouse']
     for col in (
         'total_receipts_career',
         'total_disbursements_career',
         'cash_on_hand_2026',
         'total_receipts_2026',
     ):
-        pin(f'Constantino {col}', f'spot.constantino.{col}', const[col])
-    check(
+        audit.pin(f'Constantino {col}', f'spot.constantino.{col}', const[col])
+    audit.check(
         'debts_owed_to_career is null for every numeric row',
-        all(r['debts_owed_to_career'] is None for r in numeric),
+        all(r['debts_owed_to_career'] is None for r in dataset.with_known_money),
     )
-    arm = by_key.get('A000383')
-    check(
+    arm = dataset.by_key.get('A000383')
+    audit.check(
         'Armstrong new money columns are unknown, top committees null',
         arm is not None
         and arm['self_funding_career'] == 'unknown'
@@ -264,7 +250,9 @@ def main():
         and arm['all_ie_top_committees'] is None,
     )
 
-    # (k) other committees: the methodology cross-check and Lamb's 2026 residual.
+
+def other_committees(audit, dataset):
+    """(k) other committees: Lamb's 2026 pas2 total and its residual against weball."""
     oc_buckets = [
         'party_committees',
         'leadership_pacs',
@@ -274,15 +262,15 @@ def main():
         'cooperative_pacs',
         'other_unclassified',
     ]
-    lamb = by_key['marklambazhouse']
+    lamb = dataset.by_key['marklambazhouse']
     lamb_pc26 = [e for e in lamb['other_committees_per_cycle'] if e['cycle'] == CURRENT]
     lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
-    check(
+    audit.check(
         'Lamb 2026 other-committee column equals its per-cycle pas2 sum',
         lamb_total == lamb['other_committees_total_2026'],
         f'got {lamb_total}',
     )
-    pin(
+    audit.pin(
         'Lamb 2026 other-committee pas2-derived total',
         'spot.lamb.other_committees_total_2026',
         lamb_total,
@@ -293,13 +281,11 @@ def main():
             "WHERE candidate_id = 'H6AZ05265' AND cycle = ?",
             [CURRENT],
         ).fetchone()
-        roster_ie_totals = db.execute(
-            'SELECT cycle, sum(all_ie_total) FROM gold.all_ie_per_candidate_cycle '
-            'WHERE is_roster GROUP BY cycle ORDER BY cycle'
-        ).fetchall()
     lamb_residual = round(lamb_weball / 100 - lamb_total, 2)
-    pin('Lamb 2026 weball-minus-pas2 residual', 'spot.lamb.weball_minus_pas2_2026', lamb_residual)
-    check(
+    audit.pin(
+        'Lamb 2026 weball-minus-pas2 residual', 'spot.lamb.weball_minus_pas2_2026', lamb_residual
+    )
+    audit.check(
         'Lamb data_notes states the current pas2 total and residual (or no note at zero)',
         ('PENDING RECONCILIATION' not in lamb['data_notes'])
         if lamb_residual == 0
@@ -310,20 +296,30 @@ def main():
         lamb['data_notes'][-260:],
     )
 
-    # (l) all-IE: UDP 2024 exact; cycle totals; the blank-direction gap; top committees.
-    # The UDP 2024 reconciliation is enforced by the all-IE step itself.
+
+def all_ie(audit, dataset):
+    """(l) all-IE: roster cycle totals; the blank-direction gap; top committees.
+    The UDP 2024 reconciliation is enforced by the all-IE step itself.
+    """
+    with connect() as db:
+        roster_ie_totals = db.execute(
+            'SELECT cycle, sum(all_ie_total) FROM gold.all_ie_per_candidate_cycle '
+            'WHERE is_roster GROUP BY cycle ORDER BY cycle'
+        ).fetchall()
     for cycle, cents in roster_ie_totals:
-        pin(f'all-IE roster total {cycle}', f'all_ie_cycle_totals.{cycle}', cents / 100)
+        audit.pin(f'all-IE roster total {cycle}', f'all_ie_cycle_totals.{cycle}', cents / 100)
     nodir = round(
         sum(
             r['all_ie_total_career'] - r['all_ie_support_career'] - r['all_ie_oppose_career']
-            for r in numeric
+            for r in dataset.with_known_money
         ),
         2,
     )
-    pin('all-IE row-sum gap (the blank-direction rows)', 'spot.all_ie_blank_direction_gap', nodir)
+    audit.pin(
+        'all-IE row-sum gap (the blank-direction rows)', 'spot.all_ie_blank_direction_gap', nodir
+    )
     mism = 0
-    for r in numeric:
+    for r in dataset.with_known_money:
         top = r['all_ie_top_committees']
         if top is None:
             mism += 1
@@ -334,22 +330,27 @@ def main():
         for c in top:
             if round(c['support'] + c['oppose'], 2) != c['total']:
                 mism += 1
-    check(
+    audit.check(
         'all-IE top-committee lists sorted, split correctly, max 5', mism == 0, f'{mism} mismatches'
     )
-    elsayed = next(r for r in numeric if 'El-Sayed' in r['full_name'])
+    elsayed = next(r for r in dataset.with_known_money if 'El-Sayed' in r['full_name'])
     for col in ('all_ie_support_career', 'all_ie_oppose_career'):
-        pin(f'El-Sayed {col}', f'spot.elsayed.{col}', elsayed[col])
+        audit.pin(f'El-Sayed {col}', f'spot.elsayed.{col}', elsayed[col])
 
-    # (b) roster totals match methodology.md figures
-    # (None stocks — cash on hand / debts owed by for people with no
-    # weball rows at all — are skipped, exactly as the config totals
-    # were computed from the staged CSVs.)
+
+def roster_totals(audit, dataset):
+    """(b) roster totals match methodology.md figures
+    (None stocks — cash on hand / debts owed by for people with no
+    weball rows at all — are skipped, exactly as the config totals
+    were computed from the staged CSVs.)
+    """
     for col in METHODOLOGY_TOTAL_COLS:
-        total = round(sum(r[col] for r in numeric if r[col] is not None), 2)
-        pin(f'roster total {col}', f'methodology_totals.{col}', total)
+        total = round(sum(r[col] for r in dataset.with_known_money if r[col] is not None), 2)
+        audit.pin(f'roster total {col}', f'methodology_totals.{col}', total)
 
-    # (c) rank columns recompute exactly
+
+def ranks_and_dirty(audit, dataset):
+    """(c) rank columns recompute exactly"""
     rank_defs = [
         ('rank_total_accepted', 'total_accepted_career'),
         ('rank_individual', 'individual_contribution_total_career'),
@@ -367,7 +368,7 @@ def main():
     # total_accepted itself
     ta_mism = sum(
         1
-        for r in numeric
+        for r in dataset.with_known_money
         if round(
             r['individual_contribution_total_career']
             + r['corporate_pac_career']
@@ -376,12 +377,12 @@ def main():
         )
         != r['total_accepted_career']
     )
-    check('total_accepted recomputes exactly', ta_mism == 0, f'{ta_mism} mismatches')
+    audit.check('total_accepted recomputes exactly', ta_mism == 0, f'{ta_mism} mismatches')
     # (c2) dirty_career recomputes exactly: corporate PAC + AIPAC
     # direct + UDP total benefit, career. Null only for Armstrong
     # (money unknown, not zero).
     dc_mism = 0
-    for r in records:
+    for r in dataset.records:
         parts = [
             r['corporate_pac_career'],
             r['aipac_pac_direct_career'],
@@ -390,41 +391,45 @@ def main():
         want = round(sum(parts), 2) if all(is_num(v) for v in parts) else None
         if r['dirty_career'] != want:
             dc_mism += 1
-    check(
+    audit.check(
         'dirty_career recomputes exactly (corp + AIPAC + UDP benefit)',
         dc_mism == 0,
         f'{dc_mism} mismatches',
     )
-    check(
+    audit.check(
         'dirty_career is null only for Armstrong',
-        [r['person_key'] for r in records if r['dirty_career'] is None] == ['A000383'],
+        [r['person_key'] for r in dataset.records if r['dirty_career'] is None] == ['A000383'],
     )
     top_dirty = max(
-        (r for r in records if is_num(r['dirty_career'])), key=lambda r: r['dirty_career']
+        (r for r in dataset.records if is_num(r['dirty_career'])), key=lambda r: r['dirty_career']
     )
-    pin(
+    audit.pin(
         'career dirty #1 (person, amount)',
         'spot.dirty_career_top',
         [top_dirty['person_key'], top_dirty['dirty_career']],
     )
     for rank_col, val_col in rank_defs:
-        ranks = competition_ranks(records, val_col)
-        mism = sum(1 for r in records if r[rank_col] != ranks[r['person_key']])
-        check(f'{rank_col} recomputes exactly', mism == 0, f'{mism} mismatches')
+        ranks = competition_ranks(dataset.records, val_col)
+        mism = sum(1 for r in dataset.records if r[rank_col] != ranks[r['person_key']])
+        audit.check(f'{rank_col} recomputes exactly', mism == 0, f'{mism} mismatches')
 
-    # (d) clean counts (baseline clean_2026.*)
+
+def clean_counts(audit, dataset):
+    """(d) clean counts (baseline clean_2026.*)"""
     counts = {
-        'true_total': sum(1 for r in records if r['clean_2026'] is True),
-        'false_total': sum(1 for r in records if r['clean_2026'] is False),
-        'null_total': sum(1 for r in records if r['clean_2026'] is None),
+        'true_total': sum(1 for r in dataset.records if r['clean_2026'] is True),
+        'false_total': sum(1 for r in dataset.records if r['clean_2026'] is False),
+        'null_total': sum(1 for r in dataset.records if r['clean_2026'] is None),
     }
     for key in ('true_total', 'false_total', 'null_total'):
-        pin(f'clean_2026 {key}', f'clean_2026.{key}', counts[key])
-    house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
+        audit.pin(f'clean_2026 {key}', f'clean_2026.{key}', counts[key])
+    house120 = [
+        r for r in dataset.records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House'
+    ]
     house_clean = [r for r in house120 if r['clean_2026'] is True]
-    pin('120th House clean', 'clean_2026.house_120th_verified_clean', len(house_clean))
+    audit.pin('120th House clean', 'clean_2026.house_120th_verified_clean', len(house_clean))
     for party in ('Democrat', 'Republican'):
-        pin(
+        audit.pin(
             f'120th House clean {party}',
             f'clean_2026.house_120th_verified_clean_{party.lower()}',
             sum(1 for r in house_clean if r['party_120'] == party),
@@ -436,91 +441,102 @@ def main():
         and r['aipac_pac_direct_career'] == 0
         and r['udp_ie_support_career'] == 0
     ]
-    pin('career-clean 120th House', 'clean_2026.house_120th_career_clean', len(career_clean))
+    audit.pin('career-clean 120th House', 'clean_2026.house_120th_career_clean', len(career_clean))
     for party in ('Democrat', 'Republican'):
-        pin(
+        audit.pin(
             f'career-clean 120th House {party}',
             f'clean_2026.house_120th_career_clean_{party.lower()}',
             sum(1 for r in career_clean if r['party_120'] == party),
         )
     career_keys = {r['person_key'] for r in career_clean}
-    pin(
+    audit.pin(
         '2026-clean but not career-clean (120th House)',
         'clean_2026.house_120th_clean_2026_not_career_clean',
         sum(1 for r in house_clean if r['person_key'] not in career_keys),
     )
 
-    # (o) tiered dirty rule: flag, tiers, corp-only splits, targets.
-    # The tier logic is re-derived here from the config thresholds,
-    # independently of compute_2026.py (same definitions, separate code).
-    def corp_material(corp, total_receipts, preset):
-        th = CFG['verification']['tolerance_presets'][preset]
-        if corp <= th['corp_amount']:
-            return False
-        if (
-            not isinstance(total_receipts, (int, float))
-            or isinstance(total_receipts, bool)
-            or total_receipts <= 0
-        ):
-            return False
-        return corp / total_receipts > th['corp_share']
 
-    def tier_for(clean, flag, corp, total_receipts, preset):
-        if clean is None:
-            return None
-        if flag or corp_material(corp, total_receipts, preset):
-            return 'dirty'
-        if corp > 0:
-            return 'below_threshold'
-        return 'clean'
+# The tier logic is re-derived from the config thresholds, independently of
+# compute_2026.py (same definitions, separate code).
+def corp_material(corp, total_receipts, preset):
+    th = CFG['verification']['tolerance_presets'][preset]
+    if corp <= th['corp_amount']:
+        return False
+    if (
+        not isinstance(total_receipts, (int, float))
+        or isinstance(total_receipts, bool)
+        or total_receipts <= 0
+    ):
+        return False
+    return corp / total_receipts > th['corp_share']
 
-    r120 = [r for r in records if r['in_120th'] == 'yes']
-    pin(
+
+def tier_for(clean, flag, corp, total_receipts, preset):
+    if clean is None:
+        return None
+    if flag or corp_material(corp, total_receipts, preset):
+        return 'dirty'
+    if corp > 0:
+        return 'below_threshold'
+    return 'clean'
+
+
+def tiered_rule(audit, dataset):
+    """(o) tiered dirty rule: flag, tiers, corp-only splits, targets."""
+    r120 = [r for r in dataset.records if r['in_120th'] == 'yes']
+    audit.pin(
         'aipac_udp_flag_2026 120th',
         'tiered_2026.aipac_udp_flag_120th',
         sum(1 for r in r120 if r['aipac_udp_flag_2026'] is True),
     )
-    pin(
+    audit.pin(
         'aipac_udp_flag_2026 roster-wide',
         'tiered_2026.aipac_udp_flag_all',
-        sum(1 for r in records if r['aipac_udp_flag_2026'] is True),
+        sum(1 for r in dataset.records if r['aipac_udp_flag_2026'] is True),
     )
-    check(
+    audit.check(
         'aipac_udp_flag_2026 is a boolean on every row',
-        all(r['aipac_udp_flag_2026'] in (True, False) for r in records),
+        all(r['aipac_udp_flag_2026'] in (True, False) for r in dataset.records),
     )
     for preset in ('balanced', 'lenient'):
         got = Counter(r[f'tier_{preset}_2026'] for r in r120)
         for tier_name in ('clean', 'below_threshold', 'dirty'):
-            pin(
+            audit.pin(
                 f'tier_{preset}_2026 {tier_name}',
                 f'tiered_2026.{preset}.{tier_name}',
                 got.get(tier_name, 0),
             )
-        pin(f'tier_{preset}_2026 null', f'tiered_2026.{preset}.null', got.get(None, 0))
-        pin(
+        audit.pin(f'tier_{preset}_2026 null', f'tiered_2026.{preset}.null', got.get(None, 0))
+        audit.pin(
             f'tier_{preset}_2026 not-dirty (clean + below_threshold)',
             f'tiered_2026.{preset}.not_dirty',
             got.get('clean', 0) + got.get('below_threshold', 0),
         )
         # Tier nulls coincide exactly with clean_2026 nulls.
-        check(
+        audit.check(
             f'tier_{preset}_2026 is null exactly where clean_2026 is null',
-            all((r[f'tier_{preset}_2026'] is None) == (r['clean_2026'] is None) for r in records),
+            all(
+                (r[f'tier_{preset}_2026'] is None) == (r['clean_2026'] is None)
+                for r in dataset.records
+            ),
         )
         # Monotonicity: a Strict-clean member is never dirty under a
         # looser preset (a looser preset only relaxes the corp rule).
-        check(
+        audit.check(
             f'no Strict-clean member is dirty under {preset}',
-            all(r[f'tier_{preset}_2026'] != 'dirty' for r in records if r['clean_2026'] is True),
+            all(
+                r[f'tier_{preset}_2026'] != 'dirty'
+                for r in dataset.records
+                if r['clean_2026'] is True
+            ),
         )
         # The flag takes precedence: every flagged member is dirty
         # under every preset.
-        check(
+        audit.check(
             f'every flagged member is dirty under {preset}',
             all(
                 r[f'tier_{preset}_2026'] == 'dirty'
-                for r in records
+                for r in dataset.records
                 if r['aipac_udp_flag_2026'] is True and r['clean_2026'] is not None
             ),
         )
@@ -531,17 +547,17 @@ def main():
         for r in r120
         if r['corp_2026'] > 0 and r['aipac_direct_2026'] == 0 and r['udp_benefit_2026'] == 0
     ]
-    pin('corp-only members in the 120th', 'tiered_2026.corp_only_2026_120th', len(corp_only))
+    audit.pin('corp-only members in the 120th', 'tiered_2026.corp_only_2026_120th', len(corp_only))
     for preset in ('balanced', 'lenient'):
         staying = sum(
             1 for r in corp_only if corp_material(r['corp_2026'], r['total_receipts_2026'], preset)
         )
-        pin(
+        audit.pin(
             f'corp-only staying dirty under {preset}',
             f'tiered_2026.corp_only_staying_dirty_{preset}',
             staying,
         )
-        pin(
+        audit.pin(
             f'corp-only below threshold under {preset}',
             f'tiered_2026.corp_only_below_{preset}',
             len(corp_only) - staying,
@@ -555,23 +571,23 @@ def main():
         for r in r120
         if r['chamber_120'] == 'Senate' and r['party_120'] == 'Democrat' and r['senate_class'] == 3
     ]
-    pin(
+    audit.pin(
         '2028 targets Strict House',
         'tiered_2026.targets_2028_strict_house',
         sum(1 for r in house_dem if r['dirty_2026'] > 0),
     )
-    pin(
+    audit.pin(
         '2028 targets Strict Senate Class 3',
         'tiered_2026.targets_2028_strict_senate_class3',
         sum(1 for r in sen3_dem if r['dirty_2026'] > 0),
     )
     for preset in ('balanced', 'lenient'):
-        pin(
+        audit.pin(
             f'2028 targets {preset} House',
             f'tiered_2026.targets_2028_{preset}_house',
             sum(1 for r in house_dem if r[f'tier_{preset}_2026'] == 'dirty'),
         )
-        pin(
+        audit.pin(
             f'2028 targets {preset} Senate Class 3',
             f'tiered_2026.targets_2028_{preset}_senate_class3',
             sum(1 for r in sen3_dem if r[f'tier_{preset}_2026'] == 'dirty'),
@@ -591,10 +607,12 @@ def main():
         ('randall', 'Emily Randall'),
         ('garcia', 'Sylvia R. Garcia'),
     ):
-        rec = next(r for r in records if r['full_name'] == name)
-        pin(f'{name} tier spot case', f'spot.tier.{slug}', {f: rec[f] for f in spot_fields})
+        rec = next(r for r in dataset.records if r['full_name'] == name)
+        audit.pin(f'{name} tier spot case', f'spot.tier.{slug}', {f: rec[f] for f in spot_fields})
 
-    # (e) 2026 columns, clean rule, dep_share
+
+def columns_2026(audit, dataset):
+    """(e) 2026 columns, clean rule, dep_share"""
     race_map, by_cid = load_weball_2026_races()
     credit_2026 = opposition_credit(cycle=CURRENT)
     oc_buckets_e = [
@@ -607,7 +625,7 @@ def main():
         'other_unclassified',
     ]
     mism = 0
-    for r in records:
+    for r in dataset.records:
         expect = {
             'individual_2026': cycle_sum(r['per_cycle'], 'individual'),
             'corp_2026': cycle_sum(r['per_cycle'], 'corporate_pac'),
@@ -687,7 +705,7 @@ def main():
             expect['clean_2026'] = None
         else:
             expect['clean_2026'] = expect['dirty_2026'] <= 0
-        # Tolerance tiers (tier_for is defined in check (o) above).
+        # Tolerance tiers.
         for preset in ('balanced', 'lenient'):
             expect[f'tier_{preset}_2026'] = tier_for(
                 expect['clean_2026'],
@@ -701,11 +719,14 @@ def main():
                 mism += 1
                 if mism <= 5:
                     print(f'  2026 mismatch {r["person_key"]} {k}: {r[k]!r} != {v!r}')
-    check(
+    audit.check(
         '2026 columns + clean rule + dep_share recompute exactly', mism == 0, f'{mism} mismatches'
     )
 
-    # (m) clean-rule spot cases (methodology §14).
+
+def clean_spot_cases(audit, dataset):
+    """(m) clean-rule spot cases (methodology §14)."""
+
     def sf26_view(rec):
         return [
             {'coverage_end_date': e['coverage_end_date'], 'candidate_loans': e['candidate_loans']}
@@ -713,8 +734,8 @@ def main():
             if e['cycle'] == CURRENT
         ]
 
-    const = by_key['anthonyconstantinonyhouse']
-    pin(
+    const = dataset.by_key['anthonyconstantinonyhouse']
+    audit.pin(
         'Constantino clean-rule spot case',
         'spot.clean.constantino',
         {
@@ -724,8 +745,8 @@ def main():
             'all_ie_oppose_2026': const['all_ie_oppose_2026'],
         },
     )
-    luria = by_key['L000591']
-    pin(
+    luria = dataset.by_key['L000591']
+    audit.pin(
         'Luria clean-rule spot case',
         'spot.clean.luria',
         {
@@ -735,60 +756,67 @@ def main():
             'all_ie_support_2026': luria['all_ie_support_2026'],
         },
     )
-    check(
+    audit.check(
         'Luria: real 2026 campaign ID H6VA02198 is still not linked in the roster',
         'H6VA02198' not in luria['fec_candidate_ids'],
     )
 
-    # (m) unopposed exclusion.
-    unopposed = sorted(r['person_key'] for r in records if r['unopposed_2026'] is True)
-    pin('members unopposed in 2026', 'spot.unopposed_2026', unopposed)
-    pin(
+
+def unopposed(audit, dataset):
+    """(m) unopposed exclusion."""
+    unopposed = sorted(r['person_key'] for r in dataset.records if r['unopposed_2026'] is True)
+    audit.pin('members unopposed in 2026', 'spot.unopposed_2026', unopposed)
+    audit.pin(
         'members with clean_2026 null (unverified or unopposed-and-not-dirty)',
         'spot.clean_2026_null',
-        sorted(r['person_key'] for r in records if r['clean_2026'] is None),
+        sorted(r['person_key'] for r in dataset.records if r['clean_2026'] is None),
     )
-    check(
+    audit.check(
         'an unopposed member with no net dirty money is null, not clean',
         all(
             r['clean_2026'] is None
-            for r in records
+            for r in dataset.records
             if r['unopposed_2026'] is True and is_num(r['dirty_2026']) and r['dirty_2026'] <= 0
         ),
     )
-    check(
+    audit.check(
         'UNOPPOSED note sits exactly on the unopposed members held null',
         all(
             ('UNOPPOSED' in r['data_notes'])
             == (r['unopposed_2026'] is True and r['clean_2026'] is None)
-            for r in records
+            for r in dataset.records
         ),
     )
-    check(
+    audit.check(
         'UNVERIFIED note sits exactly on the null members who are not unopposed',
         all(
             ('UNVERIFIED' in r['data_notes'])
             == (r['clean_2026'] is None and r['unopposed_2026'] is not True)
-            for r in records
+            for r in dataset.records
         ),
     )
-    king_hinds = by_key['K000404']
-    check(
+    king_hinds = dataset.by_key['K000404']
+    audit.check(
         'King-Hinds contested, not unopposed — MP race is district 01',
         king_hinds['unopposed_2026'] is False and 'UNOPPOSED' not in king_hinds['data_notes'],
         f'unopposed={king_hinds["unopposed_2026"]}',
     )
 
-    # (n) senate_class: re-derived from the legislators yaml, independent
-    # of build_roster.py — own latest Senate term's class field where
-    # the person holds a seat into 2026, else the class of whoever held
-    # that seat during 2026 (appointee/outgoing holder, same state).
+
+def senate_class(audit, dataset):
+    """(n) senate_class: re-derived from the legislators yaml, independent
+    of build_roster.py — own latest Senate term's class field where
+    the person holds a seat into 2026, else the class of whoever held
+    that seat during 2026 (appointee/outgoing holder, same state).
+    """
     leg = read_yaml(ROOT / CFG['paths']['source'] / 'legislators-current.yaml')
     leg_terms = {
         e['id'].get('bioguide'): [t for t in e['terms'] if t.get('type') == 'sen'] for e in leg
     }
     cont_sen = {
-        r['person_key'] for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'
+        r['person_key']
+        for r in dataset.records
+        if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'
     }
 
     def rederive_class(r):
@@ -812,34 +840,36 @@ def main():
                     holders.add(t.get('class'))
         return holders.pop() if len(holders) == 1 else None
 
-    mism = sum(1 for r in records if rederive_class(r) != r['senate_class'])
-    check(
+    mism = sum(1 for r in dataset.records if rederive_class(r) != r['senate_class'])
+    audit.check(
         'senate_class re-derives from legislators-current.yaml (0 mismatches)',
         mism == 0,
         f'{mism} mismatches',
     )
-    senators = [r for r in records if r['chamber_119'] == 'Senate' or r['chamber_120'] == 'Senate']
+    senators = [
+        r for r in dataset.records if r['chamber_119'] == 'Senate' or r['chamber_120'] == 'Senate'
+    ]
     sen_keys = {r['person_key'] for r in senators}
-    check(
+    audit.check(
         'senate_class is None for all non-senators, 1/2/3 for all senators',
-        all(r['senate_class'] is None for r in records if r['person_key'] not in sen_keys)
+        all(r['senate_class'] is None for r in dataset.records if r['person_key'] not in sen_keys)
         and all(r['senate_class'] in (1, 2, 3) for r in senators),
         f'{len(senators)} senator rows',
     )
-    s120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate']
+    s120 = [r for r in dataset.records if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate']
     cls = Counter(r['senate_class'] for r in s120)
-    check(
+    audit.check(
         '120th senator class counts: C1 33 / C2 32 / C3 34',
         cls == {1: 33, 2: 32, 3: 34},
         f'got {dict(cls)}',
     )
     c3d = [r for r in s120 if r['party_120'] == 'Democrat' and r['senate_class'] == 3]
-    check(
+    audit.check(
         'Class 3 Democrats in the 120th = 16',
         len(c3d) == 16,
         f'got {len(c3d)}: {[r["full_name"] for r in c3d]}',
     )
-    by_name = {r['full_name']: r for r in records}
+    by_name = {r['full_name']: r for r in dataset.records}
     spot = [
         ('Charles E. Schumer', 3),
         ('Mark Kelly', 3),
@@ -858,43 +888,47 @@ def main():
         for n, want in spot
         if by_name[n]['senate_class'] != want
     ]
-    check(
+    audit.check(
         'senate_class spot cases (Schumer/Kelly/Warnock 3, Schiff/Kim 1, '
         'Ossoff/Brown/Moody 3/3/3, El-Sayed/Flanagan/Andrews 2)',
         bad == [],
         f'got {bad}',
     )
 
-    # (f) opposition career columns
+
+def opposition(audit, dataset):
+    """(f) opposition career columns"""
     career_credit = opposition_credit()
     mism = 0
-    for r in numeric:
+    for r in dataset.with_known_money:
         credit = career_credit.get(r['person_key'], 0.0)
         if r['udp_ie_opposing_opponents_career'] != credit:
             mism += 1
         if r['udp_ie_total_benefit_career'] != round(r['udp_ie_support_career'] + credit, 2):
             mism += 1
-    check(
+    audit.check(
         'opposition career columns recompute from gold.opposition_credits',
         mism == 0,
         f'{mism} mismatches',
     )
-    arm = by_key.get('A000383')
-    check(
+    arm = dataset.by_key.get('A000383')
+    audit.check(
         'Armstrong opposition columns are null (money unknown)',
         arm is not None
         and arm['udp_ie_opposing_opponents_career'] is None
         and arm['udp_ie_total_benefit_career'] is None,
     )
 
-    # (h) CSV <-> JSON agreement
-    df = pd.read_csv(ROOT / args.dataset_csv, dtype=str, keep_default_na=False)
-    check('CSV has 664 data rows', len(df) == 664, f'got {len(df)}')
+
+def csv_matches_json(audit, dataset):
+    """(h) CSV <-> JSON agreement"""
+    df = pd.read_csv(dataset.csv_path, dtype=str, keep_default_na=False)
+    audit.check('CSV has 664 data rows', len(df) == 664, f'got {len(df)}')
     csv_by_key = {row['person_key']: row for _, row in df.iterrows()}
-    check('CSV person_keys match JSON', set(csv_by_key) == set(by_key))
+    audit.check('CSV person_keys match JSON', set(csv_by_key) == set(dataset.by_key))
     mism = 0
     json_keys = CFG['dataset']['json_keys']
-    for pk, r in by_key.items():
+    for pk, r in dataset.by_key.items():
         crow = csv_by_key.get(pk)
         if crow is None:
             continue
@@ -929,16 +963,39 @@ def main():
             else:
                 if cv != str(jv):
                     mism += 1
-    check('CSV and JSON agree field by field', mism == 0, f'{mism} mismatches')
+    audit.check('CSV and JSON agree field by field', mism == 0, f'{mism} mismatches')
 
-    print()
-    if FAILURES:
-        print(f'VERIFY FAILED: {len(FAILURES)} check(s) failed')
-        for f in FAILURES:
-            print(f'  - {f}')
-        sys.exit(1)
-    print('VERIFY PASSED: all standing audits clean.')
-    print(
+
+SECTIONS = [
+    rows_and_order,
+    self_funding,
+    other_committees,
+    all_ie,
+    roster_totals,
+    ranks_and_dirty,
+    clean_counts,
+    tiered_rule,
+    columns_2026,
+    clean_spot_cases,
+    unopposed,
+    senate_class,
+    opposition,
+    csv_matches_json,
+]
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument('--dataset-csv', default=CFG['paths']['dataset_csv'])
+    ap.add_argument('--dataset-json', default=CFG['paths']['dataset_json'])
+    args = ap.parse_args()
+
+    audit = Audit()
+    dataset = Published(ROOT / args.dataset_json, ROOT / args.dataset_csv)
+    for section in SECTIONS:
+        section(audit, dataset)
+    audit.finish(
+        'VERIFY PASSED: all standing audits clean.\n'
         'Note: these audits check the dataset against its own definitions; '
         'they cannot catch a missing money dimension (see module docstring).'
     )
