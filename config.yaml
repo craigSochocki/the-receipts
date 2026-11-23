@@ -135,7 +135,7 @@ freshness:
     families: ["F6", "F24", "F3"]
     per_page: 100
     max_pages_per_family: 200
-    committee_master_path: "data/raw/cm/2026/cm.txt"
+    committee_master_cycle: 2026     # data/raw/cm/<cycle>/cm.txt maps committee -> candidate
 
 party_codes:
   # Roster party label -> FEC API party code (used by fec_lookup.py).
