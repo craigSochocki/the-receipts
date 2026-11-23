@@ -41,7 +41,7 @@ def use_api(monkeypatch):
     def install(responses):
         api = RecordedApi(responses)
         for module in (pull_f6, pull_f24, freshness):
-            monkeypatch.setattr(module, 'fec_api', api)
+            monkeypatch.setattr(module, 'client', lambda: api)
         return api
 
     return install

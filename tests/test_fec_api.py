@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from receipts.common.fec_api import FecApi, Retry, parse_retry_after, public
+from receipts.common.settings import RetrySettings, settings
 
 EVIDENCE = Path(__file__).resolve().parents[1] / 'data' / 'evidence'
 FILINGS = (EVIDENCE / 'f6_constantino.json').read_bytes()
@@ -126,6 +127,6 @@ def test_demo_key_is_recognised():
 
 
 def test_retry_settings_come_from_config():
-    retry = Retry.from_config({'fec_api': {'retry': {'max_attempts': 0, 'max_wait_seconds': 5}}})
+    retry = Retry.from_settings(RetrySettings(0, 2.0, 300.0, 5.0))
     assert retry == Retry(max_attempts=1, max_wait_seconds=5.0)
-    assert Retry.from_config({}) == Retry()
+    assert Retry.from_settings(settings().fec_api.retry) == Retry()

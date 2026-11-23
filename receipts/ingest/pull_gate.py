@@ -36,7 +36,7 @@ from itertools import takewhile
 from pathlib import Path
 
 from receipts.common.config import load_config
-from receipts.common.fec_api import fec_api
+from receipts.common.fec_api import client
 from receipts.common.files import read_json
 from receipts.fec.committees import committees
 
@@ -106,7 +106,7 @@ def check_family(
         )
     seen = set(seen_file_numbers or ())
     rows, newest, calls = scan_filings(
-        api or fec_api,
+        api or client(),
         form_type,
         since_date,
         per_page or GATE_PER_PAGE,

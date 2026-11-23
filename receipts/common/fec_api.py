@@ -10,8 +10,9 @@ import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from functools import cache
 
-from receipts.common.config import load_config
+from receipts.common.settings import FecApiSettings, RetrySettings, settings
 
 API_BASE = 'https://api.open.fec.gov/v1'
 MIN_PAUSE_SECONDS = 1.0
@@ -38,18 +39,12 @@ class Retry:
     max_wait_seconds: float = 900.0
 
     @classmethod
-    def from_config(cls, cfg):
-        retry = (cfg.get('fec_api') or {}).get('retry') or {}
-        defaults = cls()
+    def from_settings(cls, retry: RetrySettings):
         return cls(
-            max_attempts=max(int(retry.get('max_attempts', defaults.max_attempts)), 1),
-            backoff_base_seconds=float(
-                retry.get('backoff_base_seconds', defaults.backoff_base_seconds)
-            ),
-            backoff_cap_seconds=float(
-                retry.get('backoff_cap_seconds', defaults.backoff_cap_seconds)
-            ),
-            max_wait_seconds=float(retry.get('max_wait_seconds', defaults.max_wait_seconds)),
+            max_attempts=max(retry.max_attempts, 1),
+            backoff_base_seconds=retry.backoff_base_seconds,
+            backoff_cap_seconds=retry.backoff_cap_seconds,
+            max_wait_seconds=retry.max_wait_seconds,
         )
 
     def backoff(self, attempt):
@@ -109,15 +104,13 @@ class FecApi:
         self._sleep = sleep
 
     @classmethod
-    def from_config(cls, cfg=None):
-        cfg = cfg or load_config()
-        api = cfg['fec_api']
+    def from_settings(cls, api: FecApiSettings):
         return cls(
-            key=os.environ.get(api['api_key_env'], api['api_key_default']),
-            demo_key=api['api_key_default'],
-            timeout=api['request_timeout_seconds'],
-            retry=Retry.from_config(cfg),
-            pause=max(api['sleep_between_requests_seconds'], MIN_PAUSE_SECONDS),
+            key=os.environ.get(api.api_key_env, api.api_key_default),
+            demo_key=api.api_key_default,
+            timeout=api.request_timeout_seconds,
+            retry=Retry.from_settings(api.retry),
+            pause=max(api.sleep_between_requests_seconds, MIN_PAUSE_SECONDS),
         )
 
     @property
@@ -189,4 +182,7 @@ def _rate_limited(label, url, reason, limit_note):
     return SystemExit(f'{label} failed: {reason} (url {public(url)}). {limit_note}')
 
 
-fec_api = FecApi.from_config()
+@cache
+def client():
+    """The one API client a run shares, made on first use."""
+    return FecApi.from_settings(settings().fec_api)

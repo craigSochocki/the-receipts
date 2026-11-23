@@ -33,7 +33,7 @@ import argparse
 import json
 import sys
 
-from receipts.common.fec_api import fec_api
+from receipts.common.fec_api import client
 
 PER_PAGE = 100
 MAX_PAGES = 100
@@ -78,7 +78,7 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
     where = (committee_id, candidate_id, cycle, filing_form)
     rows, cursor, previous = [], {}, None
     for page in range(1, MAX_PAGES + 1):
-        data = fec_api.get('/schedules/schedule_e/', {'per_page': PER_PAGE, **cursor, **filters})
+        data = client().get('/schedules/schedule_e/', {'per_page': PER_PAGE, **cursor, **filters})
         results = data.get('results', [])
         if not results:
             return rows

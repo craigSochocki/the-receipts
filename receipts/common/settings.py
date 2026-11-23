@@ -77,7 +77,7 @@ class Paths:
 
 
 @dataclass(frozen=True)
-class Retry:
+class RetrySettings:
     max_attempts: int
     backoff_base_seconds: float
     backoff_cap_seconds: float
@@ -85,13 +85,13 @@ class Retry:
 
 
 @dataclass(frozen=True)
-class FecApi:
+class FecApiSettings:
     base_url: str
     api_key_env: str
     api_key_default: str
     request_timeout_seconds: float
     sleep_between_requests_seconds: float
-    retry: Retry
+    retry: RetrySettings
 
 
 @dataclass(frozen=True)
@@ -155,7 +155,7 @@ class Settings:
     cycles: Cycles
     paths: Paths
     data_as_of: str
-    fec_api: FecApi
+    fec_api: FecApiSettings
     freshness: Freshness
     party_codes: Mapping[str, str]
     run_checks: RunChecks

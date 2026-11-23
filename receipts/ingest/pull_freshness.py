@@ -32,7 +32,7 @@ import sys
 from datetime import datetime, timezone
 
 from receipts.common.config import load_config
-from receipts.common.fec_api import fec_api
+from receipts.common.fec_api import client
 from receipts.common.files import read_json
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
@@ -53,7 +53,7 @@ CADENCE_NOTE = (
 
 def principal_committees(candidate_id, cycle=2026):
     """Principal campaign committee IDs (designation P) for a candidate."""
-    data = fec_api.get(f'/candidate/{candidate_id}/committees/', {'cycle': cycle, 'per_page': 100})
+    data = client().get(f'/candidate/{candidate_id}/committees/', {'cycle': cycle, 'per_page': 100})
     return [c['committee_id'] for c in data.get('results', []) if c.get('designation') == 'P']
 
 
@@ -65,7 +65,7 @@ def totals_refresh(candidate_id, cycle=2026):
     election_full=true is NOT used here: it returns only the aggregate
     row (cycle null), which conflates 2024 and 2026.
     """
-    data = fec_api.get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
+    data = client().get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
     rows = [r for r in data.get('results', []) if r.get('cycle') == cycle]
     if not rows:
         return {'candidate_id': candidate_id, 'cycle': cycle, 'found': False}
@@ -377,7 +377,7 @@ def parse_args():
 
 
 def refuse_demo_key(flag, workload, alternative=''):
-    if fec_api.is_demo_key:
+    if client().is_demo_key:
         sys.exit(
             f'ERROR: {flag} needs a registered api.data.gov key '
             f'(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run {workload}.{alternative}'
@@ -440,7 +440,7 @@ def build_snapshot(entries, sweeps, gate_record, summary):
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': WINDOW_START,
         'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
-        'api_key_type': fec_api.key_type,
+        'api_key_type': client().key_type,
         'cadence_note': CADENCE_NOTE,
         'entries': entries,
         'committee_sweeps': sweeps,

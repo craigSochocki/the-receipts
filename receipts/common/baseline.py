@@ -8,12 +8,17 @@ file is the review. Policy values stay in config.yaml.
 import json
 import os
 
-from receipts.common.config import load_config
+from receipts.common.settings import settings
 
-_CFG = load_config()
-PATH = _CFG['_root'] / _CFG['paths']['baseline']
-_RECORDED_THIS_RUN = _CFG['_root'] / _CFG['paths']['intermediate'] / '.rebaseline_seen.json'
 _SNAPSHOT, _CANDIDATES_SNAPSHOT = '_snapshot', '_candidates_snapshot'
+
+
+def _path():
+    return settings().paths.baseline
+
+
+def _recorded_this_run():
+    return settings().paths.intermediate / '.rebaseline_seen.json'
 
 
 def rebaselining():
@@ -23,7 +28,7 @@ def rebaselining():
 def expected(key, observed):
     """The figure to compare `observed` against."""
     key = str(key)
-    figures = _read(PATH, {})
+    figures = _read(_path(), {})
     if not rebaselining():
         if key not in figures:
             raise SystemExit(
@@ -32,30 +37,30 @@ def expected(key, observed):
             )
         return figures[key]
 
-    recorded = set(_read(_RECORDED_THIS_RUN, []))
+    recorded = set(_read(_recorded_this_run(), []))
     if key in recorded:
         # Another step already recorded it: the two computations must agree.
         return figures[key]
     figures[key] = observed
-    _write(PATH, figures)
-    _write(_RECORDED_THIS_RUN, sorted(recorded | {key}))
+    _write(_path(), figures)
+    _write(_recorded_this_run(), sorted(recorded | {key}))
     return observed
 
 
 def start_rebaseline_run():
-    _RECORDED_THIS_RUN.unlink(missing_ok=True)
+    _recorded_this_run().unlink(missing_ok=True)
 
 
 def snapshot():
-    return _read(PATH, {}).get(_SNAPSHOT)
+    return _read(_path(), {}).get(_SNAPSHOT)
 
 
 def candidates_snapshot():
-    return _read(PATH, {}).get(_CANDIDATES_SNAPSHOT)
+    return _read(_path(), {}).get(_CANDIDATES_SNAPSHOT)
 
 
 def set_snapshots(bulk, candidates):
-    _write(PATH, {**_read(PATH, {}), _SNAPSHOT: bulk, _CANDIDATES_SNAPSHOT: candidates})
+    _write(_path(), {**_read(_path(), {}), _SNAPSHOT: bulk, _CANDIDATES_SNAPSHOT: candidates})
 
 
 def _read(path, default):
