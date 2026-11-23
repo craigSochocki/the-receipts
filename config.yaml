@@ -36,6 +36,7 @@ paths:
   ie: data/raw/ie
   source: data/source
   intermediate: data/intermediate
+  store: data/store/receipts.duckdb
   snapshots: data/snapshots
   evidence: data/evidence
   research: research
