@@ -30,7 +30,6 @@ cycles:
   current: 2026            # current / most recent cycle, used for diagnostics and FEC lookups
 
 paths:
-  src: receipts
   raw: data/raw
   bulk: data/raw
   ie: data/raw/ie
@@ -39,10 +38,7 @@ paths:
   store: data/store/receipts.duckdb
   snapshots: data/snapshots
   evidence: data/evidence
-  research: research
   site: docs
-  site_generator: receipts/site/build_site.py
-  site_verify: receipts/site/verify_site.py
   dataset_json: congress-money-tracker.json
   dataset_csv: congress-money-tracker.csv
   roster: data/intermediate/roster.json
@@ -149,9 +145,6 @@ run_checks:
 verification:
   # Policy values only. Figures that new FEC data can move live in
   # data/source/baseline.json (receipts/common/baseline.py).
-  # Uncredited races are only listed in the opposition report when the
-  # opposing spend reaches this threshold (dollars).
-  opposition_uncredited_report_threshold: 100000
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
   # re-pull replaces it. Judged from the pinned snapshot at each
