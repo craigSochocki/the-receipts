@@ -1,0 +1,30 @@
+"""Settings the new pipeline code shares, read once from config.yaml."""
+import json
+from types import SimpleNamespace
+
+from receipts.common.config import load_config
+
+_CFG = load_config()
+ROOT = _CFG['_root']
+
+PATHS = SimpleNamespace(**{name: ROOT / path for name, path in _CFG['paths'].items()})
+CAREER_CYCLES = range(_CFG['cycles']['career_start'], _CFG['cycles']['career_end'] + 1, 2)
+IE_CYCLES = tuple(_CFG['cycles']['udp'])
+CURRENT_CYCLE = _CFG['cycles']['current']
+AIPAC_PAC = _CFG['committees']['aipac_pac']
+WINRED = _CFG['committees']['winred']
+UDP = _CFG['committees']['udp']
+DATA_AS_OF = _CFG.get('data_as_of')
+
+
+def load_roster():
+    return read_json(PATHS.roster)
+
+
+def load_double_count_records():
+    return read_json(PATHS.dedup_applied)
+
+
+def read_json(path):
+    with open(path) as f:
+        return json.load(f)

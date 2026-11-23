@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from src.domain.one_copy import OneCopyEach
+from receipts.domain.one_copy import OneCopyEach
 
 Item = namedtuple('Item', 'identity rank')
 

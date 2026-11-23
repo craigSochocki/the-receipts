@@ -1,5 +1,5 @@
-from src.domain.committee_classes import CommitteeClass, committee_class, unclassified_kind
-from src.fec.committees import Committee
+from receipts.domain.committee_classes import CommitteeClass, committee_class, unclassified_kind
+from receipts.fec.committees import Committee
 
 AIPAC = 'C00797670'
 WINRED = 'C00694323'

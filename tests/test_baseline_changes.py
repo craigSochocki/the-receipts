@@ -1,4 +1,4 @@
-from src.validate.baseline_changes import changes, table
+from receipts.validate.baseline_changes import changes, table
 
 
 def test_lists_changed_added_and_removed_figures_but_not_snapshot_tags():

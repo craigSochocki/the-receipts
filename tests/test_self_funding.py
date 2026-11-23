@@ -1,8 +1,8 @@
 import pytest
 
-from src.domain.campaign_finances import CampaignFinances
-from src.domain.money import ZERO, Money
-from src.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
+from receipts.domain.campaign_finances import CampaignFinances
+from receipts.domain.money import ZERO, Money
+from receipts.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
 
 
 def weball_amounts(**cents):

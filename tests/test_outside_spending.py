@@ -1,10 +1,10 @@
 import pytest
 
-from src.domain.money import ZERO, Money
-from src.domain.outside_spending import (BLANK_CANDIDATE, CANDIDATE_NOT_IDENTIFIED,
+from receipts.domain.money import ZERO, Money
+from receipts.domain.outside_spending import (BLANK_CANDIDATE, CANDIDATE_NOT_IDENTIFIED,
                                          UNREGISTERED_COMMITTEE, exclusion,
                                          latest_filings)
-from src.fec.independent_expenditures import IndependentExpenditure, independent_expenditures
+from receipts.fec.independent_expenditures import IndependentExpenditure, independent_expenditures
 
 
 def expenditure(position=0, **fields):

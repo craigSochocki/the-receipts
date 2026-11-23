@@ -1,0 +1,45 @@
+"""weball: one summary row per candidate per cycle."""
+from typing import NamedTuple
+
+from receipts.domain.money import Money
+from receipts.fec.bulk_file import BulkFile
+
+
+class CandidateSummary(NamedTuple):
+    candidate_id: str
+    name: str
+    incumbent_challenger: str
+    party_code: str
+    party: str
+    total_receipts: str
+    transfers_from_authorized: str
+    total_disbursements: str
+    transfers_to_authorized: str
+    cash_start: str
+    cash_end: str
+    candidate_contributions: str
+    candidate_loans: str
+    other_loans: str
+    candidate_loan_repayments: str
+    other_loan_repayments: str
+    debts_owed_by: str
+    individual_contributions: str
+    office_state: str
+    office_district: str
+    special_election: str
+    primary_election: str
+    runoff_election: str
+    general_election: str
+    general_election_percent: str
+    other_committee_contributions: str
+    party_contributions: str
+    coverage_end: str
+    individual_refunds: str
+    committee_refunds: str
+
+    def amount(self, field):
+        return Money.parse(getattr(self, field))
+
+
+def candidate_summaries(bulk_dir, cycle):
+    return BulkFile(bulk_dir / 'weball' / f'weball{cycle % 100:02d}.txt', CandidateSummary)

@@ -1,13 +1,13 @@
 # The Receipts — single source of truth for values shared across pipeline scripts.
 #
 # Rules:
-# - Every script loads this file through src/common/config.py (load_config()).
+# - Every script loads this file through receipts/common/config.py (load_config()).
 # - All paths are relative to the repo root (the directory containing this file).
 # - Scripts resolve paths from the repo root, never from an absolute path and
 #   never from the current working directory.
 # - Do not re-hardcode any value from this file in a script. If a new script
 #   needs a shared value, add it here first.
-# - Layout (Nov 12, 2026 restructure): code in src/ (common / ingest /
+# - Layout (Nov 12, 2026 restructure): code in receipts/ (common / ingest /
 #   transform / validate), staged bulk in data/raw/ (gitignored),
 #   committed inputs in data/source/, regenerable staging files in
 #   data/intermediate/ (gitignored), dataset snapshots in data/snapshots/,
@@ -30,7 +30,7 @@ cycles:
   current: 2026            # current / most recent cycle, used for diagnostics and FEC lookups
 
 paths:
-  src: src
+  src: receipts
   raw: data/raw
   bulk: data/raw
   ie: data/raw/ie
@@ -41,8 +41,8 @@ paths:
   evidence: data/evidence
   research: research
   site: docs
-  site_generator: src/site/build_site.py
-  site_verify: src/site/verify_site.py
+  site_generator: receipts/site/build_site.py
+  site_verify: receipts/site/verify_site.py
   dataset_json: congress-money-tracker.json
   dataset_csv: congress-money-tracker.csv
   roster: data/intermediate/roster.json
@@ -81,7 +81,7 @@ fec_api:
   api_key_default: "DEMO_KEY"      # demo key: rate-limited, lookup only
   request_timeout_seconds: 30
   sleep_between_requests_seconds: 0.4
-  # HTTP 429 retry (src/common/api_retry.py, used by the api_get helpers
+  # HTTP 429 retry (receipts/common/api_retry.py, used by the api_get helpers
   # in pull_f6 / pull_f24 / pull_freshness and by pull_f6's docquery CSV
   # fetch). A standard registered api.data.gov key allows 1,000
   # requests/hour; a full freshness --all run makes ~2,200-2,350 keyed
@@ -131,7 +131,7 @@ freshness:
     - committee_id: "C00799031"
       committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
       note: "#10 by 2026 roster-targeted IE: $43,620,238.47 (S $17,497,693.29 / O $26,122,545.18); included by design (AIPAC-affiliated; source of the $20.9M vs El-Sayed F24 finding)"
-  # Pre-flight gate (src/ingest/pull_gate.py): one global /filings/
+  # Pre-flight gate (receipts/ingest/pull_gate.py): one global /filings/
   # check per family before the per-person legs of `pull_freshness.py
   # --all`. F6 gates the Form 6 leg, F24 gates the six committee
   # sweeps above, F3 gates the candidate-totals leg. F3X is
@@ -156,7 +156,7 @@ party_codes:
 
 verification:
   # Policy values only. Figures that new FEC data can move live in
-  # data/source/baseline.json (src/common/baseline.py).
+  # data/source/baseline.json (receipts/common/baseline.py).
   # Uncredited races are only listed in the opposition report when the
   # opposing spend reaches this threshold (dollars).
   opposition_uncredited_report_threshold: 100000

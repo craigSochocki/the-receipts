@@ -1,8 +1,8 @@
 import pytest
 
-from src.domain.ledger import Ledger
-from src.domain.money import ZERO, Money
-from src.domain.roster import Roster
+from receipts.domain.ledger import Ledger
+from receipts.domain.money import ZERO, Money
+from receipts.domain.roster import Roster
 
 
 def test_ledger_adds_and_totals_by_column():

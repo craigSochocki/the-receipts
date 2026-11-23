@@ -4,9 +4,9 @@
 # Usage: ./download_bulk.sh
 #   Downloads weball + cm + pas2 for every even cycle 1980-2026, plus the
 #   independent-expenditure CSVs for 2022/2024/2026, then extracts them into
-#   the layout src/rebuild.py expects. About 315 MB down, ~2 GB on disk.
+#   the layout receipts/rebuild.py expects. About 315 MB down, ~2 GB on disk.
 #   Idempotent: curl resumes partial downloads (-C -), unzip -o overwrites.
-#   Then run: python3 src/rebuild.py
+#   Then run: python3 receipts/rebuild.py
 #
 #   Skips oppexp on purpose: those files are operating expenditures, not
 #   independent expenditures — no script reads them and no figure uses them
@@ -85,4 +85,4 @@ for cy in $CYCLES; do
 done
 
 echo "Done. Staged under $RAW."
-echo "Verify with: python3 src/rebuild.py"
+echo "Verify with: python3 receipts/rebuild.py"

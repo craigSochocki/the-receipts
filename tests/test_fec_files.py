@@ -1,7 +1,7 @@
-from src.domain.money import Money
-from src.fec.bulk_file import BulkFile
-from src.fec.committee_contributions import CommitteeContribution
-from src.fec.committees import Committee
+from receipts.domain.money import Money
+from receipts.fec.bulk_file import BulkFile
+from receipts.fec.committee_contributions import CommitteeContribution
+from receipts.fec.committees import Committee
 
 
 def contribution(**overrides):
