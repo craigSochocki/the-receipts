@@ -13,9 +13,6 @@ on:
         default: bulk
         type: choice
         options: [bulk, candidates]
-  push:  # TEMPORARY: first candidates snapshot from this branch; removed before merge
-    branches: [claude/seats-terms]
-    paths: [.github/workflows/fec-snapshot.yml]
 
 permissions:
   contents: write  # create the Release
@@ -30,8 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      SET: ${{ github.event_name == 'push' && 'candidates' || inputs.set || 'bulk' }}
-      PREFIX: ${{ (github.event_name == 'push' || inputs.set == 'candidates') && 'fec-candidates' || 'fec-bulk' }}
+      SET: ${{ inputs.set || 'bulk' }}
+      PREFIX: ${{ inputs.set == 'candidates' && 'fec-candidates' || 'fec-bulk' }}
 
     steps:
       - name: Check out repo
