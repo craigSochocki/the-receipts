@@ -79,7 +79,6 @@ their absence). A new money dimension needs a new audit, not just a
 re-run of this one.
 """
 import argparse
-import csv
 import json
 import sys
 from collections import Counter
@@ -88,8 +87,6 @@ from decimal import Decimal
 import pandas as pd
 import yaml
 
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected as baseline_figure
 

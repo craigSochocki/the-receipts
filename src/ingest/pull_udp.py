@@ -59,9 +59,6 @@ candidates). If an old `money_udp.csv` is present it is compared
 import csv, json, collections
 from datetime import datetime
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected
 

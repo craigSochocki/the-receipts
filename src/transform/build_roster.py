@@ -6,12 +6,9 @@ Sources:
    transcribed to 120th_roster.json; new-members page cross-checked.
  - Returning former members: legislators-historical.yaml via historical_lookup.json
 """
-import json, re, unicodedata, csv, collections
+import json, re, unicodedata, collections
 import yaml
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 
 CFG = load_config()

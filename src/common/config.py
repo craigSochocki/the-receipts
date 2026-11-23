@@ -4,10 +4,8 @@ Every script loads config.yaml (repo root) through load_config() and
 resolves paths relative to the repo root, so the repo runs from any
 checkout location and from any working directory.
 
-Usage in a script (src/**/*.py):
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
+Usage in a script (src/**/*.py), once `pip install -r requirements.txt` has
+installed the repo as a package:
     from src.common.config import load_config
     CFG = load_config()
     ROOT = CFG["_root"]            # pathlib.Path to the repo root

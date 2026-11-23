@@ -9,9 +9,7 @@ Evidence and findings: research/other-committees-notes.md.
 """
 import sys
 from decimal import Decimal
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.baseline import expected
 from src.common.files import write_csv, write_json
 from src.common.settings import (AIPAC_PAC, CAREER_CYCLES as CYCLES, PATHS, WINRED,

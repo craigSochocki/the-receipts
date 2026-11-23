@@ -7,10 +7,7 @@ cycle. A person with no FEC IDs is unknown (null), never zero.
 Column map, verification and the dedup decisions:
 research/self-funding-notes.md.
 """
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.files import text_or_blank, text_or_none, write_csv, write_json
 from src.common.settings import (CAREER_CYCLES as CYCLES, CURRENT_CYCLE, DATA_AS_OF, PATHS,
                                  load_double_count_records, load_roster)

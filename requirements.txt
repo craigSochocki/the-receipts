@@ -1,7 +1,3 @@
-# Python dependencies for The Receipts.
-# Install with: pip install -r requirements.txt
-# (./init.sh creates a venv and installs these for you.)
-pyyaml>=6.0
-pandas>=2.0
-duckdb>=1.1
-pytest>=8.0
+# Installs this repo as an editable package, so `from src...` works from any script.
+# Dependencies live in pyproject.toml. (./init.sh runs this for you.)
+-e .[test]

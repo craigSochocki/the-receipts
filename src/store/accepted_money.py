@@ -5,7 +5,6 @@ from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.files import write_csv, write_json
 from src.common.settings import CAREER_CYCLES as CYCLES, PATHS, load_double_count_records
 from src.domain.money import Money
