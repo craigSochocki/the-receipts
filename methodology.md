@@ -1,8 +1,20 @@
 # Congress money tracker — methodology
 
-**Data as of: November 12, 2026.** All source files were pulled on that date; nothing in this
-dataset reflects filings or results after it. Re-pull after the 2026 cycle closes and after the
-remaining 2026 races are called and certified.
+**Data as of: November 22, 2026 (money) / November 12, 2026 (roster).** The money columns are
+rebuilt from the pinned FEC bulk snapshot `fec-bulk-2026-11-22` (the FEC files as served that
+day; GitHub Release with checksums and per-file Last-Modified). The roster — who is in the
+119th / 120th, uncalled seats, leadership — is still as crawled on Nov 12. Re-pull after the
+2026 cycle closes and after the remaining 2026 races are called and certified.
+
+> **Read this before quoting a figure from the prose below.** The method, definitions, and
+> limitations in this document are current. The specific **dollar totals and counts quoted in
+> the prose were written against the Nov 12, 2026 pull** and have not been re-typed for the
+> Nov 22 snapshot (the FEC processed more filings in between: e.g. corporate PAC career
+> +$3,234,500.00, all-IE 2026 +$469,098.24; Strict clean 98 → 96 roster-wide). The
+> authoritative current figures are `data/source/baseline.json` (every total, count, and named
+> spot case the pipeline checks itself against, recorded from the snapshot above) and the
+> dataset itself. Where the two disagree, the baseline and dataset win. Coverage end dates
+> (§8.1, §15) are also as judged on Nov 12 and are pending re-confirmation for this snapshot.
 
 **Files:** `congress-money-tracker.csv` (one row per person) and `congress-money-tracker.json`
 (same data; `fec_candidate_ids` is a list; each person also carries `per_cycle` and
@@ -677,8 +689,11 @@ total still 535.
   re-verification (Nov 12, 2026) confirms `per_cycle` still sums to the career columns
   with **0 mismatches** and CSV ↔ JSON agreement is **0 mismatches** (see
   `research/verification-log.md`).
-- **To refresh:** re-download the FEC bulk files after the 2026 cycle closes, re-run the
-  pulls, re-run the merge, and update `data_as_of`. The 5 TBD seats and the 120th
+- **To refresh:** publish a new pinned snapshot ("FEC snapshot" workflow), stage it with
+  `./fetch_snapshot.sh <tag>`, set `data_as_of`, run `python3 src/rebuild.py --rebaseline`,
+  and review the diff of `data/source/baseline.json` (see README, "Pinned snapshots and the
+  baseline"). The FEC updates its bulk files in place, so a rebuild is only reproducible
+  against a pinned snapshot. The 5 TBD seats and the 120th
   leadership (Nov 18–19, 2026) will also need updating.
 
 ---

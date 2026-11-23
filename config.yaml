@@ -69,9 +69,13 @@ paths:
   dataset_csv: congress-money-tracker.csv
   dataset_json: congress-money-tracker.json
 
-# As-of date carried on every dataset row (data_as_of). Update when the
-# pulls are re-run on newer filings.
-data_as_of: "2026-11-12"
+# As-of date carried on every dataset row (data_as_of): the date of the
+# pinned FEC bulk snapshot the money was pulled from (`_snapshot` in
+# data/source/baseline.json — src/rebuild.py refuses to run if the two
+# disagree). Update it in the same change as a rebaseline. NOTE: this is
+# the MONEY date. The roster (who is in the 119th/120th, uncalled seats,
+# leadership) is still as crawled Nov 12, 2026 — see methodology §1.
+data_as_of: "2026-11-22"
 
 fec_api:
   base_url: "https://api.open.fec.gov/v1/candidates/"

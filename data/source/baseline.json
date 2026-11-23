@@ -1,49 +1,49 @@
 {
- "_snapshot": "nov-12-2026-unpinned-download",
+ "_snapshot": "fec-bulk-2026-11-22",
  "all_ie_cycle_totals.2022": 635983318.22,
  "all_ie_cycle_totals.2024": 957619902.44,
- "all_ie_cycle_totals.2026": 2248654260.52,
- "clean_2026.false_total": 562,
- "clean_2026.house_120th_career_clean": 53,
- "clean_2026.house_120th_career_clean_democrat": 50,
+ "all_ie_cycle_totals.2026": 2249123358.76,
+ "clean_2026.false_total": 564,
+ "clean_2026.house_120th_career_clean": 52,
+ "clean_2026.house_120th_career_clean_democrat": 49,
  "clean_2026.house_120th_career_clean_republican": 3,
  "clean_2026.house_120th_clean_2026_not_career_clean": 17,
- "clean_2026.house_120th_verified_clean": 70,
- "clean_2026.house_120th_verified_clean_democrat": 67,
+ "clean_2026.house_120th_verified_clean": 69,
+ "clean_2026.house_120th_verified_clean_democrat": 66,
  "clean_2026.house_120th_verified_clean_republican": 3,
  "clean_2026.null_total": 4,
- "clean_2026.true_total": 98,
+ "clean_2026.true_total": 96,
  "methodology_totals.aipac_earmark_transmitted_career": 191573.0,
  "methodology_totals.aipac_pac_direct_career": 7567773.0,
- "methodology_totals.all_ie_oppose_career": 2351872876.19,
- "methodology_totals.all_ie_support_career": 1490363373.56,
- "methodology_totals.all_ie_total_career": 3842257481.18,
- "methodology_totals.cand_contrib_career": 127959956.91,
+ "methodology_totals.all_ie_oppose_career": 2351873836.64,
+ "methodology_totals.all_ie_support_career": 1490831511.35,
+ "methodology_totals.all_ie_total_career": 3842726579.42,
+ "methodology_totals.cand_contrib_career": 127960325.39,
  "methodology_totals.cand_loans_career": 325314576.77,
- "methodology_totals.cash_on_hand_career": 1011890622.93,
- "methodology_totals.cooperative_pacs_career": 30134616.0,
+ "methodology_totals.cash_on_hand_career": 1011887812.33,
+ "methodology_totals.cooperative_pacs_career": 30139116.0,
  "methodology_totals.cooperative_pacs_earmark_transmitted_career": 0.0,
  "methodology_totals.corporate_earmark_transmitted_career": 26850.0,
- "methodology_totals.corporate_pac_career": 972228584.0,
+ "methodology_totals.corporate_pac_career": 975463084.0,
  "methodology_totals.debts_owed_by_career": 191691118.19,
- "methodology_totals.dirty_career": 1070633247.2,
- "methodology_totals.individual_contribution_total_career": 8763847353.73,
- "methodology_totals.labor_pacs_career": 293658668.0,
+ "methodology_totals.dirty_career": 1073867747.2,
+ "methodology_totals.individual_contribution_total_career": 8763842034.25,
+ "methodology_totals.labor_pacs_career": 294244986.0,
  "methodology_totals.labor_pacs_earmark_transmitted_career": 790.0,
- "methodology_totals.leadership_pacs_career": 232556005.0,
+ "methodology_totals.leadership_pacs_career": 233602505.0,
  "methodology_totals.leadership_pacs_earmark_transmitted_career": 786779.0,
  "methodology_totals.loan_repayments_career": 117267525.92,
- "methodology_totals.membership_pacs_career": 220580356.0,
+ "methodology_totals.membership_pacs_career": 221022368.0,
  "methodology_totals.membership_pacs_earmark_transmitted_career": 2479868.0,
- "methodology_totals.other_committees_total_career": 1568735747.0,
- "methodology_totals.other_unclassified_career": 302968291.0,
+ "methodology_totals.other_committees_total_career": 1575211128.0,
+ "methodology_totals.other_unclassified_career": 305141948.0,
  "methodology_totals.other_unclassified_earmark_transmitted_career": 1633442.0,
- "methodology_totals.party_committees_career": 12452000.0,
+ "methodology_totals.party_committees_career": 12461354.0,
  "methodology_totals.party_committees_earmark_transmitted_career": 18743.0,
- "methodology_totals.self_funding_career": 453274533.68,
- "methodology_totals.total_disbursements_career": 12119674234.67,
- "methodology_totals.total_receipts_career": 13123758383.28,
- "methodology_totals.trade_pacs_career": 476385811.0,
+ "methodology_totals.self_funding_career": 453274902.16,
+ "methodology_totals.total_disbursements_career": 12119624443.74,
+ "methodology_totals.total_receipts_career": 13123766432.28,
+ "methodology_totals.trade_pacs_career": 478598851.0,
  "methodology_totals.trade_pacs_earmark_transmitted_career": 456352.0,
  "methodology_totals.transfers_from_auth_career": 1084116950.9,
  "methodology_totals.transfers_to_auth_career": 196548621.7,
@@ -61,18 +61,18 @@
  },
  "site.charts": {
   "house": {
-   "clean D": 64,
+   "clean D": 63,
    "clean R": 2,
-   "dirty D": 192,
+   "dirty D": 193,
    "dirty R": 169,
    "unopposed D": 2,
    "unverified D": 1
   },
   "house_named": 430,
   "senate": {
-   "clean D": 13,
+   "clean D": 12,
    "clean I": 1,
-   "dirty D": 40,
+   "dirty D": 41,
    "dirty I": 1,
    "dirty R": 44
   },
@@ -84,7 +84,7 @@
    "unopposed R": 1
   }
  },
- "site.clean.career_clean_house_120": 53,
+ "site.clean.career_clean_house_120": 52,
  "site.clean.null_names": {
   "unopposed": [
    "Aumua Amata Coleman Radewagen",
@@ -95,7 +95,7 @@
    "Elaine Luria"
   ]
  },
- "site.clean.senate_120": 14,
+ "site.clean.senate_120": 13,
  "site.clean.unopposed_total": 9,
  "site.detail": {
   "top10_total_accepted": [
@@ -137,18 +137,18 @@
    ],
    [
     "Wesley Bell",
-    3446667.69
+    3447667.69
    ],
    [
     "Brett Guthrie",
-    1860780.0
+    1877280.0
    ]
   ],
   "top1_key": "S001215",
   "top1_compact": "$31.03M",
   "top1_returning": false,
-  "next_four_total": 15213747.67,
-  "next_four_compact": "$15.21M",
+  "next_four_total": 15231247.67,
+  "next_four_compact": "$15.23M",
   "exceeds_next_four": true,
   "ratio": "2.04"
  },
@@ -166,17 +166,17 @@
    "Patty Murray",
    "Charles E. Schumer"
   ],
-  "balanced_senate_top_dirty_exact": "$407,388.00",
-  "balanced_senate_top_career_exact": "$2,148,341.00",
+  "balanced_senate_top_dirty_exact": "$411,888.00",
+  "balanced_senate_top_career_exact": "$2,152,841.00",
   "strict_senate_top3": [
    "Margaret Wood Hassan",
    "Ron Wyden",
    "Brian Schatz"
   ],
-  "targets_2026_house": 192
+  "targets_2026_house": 193
  },
  "site.tiers.house_not_dirty_balanced": [
-  150,
+  148,
   436
  ],
  "spot.all_ie_blank_direction_gap": 21231.43,
@@ -188,7 +188,7 @@
     "candidate_loans": 14400000.0
    }
   ],
-  "all_ie_support_2026": 459491.94,
+  "all_ie_support_2026": 472911.94,
   "all_ie_oppose_2026": 3721257.82
  },
  "spot.clean.luria": {
@@ -199,7 +199,7 @@
     "candidate_loans": 0.0
    }
   ],
-  "other_committees_total_2026": 85610.0,
+  "other_committees_total_2026": 94110.0,
   "all_ie_support_2026": 685786.28
  },
  "spot.clean_2026_null": [
@@ -217,8 +217,8 @@
   36864670.88
  ],
  "spot.elsayed.all_ie_oppose_career": 107400660.67,
- "spot.elsayed.all_ie_support_career": 41085593.24,
- "spot.lamb.other_committees_total_2026": 96500.0,
+ "spot.elsayed.all_ie_support_career": 41093505.97,
+ "spot.lamb.other_committees_total_2026": 105750.0,
  "spot.self_funding_career.C001123": 9807843.1,
  "spot.self_funding_career.J000305": 11551385.89,
  "spot.self_funding_career.M001232": 14873000.0,
@@ -229,18 +229,18 @@
  "spot.self_funding_career.anthonyconstantinonyhouse": 17000000.0,
  "spot.tier.garcia": {
   "clean_2026": false,
-  "corp_2026": 238500.0,
+  "corp_2026": 253500.0,
   "aipac_direct_2026": -5000.0,
-  "dirty_2026": 233500.0,
+  "dirty_2026": 248500.0,
   "aipac_udp_flag_2026": false,
   "tier_balanced_2026": "dirty",
-  "tier_lenient_2026": "below_threshold"
+  "tier_lenient_2026": "dirty"
  },
  "spot.tier.randall": {
   "clean_2026": false,
-  "corp_2026": 68250.0,
+  "corp_2026": 70250.0,
   "aipac_direct_2026": -5000.0,
-  "dirty_2026": 63250.0,
+  "dirty_2026": 65250.0,
   "aipac_udp_flag_2026": false,
   "tier_balanced_2026": "below_threshold",
   "tier_lenient_2026": "below_threshold"
@@ -268,26 +268,26 @@
  "tiered_2026.aipac_udp_flag_120th": 231,
  "tiered_2026.aipac_udp_flag_all": 291,
  "tiered_2026.balanced.below_threshold": 119,
- "tiered_2026.balanced.clean": 84,
- "tiered_2026.balanced.dirty": 328,
- "tiered_2026.balanced.not_dirty": 203,
+ "tiered_2026.balanced.clean": 82,
+ "tiered_2026.balanced.dirty": 330,
+ "tiered_2026.balanced.not_dirty": 201,
  "tiered_2026.balanced.null": 4,
- "tiered_2026.corp_only_2026_120th": 211,
+ "tiered_2026.corp_only_2026_120th": 213,
  "tiered_2026.corp_only_below_balanced": 118,
- "tiered_2026.corp_only_below_lenient": 170,
- "tiered_2026.corp_only_staying_dirty_balanced": 93,
- "tiered_2026.corp_only_staying_dirty_lenient": 41,
- "tiered_2026.lenient.below_threshold": 173,
- "tiered_2026.lenient.clean": 84,
- "tiered_2026.lenient.dirty": 274,
- "tiered_2026.lenient.not_dirty": 257,
+ "tiered_2026.corp_only_below_lenient": 169,
+ "tiered_2026.corp_only_staying_dirty_balanced": 95,
+ "tiered_2026.corp_only_staying_dirty_lenient": 44,
+ "tiered_2026.lenient.below_threshold": 171,
+ "tiered_2026.lenient.clean": 82,
+ "tiered_2026.lenient.dirty": 278,
+ "tiered_2026.lenient.not_dirty": 253,
  "tiered_2026.lenient.null": 4,
- "tiered_2026.targets_2028_balanced_house": 133,
+ "tiered_2026.targets_2028_balanced_house": 135,
  "tiered_2026.targets_2028_balanced_senate_class3": 6,
- "tiered_2026.targets_2028_lenient_house": 103,
+ "tiered_2026.targets_2028_lenient_house": 105,
  "tiered_2026.targets_2028_lenient_senate_class3": 3,
- "tiered_2026.targets_2028_strict_house": 192,
- "tiered_2026.targets_2028_strict_senate_class3": 13,
+ "tiered_2026.targets_2028_strict_house": 193,
+ "tiered_2026.targets_2028_strict_senate_class3": 14,
  "udp_prior_cycle_totals.2022": 26107515.77,
  "udp_prior_cycle_totals.2024": 38044932.69,
  "udp_prior_cycle_totals.2026": 54322881.51
