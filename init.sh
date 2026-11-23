@@ -3,7 +3,7 @@
 #
 # Usage: ./init.sh [--skip-download] [--skip-rebuild] [--skip-site]
 #   1. Creates .venv (if missing) and installs the dependencies from
-#      requirements.txt (PyYAML + pandas). Everything after this runs
+#      requirements.txt (the repo as a package, plus its dependencies). Everything after this runs
 #      with .venv/bin/python.
 #   2. Stages the FEC bulk files via ./download_bulk.sh (~315 MB down,
 #      ~2 GB on disk; skips oppexp, which no script reads).
@@ -32,7 +32,7 @@ done
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing required tool: $1" >&2; exit 1; }; }
 need python3; need curl; need unzip
 
-echo "=== 1/4 environment (.venv + PyYAML) ==="
+echo "=== 1/4 environment (.venv + dependencies) ==="
 if [ ! -x .venv/bin/python ]; then
   python3 -m venv .venv || { echo "python3 -m venv failed — install the python3-venv package, then re-run." >&2; exit 1; }
 fi

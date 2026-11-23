@@ -18,7 +18,7 @@ anything to explore it. The static site (`docs/index.html`) is generated from th
 git clone https://github.com/craigSochocki/the-receipts.git
 cd the-receipts
 python3 --version   # 3.10+, tested on 3.12
-pip install -r requirements.txt  # pyyaml + pandas
+pip install -r requirements.txt  # installs the repo as a package, plus pyyaml, pandas, duckdb
 ```
 
 Or run `./init.sh` — it does the venv, the bulk download, the rebuild, and the site in one go.
