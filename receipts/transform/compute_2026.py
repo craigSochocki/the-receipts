@@ -152,7 +152,7 @@ the clean counts do not match the expectations in config
 from collections import Counter
 
 from receipts.common.baseline import expected
-from receipts.common.config import load_config
+from receipts.common.settings import settings
 from receipts.domain.clean_2026 import (
     NO_INDIVIDUAL_MONEY_NOTE,
     UNLINKED_NOTE,
@@ -167,10 +167,6 @@ from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.store.races import races_in
 from receipts.store.read import connect
 
-CFG = load_config()
-ROOT = CFG['_root']
-CURRENT = CFG['cycles']['current']
-PRESETS = CFG['verification']['tolerance_presets']
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 CREDITS = (
     'SELECT credited_to, SUM(credit) FROM gold.opposition_credits '
@@ -179,7 +175,7 @@ CREDITS = (
 
 
 def current(entries):
-    return [e for e in entries if e['cycle'] == CURRENT]
+    return [e for e in entries if e['cycle'] == settings().cycles.current]
 
 
 def current_sum(entries, field):
@@ -194,7 +190,7 @@ def has_2026_linkage(r):
         bool(current(r['per_cycle']))
         or bool(current(r['udp_per_cycle']))
         or any(
-            str(e.get('coverage_end_date', '')).endswith(f'/{CURRENT}')
+            str(e.get('coverage_end_date', '')).endswith(f'/{settings().cycles.current}')
             for e in current(r['self_funding_per_cycle'])
         )
     )
@@ -250,14 +246,17 @@ def verdict_and_notes(r, race_map, race_of):
         r['data_notes'] += note
     for preset in ('balanced', 'lenient'):
         r[f'tier_{preset}_2026'] = tier(r['clean_2026'], r['aipac_udp_flag_2026'], r['corp_2026'],
-                                        r['total_receipts_2026'], PRESETS[preset])  # fmt: skip
+                                        r['total_receipts_2026'], settings().verification.tolerance_presets[preset])  # fmt: skip
     if r['corp_2026'] > 0 and r['individual_2026'] == 0:
         r['data_notes'] += NO_INDIVIDUAL_MONEY_NOTE.format(corp=f'{r["corp_2026"]:,.0f}')
 
 
 def credits_2026():
     with connect() as db:
-        return {key: cents / 100 for key, cents in db.execute(CREDITS, [CURRENT]).fetchall()}
+        return {
+            key: cents / 100
+            for key, cents in db.execute(CREDITS, [settings().cycles.current]).fetchall()
+        }
 
 
 def observed_counts(records):
@@ -310,7 +309,7 @@ def write_primary_targets(records):
     lines = [
         '# Primary targets — House Democrats in the 120th Congress, by dirty money in 2026',
         '',
-        f'Generated from the tracker dataset (data as of {CFG["data_as_of"]}). '
+        f'Generated from the tracker dataset (data as of {settings().data_as_of}). '
         f'{len(targets)} House Democrats in the incoming 120th took dirty money in 2026 '
         f'(corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources '
         f'other than individual contributors; individual contributions are not dirty money.',
@@ -327,16 +326,16 @@ def write_primary_targets(records):
         f'${r["individual_2026"]:,.2f} |'
         for i, r in enumerate(targets, 1)
     ]
-    (ROOT / CFG['paths']['primary_targets']).write_text('\n'.join(lines) + '\n')
+    settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
 
 
 def with_2026(records):
     """Add the 2026 columns, clean flags and tiers; check the counts; write the target list."""
     credits = credits_2026()
-    race_map, race_of = races_in(CURRENT)
+    race_map, race_of = races_in(settings().cycles.current)
     for r in records:
         r.update(money_2026(r, credits.get(r['person_key'], 0.0)))
         verdict_and_notes(r, race_map, race_of)
     check_against_baseline(records)
     write_primary_targets(records)
-    return [{k: r[k] for k in CFG['dataset']['json_keys']} for r in records]
+    return [{k: r[k] for k in settings().dataset.json_keys} for r in records]

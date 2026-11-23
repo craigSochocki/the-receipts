@@ -17,6 +17,7 @@ import yaml
 
 from receipts.common.config import repo_root
 from receipts.common.files import read_json
+from receipts.domain.clean_2026 import TolerancePreset
 
 
 class ConfigError(SystemExit):
@@ -131,12 +132,6 @@ class CoverageEnd:
 
 
 @dataclass(frozen=True)
-class TolerancePreset:
-    corp_amount: int
-    corp_share: float
-
-
-@dataclass(frozen=True)
 class Verification:
     coverage_end: CoverageEnd
     tolerance_presets: Mapping[str, TolerancePreset]
@@ -161,6 +156,10 @@ class Settings:
     run_checks: RunChecks
     verification: Verification
     dataset: Dataset
+
+    def relative(self, path: Path) -> Path:
+        """A path as the repo shows it, for log lines."""
+        return path.relative_to(self.root)
 
 
 @cache

@@ -9,11 +9,7 @@ cents there and dollars here. A person with no FEC candidate ID has every amount
 from collections import defaultdict
 
 from receipts.common.files import read_json
-from receipts.common.settings import (
-    DATA_AS_OF,
-    PATHS,
-    load_double_count_records,
-)
+from receipts.common.settings import load_double_count_records, settings
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.weball_double_counts import correction_notes
 from receipts.store.read import connect
@@ -212,7 +208,7 @@ def record(person, gold, dedup_notes):
         'other_committees_per_cycle': other_committee_entries(gold['committee_cycles'][key]),
         'all_ie_per_cycle': all_ie_entries(gold['all_ie_by_candidate'], ids),
         'all_ie_top_committees': top_committees(gold['top_committees'][key]) if ids else None,
-        'data_as_of': DATA_AS_OF,
+        'data_as_of': settings().data_as_of,
         **{r: gold['ranks'][key][r] for r in RANKS},
     }
     if not ids:
@@ -242,7 +238,7 @@ def read_gold():
 
 def tracked_people(tracked):
     """Roster fields for each tracked person, folding in a second entry for the same person."""
-    roster = {r['person_key']: r for r in read_json(PATHS.roster_intermediate)}
+    roster = {r['person_key']: r for r in read_json(settings().paths.roster_intermediate)}
     kept = set(tracked)
     folded = defaultdict(list)
     for key, row in roster.items():

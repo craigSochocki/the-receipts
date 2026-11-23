@@ -13,27 +13,22 @@ import unicodedata
 import urllib.parse
 import urllib.request
 
-from receipts.common.config import load_config
 from receipts.common.files import read_json, write_json
-
-CFG = load_config()
-ROOT = CFG['_root']
-SRC = str(ROOT / CFG['paths']['source'])
-IM = str(ROOT / CFG['paths']['intermediate'])
-API = CFG['fec_api']['base_url']
+from receipts.common.settings import settings
 
 
 def main():
     """Look up missing FEC candidate IDs through the OpenFEC API."""
-    API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
-    CURRENT_ELECTION_YEAR = CFG['cycles']['current']
-    PARTY = CFG['party_codes']
+    paths, api = settings().paths, settings().fec_api
+    API_KEY = os.environ.get(api.api_key_env, api.api_key_default)
+    CURRENT_ELECTION_YEAR = settings().cycles.current
+    PARTY = settings().party_codes
 
     def norm(s):
         s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
         return re.sub(r'[^a-z ]', '', s.lower()).strip()
 
-    rows = read_json(f'{IM}/roster_intermediate.json')
+    rows = read_json(paths.roster_intermediate)
     missing = [r for r in rows if not r['fec_candidate_ids']]
     print('rows missing FEC IDs:', len(missing))
 
@@ -51,11 +46,9 @@ def main():
             'state': r['state'],
             'per_page': 20,
         }
-        url = API + '?' + urllib.parse.urlencode(params)
+        url = api.base_url + '?' + urllib.parse.urlencode(params)
         try:
-            with urllib.request.urlopen(
-                url, timeout=CFG['fec_api']['request_timeout_seconds']
-            ) as resp:
+            with urllib.request.urlopen(url, timeout=api.request_timeout_seconds) as resp:
                 data = json.load(resp)
         except urllib.error.HTTPError as e:
             return ('http_error', e.code)
@@ -112,10 +105,10 @@ def main():
         if status == 'http_error' and val == 429:
             print('RATE LIMITED — stopping')
             break
-        time.sleep(CFG['fec_api']['sleep_between_requests_seconds'])
+        time.sleep(api.sleep_between_requests_seconds)
 
-    write_json(f'{SRC}/fec_lookup_results.json', results)
-    write_json(f'{IM}/roster_intermediate.json', rows)
+    write_json(paths.fec_lookup_results, results)
+    write_json(paths.roster_intermediate, rows)
     found = sum(1 for v in results.values() if v['status'] == 'found')
     print(f'found {found} of {len(results)} attempted')
 

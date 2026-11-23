@@ -12,14 +12,9 @@ Sources:
 import collections
 from typing import NamedTuple
 
-from receipts.common.config import load_config
 from receipts.common.files import read_json, read_yaml, write_json
+from receipts.common.settings import settings
 from receipts.domain.names import first_names_agree, norm, slug, split_name
-
-CFG = load_config()
-ROOT = CFG['_root']
-SRC = ROOT / CFG['paths']['source']
-IM = ROOT / CFG['paths']['intermediate']
 
 PARTY_NOTES = {
     'DFL': 'Party listed as DFL (Minnesota Democratic-Farmer-Labor, Democratic affiliate).',
@@ -386,10 +381,11 @@ class Roster:
 
 def main():
     """Build the roster from the legislators file, the 120th roster and the curated facts."""
-    roster = Roster(read_yaml(SRC / 'legislators-current.yaml'))
-    former = FormerMembers(read_json(SRC / 'historical_lookup.json'))
-    r120 = read_json(SRC / '120th_roster.json')
-    facts = read_yaml(ROOT / CFG['paths']['roster_facts'])
+    paths = settings().paths
+    roster = Roster(read_yaml(paths.source / 'legislators-current.yaml'))
+    former = FormerMembers(read_json(paths.source / 'historical_lookup.json'))
+    r120 = read_json(paths.source / '120th_roster.json')
+    facts = read_yaml(paths.roster_facts)
     seats = list(seats_120th(r120))
 
     newcomers = roster.seat_120th(seats, former)
@@ -399,7 +395,7 @@ def main():
     roster.note_successors(r120)
     roster.assign_senate_classes()
 
-    write_json(IM / 'roster_intermediate.json', list(roster.rows.values()))
+    write_json(paths.roster_intermediate, list(roster.rows.values()))
     roster.print_summary(newcomers)
     missing, duplicated = roster.unmatched(seats)
     if missing or duplicated:
