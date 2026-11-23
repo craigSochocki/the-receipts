@@ -4,6 +4,21 @@
 
 ## What is built
 
+- **Refactor in progress (Nov 22).** One pipeline step at a time onto
+  `src/domain/` (rules, Money in exact cents) and `src/fec/` (typed
+  readers), each step byte-identical. Done: `pull_money`,
+  `pull_other_committees`. **Reconciliation fix (Craig, Nov 22):** the
+  weball col-26 comparison now excludes party committees, as col 26
+  does (Form 3 line 11(b) vs 11(c)), and reports party money as its own
+  line (`pas2_party_committees_cents`). It had been including them,
+  contrary to its own description. Diagnostics only; dataset unchanged.
+  **Finding:** the fit got slightly worse — all-cycle residual
+  $31.4M → $43.8M, exact matches 21 → 20 — so col 26 does not match
+  "all non-party committee money" cleanly; mechanism still open.
+  Lamb's check compares gross pas2 (incl. $7,000 earmarks) where the
+  reconciliation nets earmarks; left as-is because it would change his
+  public note.
+
 - **Pinned snapshots + baseline (branch `claude/rebaseline`, PENDING
   CRAIG'S REVIEW — not on master) — Nov 22.** Why: every CI run since
   Nov 13 and both scheduled refreshes (Nov 15, Nov 22) failed. CI

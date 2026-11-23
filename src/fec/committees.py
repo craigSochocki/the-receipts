@@ -25,9 +25,12 @@ class Committee(NamedTuple):
     candidate_id: str
 
     @property
+    def is_pac(self):
+        return self.committee_type in PAC_TYPES
+
+    @property
     def is_corporate_pac(self):
-        return (self.committee_type in PAC_TYPES
-                and self.organization_type in CORPORATE_ORGANIZATIONS)
+        return self.is_pac and self.organization_type in CORPORATE_ORGANIZATIONS
 
 
 def committees(bulk_dir, cycle):

@@ -21,6 +21,7 @@ committees:
   # FEC committee IDs, verified by direct FEC API lookup (see methodology.md).
   aipac_pac: "C00797670"  # AIPAC PAC
   udp: "C00799031"        # United Democracy Project (AIPAC-affiliated super PAC)
+  winred: "C00694323"     # WinRed, a conduit filing as a hybrid PAC
 
 cycles:
   career_start: 1980       # first FEC cycle in the career money pull
