@@ -127016,7 +127016,7 @@
   "all_ie_oppose_career": 73177.18,
   "all_ie_total_career": 398781.18,
   "data_as_of": "2026-11-22",
-  "data_notes": "No UDP support spending found in 2022/2024/2026 IE files. | 2026 PENDING RECONCILIATION: other-committee money in 2026 is $96,500.00 by pas2 (leadership $43,000; labor $5,000; trade $6,000; membership $8,000; other-unclassified $34,500) but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports $129,150.00 \u2014 $32,650.00 residual, not reproducible until the mid-Dec re-pull (staged pas2 2026 effectively ends Sep 30, weball runs through Oct 14). Do not adjust either figure.",
+  "data_notes": "No UDP support spending found in 2022/2024/2026 IE files. | 2026 PENDING RECONCILIATION: other-committee money in 2026 is $105,750.00 by pas2 (leadership $44,000.00; labor $5,000.00; trade $6,000.00; membership $8,000.00; other-unclassified $42,750.00) but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports $129,150.00 \u2014 $23,400.00 residual, not reproducible from the staged bulk files (pas2 judged complete through Oct 14, weball through Oct 14). Do not adjust either figure.",
   "per_cycle": [
    {
     "cycle": 2026,

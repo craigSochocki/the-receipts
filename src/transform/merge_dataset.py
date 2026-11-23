@@ -101,6 +101,7 @@ Internal consistency asserts (fail loudly, exit non-zero):
 """
 import csv, json
 from collections import defaultdict
+from datetime import datetime
 from decimal import Decimal
 
 import pandas as pd
@@ -123,17 +124,41 @@ RIVET_FIX_NOTES = {
                 'identical money totals); collapsed to a single row. Money totals counted once, '
                 'not twice. She served in the 119th (MI-08) and was re-elected to the 120th (MI-08).'),
 }
-# Mark Lamb (marklambazhouse, AZ House): the staged pas2 2026 file
-# effectively ends Sep 30, while weball runs through Oct 14 — his
-# other-committee 2026 money is $96,500 pas2-derived vs $129,150 in
-# weball col 26, a $32,650 residual not reproducible until the mid-Dec
-# re-pull. Recorded, not adjusted.
-LAMB_NOTE = ('2026 PENDING RECONCILIATION: other-committee money in 2026 is $96,500.00 by pas2 '
-             '(leadership $43,000; labor $5,000; trade $6,000; membership $8,000; '
-             'other-unclassified $34,500) but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
-             '$129,150.00 — $32,650.00 residual, not reproducible until the mid-Dec re-pull '
-             '(staged pas2 2026 effectively ends Sep 30, weball runs through Oct 14). '
-             'Do not adjust either figure.')
+# Mark Lamb (marklambazhouse, AZ House): his 2026 other-committee money
+# by pas2 does not reach the weball col 26 figure. The note is built
+# from pull_other_committees.py's own Lamb validation and the config
+# coverage dates — it was a typed sentence until the Nov 22, 2026
+# snapshot moved the pas2 side ($96,500.00 -> $105,750.00) and left the
+# typed figures wrong. Recorded, not adjusted.
+LAMB_LABELS = [('party_committees', 'party'), ('leadership_pacs', 'leadership'),
+               ('labor_pacs', 'labor'), ('trade_pacs', 'trade'),
+               ('membership_pacs', 'membership'), ('cooperative_pacs', 'cooperative'),
+               ('other_unclassified', 'other-unclassified')]
+
+
+def lamb_note(check, coverage):
+    """The Lamb PENDING RECONCILIATION note, or '' when pas2 and weball agree."""
+    residual = check['weball_minus_pas2_cents']
+    if residual == 0:
+        return ''
+
+    def usd(cents):
+        return f'${cents / 100:,.2f}'
+
+    def day(iso):
+        d = datetime.strptime(str(iso), '%Y-%m-%d')
+        return f'{d:%b} {d.day}'
+
+    parts = '; '.join(f'{label} {usd(check["pas2_breakdown_cents"][b])}'
+                      for b, label in LAMB_LABELS if check['pas2_breakdown_cents'][b])
+    return (f'{check["cycle"]} PENDING RECONCILIATION: other-committee money in '
+            f'{check["cycle"]} is {usd(check["pas2_total_cents"])} by pas2 ({parts}) '
+            f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
+            f'{usd(check["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
+            f'not reproducible from the staged bulk files (pas2 judged complete through '
+            f'{day(coverage["committee_money_pas2"])}, weball through {day(coverage["weball"])}). '
+            f'Do not adjust either figure.')
+
 
 ROSTER_FIELDS = ['person_key', 'full_name', 'chamber_119', 'chamber_120', 'state',
                  'district_119', 'district_120', 'party_119', 'party_120',
@@ -183,6 +208,9 @@ with open(ROOT / CFG['paths']['all_ie_csv'], newline='') as f:
 aie_top = json.load(open(ROOT / CFG['paths']['all_ie_top_committees']))
 opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
 dedup_notes = json.load(open(ROOT / CFG['paths']['dedup_notes']))
+LAMB_NOTE = lamb_note(
+    json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))['lamb_validation'],
+    CFG['verification']['coverage_end'])
 roster_json = json.load(open(ROOT / CFG['paths']['roster']))
 
 # All-IE per-cycle entries, grouped per person from the pull's
@@ -488,7 +516,7 @@ for r in rows:
     note = ' | '.join(parts)
     if pk in dedup_notes:
         note = f'{note} {dedup_notes[pk]}' if note else dedup_notes[pk]
-    if pk == 'marklambazhouse':
+    if pk == 'marklambazhouse' and LAMB_NOTE:
         note = f'{note} | {LAMB_NOTE}' if note else LAMB_NOTE
     winred_segments = [s for s in (oc_row['data_notes'] or '').split(' | ')
                        if 'WinRed' in s]

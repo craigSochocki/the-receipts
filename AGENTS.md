@@ -148,9 +148,11 @@ the-receipts/
   Radewagen AS). Career-clean is derived from career money columns only
   and is untouched by the unopposed rule.
 - **Cutoffs differ by data family and must be labeled everywhere.**
-  Committee money (pas2) through **Sep 30, 2026**; weball-derived
+  Committee money (pas2) through **Oct 14, 2026**; weball-derived
   figures (individual, self-funding, topline) through **Oct 14, 2026**;
-  all-IE (UDP too) through **Oct 31, 2026**. 2026 is partial — say so
+  all-IE (UDP too) through **Nov 3, 2026** — as judged for snapshot
+  `fec-bulk-2026-11-22`; `config.yaml` `verification.coverage_end` is
+  the one place they are set, and they are re-judged at every rebaseline. 2026 is partial — say so
   wherever 2026 figures appear.
 - **Weball is a lower bound where the FEC API runs ahead — document the
   gap, never paper over it.** Constantino: weball loans $14.4M vs API
@@ -194,8 +196,8 @@ A change to data or pipeline is not done until it passes this gate:
    different input and can never reproduce a committed dataset.
    Verified Nov 22, 2026 on `fec-bulk-2026-11-22`: byte-identical on
    Python 3.11 / 3.12 / 3.13 (CSV md5
-   `09d66b6ae2ebc2cba91e4dcf06186bc6`, JSON md5
-   `db779b261343cf772a39b443d2ef648b`).
+   `6ada15a535ce1865b9485ff2f2b4ebbf`, JSON md5
+   `f5b46dbcb954c4443c4fa9edb81797c1`).
 2. **All audits in `src/validate/verify_dataset.py` pass** (per-cycle
    sums for every column family, roster totals, all rank columns, clean
    counts and the generalized clean rule, tiers, 2026 columns,

@@ -327,8 +327,15 @@ def main():
           lamb_total == lamb['other_committees_total_2026'], f'got {lamb_total}')
     pin('Lamb 2026 other-committee pas2-derived total',
         'spot.lamb.other_committees_total_2026', lamb_total)
-    check('Lamb data_notes records the $32,650 pending reconciliation',
-          'PENDING RECONCILIATION' in lamb['data_notes'] and '$32,650.00' in lamb['data_notes'])
+    lamb_v = oc_diag['lamb_validation']
+    lamb_residual = lamb_v['weball_minus_pas2_cents'] / 100
+    pin('Lamb 2026 weball-minus-pas2 residual', 'spot.lamb.weball_minus_pas2_2026',
+        lamb_residual)
+    check('Lamb data_notes states the current pas2 total and residual (or no note at zero)',
+          ('PENDING RECONCILIATION' not in lamb['data_notes']) if lamb_residual == 0
+          else (f"${lamb_total:,.2f} by pas2" in lamb['data_notes']
+                and f"${lamb_residual:,.2f} residual" in lamb['data_notes']),
+          lamb['data_notes'][-260:])
 
     # (l) all-IE per-cycle sums; UDP 2024 exact; cycle totals; the
     # $21,231.43 blank-direction reconciliation; top committees.
