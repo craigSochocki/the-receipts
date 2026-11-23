@@ -548,7 +548,7 @@ def main():
         json.dump(decision, sys.stdout, indent=1)
         print()
     fams = ', '.join(
-        f"{fam}: {'SKIP' if r['skipped'] else f'{r['n_new_filings']} new'} "
+        f"{fam}: {'SKIP' if r['skipped'] else str(r['n_new_filings']) + ' new'} "
         f"(newest {r['newest_seen']}, {r['calls_used']} calls)"
         for fam, r in decision['families'].items())
     print(f"gate: {fams}; affected persons: "
