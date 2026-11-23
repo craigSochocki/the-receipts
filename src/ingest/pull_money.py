@@ -12,8 +12,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.config import load_config
-from src.domain.committee_money import (ReportedOnce, Source, Tally, is_voided_earmark,
-                                        tracked_source)
+from src.domain.committee_classes import CommitteeClass
+from src.domain.committee_money import (TRACKED_CLASSES, ReportedOnce, Tally,
+                                        is_voided_earmark, tracked_class)
 from src.domain.ledger import Ledger
 from src.domain.money import ZERO, Money
 from src.domain.roster import Roster, candidate_ids
@@ -36,9 +37,9 @@ CAREER_COLUMNS = {
     'corporate_pac': 'corporate_pac_career',
     'corporate_earmark_transmitted': 'corporate_earmark_transmitted_career',
 }
-DIRECT = {Source.AIPAC: 'aipac_pac_direct', Source.CORPORATE: 'corporate_pac'}
-EARMARK = {Source.AIPAC: 'aipac_earmark_transmitted',
-           Source.CORPORATE: 'corporate_earmark_transmitted'}
+AIPAC, CORPORATE = CommitteeClass.AIPAC, CommitteeClass.CORPORATE
+DIRECT = {AIPAC: 'aipac_pac_direct', CORPORATE: 'corporate_pac'}
+EARMARK = {AIPAC: 'aipac_earmark_transmitted', CORPORATE: 'corporate_earmark_transmitted'}
 
 
 def cycles_with_money(person, ledger):
@@ -96,7 +97,7 @@ def read_committee_contributions(cycle, roster, ledger, candidates_seen):
     matched = 0
     negative, voided_earmarks, unregistered = Tally(), Tally(), Tally()
     unregistered_committees = set()
-    before_dedup = {source: Tally() for source in Source}
+    before_dedup = {source: Tally() for source in TRACKED_CLASSES}
 
     for contribution in filed:
         if not contribution.is_to_candidate or contribution.candidate_id not in roster:
@@ -111,16 +112,16 @@ def read_committee_contributions(cycle, roster, ledger, candidates_seen):
         if is_voided_earmark(contribution):
             voided_earmarks.add(contribution.amount)
             continue
-        source = tracked_source(contribution, AIPAC_PAC, corporate_pacs)
+        source = tracked_class(contribution, AIPAC_PAC, corporate_pacs)
         if source is None:
             continue
         before_dedup[source].add(contribution.amount)
         reported_once.add(contribution)
 
-    kept = {source: Tally() for source in Source}
-    earmarked = {source: Tally() for source in Source}
+    kept = {source: Tally() for source in TRACKED_CLASSES}
+    earmarked = {source: Tally() for source in TRACKED_CLASSES}
     for contribution in reported_once:
-        source = tracked_source(contribution, AIPAC_PAC, corporate_pacs)
+        source = tracked_class(contribution, AIPAC_PAC, corporate_pacs)
         ledger.add(contribution.candidate_id, cycle, DIRECT[source], contribution.amount)
         kept[source].add(contribution.amount)
         if contribution.is_earmark:
@@ -136,13 +137,13 @@ def read_committee_contributions(cycle, roster, ledger, candidates_seen):
         'dedup_dropped_cents': reported_once.dropped.amount.cents,
         'void_earmark_rows': voided_earmarks.rows,
         'void_earmark_cents': voided_earmarks.amount.cents,
-        'earmark_aipac_cents': earmarked[Source.AIPAC].amount.cents,
-        'earmark_corp_cents': earmarked[Source.CORPORATE].amount.cents,
-        'naive_aipac_cents': before_dedup[Source.AIPAC].amount.cents,
-        'naive_corp_cents': before_dedup[Source.CORPORATE].amount.cents,
-        'aipac_rows_kept': kept[Source.AIPAC].rows, 'aipac_cents': kept[Source.AIPAC].amount.cents,
-        'corp_rows_kept': kept[Source.CORPORATE].rows,
-        'corp_cents': kept[Source.CORPORATE].amount.cents,
+        'earmark_aipac_cents': earmarked[AIPAC].amount.cents,
+        'earmark_corp_cents': earmarked[CORPORATE].amount.cents,
+        'naive_aipac_cents': before_dedup[AIPAC].amount.cents,
+        'naive_corp_cents': before_dedup[CORPORATE].amount.cents,
+        'aipac_rows_kept': kept[AIPAC].rows, 'aipac_cents': kept[AIPAC].amount.cents,
+        'corp_rows_kept': kept[CORPORATE].rows,
+        'corp_cents': kept[CORPORATE].amount.cents,
     }
     missing_from_registry = {'cm_missing_committees': len(unregistered_committees),
                              'cm_missing_rows': unregistered.rows,
@@ -218,7 +219,7 @@ def print_summary(rows, diagnostics):
 def main():
     with open(INTERMEDIATE / 'roster.json') as f:
         roster = Roster(json.load(f))
-    ledger = Ledger()
+    ledger = Ledger(CAREER_COLUMNS)
     candidates_seen = set()
 
     diagnostics = [read_individual_contributions(cycle, roster, ledger, candidates_seen)

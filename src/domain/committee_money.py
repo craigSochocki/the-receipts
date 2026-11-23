@@ -2,21 +2,18 @@
 
 Rules and evidence: methodology.md §4.
 """
-from enum import Enum
-
+from src.domain.committee_classes import CommitteeClass
 from src.domain.money import ZERO
 
-
-class Source(Enum):
-    AIPAC = 'aipac'
-    CORPORATE = 'corp'
+TRACKED_CLASSES = (CommitteeClass.AIPAC, CommitteeClass.CORPORATE)
 
 
-def tracked_source(contribution, aipac_committee_id, corporate_pacs):
+def tracked_class(contribution, aipac_committee_id, corporate_pacs):
+    """AIPAC or corporate, the two committee classes total_accepted counts; else None."""
     if contribution.committee_id == aipac_committee_id:
-        return Source.AIPAC
+        return CommitteeClass.AIPAC
     if contribution.committee_id in corporate_pacs:
-        return Source.CORPORATE
+        return CommitteeClass.CORPORATE
     return None
 
 
