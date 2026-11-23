@@ -98,9 +98,6 @@ pre-2010 cycles have no such file.
 import csv, glob, json, collections
 from datetime import datetime
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected
 

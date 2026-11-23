@@ -61,7 +61,6 @@ from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected as baseline_figure
 from src.site.expectations import figure_literals, site_expectations

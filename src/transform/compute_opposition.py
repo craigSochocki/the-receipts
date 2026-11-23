@@ -26,9 +26,6 @@ opposition column is built.
 import csv, json, collections
 from datetime import datetime
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected
 

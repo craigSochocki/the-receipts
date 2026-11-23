@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Fail unless the store's seats and terms hold together. Run after src/rebuild.py."""
 import sys
-from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.settings import PATHS
 
 SEATS_IN_FORCE = """

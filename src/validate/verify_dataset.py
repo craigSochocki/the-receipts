@@ -88,8 +88,6 @@ from decimal import Decimal
 import pandas as pd
 import yaml
 
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
 from src.common.baseline import expected as baseline_figure
 

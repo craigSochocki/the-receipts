@@ -42,8 +42,6 @@ import time
 import urllib.error
 import urllib.parse
 
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.api_retry import (DOCQUERY_RATE_LIMIT_NOTE, open_with_retry,
                                   retry_settings, sanitize_url)
 from src.common.config import load_config

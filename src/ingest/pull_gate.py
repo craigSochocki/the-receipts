@@ -144,7 +144,6 @@ import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from src.common.config import load_config
 

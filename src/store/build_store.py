@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Build the silver store (DuckDB) from the pinned FEC snapshot and the roster."""
 import json
-import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -9,7 +8,6 @@ import duckdb
 import pandas as pd
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.settings import (AIPAC_PAC, CAREER_CYCLES, IE_CYCLES, PATHS,
                                  load_double_count_records, load_roster)
 from src.domain.committee_classes import committee_class
