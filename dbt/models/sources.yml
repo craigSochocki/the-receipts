@@ -60,3 +60,20 @@ sources:
           - name: seat_id
             data_tests:
               - relationships: {arguments: {to: "source('store', 'seats')", field: seat_id}}
+
+  - name: gold
+    description: Each money step's per-person results, in cents (receipts/store/gold.py).
+    schema: gold
+    tables:
+      - name: accepted_money_people
+      - name: accepted_money_per_cycle
+      - name: udp_people
+      - name: udp_per_cycle
+      - name: self_funding_people
+      - name: self_funding_per_cycle
+      - name: other_committees_people
+      - name: other_committees_per_cycle
+      - name: all_ie_people
+      - name: all_ie_per_candidate_cycle
+      - name: all_ie_top_committees
+      - name: opposition_credits
