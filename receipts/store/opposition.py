@@ -153,6 +153,25 @@ def main():
         ],
         {'credit'},
     )
+    write_gold(
+        'opposition_opposed',
+        [
+            {
+                'cycle': race[0],
+                'office': race[1],
+                'state': race[2],
+                'district': race[3],
+                'election_type': race[4],
+                'credited_to': credited_to,
+                'position': position,
+                'opposed_name': opposed_name,
+                'amount': opposed_amount,
+            }
+            for race, credited_to, _, _, opposed in credited
+            for position, (opposed_name, opposed_amount) in enumerate(opposed.items())
+        ],
+        {'amount'},
+    )
     mismatches = support_mismatches(udp.rows, person_keys)
     write_json(
         PATHS.opposition_computed,

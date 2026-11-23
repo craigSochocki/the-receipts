@@ -79,3 +79,4 @@ sources:
       - name: all_ie_per_candidate_cycle
       - name: all_ie_top_committees
       - name: opposition_credits
+      - name: opposition_opposed

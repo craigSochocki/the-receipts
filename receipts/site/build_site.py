@@ -9,8 +9,7 @@ minified JSON) and every view on the page — table, filters, leaderboards,
 clean view, breakdown, primary targets, CSV download — is computed from
 that embedded data at runtime, so the figures on the page can never drift
 from the dataset. A second, smaller payload carries the race-phase UDP
-opposition-credit detail (from data/intermediate/opposition-computed.json,
-the race-level record) so a person's drill-down can show the credit split
+opposition-credit detail (from the store's gold opposition tables) so a person's drill-down can show the credit split
 by primary / general / other phase.
 
 Usage:
@@ -38,10 +37,12 @@ Rules (see AGENTS.md):
 import csv
 import hashlib
 import json
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
 from receipts.common.config import load_config
+from receipts.store.read import connect
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -224,33 +225,39 @@ def encode_row(r):
 def build_opp_payload():
     """Race-phase UDP opposition credit per roster person, for the drill-down.
 
-    From data/intermediate/opposition-computed.json (the race-level record):
+    From gold.opposition_credits and gold.opposition_opposed:
     {person_key: [{cycle, office, state, district, phase, amount, opposed:
     [[name, amount], ...]}, ...]}. Non-roster credits are excluded (no
     drill-down row exists for them). Deterministic: entries sorted by race
     key, opposed names by amount descending.
     """
-    opp = json.loads((ROOT / CFG['paths']['opposition_computed']).read_text())
+    race = 'cycle, office, state, district, election_type, credited_to'
+    with connect() as db:
+        credits = db.execute(
+            f'SELECT {race}, credit FROM gold.opposition_credits '
+            "WHERE credited_to NOT LIKE '__nonroster__%'"
+        ).fetchall()
+        opposed = defaultdict(list)
+        for *key, name, cents in db.execute(
+            f'SELECT {race}, opposed_name, amount FROM gold.opposition_opposed ORDER BY position'
+        ).fetchall():
+            opposed[tuple(key)].append([name, cents / 100])
     out = {}
-    for race, pk, _name, amount, opposed in opp['credit_detail']:
-        if pk.startswith('__nonroster__'):
-            continue
-        cycle, office, state, district, ele_type = race
-        out.setdefault(pk, []).append(
+    for *key, credit in credits:
+        cycle, office, state, district, phase, person_key = key
+        out.setdefault(person_key, []).append(
             {
                 'cycle': cycle,
                 'office': office,
                 'state': state,
                 'district': district,
-                'phase': ele_type,
-                'amount': round(float(amount), 2),
-                'opposed': sorted(
-                    [[n, round(float(a), 2)] for n, a in opposed.items()], key=lambda x: -x[1]
-                ),
+                'phase': phase,
+                'amount': credit / 100,
+                'opposed': sorted(opposed[tuple(key)], key=lambda x: -x[1]),
             }
         )
-    for pk in out:
-        out[pk].sort(key=lambda e: (e['cycle'], e['office'], e['state'], e['district'], e['phase']))
+    for entries in out.values():
+        entries.sort(key=lambda e: (e['cycle'], e['office'], e['state'], e['district'], e['phase']))
     return out
 
 
