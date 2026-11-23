@@ -4,74 +4,55 @@
 Usage:
     python3 receipts/validate/verify_dataset.py [--dataset-csv PATH] [--dataset-json PATH]
 
-Checks (exit non-zero on any mismatch, printing every failure):
-  (a) per-cycle sums reproduce every career column: dbt tests on the
-      gold tables (dbt/tests/*_career_is_its_cycles.sql), run by the marts pass.
-  (b) roster totals match config verification.methodology_totals to the
-      cent (Armstrong's "unknown" money excluded from every sum).
-  (c) all twelve rank columns recompute exactly (competition ranking:
+Exits non-zero on any mismatch, printing every failure. Every expected
+figure comes from data/source/baseline.json; none is written here.
+
+  (a) per-cycle sums reproduce every career column: dbt tests on the gold
+      tables (dbt/tests/*_career_is_its_cycles.sql), run by the marts pass.
+  (b) roster totals match the baseline to the cent; a person with no FEC
+      candidate ID ("unknown" money) is left out of every sum.
+  (c) every rank column recomputes exactly (competition ranking:
       rank = 1 + count of strictly greater values).
-  (d) clean counts match config verification.clean_2026 (True 98 /
-      False 562 / None 4; 120th House clean 70 — 67 D, 3 R;
-      career-clean 120th House 53 — 50 D, 3 R; 2026-clean but not
-      career-clean 17). The True count is post net-negative fix: 17
-      members with dirty_2026 < 0 from refunds read clean (see (o)).
-  (e) the twenty-three 2026 columns, the clean rule, and dep_share
-      recompute exactly (including the Luria unverified case, the
-      generalized linkage rule, the unopposed_2026 flag recomputed
-      from weball26, the unopposed nulling of would-be-clean verdicts,
-      the net-negative clean rule, the AIPAC/UDP flag and both
-      tolerance tiers, and the int/float split on empty 2026 sums).
+  (d) the clean counts match the baseline, including career-clean and the
+      clean-in-2026-but-not-career-clean split.
+  (e) every 2026 column, the clean rule and dep_share recompute exactly:
+      the linkage rule, the unopposed flag recomputed from weball26, the
+      unopposed nulling of would-be-clean verdicts, the net-negative rule,
+      the AIPAC/UDP flag, both tolerance tiers, and the int/float split on
+      empty 2026 sums.
   (f) the opposition career columns recompute from gold.opposition_credits.
-  (g) dedup audit: dbt tests (double_counts_*.sql) on the store's
-      double_counts table and gold.accepted_money_per_cycle.
-  (h) CSV and JSON agree field by field (664 rows, same person_keys,
-      same values — CSV floats compare by float value, clean_2026 by
-      True/False/empty, dep_share by float value; the per-cycle lists
-      compare by repr; all_ie_top_committees is JSON-only and skipped).
-  (i) 664 rows, unique person_keys, row order matches roster.json.
-  (j) self-funding / topline: named spot cases (Constantino
-      $17,000,000.00 exactly, Scott $89,994,251.12, …); debts owed to
-      is null everywhere; Armstrong unknown, not zero.
-  (k) other committees: Lamb's 2026 pas2 total and its residual against
-      weball (from the store), and the note that states them. The
+  (g) dedup: dbt tests (double_counts_*.sql) on the store's double_counts
+      table and gold.accepted_money_per_cycle.
+  (h) CSV and JSON agree field by field (CSV floats by float value,
+      clean_2026 by True/False/empty, dep_share by float value, the
+      per-cycle lists by repr; all_ie_top_committees is JSON-only and
+      skipped).
+  (i) one row per person, unique person_keys, row order matches roster.json.
+  (j) self-funding and topline: named spot cases match the baseline; debts
+      owed to is null everywhere; a person with no FEC ID reads unknown,
+      not zero.
+  (k) other committees: a named case's current-cycle pas2 total, its
+      residual against weball, and the note that states them. The
       corporate/AIPAC re-derivation is enforced by the other-committees step.
   (l) all-IE: roster cycle totals (from gold) match the baseline; the
       row-sum gap is exactly the blank-direction rows; top-committee lists
-      are sorted, split correctly, and null for Armstrong. The UDP 2024
-      reconciliation is enforced by the all-IE step.
-  (m) clean-rule generalization: Constantino verified clean=True WITH
-      2026 linkage evidence (self-funding 2026 loans $14.4M, coverage
-      10/14/2026); Luria stays null — her linked ID's 2026 weball row
-      covers only through 07/15/2025 while her real 2026 campaign
-      (H6VA02198, $8,044,063.94 receipts) is unlinked. Unopposed
-      exclusion: Pressley (MA-07), Jacobs (CA-51) and Radewagen (AS)
-      ran unopposed in 2026, so they are null, not clean; King-Hinds
-      faced a funded opponent (MP district 01, Deleon Guerrero
-      $31,476.11) and stays verified-clean; nine people ran unopposed
-      in total, six of them dirty.
-  (n) senate_class: re-derived here from the legislators yaml
-      (legislators-current.yaml, Senate-term class field) and compared
-      to the dataset for every row — None for non-senators, 1/2/3 for
-      every senator; 120th class counts C1 33 / C2 32 / C3 34; 16 Class 3
-      Democrats in the 120th; named spot cases.
-  (o) tiered dirty rule (methodology §14): the AIPAC/UDP flag
-      recomputes from aipac_direct_2026 / udp_benefit_2026 (231 in the
-      120th, 291 roster-wide); both tolerance tiers recompute from the
-      flag + the config thresholds (Balanced 84 / 119 / 328, Lenient
-      84 / 173 / 274 over the 120th, null 4); the corp-only splits
-      (211 corp-only in the 120th; 93 / 41 stay dirty); the 2028-target
-      counts under each preset (Strict 192 / 13, Balanced 133 / 6,
-      Lenient 103 / 3); spot cases Ryan (clean on a -$15,000 AIPAC
-      refund, corp $0), Randall and Garcia (below_threshold with a
-      -$5,000 AIPAC component).
+      are sorted, split correctly, and null for a person with no FEC ID.
+      The UDP reconciliation is enforced by the all-IE step.
+  (m) clean-rule spot cases from the baseline: a member verified clean
+      with linkage evidence, a member left null because their real
+      campaign is unlinked, and the unopposed members, who are null, not
+      clean, while a member with a funded opponent stays verified-clean.
+  (n) senate_class: re-derived from the legislators yaml (the Senate-term
+      class field) for every row, and the class counts match the baseline.
+  (o) tiered dirty rule (methodology §14): the AIPAC/UDP flag and both
+      tolerance tiers recompute; the tier counts, corp-only splits and
+      2028-target counts under each preset match the baseline.
 
-Caveat (methodology §13): this verifies the dataset against its own
+Caveat (AGENTS.md §5): this verifies the dataset against its own
 definitions. It cannot catch a missing dimension — e.g. the
-self-funding blind spot found Nov 12, 2026 (candidate loans and
-contributions were never pulled, so no audit here would have flagged
-their absence). A new money dimension needs a new audit, not just a
-re-run of this one.
+self-funding blind spot (candidate loans and contributions were never
+pulled, so no audit here would have flagged their absence). A new money
+dimension needs a new audit, not just a re-run of this one.
 """
 
 import argparse
@@ -468,6 +449,11 @@ def corp_material(corp, total_receipts, preset):
     return corp / total_receipts > th.corp_share
 
 
+def flag_for(aipac_direct, udp_benefit):
+    """Any AIPAC direct dollar or UDP benefit dollar flags the member under every preset."""
+    return bool(aipac_direct > 0 or udp_benefit > 0)
+
+
 def tier_for(clean, flag, corp, total_receipts, preset):
     if clean is None:
         return None
@@ -689,10 +675,8 @@ def columns_2026(audit, dataset):
             not any(cid not in ids and receipts > 0 for cid, receipts in race_map.get(race, []))
             for race in races
         )
-        # AIPAC/UDP flag (always on): any AIPAC direct dollar or UDP
-        # benefit dollar flags the member under every preset.
-        expect['aipac_udp_flag_2026'] = bool(
-            expect['aipac_direct_2026'] > 0 or expect['udp_benefit_2026'] > 0
+        expect['aipac_udp_flag_2026'] = flag_for(
+            expect['aipac_direct_2026'], expect['udp_benefit_2026']
         )
         # Net-negative clean rule: no NET dirty money (dirty_2026 <= 0)
         # reads clean; the unopposed test is the same net test.

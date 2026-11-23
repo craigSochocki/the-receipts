@@ -169,9 +169,8 @@ def parse_f6_csv(text):
 def superseded_file_numbers(filings):
     """File numbers replaced by a later amendment in any discovered filing's chain.
 
-    The filings endpoint returns an original and its amendments (El-Sayed
-    C00902668: 2044921 and its amendment 2045386); counting both overstated
-    his F6 total by $351,042.26.
+    The filings endpoint returns an original and its amendments; counting
+    both would overstate the committee's F6 total.
     """
     return {fn for f in filings for fn in (f.get('amendment_chain') or [])[:-1]}
 

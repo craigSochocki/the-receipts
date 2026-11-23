@@ -9,7 +9,7 @@
 #   never from the current working directory.
 # - Do not re-hardcode any value from this file in a script. If a new script
 #   needs a shared value, add it here first.
-# - Layout (Nov 12, 2026 restructure): code in receipts/ (common / ingest /
+# - Layout: code in receipts/ (common / ingest /
 #   transform / validate), staged bulk in data/raw/ (gitignored),
 #   committed inputs in data/source/, regenerable staging files in
 #   data/intermediate/ (gitignored), dataset snapshots in data/snapshots/,
@@ -59,7 +59,7 @@ paths:
   opposition_computed: data/intermediate/opposition-computed.json
 
 # Date of the pinned FEC snapshot the money came from; carried on every
-# dataset row. The roster is still as crawled Nov 12, 2026.
+# dataset row.
 data_as_of: "2026-11-22"
 
 fec_api:
@@ -69,15 +69,15 @@ fec_api:
   request_timeout_seconds: 30
   sleep_between_requests_seconds: 0.4
   # HTTP 429 retry (FecApi in receipts/common/fec_api.py, used by every
-  # freshness API call and by pull_f6's docquery CSV fetch). A standard registered api.data.gov key allows 1,000
-  # requests/hour; a full freshness --all run makes ~2,200-2,350 keyed
-  # calls, so it hits 429 part-way through. On a 429 the wait is the
+  # freshness API call and by pull_f6's docquery CSV fetch). A full
+  # freshness --all run can make more calls than a standard api.data.gov
+  # key allows per hour, so it may hit 429 part-way through. On a 429 the wait is the
   # Retry-After header when present, else exponential backoff
   # (backoff_base_seconds * 2**(attempt-1), capped at
   # backoff_cap_seconds). max_attempts bounds the retries; if a
   # projected wait would push the total waited for one request past
   # max_wait_seconds, the run fails loudly instead of sleeping it out.
-  # Non-429 HTTP errors are NOT retried (immediate SystemExit, as before).
+  # Non-429 HTTP errors are NOT retried (immediate SystemExit).
   retry:
     max_attempts: 5                # total attempts per request (1 + 4 retries)
     backoff_base_seconds: 2.0      # first backoff wait; then 4s, 8s, 16s (capped)
@@ -89,37 +89,35 @@ freshness:
   # only): a bare `pull_freshness.py --all` — the form the scheduled
   # refresh runs — sweeps each committee below committee-wide (every
   # candidate it targeted, roster or not) and attributes rows to roster
-  # people by candidate_id. The five are the top 5 by 2026
-  # roster-targeted IE (data/intermediate/all_ie_per_cycle.json ->
-  # per_cycle_summaries.2026.top_committees_roster_targeted, as ranked
-  # on the Nov 12 pull, 2026 totals then through Oct 31); UDP is #10 by total but included by design:
-  # AIPAC-affiliated, and the source of the $20.9M vs El-Sayed F24
-  # finding. The dollar figures in the notes are those same 2026
-  # roster-targeted totals (S support / O oppose), recorded here for
-  # the record — no script reads them.
+  # people by candidate_id. The list is chosen by hand: the biggest
+  # roster-targeted IE spenders of the cycle when it was set
+  # (data/intermediate/all_ie_per_cycle.json ->
+  # per_cycle_summaries.<cycle>.top_committees_roster_targeted), plus
+  # UDP by design, as AIPAC-affiliated. No script reads the notes; the
+  # figures behind the choice are in research/methodology-evidence.md.
   f24_committee_sweep_cycle: 2026
   f24_committee_sweep:
     - committee_id: "C00960435"
       committee_name: "NO GOING BACK PAC INC."
-      note: "#1 by 2026 roster-targeted IE: $227,177,570.85 (S $24,666,812.45 / O $202,510,758.40)"
+      note: "a top roster-targeted IE spender when the list was set"
     - committee_id: "C00865444"
       committee_name: "WinSenate"
-      note: "#2 by 2026 roster-targeted IE: $166,050,827.13 (S $34,946,905.85 / O $131,103,921.28)"
+      note: "a top roster-targeted IE spender when the list was set"
     - committee_id: "C00495028"
       committee_name: "HMP"
-      note: "#3 by 2026 roster-targeted IE: $150,884,797.72 (S $4,146,002.09 / O $146,738,795.63)"
+      note: "a top roster-targeted IE spender when the list was set"
     - committee_id: "C00960211"
       committee_name: "TEXAS PAC"
-      note: "#4 by 2026 roster-targeted IE: $112,153,741.90 (all oppose)"
+      note: "a top roster-targeted IE spender when the list was set"
     - committee_id: "C00836221"
       committee_name: "DEFEND AMERICAN JOBS"
-      note: "#5 by 2026 roster-targeted IE: $90,387,313.50 (S $70,681,048.37 / O $19,706,265.13)"
+      note: "a top roster-targeted IE spender when the list was set"
     - committee_id: "C00799031"
       committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
-      note: "#10 by 2026 roster-targeted IE: $43,620,238.47 (S $17,497,693.29 / O $26,122,545.18); included by design (AIPAC-affiliated; source of the $20.9M vs El-Sayed F24 finding)"
+      note: "included by design: AIPAC-affiliated"
   # Pre-flight gate (receipts/ingest/pull_gate.py): one global /filings/
   # check per family before the per-person legs of `pull_freshness.py
-  # --all`. F6 gates the Form 6 leg, F24 gates the six committee
+  # --all`. F6 gates the Form 6 leg, F24 gates the committee
   # sweeps above, F3 gates the candidate-totals leg. F3X is
   # deliberately NOT a family — F3X is filed by non-candidate
   # committees (PACs, parties) and no freshness leg is driven by
@@ -150,13 +148,13 @@ verification:
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
   # re-pull replaces it. Judged from the pinned snapshot at each
-  # rebaseline, not computed; the evidence is in methodology §8.1.
+  # rebaseline, not computed; the evidence is in research/methodology-evidence.md §8.1.
   coverage_end:
     committee_money_pas2: "2026-10-14"   # corporate, AIPAC, other-committee
     weball: "2026-10-14"                 # individual, self-funding, topline
     independent_expenditures: "2026-11-03"  # all-IE (UDP too)
     freshness_window_start: "2026-10-15"
-  # Corporate PAC tolerance presets (methodology §14, Nov 12, 2026).
+  # Corporate PAC tolerance presets (methodology §14).
   # Under a preset, a member's corporate PAC take counts as dirty only
   # when BOTH the dollar amount AND the share of 2026 total receipts
   # exceed the preset's thresholds. The AIPAC/UDP flag is NOT
@@ -165,13 +163,9 @@ verification:
   # its own — it is clean_2026 itself (any net dirty dollar > $0 is
   # dirty; net dirty <= $0 is clean). Balanced is the DEFAULT preset.
   # Share denominator note: corp_2026 (pas2) and total_receipts_2026
-  # (weball) now both run through Oct 14, 2026 (coverage_end above); on
-  # the Nov 12 pull pas2 stopped at Sep 30, which understated shares.
-  # A non-positive total_receipts_2026 leaves the
-  # share undefined and the share test cannot pass (no case in the
-  # current data has corp above an amount threshold with non-positive
-  # receipts; the only corp>0 / receipts<=0 member is Melissa Bean,
-  # corp $3,500).
+  # (weball) must run through the same coverage end (coverage_end
+  # above), or the share is skewed. A non-positive total_receipts_2026
+  # leaves the share undefined and the share test cannot pass.
   tolerance_presets:
     balanced:
       corp_amount: 100000

@@ -11,10 +11,10 @@ the site.
 ## What you get by cloning
 
 The finished dataset is already here: `congress-money-tracker.csv` /
-`.json` — 664 people (the 119th Congress plus the incoming 120th), career
+`.json` — one row per person in the 119th Congress plus the incoming 120th, career
 money, rankings, and 2026-cycle clean/dirty flags. You don't need to build
 anything to explore it. The static site (`docs/index.html`) is generated from that dataset — see
-"Static site" below — and is live at https://craigsochocki.github.io/the-receipts/ (GitHub Pages, publishing source `docs/` on `master`, enabled by Craig Nov 12, 2026).
+"Static site" below — and is live at https://craigsochocki.github.io/the-receipts/ (GitHub Pages, publishing source `docs/` on `master`, enabled by Craig).
 
 ## Quick start
 
@@ -59,9 +59,9 @@ and backs the current dataset up to
 `data/snapshots/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
 It fails fast with a clear message if the FEC bulk data isn't staged,
 or if the staged data is not the snapshot the baseline was recorded
-from. Verified Nov 22, 2026: a fresh stage of `fec-bulk-2026-11-22` rebuilds
-the committed dataset **byte-identically** on Python 3.11, 3.12 and
-3.13, and every audit in `verify_dataset.py` passes.
+from. A fresh stage of the pinned snapshot must rebuild the committed
+dataset **byte-identically**, with every audit in `verify_dataset.py`
+passing; CI checks both on every pull request.
 
 ### Pinned snapshots and the baseline
 
@@ -121,8 +121,8 @@ What each step does (each script documents its own rules in its header):
   then `dbt docs serve` with the same flags.
 - `store/accepted_money.py` — the roster's career money, read from the
   store with the recorded weball double-count removed
-  (`data/source/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
-  plus the Curtis 2024 extension to weball cols 6–9); also writes
+  (the groups recorded in `data/source/dedup-applied.json`, plus the
+  extension of the same correction to weball cols 6–9); also writes
   `data/intermediate/dedup-notes.json`.
 - `store/udp.py` — UDP independent-expenditure support, read from the store; also writes the
   per-cycle breakdown `data/intermediate/money_udp_per_cycle.json`.
@@ -166,37 +166,33 @@ candidate-totals refresh) into `data/intermediate/freshness_snapshot.json` — l
 source and date, **never merged into the dataset totals**. See
 `methodology.md` §16 for the routes, the cadence (daily in the final 20
 days before an election, weekly in-cycle, event-driven after deadlines),
-and the verification run (Constantino's $1M Oct-29 loan; UDP vs El-Sayed
-F24 $20,903,437.57).
+and how the routes were verified.
 
 ```sh
-# Limited spot check (DEMO_KEY-friendly, ~9 calls):
-python3 receipts/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
-    --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
+# Limited spot check (DEMO_KEY-friendly, a handful of calls):
+python3 receipts/ingest/pull_freshness.py --person <person_key> \
+    --f24-committee <committee_id> --f24-candidate <person_key>
 ```
 
-A full refresh is ~2,200–2,350 keyed API calls (recounted Nov 12, 2026; see
-`methodology.md` §16 and the driver's docstring) when run ungated
+A full refresh makes a call or more per roster person when run ungated
 (`--no-gate`); by default `--all` is gated (`receipts/ingest/pull_gate.py` — one
 global `/filings/` check per family first, legs only for people with new
-filings), so a quiet week costs a handful of calls. DEMO_KEY (~30/hr) is spot-checks
+filings), so a quiet week costs a handful of calls. DEMO_KEY is spot-checks
 only and the driver refuses `--all` on it. A bare `--all` also runs
-committee-only F24 sweeps for the six config-listed spender committees
+committee-only F24 sweeps for the config-listed spender committees
 (`config.yaml`, `freshness.f24_committee_sweep`), so the scheduled run
 covers the F24 leg. Production needs a registered
-api.data.gov key (1,000 req/hr) via the `FEC_API_KEY` environment variable
-(`config.yaml` `fec_api`, default `DEMO_KEY`). A registered key is set as
-the `FEC_API_KEY` repository secret (added by Craig Nov 12, 2026; the
-first scheduled run will confirm it by logging whether freshness ran or
-skipped).
+api.data.gov key via the `FEC_API_KEY` environment variable
+(`config.yaml` `fec_api`, default `DEMO_KEY`). A registered key is also
+set as the `FEC_API_KEY` repository secret (added by Craig).
 
 ## Static site
 
 `docs/index.html` is the tracker page as a static site, for GitHub Pages.
 It is **generated, never hand-edited**: `receipts/site/build_site.py` reads
 `congress-money-tracker.json` and emits the page with the dataset embedded
-in a compact positional encoding (1.6 MB for 664 rows — column list +
-array-of-arrays). Every view on the page (search, filters, sorting,
+in a compact positional encoding (a column list plus an array of
+arrays). Every view on the page (search, filters, sorting,
 leaderboards, clean view, party breakdown, primary targets, CSV download)
 is computed from that embedded data at runtime, so the page cannot drift
 from the dataset. A data refresh regenerates the site with one command:
@@ -207,10 +203,9 @@ python3 receipts/site/verify_site.py    # verify it against the dataset
 ```
 
 `verify_site.py` decodes the embedded payload and checks it field-by-field
-against the JSON (0 mismatches), recomputes the headline figures (664 rows;
-clean True 98 / False 562 / None 4 (Luria unverified + 3 unopposed); incoming House
-clean 70, Senate 14; top-10 total accepted; 192 primary targets; 53
-career-clean House), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
+against the JSON, recomputes the headline figures and checks them
+against `data/source/baseline.json` (row count, clean counts, top
+total accepted, primary targets, career-clean), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
 returns 200, runs the Node runtime smoke test (`receipts/site/smoke_test.js` —
 renders the table and every tab against a DOM stub, opens a drill-down,
 exercises the CSV path), and checks the generator is deterministic apart
@@ -269,10 +264,10 @@ Three workflows in `.github/workflows/`:
 (late money from the FEC API; never merged into dataset totals) ran only in the
 retired `scheduled-refresh.yml`, which never completed a run. No workflow runs it
 now; run it by hand with the `FEC_API_KEY` key (Craig registered it at
-api.data.gov; it is also stored as a repository secret, added Nov 12, 2026).
-A full `--all` run makes ~2,200–2,350 calls, over the standard 1,000 requests/hour,
-so expect HTTP 429s, which the fetch helpers retry with backoff. A raise to
-120 calls/min has been requested from apiinfo@fec.gov and is pending.
+api.data.gov; it is also stored as a repository secret).
+A full ungated `--all` run makes more calls than a standard key allows per
+hour, so expect HTTP 429s, which the fetch helpers retry with backoff
+(limits in `config.yaml` `fec_api.retry`).
 See `methodology.md` §16.
 
 **Where to watch runs:** the repo's Actions tab —

@@ -15,12 +15,12 @@ roster person, all through the FEC API:
 
 --all is gated by pull_gate.py (one /filings/ check per family; a gate
 error falls back to the full run); --no-gate forces the full run. --all
-and --f24-committee-sweep refuse DEMO_KEY: a full run is ~2,200-2,350
-keyed calls.
+and --f24-committee-sweep refuse DEMO_KEY: a full run makes more keyed
+calls than a demo key allows.
 
 Usage:
-    python3 receipts/ingest/pull_freshness.py --person anthonyconstantinonyhouse \\
-        --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
+    python3 receipts/ingest/pull_freshness.py --person <person_key> \\
+        --f24-committee <committee_id> --f24-candidate <person_key>
     python3 receipts/ingest/pull_freshness.py --f24-committee-sweep
     FEC_API_KEY=<registered key> python3 receipts/ingest/pull_freshness.py --all
 """

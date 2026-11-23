@@ -1,6 +1,6 @@
 """Which committee contributions the tracker counts, and how.
 
-Rules and evidence: methodology.md §4.
+Rules: methodology.md §4. Evidence: research/methodology-evidence.md §4.
 """
 
 from receipts.domain.money import ZERO

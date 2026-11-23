@@ -9,6 +9,7 @@ was contested.
 from dataclasses import dataclass
 
 UNLINKED, UNOPPOSED = 'unlinked', 'unopposed'
+NOT_DIRTY_TIERS = ('clean', 'below_threshold')
 
 
 @dataclass(frozen=True)
@@ -67,6 +68,26 @@ def verdict(in_120th, linked, unopposed, dirty):
     if unopposed and dirty <= 0:
         return None, UNOPPOSED
     return dirty <= 0, None
+
+
+def is_not_dirty(tier_name):
+    """Clean or below threshold under a preset: the page's "not dirty"."""
+    return tier_name in NOT_DIRTY_TIERS
+
+
+def is_primary_target_2026(person):
+    """A House Democrat in the incoming 120th who took any net dirty money in 2026."""
+    return (
+        person['in_120th'] == 'yes'
+        and person['chamber_120'] == 'House'
+        and person['party_120'] == 'Democrat'
+        and person['dirty_2026'] > 0
+    )
+
+
+def aipac_udp_flagged(aipac_direct, udp_benefit):
+    """Any AIPAC PAC direct or UDP benefit dollar in 2026 makes a member dirty under every preset."""
+    return aipac_direct > 0 or udp_benefit > 0
 
 
 def corporate_money_material(corporate, total_receipts, preset):
