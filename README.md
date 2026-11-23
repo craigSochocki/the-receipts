@@ -32,7 +32,7 @@ python3 receipts/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `build_store` → `models` (dbt) → `accepted_money` → `udp` → `self_funding` →
+→ `build_store` → `run_history` → `models` (dbt) → `accepted_money` → `udp` → `self_funding` →
 `other_committees` → `all_ie` → `opposition` →
 `build_dataset` (merge → ranking → 2026, written once) → `verify_dataset` —
 and backs the current dataset up to

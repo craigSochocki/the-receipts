@@ -117,6 +117,16 @@ CREATE TABLE committee_contributions (  -- pas2, contributions to candidates
     excluded_because VARCHAR  -- NULL when counted
 );
 
+CREATE TABLE source_files (  -- data/raw/PROVENANCE.tsv: each staged FEC file and when the FEC last changed it
+    file           VARCHAR NOT NULL,
+    cycle          INTEGER NOT NULL,
+    path           VARCHAR NOT NULL,
+    last_modified  TIMESTAMP,  -- the FEC server's Last-Modified header; NULL if it sent none
+    bytes          BIGINT NOT NULL,
+    sha256         VARCHAR NOT NULL,
+    PRIMARY KEY (file, cycle)
+);
+
 CREATE TABLE files_read (  -- how many rows each FEC bulk file gave (a malformed row stops the build)
     file           VARCHAR NOT NULL,
     cycle          INTEGER NOT NULL,

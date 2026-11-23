@@ -47,6 +47,7 @@ sources:
       - name: summary_corrections
       - name: summary_differences
       - name: files_read
+      - name: source_files
       - name: seats
         columns:
           - name: seat_id

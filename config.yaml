@@ -55,6 +55,7 @@ paths:
   freshness_snapshot: data/intermediate/freshness_snapshot.json
   freshness_state: data/source/freshness_state.json
   dedup_applied: data/source/dedup-applied.json
+  run_history: data/source/run_history.csv
   primary_targets: data/intermediate/primary-targets.md
   opposition_computed: data/intermediate/opposition-computed.json
   dataset_csv: congress-money-tracker.csv
@@ -143,6 +144,10 @@ party_codes:
   Independent: IND
   PPD: DEM
 
+run_checks:
+  # receipts/validate/run_history.py stops a run when its FEC inputs look wrong.
+  max_row_drop: 0.01  # a file may lose at most this share of its rows since the last recorded snapshot
+  max_file_age_days: 14  # the newest current-cycle file must be at most this old on the snapshot date
 verification:
   # Policy values only. Figures that new FEC data can move live in
   # data/source/baseline.json (receipts/common/baseline.py).

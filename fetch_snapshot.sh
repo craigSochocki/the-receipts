@@ -40,11 +40,12 @@ stage() {
   done
 
   for d in $dirs; do rm -rf "${RAW:?}/$d"; done
-  rm -f "$marker"
+  rm -f "$marker" "$(dirname "$marker")/PROVENANCE.tsv"
   mkdir -p "$RAW"
   tar -xf "$tmp/$tag.tar" -C "$RAW"
   (cd "$RAW" && sha256sum -c --quiet "$tmp/SHA256SUMS")
   SET="$set" SKIP_DOWNLOAD=1 "$ROOT/download_bulk.sh" > /dev/null
+  cp "$tmp/PROVENANCE.tsv" "$(dirname "$marker")/PROVENANCE.tsv"
   echo "$tag" > "$marker"
   rm -rf "$tmp"
   echo "Staged $tag (checksums verified)."

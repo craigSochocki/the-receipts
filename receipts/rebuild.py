@@ -17,6 +17,9 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
                                      writes roster.json
     receipts.store.build_store            silver store: every FEC candidate,
                                      committee and filing, in DuckDB
+    receipts.validate.run_history         rows and file dates vs the last recorded
+                                     snapshot; stops on a row drop or stale FEC
+                                     files (records the snapshot on --rebaseline)
     receipts.store.models                 dbt models over the store (dbt/), and
                                           every test on them
     receipts.store.accepted_money         the roster's counted money, read from
@@ -82,6 +85,7 @@ STEPS = [
     'receipts.transform.build_roster',
     'receipts.transform.apply_fec_lookup',
     'receipts.store.build_store',
+    'receipts.validate.run_history',
     'receipts.store.models silver',
     'receipts.store.accepted_money',
     'receipts.store.udp',
