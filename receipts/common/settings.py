@@ -1,8 +1,9 @@
 """Settings the new pipeline code shares, read once from config.yaml."""
-import json
+
 from types import SimpleNamespace
 
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 _CFG = load_config()
 ROOT = _CFG['_root']
@@ -23,8 +24,3 @@ def load_roster():
 
 def load_double_count_records():
     return read_json(PATHS.dedup_applied)
-
-
-def read_json(path):
-    with open(path) as f:
-        return json.load(f)

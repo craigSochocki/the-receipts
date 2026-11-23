@@ -32,39 +32,24 @@ Usage:
 API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
 Docquery CSV fetches need no key. Sleeps >=1s between API calls.
 """
+
 import argparse
 import csv
 import io
 import json
-import os
 import sys
-import time
 import urllib.error
 import urllib.parse
 
-from receipts.common.api_retry import (DOCQUERY_RATE_LIMIT_NOTE, open_with_retry,
-                                  retry_settings, sanitize_url)
+from receipts.common.api_retry import (
+    DOCQUERY_RATE_LIMIT_NOTE,
+    open_with_retry,
+)
 from receipts.common.config import load_config
+from receipts.common.fec_api import RETRY, api_get
 
 CFG = load_config()
 ROOT = CFG['_root']
-API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
-API_BASE = 'https://api.open.fec.gov/v1'
-SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
-RETRY = retry_settings(CFG)
-
-
-def api_get(path, params):
-    params = dict(params)
-    params['api_key'] = API_KEY
-    url = API_BASE + path + '?' + urllib.parse.urlencode(params)
-    time.sleep(SLEEP)
-    try:
-        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
-                             retry=RETRY, label=f'FEC API {path}') as resp:
-            return json.load(resp)
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})')
 
 
 def discover_f6(committee_id, since=None):
@@ -77,8 +62,16 @@ def discover_f6(committee_id, since=None):
     filings = []
     page = 1
     while True:
-        data = api_get('/filings/', {'form_type': 'F6', 'committee_id': committee_id,
-                                     'per_page': 100, 'page': page, 'sort': '-receipt_date'})
+        data = api_get(
+            '/filings/',
+            {
+                'form_type': 'F6',
+                'committee_id': committee_id,
+                'per_page': 100,
+                'page': page,
+                'sort': '-receipt_date',
+            },
+        )
         results = data.get('results', [])
         if not results:
             break
@@ -104,12 +97,16 @@ def fetch_f6_csv(file_number):
     last3 = str(file_number)[-3:]
     url = f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv'
     try:
-        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
-                             retry=RETRY, label='docquery CSV',
-                             limit_note=DOCQUERY_RATE_LIMIT_NOTE) as resp:
+        with open_with_retry(
+            url,
+            timeout=CFG['fec_api']['request_timeout_seconds'],
+            retry=RETRY,
+            label='docquery CSV',
+            limit_note=DOCQUERY_RATE_LIMIT_NOTE,
+        ) as resp:
             return resp.read().decode('utf-8', errors='replace')
     except urllib.error.HTTPError as e:
-        raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})')
+        raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})') from e
 
 
 def parse_f6_csv(text):
@@ -137,34 +134,58 @@ def parse_f6_csv(text):
         if kind == 'HDR':
             continue
         if kind == 'F6N' or kind == 'F6A':
-            def g(i):
+
+            def g(i, row=row):
                 return row[i] if i < len(row) else ''
-            header = {'committee_id': g(1), 'committee_name': g(3),
-                      'candidate_id': g(9), 'candidate_last': g(10),
-                      'candidate_first': g(11), 'candidate_middle': g(12),
-                      'office': g(15), 'office_state': g(16),
-                      'office_district': g(17),
-                      'treasurer_last': g(18), 'treasurer_first': g(19),
-                      'filing_date': g(23)}
+
+            header = {
+                'committee_id': g(1),
+                'committee_name': g(3),
+                'candidate_id': g(9),
+                'candidate_last': g(10),
+                'candidate_first': g(11),
+                'candidate_middle': g(12),
+                'office': g(15),
+                'office_state': g(16),
+                'office_district': g(17),
+                'treasurer_last': g(18),
+                'treasurer_first': g(19),
+                'filing_date': g(23),
+            }
         elif kind == 'F65':
-            def g(i):
+
+            def g(i, row=row):
                 return row[i] if i < len(row) else ''
+
             raw_amount = g(17).replace(',', '').strip()
             try:
                 amount = float(raw_amount) if raw_amount else 0.0
             except ValueError:
                 amount = None
             raw_date = g(16).strip()
-            date = (f'{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}'
-                    if len(raw_date) == 8 and raw_date.isdigit() else raw_date)
-            items.append({'committee_id': g(1), 'form_line': g(2),
-                          'contributor_type': g(3),
-                          'contributor_last': g(5), 'contributor_first': g(6),
-                          'contributor_middle': g(7),
-                          'city': g(12), 'state': g(13), 'zip': g(14),
-                          'date': date, 'amount': amount,
-                          'employer': g(18), 'occupation': g(19),
-                          'is_candidate': g(3) == 'CAN'})
+            date = (
+                f'{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}'
+                if len(raw_date) == 8 and raw_date.isdigit()
+                else raw_date
+            )
+            items.append(
+                {
+                    'committee_id': g(1),
+                    'form_line': g(2),
+                    'contributor_type': g(3),
+                    'contributor_last': g(5),
+                    'contributor_first': g(6),
+                    'contributor_middle': g(7),
+                    'city': g(12),
+                    'state': g(13),
+                    'zip': g(14),
+                    'date': date,
+                    'amount': amount,
+                    'employer': g(18),
+                    'occupation': g(19),
+                    'is_candidate': g(3) == 'CAN',
+                }
+            )
     return {'header': header, 'items': items}
 
 
@@ -187,30 +208,57 @@ def pull_committee(committee_id, since=None):
         for fn in chain[:-1]:
             superseded.add(fn)
     kept = [f for f in filings if f.get('file_number') not in superseded]
-    out = {'committee_id': committee_id, 'since': since,
-           'n_filings': len(kept), 'n_superseded_dropped': len(filings) - len(kept),
-           'superseded_file_numbers': sorted(superseded),
-           'filings': []}
+    out = {
+        'committee_id': committee_id,
+        'since': since,
+        'n_filings': len(kept),
+        'n_superseded_dropped': len(filings) - len(kept),
+        'superseded_file_numbers': sorted(superseded),
+        'filings': [],
+    }
     for f in kept:
         file_number = f.get('file_number')
-        parsed = parse_f6_csv(fetch_f6_csv(file_number)) if file_number else {'header': None, 'items': []}
-        cand_loans = round(sum(i['amount'] for i in parsed['items']
-                               if i['is_candidate'] and i['amount'] is not None), 2)
-        contrib = round(sum(i['amount'] for i in parsed['items']
-                            if not i['is_candidate'] and i['amount'] is not None), 2)
-        out['filings'].append({
-            'file_number': file_number,
-            'receipt_date': f.get('receipt_date'),
-            'is_amended': f.get('is_amended'),
-            'amendment_chain': f.get('amendment_chain'),
-            'candidate_id': (parsed['header'] or {}).get('candidate_id'),
-            'candidate_name': ' '.join(x for x in (
-                (parsed['header'] or {}).get('candidate_first', ''),
-                (parsed['header'] or {}).get('candidate_last', '')) if x),
-            'candidate_loans': cand_loans,
-            'contributions': contrib,
-            'items': parsed['items'],
-        })
+        parsed = (
+            parse_f6_csv(fetch_f6_csv(file_number))
+            if file_number
+            else {'header': None, 'items': []}
+        )
+        cand_loans = round(
+            sum(
+                i['amount']
+                for i in parsed['items']
+                if i['is_candidate'] and i['amount'] is not None
+            ),
+            2,
+        )
+        contrib = round(
+            sum(
+                i['amount']
+                for i in parsed['items']
+                if not i['is_candidate'] and i['amount'] is not None
+            ),
+            2,
+        )
+        out['filings'].append(
+            {
+                'file_number': file_number,
+                'receipt_date': f.get('receipt_date'),
+                'is_amended': f.get('is_amended'),
+                'amendment_chain': f.get('amendment_chain'),
+                'candidate_id': (parsed['header'] or {}).get('candidate_id'),
+                'candidate_name': ' '.join(
+                    x
+                    for x in (
+                        (parsed['header'] or {}).get('candidate_first', ''),
+                        (parsed['header'] or {}).get('candidate_last', ''),
+                    )
+                    if x
+                ),
+                'candidate_loans': cand_loans,
+                'contributions': contrib,
+                'items': parsed['items'],
+            }
+        )
     out['total_candidate_loans'] = round(sum(f['candidate_loans'] for f in out['filings']), 2)
     out['total_contributions'] = round(sum(f['contributions'] for f in out['filings']), 2)
     return out
@@ -220,7 +268,9 @@ def main():
     ap = argparse.ArgumentParser(description='Form 6 (48-Hour Notice) freshness pull.')
     ap.add_argument('--committee', help='FEC committee ID to sweep (e.g. C00892737)')
     ap.add_argument('--file-number', type=int, help='fetch + parse one filing by file number')
-    ap.add_argument('--since', default=None, help='YYYY-MM-DD: only filings received on/after this date')
+    ap.add_argument(
+        '--since', default=None, help='YYYY-MM-DD: only filings received on/after this date'
+    )
     ap.add_argument('--out', default=None, help='write the JSON report here (default: stdout)')
     args = ap.parse_args()
     if args.file_number:
@@ -233,14 +283,16 @@ def main():
     if args.out:
         with open(args.out, 'w') as f:
             json.dump(result, f, indent=1)
-        print(f"wrote {args.out}")
+        print(f'wrote {args.out}')
     else:
         json.dump(result, sys.stdout, indent=1)
         print()
     if isinstance(result, dict) and 'filings' in result:
-        print(f"F6 {args.committee}: {result['n_filings']} filing(s) since {args.since}; "
-              f"candidate loans ${result['total_candidate_loans']:,.2f}, "
-              f"contributions ${result['total_contributions']:,.2f}")
+        print(
+            f'F6 {args.committee}: {result["n_filings"]} filing(s) since {args.since}; '
+            f'candidate loans ${result["total_candidate_loans"]:,.2f}, '
+            f'contributions ${result["total_contributions"]:,.2f}'
+        )
 
 
 if __name__ == '__main__':

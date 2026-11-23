@@ -57,6 +57,7 @@ A live fec_lookup run overwrites fec_lookup_results.json wholesale and
 loses the seven recorded `found-manual` entries, so --with-fec-lookup
 snapshots them first and restores them afterwards.
 """
+
 import argparse
 import json
 import os
@@ -65,8 +66,9 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-from receipts.common.config import load_config
 from receipts.common import baseline
+from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -125,20 +127,24 @@ def check_data_as_of(tag):
     snapshot_date = tag.removeprefix('fec-bulk-')
     if str(CFG['data_as_of']) != snapshot_date:
         raise SystemExit(
-            f"config.yaml data_as_of is {CFG['data_as_of']} but the staged snapshot is "
-            f"{tag}; set data_as_of: \"{snapshot_date}\" in the same change")
+            f'config.yaml data_as_of is {CFG["data_as_of"]} but the staged snapshot is '
+            f'{tag}; set data_as_of: "{snapshot_date}" in the same change'
+        )
 
 
 def check_snapshot(rebaseline):
     staged, pinned = staged_snapshot(), baseline.snapshot()
     if rebaseline and (staged is None or staged_candidates_snapshot() is None):
-        raise SystemExit('cannot rebaseline from an unpinned download; '
-                         'stage both snapshots with ./fetch_snapshot.sh <tag>')
+        raise SystemExit(
+            'cannot rebaseline from an unpinned download; '
+            'stage both snapshots with ./fetch_snapshot.sh <tag>'
+        )
     if not rebaseline and staged != pinned:
         raise SystemExit(
             f'staged bulk data is {staged or "an unpinned live download"}, but the baseline '
             f'was recorded from {pinned}; run ./fetch_snapshot.sh, or accept the new data '
-            f'with --rebaseline and review the baseline diff')
+            f'with --rebaseline and review the baseline diff'
+        )
     if rebaseline:
         print(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
     check_data_as_of(staged)
@@ -160,14 +166,15 @@ def ensure_dirs():
 
 
 def check_staged():
-    missing = [p for p in REQUIRED_BULK + REQUIRED_ROSTER_SOURCES
-               if not (ROOT / p).exists()]
+    missing = [p for p in REQUIRED_BULK + REQUIRED_ROSTER_SOURCES if not (ROOT / p).exists()]
     if missing:
         raise SystemExit(
             'bulk data not staged — cannot rebuild.\n'
-            'Missing:\n' + '\n'.join(f'  {p}' for p in missing) +
-            '\nStage the FEC bulk files under data/raw/ first '
-            '(see README.md "Getting the bulk data").')
+            'Missing:\n'
+            + '\n'.join(f'  {p}' for p in missing)
+            + '\nStage the FEC bulk files under data/raw/ first '
+            '(see README.md "Getting the bulk data").'
+        )
 
 
 def backup_dataset():
@@ -184,13 +191,16 @@ def backup_dataset():
 
 def restore_manual_lookup_entries(snapshot_path):
     """Re-apply the recorded found-manual entries after a live lookup run."""
-    before = json.load(open(snapshot_path))
-    manual = {k: v for k, v in before.items()
-              if isinstance(v, dict) and v.get('fec_source') == 'found-manual'}
+    before = read_json(snapshot_path)
+    manual = {
+        k: v
+        for k, v in before.items()
+        if isinstance(v, dict) and v.get('fec_source') == 'found-manual'
+    }
     if not manual:
         return
     path = ROOT / CFG['paths']['fec_lookup_results']
-    after = json.load(open(path))
+    after = read_json(path)
     for k, v in manual.items():
         after[k] = v
     with open(path, 'w') as f:
@@ -200,15 +210,22 @@ def restore_manual_lookup_entries(snapshot_path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('--with-fec-lookup', action='store_true',
-                    help='run the live OpenFEC lookup (needs an API key; '
-                         'default: use the committed fec_lookup_results.json)')
-    ap.add_argument('--skip-verify', action='store_true',
-                    help='skip the final verify_dataset.py run')
-    ap.add_argument('--rebaseline', action='store_true',
-                    help='accept the staged snapshot as the new baseline: record '
-                         'every observed figure into data/source/baseline.json '
-                         '(review the diff before committing)')
+    ap.add_argument(
+        '--with-fec-lookup',
+        action='store_true',
+        help='run the live OpenFEC lookup (needs an API key; '
+        'default: use the committed fec_lookup_results.json)',
+    )
+    ap.add_argument(
+        '--skip-verify', action='store_true', help='skip the final verify_dataset.py run'
+    )
+    ap.add_argument(
+        '--rebaseline',
+        action='store_true',
+        help='accept the staged snapshot as the new baseline: record '
+        'every observed figure into data/source/baseline.json '
+        '(review the diff before committing)',
+    )
     args = ap.parse_args()
     if args.rebaseline and args.skip_verify:
         raise SystemExit('--rebaseline needs the verify step (it records the audit figures)')
@@ -233,10 +250,12 @@ def main():
             snapshot.unlink(missing_ok=True)
     for step in STEPS[1:9]:
         run(step)
-    opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
+    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
     if opp.get('support_mismatches'):
-        raise SystemExit(f"opposition support mismatches (vs current dataset): "
-                         f"{opp['support_mismatches']}; rebuild aborted")
+        raise SystemExit(
+            f'opposition support mismatches (vs current dataset): '
+            f'{opp["support_mismatches"]}; rebuild aborted'
+        )
     for step in STEPS[9:]:
         if step == 'receipts.validate.verify_dataset' and args.skip_verify:
             continue
@@ -247,9 +266,11 @@ def main():
         run('receipts.site.verify_site')
         baseline.start_rebaseline_run()
         baseline.set_snapshots(staged_snapshot(), staged_candidates_snapshot())
-        print(f'\nbaseline recorded from {staged_snapshot()} and '
-              f'{staged_candidates_snapshot()} — review '
-              f'`git diff {CFG["paths"]["baseline"]}` before committing.')
+        print(
+            f'\nbaseline recorded from {staged_snapshot()} and '
+            f'{staged_candidates_snapshot()} — review '
+            f'`git diff {CFG["paths"]["baseline"]}` before committing.'
+        )
     print('\nrebuild complete.')
 
 

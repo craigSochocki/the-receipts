@@ -5,8 +5,13 @@ from receipts.fec.committee_contributions import CommitteeContribution
 
 def contribution(**overrides):
     blank = dict.fromkeys(CommitteeContribution._fields, '')
-    defaults = {'committee_id': 'C1', 'candidate_id': 'H1', 'amount_text': '500',
-                'transaction_id': 'T1', 'file_number_text': '10'}
+    defaults = {
+        'committee_id': 'C1',
+        'candidate_id': 'H1',
+        'amount_text': '500',
+        'transaction_id': 'T1',
+        'file_number_text': '10',
+    }
     return CommitteeContribution(**{**blank, **defaults, **overrides})
 
 

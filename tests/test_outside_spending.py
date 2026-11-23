@@ -1,16 +1,27 @@
 import pytest
 
 from receipts.domain.money import ZERO, Money
-from receipts.domain.outside_spending import (BLANK_CANDIDATE, CANDIDATE_NOT_IDENTIFIED,
-                                         UNREGISTERED_COMMITTEE, exclusion,
-                                         latest_filings)
+from receipts.domain.outside_spending import (
+    BLANK_CANDIDATE,
+    CANDIDATE_NOT_IDENTIFIED,
+    UNREGISTERED_COMMITTEE,
+    exclusion,
+    latest_filings,
+)
 from receipts.fec.independent_expenditures import IndependentExpenditure, independent_expenditures
 
 
 def expenditure(position=0, **fields):
     blank = dict.fromkeys(IndependentExpenditure._fields[:-1], '')
-    defaults = {'spe_id': 'C1', 'cand_id': 'H1', 'tran_id': 'SE.1', 'exp_amo': '100',
-                'receipt_dat': '01-OCT-26', 'file_num': '10', 'fec_election_yr': '2026'}
+    defaults = {
+        'spe_id': 'C1',
+        'cand_id': 'H1',
+        'tran_id': 'SE.1',
+        'exp_amo': '100',
+        'receipt_dat': '01-OCT-26',
+        'file_num': '10',
+        'fec_election_yr': '2026',
+    }
     return IndependentExpenditure(**{**blank, **defaults, **fields}, position=position)
 
 
@@ -58,7 +69,10 @@ def test_the_same_transaction_id_from_two_spenders_stays_separate():
 
 def test_exclusion_reasons_apply_in_order():
     registered, identified = {'C1'}, {'H1'}
-    assert exclusion(expenditure(spe_id='C9', cand_id=''), registered, identified) == UNREGISTERED_COMMITTEE
+    assert (
+        exclusion(expenditure(spe_id='C9', cand_id=''), registered, identified)
+        == UNREGISTERED_COMMITTEE
+    )
     assert exclusion(expenditure(cand_id=' '), registered, identified) == BLANK_CANDIDATE
     assert exclusion(expenditure(cand_id='H9'), registered, identified) == CANDIDATE_NOT_IDENTIFIED
     assert exclusion(expenditure(), registered, identified) is None
@@ -68,7 +82,10 @@ def test_reads_the_bulk_csv_into_named_records(tmp_path):
     folder = tmp_path / '2026'
     folder.mkdir()
     header = ','.join(IndependentExpenditure._fields[:-1])
-    row = ','.join('"%s"' % v for v in ['H1', 'DOE, JANE', 'C1'] + [''] * 6 + ['2500'] + [''] * 10 + ['2026', '', ''])
+    row = ','.join(
+        f'"{v}"'
+        for v in ['H1', 'DOE, JANE', 'C1'] + [''] * 6 + ['2500'] + [''] * 10 + ['2026', '', '']
+    )
     (folder / 'independent_expenditure_2026.csv').write_text(header + '\n' + row + '\n')
     rows = independent_expenditures(tmp_path, 2026)
 

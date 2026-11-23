@@ -1,4 +1,5 @@
 """The people the tracker follows, and their FEC candidate IDs."""
+
 from collections import defaultdict
 
 
@@ -18,9 +19,14 @@ class Roster:
         return candidate_id in self._people_by_candidate
 
     def others_sharing_an_id_with(self, person):
-        return sorted({key for candidate_id in candidate_ids(person)
-                       for key in self._people_by_candidate[candidate_id]
-                       if key != person['person_key']})
+        return sorted(
+            {
+                key
+                for candidate_id in candidate_ids(person)
+                for key in self._people_by_candidate[candidate_id]
+                if key != person['person_key']
+            }
+        )
 
     def shared_id_note(self, person):
         """The data note for a person listed twice under one FEC ID, or None."""

@@ -36,6 +36,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Lint and format
+        run: |
+          ruff check receipts tests
+          ruff format --check receipts tests
+
       - name: Unit tests
         run: python3 -m pytest -q tests
 

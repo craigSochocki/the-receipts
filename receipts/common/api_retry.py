@@ -32,6 +32,7 @@ needs no API key, so the api.data.gov 1,000/hr limit does not apply to
 it, but a 429 there would kill a run the same way — hence the same
 retry, with a docquery-specific failure note.
 """
+
 import sys
 import time
 import urllib.error
@@ -47,14 +48,14 @@ DEFAULT_BACKOFF_CAP_SECONDS = 300.0
 DEFAULT_MAX_WAIT_SECONDS = 900.0
 
 FEC_API_RATE_LIMIT_NOTE = (
-    "FEC API rate limit: a standard registered api.data.gov key allows "
-    "1,000 requests/hour. To raise it, email apiinfo@fec.gov to request "
-    "120 calls/min (= 7,200/hour)."
+    'FEC API rate limit: a standard registered api.data.gov key allows '
+    '1,000 requests/hour. To raise it, email apiinfo@fec.gov to request '
+    '120 calls/min (= 7,200/hour).'
 )
 DOCQUERY_RATE_LIMIT_NOTE = (
-    "docquery.fec.gov rate limit (no API key; the api.data.gov "
-    "1,000 requests/hour limit does not apply here). Wait and retry the "
-    "run later; if it persists, check FEC service status."
+    'docquery.fec.gov rate limit (no API key; the api.data.gov '
+    '1,000 requests/hour limit does not apply here). Wait and retry the '
+    'run later; if it persists, check FEC service status.'
 )
 
 
@@ -68,12 +69,11 @@ def retry_settings(cfg):
     retry = (cfg.get('fec_api') or {}).get('retry') or {}
     return {
         'max_attempts': int(retry.get('max_attempts', DEFAULT_MAX_ATTEMPTS)),
-        'backoff_base_seconds': float(retry.get(
-            'backoff_base_seconds', DEFAULT_BACKOFF_BASE_SECONDS)),
-        'backoff_cap_seconds': float(retry.get(
-            'backoff_cap_seconds', DEFAULT_BACKOFF_CAP_SECONDS)),
-        'max_wait_seconds': float(retry.get(
-            'max_wait_seconds', DEFAULT_MAX_WAIT_SECONDS)),
+        'backoff_base_seconds': float(
+            retry.get('backoff_base_seconds', DEFAULT_BACKOFF_BASE_SECONDS)
+        ),
+        'backoff_cap_seconds': float(retry.get('backoff_cap_seconds', DEFAULT_BACKOFF_CAP_SECONDS)),
+        'max_wait_seconds': float(retry.get('max_wait_seconds', DEFAULT_MAX_WAIT_SECONDS)),
     }
 
 
@@ -114,8 +114,7 @@ def parse_retry_after(headers):
 def _backoff_seconds(attempt, retry):
     """Exponential backoff for a retry (attempt is 1-based, the attempt
     that just got the 429): base * 2**(attempt-1), capped."""
-    return min(retry['backoff_base_seconds'] * (2 ** (attempt - 1)),
-               retry['backoff_cap_seconds'])
+    return min(retry['backoff_base_seconds'] * (2 ** (attempt - 1)), retry['backoff_cap_seconds'])
 
 
 def sanitize_url(url):
@@ -125,19 +124,15 @@ def sanitize_url(url):
     logs), and the request URL carries the key — never log the key.
     """
     parts = urllib.parse.urlparse(url)
-    query = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query)
-             if k != 'api_key']
-    return urllib.parse.urlunparse(parts._replace(
-        query=urllib.parse.urlencode(query)))
+    query = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query) if k != 'api_key']
+    return urllib.parse.urlunparse(parts._replace(query=urllib.parse.urlencode(query)))
 
 
 def _fail_loudly(label, url, reason, limit_note):
-    raise SystemExit(
-        f'{label} failed: {reason} (url {sanitize_url(url)}). {limit_note}')
+    raise SystemExit(f'{label} failed: {reason} (url {sanitize_url(url)}). {limit_note}')
 
 
-def open_with_retry(url, timeout, retry, label,
-                    limit_note=FEC_API_RATE_LIMIT_NOTE):
+def open_with_retry(url, timeout, retry, label, limit_note=FEC_API_RATE_LIMIT_NOTE):
     """``urllib.request.urlopen`` with bounded HTTP 429 retry.
 
     Returns the response object on success (caller uses it as a context
@@ -156,32 +151,41 @@ def open_with_retry(url, timeout, retry, label,
                 raise
             if attempt >= max_attempts:
                 _fail_loudly(
-                    label, url,
+                    label,
+                    url,
                     f'HTTP 429 rate-limited on every attempt '
                     f'({max_attempts} attempts, waited {waited:.0f}s total)',
-                    limit_note)
+                    limit_note,
+                )
             retry_after = parse_retry_after(e.headers)
             if retry_after is not None:
                 wait = retry_after
                 source = f'Retry-After: {retry_after:.0f}s'
             else:
                 wait = _backoff_seconds(attempt, retry)
-                source = (f'exponential backoff '
-                          f'(base {retry["backoff_base_seconds"]:g}s, '
-                          f'attempt {attempt})')
+                source = (
+                    f'exponential backoff '
+                    f'(base {retry["backoff_base_seconds"]:g}s, '
+                    f'attempt {attempt})'
+                )
             if waited + wait > retry['max_wait_seconds']:
                 _fail_loudly(
-                    label, url,
+                    label,
+                    url,
                     f'HTTP 429 rate-limited (attempt {attempt}/'
                     f'{max_attempts}); projected wait {wait:.0f}s ({source}) '
                     f'would exceed the {retry["max_wait_seconds"]:.0f}s '
                     f'per-request wait budget '
                     f'(already waited {waited:.0f}s)',
-                    limit_note)
-            print(f'[{label}] HTTP 429 rate-limited (attempt {attempt}/'
-                  f'{max_attempts}): waiting {wait:.0f}s ({source}) '
-                  f'before retrying {sanitize_url(url)}',
-                  file=sys.stderr, flush=True)
+                    limit_note,
+                )
+            print(
+                f'[{label}] HTTP 429 rate-limited (attempt {attempt}/'
+                f'{max_attempts}): waiting {wait:.0f}s ({source}) '
+                f'before retrying {sanitize_url(url)}',
+                file=sys.stderr,
+                flush=True,
+            )
             time.sleep(wait)
             waited += wait
     # Unreachable: the loop either returns, re-raises, or fails loudly.

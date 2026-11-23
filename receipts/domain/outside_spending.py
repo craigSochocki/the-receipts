@@ -4,6 +4,7 @@ The IE files hold tens of billions in bogus filings, so the filter is
 part of the method: the spender must be a registered committee and the
 candidate an identified one.
 """
+
 from receipts.domain.one_copy import OneCopyEach
 
 UNREGISTERED_COMMITTEE = 'unregistered_committee'
@@ -13,6 +14,7 @@ CANDIDATE_NOT_IDENTIFIED = 'candidate_not_identified'
 
 def latest_filings():
     """One row per expenditure: the latest receipt, then the highest file number."""
+
     def recency(expenditure):
         return (expenditure.received, expenditure.file_number)
 

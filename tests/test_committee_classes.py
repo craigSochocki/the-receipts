@@ -14,8 +14,14 @@ def classify(**fields):
 
 
 def test_aipac_and_corporate_pacs_come_first():
-    assert classify(committee_id=AIPAC, committee_type='Q', organization_type='M') is CommitteeClass.AIPAC
-    assert classify(committee_type='Q', organization_type='C', designation='D') is CommitteeClass.CORPORATE
+    assert (
+        classify(committee_id=AIPAC, committee_type='Q', organization_type='M')
+        is CommitteeClass.AIPAC
+    )
+    assert (
+        classify(committee_type='Q', organization_type='C', designation='D')
+        is CommitteeClass.CORPORATE
+    )
 
 
 def test_party_committees_are_the_party_types():
@@ -25,7 +31,10 @@ def test_party_committees_are_the_party_types():
 
 def test_leadership_pacs_are_identified_by_designation():
     assert classify(committee_type='Q', designation='D') is CommitteeClass.LEADERSHIP
-    assert classify(committee_type='Q', organization_type='L', designation='D') is CommitteeClass.LEADERSHIP
+    assert (
+        classify(committee_type='Q', organization_type='L', designation='D')
+        is CommitteeClass.LEADERSHIP
+    )
 
 
 def test_other_pacs_are_classed_by_sponsor():

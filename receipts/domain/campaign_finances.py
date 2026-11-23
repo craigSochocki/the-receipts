@@ -1,10 +1,18 @@
 """A candidate's own money and campaign topline for one cycle."""
+
 from dataclasses import dataclass, fields
 
 from receipts.domain.money import Money
 
-FLOWS = ['candidate_contributions', 'candidate_loans', 'loan_repayments',
-         'total_receipts', 'total_disbursements', 'transfers_from_auth', 'transfers_to_auth']
+FLOWS = [
+    'candidate_contributions',
+    'candidate_loans',
+    'loan_repayments',
+    'total_receipts',
+    'total_disbursements',
+    'transfers_from_auth',
+    'transfers_to_auth',
+]
 STOCKS = ['cash_on_hand', 'debts_owed_by']
 
 

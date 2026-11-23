@@ -28,35 +28,15 @@ Usage:
 API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
 Sleeps >=1s between API calls.
 """
+
 import argparse
 import json
-import os
 import sys
-import time
-import urllib.error
-import urllib.parse
 
-from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
+from receipts.common.fec_api import api_get
 
 CFG = load_config()
-API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
-API_BASE = 'https://api.open.fec.gov/v1'
-SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
-RETRY = retry_settings(CFG)
-
-
-def api_get(path, params):
-    params = dict(params)
-    params['api_key'] = API_KEY
-    url = API_BASE + path + '?' + urllib.parse.urlencode(params)
-    time.sleep(SLEEP)
-    try:
-        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
-                             retry=RETRY, label=f'FEC API {path}') as resp:
-            return json.load(resp)
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})')
 
 
 def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_form=None):
@@ -94,14 +74,18 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
         if not results:
             break
         sub_ids = [r.get('sub_id') for r in results]
-        page_key = (tuple(sub_ids) if all(s is not None for s in sub_ids)
-                    else tuple(dedup_key(r) for r in results))
+        page_key = (
+            tuple(sub_ids)
+            if all(s is not None for s in sub_ids)
+            else tuple(dedup_key(r) for r in results)
+        )
         if page_key == prev_page_key:
             raise SystemExit(
                 'Schedule E sweep: endpoint repeated the same page '
                 f'(committee={committee_id} candidate={candidate_id} '
                 f'cycle={cycle} filing_form={filing_form} page {page}); '
-                'refusing to continue')
+                'refusing to continue'
+            )
         prev_page_key = page_key
         rows.extend(results)
         if len(results) < 100:
@@ -113,7 +97,8 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
                 'pagination.last_indexes cursor to advance with '
                 f'(committee={committee_id} candidate={candidate_id} '
                 f'cycle={cycle} filing_form={filing_form} page {page}); '
-                'refusing to continue')
+                'refusing to continue'
+            )
         page += 1
         if page > 100:
             raise SystemExit('Schedule E sweep: too many pages (over 100); refusing to continue')
@@ -122,8 +107,7 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
 
 def dedup_key(row):
     """The research's dedup key: (expenditure_date, amount, payee)."""
-    return (row.get('expenditure_date'), row.get('expenditure_amount'),
-            row.get('payee_name'))
+    return (row.get('expenditure_date'), row.get('expenditure_amount'), row.get('payee_name'))
 
 
 def dedup_rows(rows):
@@ -160,7 +144,9 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
     explained = [r for r in residual_rows if r.get('filing_form') != 'F24']
     unexplained = [r for r in residual_rows if r.get('filing_form') == 'F24']
     return {
-        'committee_id': committee_id, 'candidate_id': candidate_id, 'cycle': cycle,
+        'committee_id': committee_id,
+        'candidate_id': candidate_id,
+        'cycle': cycle,
         'f24_n_rows': len(f24_rows),
         'f24_total': row_sum(f24_rows),
         'naive_n_rows': len(all_rows),
@@ -171,8 +157,9 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
         'residual_explained': row_sum(explained),
         'residual_unexplained': row_sum(unexplained),
         'residual_rows': residual_rows,
-        'latest_expenditure_date': max((r.get('expenditure_date') or ''
-                                        for r in f24_rows), default=None),
+        'latest_expenditure_date': max(
+            (r.get('expenditure_date') or '' for r in f24_rows), default=None
+        ),
         'f24_rows': f24_rows,
     }
 
@@ -190,18 +177,20 @@ def main():
     if args.out:
         with open(args.out, 'w') as f:
             json.dump(result, f, indent=1)
-        print(f"wrote {args.out}")
+        print(f'wrote {args.out}')
     else:
         json.dump(result, sys.stdout, indent=1)
         print()
-    print(f"F24 {args.committee or ''} vs {args.candidate or ''} cycle {args.cycle}: "
-          f"{result['f24_n_rows']} rows, ${result['f24_total']:,.2f}; "
-          f"naive ${result['naive_total']:,.2f} ({result['naive_n_rows']} rows), "
-          f"deduped ${result['deduped_total']:,.2f} ({result['deduped_n_rows']} rows); "
-          f"residual ${result['residual']:,.2f} "
-          f"(explained ${result['residual_explained']:,.2f} non-F24, "
-          f"unexplained ${result['residual_unexplained']:,.2f}); "
-          f"latest expenditure {result['latest_expenditure_date']}")
+    print(
+        f'F24 {args.committee or ""} vs {args.candidate or ""} cycle {args.cycle}: '
+        f'{result["f24_n_rows"]} rows, ${result["f24_total"]:,.2f}; '
+        f'naive ${result["naive_total"]:,.2f} ({result["naive_n_rows"]} rows), '
+        f'deduped ${result["deduped_total"]:,.2f} ({result["deduped_n_rows"]} rows); '
+        f'residual ${result["residual"]:,.2f} '
+        f'(explained ${result["residual_explained"]:,.2f} non-F24, '
+        f'unexplained ${result["residual_unexplained"]:,.2f}); '
+        f'latest expenditure {result["latest_expenditure_date"]}'
+    )
 
 
 if __name__ == '__main__':

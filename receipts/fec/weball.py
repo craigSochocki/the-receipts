@@ -1,4 +1,5 @@
 """weball: one summary row per candidate per cycle."""
+
 from typing import NamedTuple
 
 from receipts.domain.money import Money

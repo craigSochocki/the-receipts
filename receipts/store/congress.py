@@ -1,10 +1,16 @@
 """Seats, terms and candidacies for the silver store."""
+
 from collections import defaultdict
 
 import yaml
 
-from receipts.domain.seats import (DELEGATE_STATES, SENATE_TERM_END, house_seat_id,
-                              regular_senate_class, senate_seat_id)
+from receipts.domain.seats import (
+    DELEGATE_STATES,
+    SENATE_TERM_END,
+    house_seat_id,
+    regular_senate_class,
+    senate_seat_id,
+)
 from receipts.fec.candidates import candidates
 
 CONGRESS_119 = ('2025-01-03', '2027-01-03')
@@ -39,9 +45,15 @@ def terms_119th(legislators, new_map_states):
                 seat = house_seat_id(state, term['district'], 2024, new_map_states)
             else:
                 seat = senate_seat_id(state, term['class'])
-            yield {'person_key': person['id']['bioguide'], 'seat_id': seat, 'congress': 119,
-                   'start_date': term['start'], 'end_date': term['end'],
-                   'party': term.get('party'), 'source': LEGISLATORS}
+            yield {
+                'person_key': person['id']['bioguide'],
+                'seat_id': seat,
+                'congress': 119,
+                'start_date': term['start'],
+                'end_date': term['end'],
+                'party': term.get('party'),
+                'source': LEGISLATORS,
+            }
 
 
 def terms_120th(roster, new_map_states):
@@ -50,14 +62,24 @@ def terms_120th(roster, new_map_states):
             continue
         state = person['state']
         if person['chamber_120'] == 'House':
-            seat, end = house_seat_id(state, person['district_120'] or 0, 2026,
-                                      new_map_states), CONGRESS_120[1]
+            seat, end = (
+                house_seat_id(state, person['district_120'] or 0, 2026, new_map_states),
+                CONGRESS_120[1],
+            )
         else:
-            seat, end = (senate_seat_id(state, person['senate_class']),
-                         SENATE_TERM_END[person['senate_class']])
-        yield {'person_key': person['person_key'], 'seat_id': seat, 'congress': 120,
-               'start_date': CONGRESS_120[0], 'end_date': end,
-               'party': person.get('party_120'), 'source': ROSTER_120}
+            seat, end = (
+                senate_seat_id(state, person['senate_class']),
+                SENATE_TERM_END[person['senate_class']],
+            )
+        yield {
+            'person_key': person['person_key'],
+            'seat_id': seat,
+            'congress': 120,
+            'start_date': CONGRESS_120[0],
+            'end_date': end,
+            'party': person.get('party_120'),
+            'source': ROSTER_120,
+        }
 
 
 def seat_rows(terms, house_districts_2026, senate_classes):
@@ -65,10 +87,18 @@ def seat_rows(terms, house_districts_2026, senate_classes):
     seats = {}
 
     def add(seat_id, chamber, state, district=None, senate_class=None, map_year=None):
-        seats.setdefault(seat_id, {
-            'seat_id': seat_id, 'chamber': chamber, 'state': state,
-            'district': district, 'senate_class': senate_class,
-            'voting': state not in DELEGATE_STATES, 'map_first_election': map_year})
+        seats.setdefault(
+            seat_id,
+            {
+                'seat_id': seat_id,
+                'chamber': chamber,
+                'state': state,
+                'district': district,
+                'senate_class': senate_class,
+                'voting': state not in DELEGATE_STATES,
+                'map_first_election': map_year,
+            },
+        )
 
     for term in terms:
         kind, state, rest = term['seat_id'].split('-', 2)
@@ -92,13 +122,20 @@ def candidacy_rows(bulk_dir, cycles, new_map_states, senate_classes, seat_ids):
     for cycle in cycles:
         for c in candidates(bulk_dir, cycle):
             seat = seat_for(c, new_map_states, senate_classes)
-            yield {'candidate_id': c.candidate_id, 'cycle': cycle, 'name': c.name,
-                   'party': c.party, 'election_year': int(c.election_year or 0) or None,
-                   'office': CANDIDATE_OFFICES.get(c.office, c.office),
-                   'office_state': c.office_state, 'office_district': c.office_district,
-                   'incumbent_challenger': c.incumbent_challenger, 'status': c.status,
-                   'principal_committee': c.principal_committee,
-                   'seat_id': seat if seat in seat_ids else None}
+            yield {
+                'candidate_id': c.candidate_id,
+                'cycle': cycle,
+                'name': c.name,
+                'party': c.party,
+                'election_year': int(c.election_year or 0) or None,
+                'office': CANDIDATE_OFFICES.get(c.office, c.office),
+                'office_state': c.office_state,
+                'office_district': c.office_district,
+                'incumbent_challenger': c.incumbent_challenger,
+                'status': c.status,
+                'principal_committee': c.principal_committee,
+                'seat_id': seat if seat in seat_ids else None,
+            }
 
 
 def seat_for(candidate, new_map_states, senate_classes):

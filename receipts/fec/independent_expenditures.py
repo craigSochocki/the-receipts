@@ -1,4 +1,5 @@
 """Independent expenditures: spending for or against a candidate by an outside group."""
+
 import csv
 from datetime import datetime
 from typing import NamedTuple
@@ -91,7 +92,9 @@ class ExpenditureFile:
             self.columns = reader.fieldnames
             for position, row in enumerate(reader):
                 self.rows_read += 1
-                fields = {name: (row.get(name) or '') for name in IndependentExpenditure._fields[:-1]}
+                fields = {
+                    name: (row.get(name) or '') for name in IndependentExpenditure._fields[:-1]
+                }
                 yield IndependentExpenditure(**fields, position=position)
 
 

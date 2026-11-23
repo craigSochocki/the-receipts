@@ -4,6 +4,7 @@ Check mode compares against data/source/baseline.json. Rebaseline mode
 (`rebuild.py --rebaseline`) records what it observes; the diff of that
 file is the review. Policy values stay in config.yaml.
 """
+
 import json
 import os
 
@@ -25,8 +26,10 @@ def expected(key, observed):
     figures = _read(PATH, {})
     if not rebaselining():
         if key not in figures:
-            raise SystemExit(f'baseline has no figure for {key!r}; '
-                             f'run `python3 receipts/rebuild.py --rebaseline` and review the diff')
+            raise SystemExit(
+                f'baseline has no figure for {key!r}; '
+                f'run `python3 receipts/rebuild.py --rebaseline` and review the diff'
+            )
         return figures[key]
 
     recorded = set(_read(_RECORDED_THIS_RUN, []))

@@ -4,6 +4,7 @@ A House seat is a district under one map; when a state redraws its map
 the districts become new seats. A Senate seat is a state's seat in one
 of the three classes, one class up for election every two years.
 """
+
 DELEGATE_STATES = ('AS', 'DC', 'GU', 'MP', 'PR', 'VI')
 FIRST_ELECTION_COVERED = 2024
 SENATE_TERM_END = {1: '2031-01-03', 2: '2033-01-03', 3: '2029-01-03'}

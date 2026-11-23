@@ -47,8 +47,13 @@ def test_earmark_is_read_from_the_memo_text():
 
 
 def test_identity_falls_back_to_submission_id_and_ignores_filing():
-    first = contribution(committee_id='C1', candidate_id='H1', amount_text='500',
-                         submission_id='S9', file_number_text='10')
+    first = contribution(
+        committee_id='C1',
+        candidate_id='H1',
+        amount_text='500',
+        submission_id='S9',
+        file_number_text='10',
+    )
     refiled = first._replace(file_number_text='11', memo_code='X')
     other_amount = first._replace(amount_text='501')
 

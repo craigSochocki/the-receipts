@@ -1,6 +1,19 @@
-"""Writing the pipeline's CSV and JSON files the way every step always has."""
+"""Reading and writing the pipeline's CSV and JSON files the way every step always has."""
+
 import csv
 import json
+
+import yaml
+
+
+def read_json(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def read_yaml(path):
+    with open(path) as f:
+        return yaml.safe_load(f)
 
 
 def write_json(path, content):

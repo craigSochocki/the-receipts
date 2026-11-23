@@ -18,7 +18,15 @@ def test_at_large_and_delegate_seats_are_district_zero():
 
 
 def test_senate_classes_rotate_every_two_years():
-    assert [regular_senate_class(y) for y in (2018, 2020, 2022, 2024, 2026, 2028, 2030)] == [1, 2, 3, 1, 2, 3, 1]
+    assert [regular_senate_class(y) for y in (2018, 2020, 2022, 2024, 2026, 2028, 2030)] == [
+        1,
+        2,
+        3,
+        1,
+        2,
+        3,
+        1,
+    ]
     assert senate_seat_id('GA', 2) == 'S-GA-2'
 
 
@@ -27,8 +35,15 @@ def test_a_delegate_filed_as_district_01_maps_to_the_delegate_seat():
     from receipts.store.congress import seat_for
 
     blank = dict.fromkeys(Candidate._fields, '')
-    king_hinds = Candidate(**{**blank, 'office': 'H', 'office_state': 'MP',
-                              'office_district': '01', 'election_year': '2026'})
+    king_hinds = Candidate(
+        **{
+            **blank,
+            'office': 'H',
+            'office_state': 'MP',
+            'office_district': '01',
+            'election_year': '2026',
+        }
+    )
     assert seat_for(king_hinds, set(), {}) == 'H-MP-00/2024'
 
 

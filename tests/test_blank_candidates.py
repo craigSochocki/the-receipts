@@ -1,4 +1,6 @@
-from receipts.domain.blank_candidates import name_key, roster_matches
+from collections import namedtuple
+
+from receipts.domain.blank_candidates import name_key, resolve, roster_matches
 
 PEOPLE = [
     {'last_name': 'Davis', 'first_name': 'Donald', 'state': 'NC', 'district_119': 1},
@@ -20,19 +22,19 @@ def test_name_key_ignores_case_of_the_name_only():
     assert name_key('Davis, Don', 'NC', '01', 'H') == ('DAVIS, DON', 'NC', '01', 'H')
 
 
-from collections import namedtuple
-
-from receipts.domain.blank_candidates import resolve
-
 Row = namedtuple('Row', 'candidate_name state district office direction')
-WITH_IDS = [{**PEOPLE[0], 'fec_candidate_ids': ['H2NC01999']},
-            {**PEOPLE[1], 'fec_candidate_ids': ['H4IL07001', 'S6IL00001']}]
+WITH_IDS = [
+    {**PEOPLE[0], 'fec_candidate_ids': ['H2NC01999']},
+    {**PEOPLE[1], 'fec_candidate_ids': ['H4IL07001', 'S6IL00001']},
+]
 
 
 def test_the_name_index_wins_then_the_roster():
     row = Row('DAVIS, DON', 'NC', '01', 'H', 'S')
     assert resolve(row, {name_key('DAVIS, DON', 'NC', '01', 'H'): 'H0FROMINDEX'}, WITH_IDS) == (
-        'H0FROMINDEX', 'name_index')
+        'H0FROMINDEX',
+        'name_index',
+    )
     assert resolve(row, {}, WITH_IDS) == ('H2NC01999', 'roster')
 
 
@@ -42,5 +44,7 @@ def test_a_roster_match_with_two_ids_stays_unresolved():
 
 def test_an_unknown_supported_candidate_gets_a_name_stand_in_and_opposed_gets_nothing():
     assert resolve(Row('Irwin, Steven', 'PA', '12', 'H', 'S'), {}, WITH_IDS) == (
-        '__name__:IRWIN, STEVEN|PA|12|H', 'name_only')
+        '__name__:IRWIN, STEVEN|PA|12|H',
+        'name_only',
+    )
     assert resolve(Row('Irwin, Steven', 'PA', '12', 'H', 'O'), {}, WITH_IDS) == (None, None)

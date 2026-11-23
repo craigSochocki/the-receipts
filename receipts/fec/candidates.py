@@ -1,4 +1,5 @@
 """cn: the candidate master file, one row per registered candidate per cycle."""
+
 from typing import NamedTuple
 
 from receipts.fec.bulk_file import BulkFile
