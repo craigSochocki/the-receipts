@@ -5,7 +5,58 @@ figure-free statement of the rules: it now says what each column means and why,
 and links here for the figures, named cases and reconciliations that showed it.
 The figures below are as of snapshot `fec-bulk-2026-11-22` and earlier pulls;
 current figures live in `data/source/baseline.json` and the dataset. Section
-numbers match `methodology.md`. Everything below the line is the old file, unedited.
+numbers match `methodology.md`. The archived file follows the config section, unedited.
+
+## Removed from `config.yaml` comments and notes (Nov 23, 2026)
+
+The F24 sweep list and the tolerance presets were annotated with the figures
+behind them. The exact text removed:
+
+```yaml
+# Date of the pinned FEC snapshot the money came from; carried on every
+# dataset row. The roster is still as crawled Nov 12, 2026.
+
+  # freshness API call and by pull_f6's docquery CSV fetch). A standard registered api.data.gov key allows 1,000
+  # requests/hour; a full freshness --all run makes ~2,200-2,350 keyed
+  # calls, so it hits 429 part-way through. On a 429 the wait is the
+  # Non-429 HTTP errors are NOT retried (immediate SystemExit, as before).
+  # people by candidate_id. The five are the top 5 by 2026
+  # roster-targeted IE (data/intermediate/all_ie_per_cycle.json ->
+  # per_cycle_summaries.2026.top_committees_roster_targeted, as ranked
+  # on the Nov 12 pull, 2026 totals then through Oct 31); UDP is #10 by total but included by design:
+  # AIPAC-affiliated, and the source of the $20.9M vs El-Sayed F24
+  # finding. The dollar figures in the notes are those same 2026
+  # roster-targeted totals (S support / O oppose), recorded here for
+  # the record — no script reads them.
+      committee_name: "NO GOING BACK PAC INC."
+      note: "#1 by 2026 roster-targeted IE: $227,177,570.85 (S $24,666,812.45 / O $202,510,758.40)"
+
+      committee_name: "WinSenate"
+      note: "#2 by 2026 roster-targeted IE: $166,050,827.13 (S $34,946,905.85 / O $131,103,921.28)"
+
+      committee_name: "HMP"
+      note: "#3 by 2026 roster-targeted IE: $150,884,797.72 (S $4,146,002.09 / O $146,738,795.63)"
+
+      committee_name: "TEXAS PAC"
+      note: "#4 by 2026 roster-targeted IE: $112,153,741.90 (all oppose)"
+
+      committee_name: "DEFEND AMERICAN JOBS"
+      note: "#5 by 2026 roster-targeted IE: $90,387,313.50 (S $70,681,048.37 / O $19,706,265.13)"
+
+      committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
+      note: "#10 by 2026 roster-targeted IE: $43,620,238.47 (S $17,497,693.29 / O $26,122,545.18); included by design (AIPAC-affiliated; source of the $20.9M vs El-Sayed F24 finding)"
+
+  # --all`. F6 gates the Form 6 leg, F24 gates the six committee
+  # sweeps above,
+  # Share denominator note: corp_2026 (pas2) and total_receipts_2026
+  # (weball) now both run through Oct 14, 2026 (coverage_end above); on
+  # the Nov 12 pull pas2 stopped at Sep 30, which understated shares.
+  # A non-positive total_receipts_2026 leaves the
+  # share undefined and the share test cannot pass (no case in the
+  # current data has corp above an amount threshold with non-positive
+  # receipts; the only corp>0 / receipts<=0 member is Melissa Bean,
+  # corp $3,500).
+```
 
 ---
 
