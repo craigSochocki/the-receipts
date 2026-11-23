@@ -1,4 +1,4 @@
-from src.domain.blank_candidates import name_key, roster_matches
+from receipts.domain.blank_candidates import name_key, roster_matches
 
 PEOPLE = [
     {'last_name': 'Davis', 'first_name': 'Donald', 'state': 'NC', 'district_119': 1},
@@ -22,7 +22,7 @@ def test_name_key_ignores_case_of_the_name_only():
 
 from collections import namedtuple
 
-from src.domain.blank_candidates import resolve
+from receipts.domain.blank_candidates import resolve
 
 Row = namedtuple('Row', 'candidate_name state district office direction')
 WITH_IDS = [{**PEOPLE[0], 'fec_candidate_ids': ['H2NC01999']},

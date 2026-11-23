@@ -1,6 +1,6 @@
 # UDP support pull — rules and note text
 
-Moved verbatim from the header of `src/ingest/pull_udp.py` (Nov 23, 2026), when the pull moved onto the store as `src/store/udp.py`. The blank-ID rules now live in `src/domain/blank_candidates.py` and `src/store/udp_rows.py`.
+Moved verbatim from the header of `src/ingest/pull_udp.py` (Nov 23, 2026), when the pull moved onto the store as `receipts/store/udp.py`. The blank-ID rules now live in `receipts/domain/blank_candidates.py` and `receipts/store/udp_rows.py`.
 
 ```
 UDP independent-expenditure pull for the Congress money tracker.

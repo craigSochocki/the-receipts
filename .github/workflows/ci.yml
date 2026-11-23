@@ -43,7 +43,7 @@ jobs:
         run: ./fetch_snapshot.sh
 
       - name: Rebuild dataset
-        run: python3 src/rebuild.py
+        run: python3 receipts/rebuild.py
 
       - name: Show rebuilt dataset checksums
         run: md5sum congress-money-tracker.csv congress-money-tracker.json
@@ -59,15 +59,15 @@ jobs:
 
       - name: Check the store's seats and terms
         # rebuild.py builds the store; this checks what the dataset can't.
-        run: python3 src/store/check_store.py
+        run: python3 receipts/store/check_store.py
 
       - name: Build static site
-        run: python3 src/site/build_site.py
+        run: python3 receipts/site/build_site.py
 
       - name: Fail if the committed page is not the rebuilt page
         run: |
           if ! git diff --exit-code -I'Generated [0-9-]+ [0-9:]+ UTC' -- docs/index.html > /dev/null; then
-            echo "::error::docs/index.html differs from the page built from the committed dataset. Rebuild it (python3 src/site/build_site.py) and commit — never hand-edit it."
+            echo "::error::docs/index.html differs from the page built from the committed dataset. Rebuild it (python3 receipts/site/build_site.py) and commit — never hand-edit it."
             exit 1
           fi
 
@@ -75,4 +75,4 @@ jobs:
         # Needs node (preinstalled on ubuntu-latest): node --check on the
         # page scripts plus the runtime smoke test. Also re-runs the
         # generator and checks determinism apart from the timestamp.
-        run: python3 src/site/verify_site.py
+        run: python3 receipts/site/verify_site.py

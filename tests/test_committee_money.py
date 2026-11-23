@@ -1,6 +1,6 @@
-from src.domain.committee_money import is_voided_earmark, reported_once
-from src.domain.money import Money
-from src.fec.committee_contributions import CommitteeContribution
+from receipts.domain.committee_money import is_voided_earmark, reported_once
+from receipts.domain.money import Money
+from receipts.fec.committee_contributions import CommitteeContribution
 
 
 def contribution(**overrides):

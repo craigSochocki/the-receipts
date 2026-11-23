@@ -1,4 +1,4 @@
-from src.domain.seats import house_seat_id, regular_senate_class, senate_seat_id
+from receipts.domain.seats import house_seat_id, regular_senate_class, senate_seat_id
 
 NEW_MAPS = {'TX'}
 
@@ -23,8 +23,8 @@ def test_senate_classes_rotate_every_two_years():
 
 
 def test_a_delegate_filed_as_district_01_maps_to_the_delegate_seat():
-    from src.fec.candidates import Candidate
-    from src.store.congress import seat_for
+    from receipts.fec.candidates import Candidate
+    from receipts.store.congress import seat_for
 
     blank = dict.fromkeys(Candidate._fields, '')
     king_hinds = Candidate(**{**blank, 'office': 'H', 'office_state': 'MP',
@@ -33,8 +33,8 @@ def test_a_delegate_filed_as_district_01_maps_to_the_delegate_seat():
 
 
 def test_a_senate_special_in_a_state_without_the_regular_class_is_left_unlinked():
-    from src.fec.candidates import Candidate
-    from src.store.congress import seat_for
+    from receipts.fec.candidates import Candidate
+    from receipts.store.congress import seat_for
 
     blank = dict.fromkeys(Candidate._fields, '')
     ohio = Candidate(**{**blank, 'office': 'S', 'office_state': 'OH', 'election_year': '2026'})

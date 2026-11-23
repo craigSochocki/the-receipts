@@ -48,14 +48,14 @@ if [ "$SKIP_DOWNLOAD" = 0 ]; then
 fi
 
 if [ "$SKIP_REBUILD" = 0 ]; then
-  echo "=== 3/4 rebuild (src/rebuild.py) ==="
-  .venv/bin/python src/rebuild.py
+  echo "=== 3/4 rebuild (receipts/rebuild.py) ==="
+  .venv/bin/python receipts/rebuild.py
 fi
 
 if [ "$SKIP_SITE" = 0 ]; then
-  echo "=== 4/4 static site (src/site/) ==="
-  .venv/bin/python src/site/build_site.py
-  .venv/bin/python src/site/verify_site.py
+  echo "=== 4/4 static site (receipts/site/) ==="
+  .venv/bin/python receipts/site/build_site.py
+  .venv/bin/python receipts/site/verify_site.py
 fi
 
 echo

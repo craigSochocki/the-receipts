@@ -1,6 +1,6 @@
 # All independent expenditures — rules, checks and findings
 
-Moved verbatim from the header of `src/ingest/pull_all_ie.py` (Nov 23, 2026), when the pull moved onto the store as `src/store/all_ie.py`. The rules now live in `src/domain/outside_spending.py` and `src/domain/blank_candidates.py`.
+Moved verbatim from the header of `src/ingest/pull_all_ie.py` (Nov 23, 2026), when the pull moved onto the store as `receipts/store/all_ie.py`. The rules now live in `receipts/domain/outside_spending.py` and `receipts/domain/blank_candidates.py`.
 
 ```
 All-independent-expenditures pull for the Congress money tracker.

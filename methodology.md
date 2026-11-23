@@ -102,7 +102,7 @@ research notes live in `research/`.
 | `other_committees_total_career` | Sum of the seven other-committee classes above. Roster total **$1,568,735,747.00**. This EXCLUDES corporate PAC money and AIPAC direct, which stay in their existing columns — the three families are disjoint by construction. Top career takers: Pallone $17,794,814; Hoyer $15,801,231; McConnell $11,203,442; Sherrod Brown $10,981,813; Pelosi $10,105,781. |
 | `*_earmark_transmitted_career` (7 columns) | Career-only earmark-transmitted breakouts, one per other-committee class (`party_committees_earmark_transmitted_career`, etc.), matching the existing AIPAC/corporate earmark-breakout precedent. Roster total $5,500,260 (party $18,743; leadership $786,779; labor $790; trade $456,352; membership $2,479,868; cooperative $0; other_unclassified $1,633,442). |
 | `all_ie_support_career`, `all_ie_oppose_career`, `all_ie_total_career` | **All independent expenditures about the person's race, 2022–2026 ONLY** (the 2010–2020 IE files are not staged — see §8). Support + oppose from every registered committee, not just UDP. `all_ie_total = support + oppose + blank-direction rows` (see §4 for the $21,231.43 reconciliation). Roster totals (distinct persons): support **$1,490,363,373.56**, oppose **$2,351,872,876.19**, total **$3,842,257,481.18**. Top: Talarico $259,873,813.32; Husted $197,481,557.46; Sherrod Brown $151,242,621.14; El-Sayed $148,486,253.91. Like UDP, this is spending *about* the race, never money given to the campaign. |
-| `self_funding_per_cycle`, `other_committees_per_cycle`, `all_ie_per_cycle` (JSON only; also as repr strings in the CSV) | Per-person, per-cycle breakdowns of the three new families. `self_funding_per_cycle` carries the weball flow columns plus `coverage_end_date` per (candidate, cycle); `other_committees_per_cycle` carries the seven classes plus an `earmark_transmitted` sub-dict; `all_ie_per_cycle` carries support/oppose/total. Only cycles with a nonzero value are listed. Each sums to its career columns exactly (0 mismatches — verified in `src/validate/verify_dataset.py`, checks (j)–(l)). |
+| `self_funding_per_cycle`, `other_committees_per_cycle`, `all_ie_per_cycle` (JSON only; also as repr strings in the CSV) | Per-person, per-cycle breakdowns of the three new families. `self_funding_per_cycle` carries the weball flow columns plus `coverage_end_date` per (candidate, cycle); `other_committees_per_cycle` carries the seven classes plus an `earmark_transmitted` sub-dict; `all_ie_per_cycle` carries support/oppose/total. Only cycles with a nonzero value are listed. Each sums to its career columns exactly (0 mismatches — verified in `receipts/validate/verify_dataset.py`, checks (j)–(l)). |
 | `all_ie_top_committees` (JSON only) | Top 5 committees per person by career all-IE total, with support/oppose split (committee name taken from the largest single (candidate, cycle) total). Null for Armstrong; `[]` for people with no IE spending. Example — Constantino's top: House Majority PAC $1,482,254 oppose; Invest in Tomorrow Coalition PAC $1,283,283.97 oppose; YOUR COMMUNITY PAC $499,066.68 oppose. El-Sayed's top: NO GOING BACK PAC $27,461,680.99 oppose; UDP $20,903,437.57 oppose; GLCF $19,557,129.77 oppose; WinSenate $12,551,320 support; AFP Action $11,880,001.04 oppose. |
 | `data_as_of` | `2026-11-12` for every row. |
 | `data_notes` | Per-person notes carried from the money pulls (search outcome, multi-ID summation, oppose spending, name-attributed UDP rows, special cases). See §5. |
@@ -160,9 +160,9 @@ spot-checks only; OpenSecrets was used as a cross-check only (see §6).
 | AIPAC PAC direct + earmarks | `pas2/<cycle>/itpas2.txt`, cycles 2022/2024/2026 only (the PAC's only active cycles) | Rows with `CMTE_ID = 'C00797670'`, `TRANSACTION_TP IN ('24K','24P')`. Earmark rows identified by memo text containing `EARMARK` or starting `ERMK:`. |
 | Corporate PAC | `pas2/<cycle>/itpas2.txt`, all 24 cycles (7,879,684 rows) joined to `cm/<cycle>/cm.txt`, all 24 cycles (298,679 rows) | pas2 `24K`/`24P` rows whose contributing committee satisfies `CMTE_TP IN ('Q','N')` and `ORG_TP IN ('C','W')` in the **same-cycle** committee-master file. |
 | UDP independent expenditures | `bulk/ie/<cycle>/independent_expenditure_<cycle>.csv`, cycles 2022/2024/2026 | `spe_id = 'C00799031'`, `sup_opp = 'S'`, summed by `cand_id` after dedup by `tran_id` (keep latest `receipt_dat`, tie-break highest `file_num`). See §4. |
-| Self-funding + topline | `weball/weballYY.txt`, cycles 1980–2026 (same 24 files as the individual pull) | Weball cols (1-indexed): 6 `TTL_RECEIPTS`, 7 `TRANS_FROM_AUTH`, 8 `TTL_DISB`, 9 `TRANS_TO_AUTH`, 11 `COH_COP`, 12 `CAND_CONTRIB`, 13 `CAND_LOANS`, 15+16 loan repayments, 17 `DEBTS_OWED_BY`, 28 `CVG_END_DT`. Career flows are sums; cash on hand and debts owed by are the latest cycle's value (stocks). No weball column exists for debts owed *to* the committee (null everywhere). The Curtis 2024 extension (§8.15) zeroes the dropped copy for cols 6–9 as well as 10–18. Script: `src/ingest/pull_self_funding.py`. |
-| Other-committee contributions | `pas2/<cycle>/itpas2.txt`, all 24 cycles, joined to `cm/<cycle>/cm.txt` (same-cycle committee master) | pas2 `24K`/`24P` rows whose contributing committee is NOT corporate (Q/N + C/W) and NOT the AIPAC PAC, classified by `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as in §2. Cross-checks re-derive the corporate ($972,228,584), corporate earmark ($26,850), AIPAC direct ($7,567,773) and AIPAC earmark ($191,573) totals to the cent. Script: `src/ingest/pull_other_committees.py`; diagnostics in `data/intermediate/other_committees_diagnostics.json`. |
-| All independent expenditures | `bulk/ie/<cycle>/independent_expenditure_<cycle>.csv`, cycles 2022/2024/2026 (same three files as the UDP pull) | Every row whose spender is a **registered committee** (`spe_id` in the same-cycle `cm` file) and whose candidate is **identified** (`cand_id` non-blank), summed by (candidate, cycle) after dedup on (`spe_id`, `tran_id`) — NOT `tran_id` alone. Blank-`cand_id` rows are excluded from the published totals, including Congressional Leadership Fund, which files `cand_id` blank systematically (2024 $105.5M / 2026 $199.2M roster-resolved by name — see §8). Script: `src/ingest/pull_all_ie.py`. |
+| Self-funding + topline | `weball/weballYY.txt`, cycles 1980–2026 (same 24 files as the individual pull) | Weball cols (1-indexed): 6 `TTL_RECEIPTS`, 7 `TRANS_FROM_AUTH`, 8 `TTL_DISB`, 9 `TRANS_TO_AUTH`, 11 `COH_COP`, 12 `CAND_CONTRIB`, 13 `CAND_LOANS`, 15+16 loan repayments, 17 `DEBTS_OWED_BY`, 28 `CVG_END_DT`. Career flows are sums; cash on hand and debts owed by are the latest cycle's value (stocks). No weball column exists for debts owed *to* the committee (null everywhere). The Curtis 2024 extension (§8.15) zeroes the dropped copy for cols 6–9 as well as 10–18. Script: `receipts/ingest/pull_self_funding.py`. |
+| Other-committee contributions | `pas2/<cycle>/itpas2.txt`, all 24 cycles, joined to `cm/<cycle>/cm.txt` (same-cycle committee master) | pas2 `24K`/`24P` rows whose contributing committee is NOT corporate (Q/N + C/W) and NOT the AIPAC PAC, classified by `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as in §2. Cross-checks re-derive the corporate ($972,228,584), corporate earmark ($26,850), AIPAC direct ($7,567,773) and AIPAC earmark ($191,573) totals to the cent. Script: `receipts/ingest/pull_other_committees.py`; diagnostics in `data/intermediate/other_committees_diagnostics.json`. |
+| All independent expenditures | `bulk/ie/<cycle>/independent_expenditure_<cycle>.csv`, cycles 2022/2024/2026 (same three files as the UDP pull) | Every row whose spender is a **registered committee** (`spe_id` in the same-cycle `cm` file) and whose candidate is **identified** (`cand_id` non-blank), summed by (candidate, cycle) after dedup on (`spe_id`, `tran_id`) — NOT `tran_id` alone. Blank-`cand_id` rows are excluded from the published totals, including Congressional Leadership Fund, which files `cand_id` blank systematically (2024 $105.5M / 2026 $199.2M roster-resolved by name — see §8). Script: `receipts/ingest/pull_all_ie.py`. |
 
 Committee IDs (verified Nov 12, 2026 via the OpenFEC API — see `research/fec-sources.md` §1):
 **AIPAC PAC = `C00797670`** (American Israel Public Affairs Committee Political Action
@@ -269,14 +269,14 @@ The points that matter for interpreting the numbers:
   `ORG_TP=C` in cm24 despite being labor-affiliated; it counts as corporate under the
   Q/N + C/W rule as written. Any reclassification is a methodology decision, not a data
   error.
-- **Self-funding / topline pull (`src/store/self_funding.py`, read from the store).** Reads the same 24 weball
+- **Self-funding / topline pull (`receipts/store/self_funding.py`, read from the store).** Reads the same 24 weball
   files as the individual pull and emits one row per (candidate, cycle) with the flow
   columns, the two stock columns, and `coverage_end_date` (col 28). Career stocks take
   the latest cycle's value; a person with no weball rows at all has null stocks (not $0).
   Guard: the Curtis 2024 extension (§8.15) is enforced in the pull — if the kept-minus-
   dropped arithmetic for cols 6–9 does not come out to exactly $107,207.83, the pull
   fails loudly rather than silently emitting wrong figures.
-- **Other-committee pull (`src/store/other_committees.py`, read from the store).** Same pas2+cm join as the
+- **Other-committee pull (`receipts/store/other_committees.py`, read from the store).** Same pas2+cm join as the
   corporate pull, same dedup key, but the classification inverts it: everything that is
   not corporate and not the AIPAC PAC, split into the seven classes of §2. The
   `other_unclassified` class is 19.3% of the total; its composition (career): Q/N
@@ -289,7 +289,7 @@ The points that matter for interpreting the numbers:
   corporate+AIPAC amounts can explain; the mechanism is unresolved (likely joint-
   fundraising-committee / transfer reporting) and needs the `oth` bulk file or F3
   line-item work — no figure was adjusted to force a match.
-- **All-IE pull (`src/store/all_ie.py`, read from the store; money in exact cents).** Same three IE bulk files as the UDP pull, but
+- **All-IE pull (`receipts/store/all_ie.py`, read from the store; money in exact cents).** Same three IE bulk files as the UDP pull, but
   every registered committee, not just UDP. Dedup key is (`spe_id`, `tran_id`): `tran_id`
   alone is unsound because different spenders reuse transaction IDs. Filter: spender must
   be a registered committee in the same cycle's `cm` file, and `cand_id` must be
@@ -429,7 +429,7 @@ record (person, cycle, amount, kept/dropped candidate ID) is saved as
   Named spot cases verified exact: Constantino self-funding $17,000,000.00, Rick Scott
   $89,994,251.12, Ricketts $19,442,012.33, Thanedar $17,456,074.00, McClain Delaney
   $14,873,000.00, Jacobs $11,551,385.89, Cisneros $9,807,843.10, Shreve $7,943,000.00.
-  All 93 standing audits in `src/validate/verify_dataset.py` pass.
+  All 93 standing audits in `receipts/validate/verify_dataset.py` pass.
 
 ### Spot-checks against independent sources (all run Nov 12, 2026)
 
@@ -634,7 +634,7 @@ total still 535.
     row, so counting both double-counts the House row's activity. The extension zeroes
     the dropped copy for weball cols 6–9 as well as 10–18 (recorded in
     `data/source/dedup-applied.json` as `extend_to_columns_6_9` with the expected cents;
-    `src/domain/weball_double_counts.py` fails loudly if the arithmetic ever stops matching).
+    `receipts/domain/weball_double_counts.py` fails loudly if the arithmetic ever stops matching).
     Effect on roster totals vs the pre-extension figures: receipts −$5,640,855.75,
     disbursements −$5,239,012.32, transfers-from-auth −$1,261,797.03, transfers-to-auth
     −$3,300.00. Only Curtis's row changed; the four dedup-partial flags are gone.
@@ -683,7 +683,7 @@ total still 535.
   cycles; `data/raw/ie/` 2022/2024/2026), and the current dataset itself
   (the opposition sanity check reads it before the merge). Everything in
   `data/intermediate/` (roster, money, UDP, self-funding, other-committee,
-  all-IE, opposition files) is **regenerated** by `python3 src/rebuild.py`
+  all-IE, opposition files) is **regenerated** by `python3 receipts/rebuild.py`
   and is not a staged input — it is gitignored. Research notes:
   `research/pull-log-a.md`, `research/pull-log-b.md`,
   `research/fec-sources.md`, `research/bulk-inventory.md`, `research/roster-notes.md`.
@@ -698,7 +698,7 @@ total still 535.
   with **0 mismatches** and CSV ↔ JSON agreement is **0 mismatches** (see
   `research/verification-log.md`).
 - **To refresh:** publish a new pinned snapshot ("FEC snapshot" workflow), stage it with
-  `./fetch_snapshot.sh <tag>`, set `data_as_of`, run `python3 src/rebuild.py --rebaseline`,
+  `./fetch_snapshot.sh <tag>`, set `data_as_of`, run `python3 receipts/rebuild.py --rebaseline`,
   and review the diff of `data/source/baseline.json` (see README, "Pinned snapshots and the
   baseline"). The FEC updates its bulk files in place, so a rebuild is only reproducible
   against a pinned snapshot. The 5 TBD seats and the 120th
@@ -841,7 +841,7 @@ bucket; the general-phase anti-Lee spending, $1,238,852.88, is in the no-credit
 bucket because UDP backed nobody in the general phase). Blank-`cand_id` oppose
 rows (30, all 2022: Cisneros, Garcia) need no resolution — the oppose total is
 summed per race from the office/state/district columns, and the opposed person's
-name is in the row. Computation script: `src/store/opposition.py`; race-level
+name is in the row. Computation script: `receipts/store/opposition.py`; race-level
 record: `data/intermediate/opposition-computed.json`. Full per-cycle reconciliation: the
 computation's deduped S+O totals match the earlier UDP pull exactly in all three
 cycles ($26,107,515.77 / $38,044,932.69 / $54,322,881.51, $0.00 difference), and
@@ -928,8 +928,8 @@ compare 2026 figures head-to-head with full cycles (2022, 2024).
   (`unopposed_2026`) and whose net dirty money is zero or negative is
   **null, not clean** — $0 dirty money in a race with no opponent is a structural zero,
   not a verified-clean campaign. A dirty unopposed member stays dirty. The
-  rule is implemented in `src/transform/compute_2026.py` (`has_2026_linkage`)
-  and re-verified in `src/validate/verify_dataset.py` (checks (e) and (m)).
+  rule is implemented in `receipts/transform/compute_2026.py` (`has_2026_linkage`)
+  and re-verified in `receipts/validate/verify_dataset.py` (checks (e) and (m)).
 - `aipac_udp_flag_2026` — true when `aipac_direct_2026 > 0` OR
   `udp_benefit_2026 > 0`. The "most egregious" flag: any AIPAC direct
   dollar or any UDP benefit dollar flags the member, in any amount,
@@ -1104,9 +1104,9 @@ are not open, and 2026 is partial (cutoffs in §15). The rule is mechanical
   class of whoever held that seat during 2026 — the appointee or outgoing
   holder, whose term carries the seat's class (Brown 3 via appointed Jon
   Husted; El-Sayed, Flanagan, Andrews and the other 2026 winners 2 via the
-  outgoing holder). Computed in `src/transform/build_roster.py`, carried
+  outgoing holder). Computed in `receipts/transform/build_roster.py`, carried
   through `merge_dataset.py` and `config.yaml`, and re-derived independently
-  in `src/validate/verify_dataset.py` (check (n)): 0 mismatches across all
+  in `receipts/validate/verify_dataset.py` (check (n)): 0 mismatches across all
   664 rows; 120th class counts C1 33 / C2 32 / C3 34.
 - **Why not derive it on the page from FEC data.** Three render-time
   derivations were tested against the dataset and all fail: (a) "has a 2022
@@ -1191,8 +1191,8 @@ forward into the dataset.
 
 The bulk rebuild is the canonical dataset, and it only moves when the bulk files move.
 Between bulk pulls, late money arrives through three API routes that the bulk files
-cannot see yet. The freshness layer (`src/ingest/pull_freshness.py`, with
-`src/ingest/pull_f6.py` and `src/ingest/pull_f24.py`) reports that money in
+cannot see yet. The freshness layer (`receipts/ingest/pull_freshness.py`, with
+`receipts/ingest/pull_f6.py` and `receipts/ingest/pull_f24.py`) reports that money in
 `data/intermediate/freshness_snapshot.json` — labeled by source and date, **never merged into the
 dataset totals**. Full research in `research/freshness-research.md`.
 
@@ -1259,7 +1259,7 @@ everything else in the snapshot: labeled by source and date, **never merged
 into dataset totals**. First live confirmation: the Sunday Nov 15, 2026
 scheduled run.
 
-**Pre-flight gate (added Nov 12, 2026; `src/ingest/pull_gate.py`).** A
+**Pre-flight gate (added Nov 12, 2026; `receipts/ingest/pull_gate.py`).** A
 full `--all` is ~2,200–2,350 keyed calls, most returning nothing, so
 `--all` now runs a gate first: one global `GET /v1/filings/
 ?form_type=<F>&sort=-receipt_date` check per family — F6 gates the

@@ -77,7 +77,7 @@ The staged layout (Nov 12, 2026 restructure). Paths below are
 repo-relative; `config.yaml` is the single source of truth for shared
 values (committee IDs, cycles, paths, thresholds, API settings) — change
 a value there, never in a script. Scripts resolve all paths from the repo
-root via `src/common/config.py`, never from an absolute path or the
+root via `receipts/common/config.py`, never from an absolute path or the
 current working directory.
 
 ```
@@ -116,7 +116,7 @@ the-receipts/
 ├── research/                  # pull logs, verification notes, source research
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
-                               # from src/site/build_site.py; never hand-edited)
+                               # from receipts/site/build_site.py; never hand-edited)
                                # — live on GitHub Pages since Nov 12, 2026
 ```
 
@@ -170,7 +170,7 @@ the-receipts/
   identified candidate) and the excluded amounts are part of the method
   (methodology §4, §8), not an implementation detail.
 - **Freshness is an overlay, not part of the dataset.**
-  `src/ingest/pull_freshness.py` reports late money (Form 6 48-Hour
+  `receipts/ingest/pull_freshness.py` reports late money (Form 6 48-Hour
   Notices, F24 24/48-hour IE, totals refresh) into
   `data/intermediate/freshness_snapshot.json` — labeled by source and
   date, **never merged into dataset totals**. It is a separate entry
@@ -178,7 +178,7 @@ the-receipts/
   registered api.data.gov key (`FEC_API_KEY`); DEMO_KEY is spot-checks
   only and the driver refuses `--all` on it. `--all` is gated by
   default (one global `/filings/` check per family first —
-  `src/ingest/pull_gate.py`, state in committed
+  `receipts/ingest/pull_gate.py`, state in committed
   `data/source/freshness_state.json`); `--no-gate` forces the full run,
   and a gate error falls back to the full run, never to a skip.
 
@@ -191,7 +191,7 @@ A change to data or pipeline is not done until it passes this gate:
 
    ```sh
    ./fetch_snapshot.sh        # stages the snapshot named in baseline.json
-   python3 src/rebuild.py
+   python3 receipts/rebuild.py
    ```
 
    It runs the pipeline in order (roster → FEC lookup → money → UDP →
@@ -205,17 +205,17 @@ A change to data or pipeline is not done until it passes this gate:
    Python 3.11 / 3.12 / 3.13 (CSV md5
    `6ada15a535ce1865b9485ff2f2b4ebbf`, JSON md5
    `f5b46dbcb954c4443c4fa9edb81797c1`).
-2. **All audits in `src/validate/verify_dataset.py` pass** (per-cycle
+2. **All audits in `receipts/validate/verify_dataset.py` pass** (per-cycle
    sums for every column family, roster totals, all rank columns, clean
    counts and the generalized clean rule, tiers, 2026 columns,
    opposition, dedup, CSV↔JSON agreement, row order). Exit non-zero on
    any mismatch. **Every data-dependent expected figure lives in
    `data/source/baseline.json`**, never as a literal in a script or in
-   `config.yaml` (`src/common/baseline.py`; config keeps policy values
+   `config.yaml` (`receipts/common/baseline.py`; config keeps policy values
    only — thresholds, presets, committee IDs).
 2a. **New FEC data is accepted only by a reviewed rebaseline:** publish
    a snapshot ("FEC snapshot" workflow), `./fetch_snapshot.sh <tag>`,
-   set `data_as_of`, `python3 src/rebuild.py --rebaseline`, and review
+   set `data_as_of`, `python3 receipts/rebuild.py --rebaseline`, and review
    `git diff data/source/baseline.json` — every figure that moved, old
    next to new, including what the public page says (`site.*`). The
    rebaseline still enforces cross-step agreement (two steps that
@@ -273,7 +273,7 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
 
 - **`ci.yml`** — push + pull request to `master`. Checkout, Python 3.12,
   `pip install -r requirements.txt`, `./fetch_snapshot.sh` (the pinned
-  snapshot, sha256-verified), `python3 src/rebuild.py`, then **fail
+  snapshot, sha256-verified), `python3 receipts/rebuild.py`, then **fail
   unless the rebuild reproduces the committed dataset byte-identically**
   (`git diff --exit-code` on `congress-money-tracker.csv` / `.json`),
   then `build_site.py`, **fail if the committed `docs/index.html` is not
@@ -288,10 +288,10 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
 - **`fec-refresh.yml`** — weekly (Sundays 09:17 UTC), on demand, or on
   a push to `refresh-now`. Automates §5 step 2a: snapshot today's bulk
   and candidate files (via `fec-snapshot.yml`), stage them, set
-  `data_as_of`, `python3 src/rebuild.py --rebaseline`, and, if any
+  `data_as_of`, `python3 receipts/rebuild.py --rebaseline`, and, if any
   baseline figure moved, open a pull request from a fresh
   `fec-refresh-<date>-r<run>` branch listing every moved figure
-  (`src/validate/baseline_changes.py`), start CI on it, and close any
+  (`receipts/validate/baseline_changes.py`), start CI on it, and close any
   older open refresh pull request as superseded. **It never pushes to
   `master` and never force-pushes**; merging is Craig's call (§6), after
   re-judging `verification.coverage_end`, which the workflow leaves as
@@ -309,7 +309,7 @@ workflow runs it now; it is run by hand with the `FEC_API_KEY` key
 (registered by Craig at api.data.gov, also a repository secret since
 Nov 12, 2026; rotate it in Settings → Secrets and variables → Actions if
 it leaks or expires). `--all` runs the six F24 committee sweeps (gated
-per committee by `src/ingest/pull_gate.py`); `--no-gate` forces the full run.
+per committee by `receipts/ingest/pull_gate.py`); `--no-gate` forces the full run.
 
 **Workflow files change like any other code** — one change per commit
 (§2), and a workflow change is its own commit, never bundled with a data

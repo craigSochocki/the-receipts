@@ -1,6 +1,6 @@
 # Opposition credit — rule and checks
 
-Moved verbatim from the header of `src/transform/compute_opposition.py` (Nov 23, 2026), when the step moved onto the store as `src/store/opposition.py`. It also printed spot checks to the console; the NY-16 2024 self-opposition ($84,325.84 opposing Latimer) and the PA-12 2022 name-only backed candidate (Steven Irwin) are recorded in methodology.md, and the MI-Sen 2026 phase case is described in the header below.
+Moved verbatim from the header of `src/transform/compute_opposition.py` (Nov 23, 2026), when the step moved onto the store as `receipts/store/opposition.py`. It also printed spot checks to the console; the NY-16 2024 self-opposition ($84,325.84 opposing Latimer) and the PA-12 2022 name-only backed candidate (Steven Irwin) are recorded in methodology.md, and the MI-Sen 2026 phase case is described in the header below.
 
 ```
 Opposition-credit computation for the Congress money tracker.
