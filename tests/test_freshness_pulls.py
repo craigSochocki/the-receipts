@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from receipts.common.config import repo_root
+from receipts.common.settings import repo_root
 from receipts.ingest import pull_f6, pull_f24
 from receipts.ingest import pull_freshness as freshness
 

@@ -1,10 +1,11 @@
 import copy
+import subprocess
+import sys
 
 import pytest
 import yaml
 
-from receipts.common.config import repo_root
-from receipts.common.settings import ConfigError, parse, settings
+from receipts.common.settings import ConfigError, parse, repo_root, settings
 
 ROOT = repo_root()
 
@@ -48,3 +49,17 @@ def test_a_wrong_type_names_itself():
     raw['cycles']['current'] = '2026'
     with pytest.raises(ConfigError, match=r"cycles\.current: expected int, got '2026'"):
         parse(raw, ROOT)
+
+
+def test_no_module_reads_the_config_at_import():
+    script = (
+        'import importlib, pkgutil, receipts\n'
+        'from receipts.common import settings\n'
+        'for m in pkgutil.walk_packages(receipts.__path__, "receipts."):\n'
+        '    importlib.import_module(m.name)\n'
+        'print(settings.settings.cache_info().currsize)\n'
+    )
+    result = subprocess.run(
+        [sys.executable, '-c', script], capture_output=True, text=True, check=True, cwd=ROOT
+    )
+    assert result.stdout.strip() == '0', 'a module called settings() at import'

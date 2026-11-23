@@ -77,8 +77,8 @@ The staged layout (Nov 12, 2026 restructure). Paths below are
 repo-relative; `config.yaml` is the single source of truth for shared
 values (committee IDs, cycles, paths, thresholds, API settings) — change
 a value there, never in a script. Scripts resolve all paths from the repo
-root via `receipts/common/config.py`, never from an absolute path or the
-current working directory.
+root via `settings()` in `receipts/common/settings.py`, never from an absolute path,
+the current working directory, or at import time.
 
 ```
 the-receipts/

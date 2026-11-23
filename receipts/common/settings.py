@@ -7,7 +7,7 @@ with its dotted name.
 """
 
 from collections.abc import Mapping
-from dataclasses import asdict, dataclass, fields, is_dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from functools import cache
 from pathlib import Path
 from types import MappingProxyType
@@ -15,7 +15,6 @@ from typing import Any, get_args, get_origin, get_type_hints
 
 import yaml
 
-from receipts.common.config import repo_root
 from receipts.common.files import read_json
 from receipts.domain.clean_2026 import TolerancePreset
 
@@ -162,6 +161,11 @@ class Settings:
         return path.relative_to(self.root)
 
 
+def repo_root() -> Path:
+    """The directory holding config.yaml: two levels above receipts/common/."""
+    return Path(__file__).resolve().parents[2]
+
+
 @cache
 def settings() -> Settings:
     root = repo_root()
@@ -225,24 +229,3 @@ def load_roster():
 
 def load_double_count_records():
     return read_json(settings().paths.dedup_applied)
-
-
-_LEGACY_NAMES = {
-    'ROOT': lambda s: s.root,
-    'PATHS': lambda s: s.paths,
-    'CAREER_CYCLES': lambda s: s.cycles.career,
-    'IE_CYCLES': lambda s: s.cycles.ie,
-    'CURRENT_CYCLE': lambda s: s.cycles.current,
-    'AIPAC_PAC': lambda s: s.committees.aipac_pac,
-    'WINRED': lambda s: s.committees.winred,
-    'UDP': lambda s: s.committees.udp,
-    'DATA_AS_OF': lambda s: s.data_as_of,
-    'COVERAGE_END': lambda s: asdict(s.verification.coverage_end),
-}
-
-
-def __getattr__(name):
-    """The module constants older code imports; removed once every package uses settings()."""
-    if name in _LEGACY_NAMES:
-        return _LEGACY_NAMES[name](settings())
-    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')

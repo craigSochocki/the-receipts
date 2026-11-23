@@ -1,7 +1,9 @@
 # The Receipts — single source of truth for values shared across pipeline scripts.
 #
 # Rules:
-# - Every script loads this file through receipts/common/config.py (load_config()).
+# - Every script reads this file through settings() (receipts/common/settings.py),
+#   on first use, never at import. Its classes must match this file exactly:
+#   a new key is added there too, or the run stops naming it.
 # - All paths are relative to the repo root (the directory containing this file).
 # - Scripts resolve paths from the repo root, never from an absolute path and
 #   never from the current working directory.

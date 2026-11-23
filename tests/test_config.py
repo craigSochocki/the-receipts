@@ -1,6 +1,6 @@
 import yaml
 
-from receipts.common.config import repo_root
+from receipts.common.settings import repo_root
 
 
 class NoDuplicateKeysLoader(yaml.SafeLoader):

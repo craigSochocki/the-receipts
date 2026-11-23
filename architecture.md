@@ -73,7 +73,8 @@ not harder.
   key from `FEC_API_KEY` with `DEMO_KEY` fallback, timeout, request delay),
   party-code map, verification constants (prior UDP cycle totals), and
   reporting thresholds.
-- `receipts/common/config.py` loads it; every script resolves paths from the repo root
+- `settings()` in `receipts/common/settings.py` loads it, typed and checked
+  key by key, on first use; every script resolves paths from the repo root
   (derived from the script's own location), never from an absolute path and
   never from the current working directory. The repo runs from any checkout
   location. No script may re-hardcode a value from `config.yaml`; a new
@@ -171,7 +172,7 @@ Eventually the data does not live in git at all: the tables above live in
 a database, and the repo holds code, config, and the published dataset
 only. That move is NOT built yet. The Nov 12, 2026 restructure prepares
 for it: every script reads and writes data through the `config.yaml`
-paths layer (`receipts/common/config.py`), never through hardcoded repo-relative
+paths layer (`settings().paths`), never through hardcoded repo-relative
 file paths, so pointing the pipeline at a database-backed store is a
 config change, not a rewrite of every script. Until then, the on-disk
 layout mirrors the future tables — `data/source/` (inputs),

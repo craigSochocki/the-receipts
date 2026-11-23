@@ -9,7 +9,7 @@ its entry.
 from radon.complexity import cc_visit
 from radon.metrics import mi_visit
 
-from receipts.common.config import repo_root
+from receipts.common.settings import repo_root
 
 MAX_COMPLEXITY = 20  # radon grade C or better
 MIN_MAINTAINABILITY = 20  # radon grade A
