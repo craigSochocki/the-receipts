@@ -9,6 +9,7 @@ certifi==2026.11.20
 charset_normalizer==3.5.3
 click==8.5.1
 colorama==0.4.6
+coverage==7.17.5
 daff==1.4.2
 dbt-adapters==1.24.6
 dbt-common==1.39.0
@@ -50,6 +51,7 @@ protobuf==6.33.6
 pydantic-core==2.50.5
 pydantic==2.14.4
 pygments==2.21.0
+pytest-cov==7.1.0
 pytest==9.2.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.4
