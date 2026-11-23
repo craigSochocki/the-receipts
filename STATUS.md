@@ -148,7 +148,7 @@
   clean table, full table): party chip (D blue, R red, I gray, other stored labels
   gray with the label shown, always letter + color) and outcome label (Won / Uncalled
   / Not returning, derived from `in_120th`; "Not returning" is not "Lost" — see
-  methodology §8 item 15). Verifier + smoke test cover the front-door figures (with
+  methodology §8 item 21). Verifier + smoke test cover the front-door figures (with
   a negative test), the mode hash, and the marks (spot-checks Stevens D / Not
   returning, El-Sayed D / Won, Guthrie R / Won, Hernández PPD / Won). Dataset
   byte-identical through the build (csv md5 2e93fa51f148865a9003a75996830bea, json
@@ -404,6 +404,21 @@
 
 ## Open questions
 
+- Method follow-ups moved out of `methodology.md` on Nov 23, 2026, when it
+  became figure-free (evidence in `research/methodology-evidence.md`):
+  - FEC API rate-limit raise to 120 calls/min (7,200/hour), requested from
+    apiinfo@fec.gov — pending; a full ungated freshness `--all` cannot finish
+    inside one hourly window on a standard key until it is granted.
+  - Stage the 2010–2020 IE files, so all-IE "career" covers more than
+    2022–2026 (methodology §8 item 20).
+  - Repeat the 17Z refund check against `oth` for 2022 and 2026; it was run
+    for 2024 only (§8 item 10).
+  - Name-based attribution for systematic blank-`cand_id` IE filers such as
+    Congressional Leadership Fund (§8 item 19).
+  - Unresolved residuals: AIPAC 2024 and UDP 2024 vs OpenSecrets (§8 items
+    5–6), and the Scalise-type negative other-committee residual (§8 item 18).
+  - Elaine Luria's real 2026 campaign (`H6VA02198`) is unlinked, so she stays
+    unverified; linking it is a roster change and Craig's call (§14).
 - Freshness F24 gap — CLOSED Nov 12, pending live confirmation on the Sunday
   Nov 15 scheduled run. A bare `pull_freshness.py --all` — the form the
   scheduled refresh runs — used to run NO F24 sweeps, because the driver's

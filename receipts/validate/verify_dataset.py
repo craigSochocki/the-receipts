@@ -48,7 +48,7 @@ figure comes from data/source/baseline.json; none is written here.
       tolerance tiers recompute; the tier counts, corp-only splits and
       2028-target counts under each preset match the baseline.
 
-Caveat (methodology §13): this verifies the dataset against its own
+Caveat (AGENTS.md §5): this verifies the dataset against its own
 definitions. It cannot catch a missing dimension — e.g. the
 self-funding blind spot (candidate loans and contributions were never
 pulled, so no audit here would have flagged their absence). A new money

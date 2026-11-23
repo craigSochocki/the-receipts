@@ -148,7 +148,7 @@ verification:
   # Bulk coverage end dates, by column family (see methodology §15).
   # The freshness layer covers activity after these dates; the bulk
   # re-pull replaces it. Judged from the pinned snapshot at each
-  # rebaseline, not computed; the evidence is in methodology §8.1.
+  # rebaseline, not computed; the evidence is in research/methodology-evidence.md §8.1.
   coverage_end:
     committee_money_pas2: "2026-10-14"   # corporate, AIPAC, other-committee
     weball: "2026-10-14"                 # individual, self-funding, topline
