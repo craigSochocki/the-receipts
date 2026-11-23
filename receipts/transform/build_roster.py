@@ -7,7 +7,11 @@ Sources:
  - Returning former members: legislators-historical.yaml via historical_lookup.json
 """
 
-import json, re, unicodedata, collections
+import collections
+import json
+import re
+import unicodedata
+
 import yaml
 
 from receipts.common.config import load_config

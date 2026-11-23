@@ -14,7 +14,8 @@ from collections import Counter, defaultdict
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
-from receipts.common.settings import AIPAC_PAC, IE_CYCLES as CYCLES, PATHS, load_roster
+from receipts.common.settings import AIPAC_PAC, PATHS, load_roster
+from receipts.common.settings import IE_CYCLES as CYCLES
 from receipts.store.read import connect
 from receipts.store.udp_rows import UdpRows
 

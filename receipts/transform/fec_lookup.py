@@ -5,7 +5,13 @@ variable (config fec_api.api_key_default as fallback). Matches on
 office + state + district + party; stops on rate limiting and leaves the
 rest empty rather than guessing."""
 
-import json, time, urllib.request, urllib.parse, unicodedata, re, os
+import json
+import os
+import re
+import time
+import unicodedata
+import urllib.parse
+import urllib.request
 
 from receipts.common.config import load_config
 

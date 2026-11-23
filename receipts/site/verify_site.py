@@ -57,15 +57,16 @@ import tempfile
 import threading
 import time
 import urllib.request
-from functools import partial
 from datetime import datetime
+from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from receipts.common.config import load_config
 from receipts.common.baseline import expected as baseline_figure
+from receipts.common.config import load_config
+from receipts.site.build_site import SCALARS, build_opp_payload
+from receipts.site.build_site import main as build_main
 from receipts.site.expectations import figure_literals, site_expectations
-from receipts.site.build_site import SCALARS, build_opp_payload, main as build_main
 
 CFG = load_config()
 ROOT = CFG['_root']

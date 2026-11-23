@@ -15,6 +15,8 @@ from receipts.common.baseline import expected
 from receipts.common.files import write_csv, write_json
 from receipts.common.settings import (
     CAREER_CYCLES as CYCLES,
+)
+from receipts.common.settings import (
     PATHS,
     load_double_count_records,
     load_roster,

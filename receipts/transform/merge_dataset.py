@@ -101,11 +101,11 @@ Internal consistency asserts (fail loudly, exit non-zero):
 - 664 rows after the collapse.
 """
 
-import csv, json
+import csv
+import json
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
-
 
 from receipts.common.config import load_config
 

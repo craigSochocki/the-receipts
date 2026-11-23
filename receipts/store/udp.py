@@ -10,7 +10,8 @@ from collections import defaultdict
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_csv, write_json
-from receipts.common.settings import CURRENT_CYCLE, IE_CYCLES as CYCLES, PATHS, load_roster
+from receipts.common.settings import CURRENT_CYCLE, PATHS, load_roster
+from receipts.common.settings import IE_CYCLES as CYCLES
 from receipts.store.udp_rows import UdpRows
 
 ATTRIBUTION = 'name_state_district_office_match; cand_id blank in FEC file'

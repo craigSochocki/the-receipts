@@ -83,10 +83,9 @@ import urllib.error
 import urllib.parse
 from datetime import datetime, timezone
 
-
-from receipts.ingest import pull_f24, pull_f6, pull_gate
 from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
+from receipts.ingest import pull_f6, pull_f24, pull_gate
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -414,7 +413,7 @@ def main():
         help='snapshot path (default data/intermediate/freshness_snapshot.json)',
     )
     args = ap.parse_args()
-    if args.all and API_KEY == CFG['fec_api']['api_key_default']:
+    if args.all and CFG['fec_api']['api_key_default'] == API_KEY:
         sys.exit(
             'ERROR: --all needs a registered api.data.gov key '
             '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
@@ -423,7 +422,7 @@ def main():
     dataset = json.load(open(ROOT / CFG['paths']['dataset_json']))
     by_key = {r['person_key']: r for r in dataset}
     by_candidate = {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
-    if args.f24_committee_sweep and API_KEY == CFG['fec_api']['api_key_default']:
+    if args.f24_committee_sweep and CFG['fec_api']['api_key_default'] == API_KEY:
         sys.exit(
             'ERROR: --f24-committee-sweep needs a registered api.data.gov key '
             '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
@@ -445,7 +444,7 @@ def main():
             'window_start': WINDOW_START,
             'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
             'api_key_type': (
-                'demo' if API_KEY == CFG['fec_api']['api_key_default'] else 'registered'
+                'demo' if CFG['fec_api']['api_key_default'] == API_KEY else 'registered'
             ),
             'cadence_note': (
                 'Final 20 days before an election: daily. '
@@ -579,7 +578,7 @@ def main():
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': WINDOW_START,
         'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
-        'api_key_type': ('demo' if API_KEY == CFG['fec_api']['api_key_default'] else 'registered'),
+        'api_key_type': ('demo' if CFG['fec_api']['api_key_default'] == API_KEY else 'registered'),
         'cadence_note': (
             'Final 20 days before an election: daily. '
             'Cycle in progress outside final 20 days: weekly. '

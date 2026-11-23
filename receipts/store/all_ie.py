@@ -16,10 +16,12 @@ from receipts.common.files import write_csv, write_json
 from receipts.common.settings import (
     CURRENT_CYCLE,
     DATA_AS_OF,
-    IE_CYCLES as CYCLES,
     PATHS,
     UDP,
     load_roster,
+)
+from receipts.common.settings import (
+    IE_CYCLES as CYCLES,
 )
 from receipts.domain.blank_candidates import name_key, roster_matches
 from receipts.store.read import connect

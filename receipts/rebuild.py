@@ -66,8 +66,8 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-from receipts.common.config import load_config
 from receipts.common import baseline
+from receipts.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']

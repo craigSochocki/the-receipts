@@ -7,7 +7,8 @@ from pathlib import Path
 import duckdb
 
 from receipts.common.files import write_csv, write_json
-from receipts.common.settings import CAREER_CYCLES as CYCLES, PATHS, load_double_count_records
+from receipts.common.settings import CAREER_CYCLES as CYCLES
+from receipts.common.settings import PATHS, load_double_count_records
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
 from receipts.domain.weball_double_counts import correction_notes

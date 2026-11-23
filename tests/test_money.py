@@ -1,4 +1,4 @@
-from receipts.domain.money import Money, ZERO
+from receipts.domain.money import ZERO, Money
 
 
 def test_parses_fec_amounts_exactly():

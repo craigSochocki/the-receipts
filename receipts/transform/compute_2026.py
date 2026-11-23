@@ -154,9 +154,8 @@ the clean counts do not match the expectations in config
 import json
 from collections import Counter
 
-
-from receipts.common.config import load_config
 from receipts.common.baseline import expected
+from receipts.common.config import load_config
 from receipts.store.races import races_in
 
 CFG = load_config()

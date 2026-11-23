@@ -11,6 +11,8 @@ research/self-funding-notes.md.
 from receipts.common.files import text_or_blank, text_or_none, write_csv, write_json
 from receipts.common.settings import (
     CAREER_CYCLES as CYCLES,
+)
+from receipts.common.settings import (
     CURRENT_CYCLE,
     DATA_AS_OF,
     PATHS,

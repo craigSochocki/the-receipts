@@ -88,8 +88,8 @@ from decimal import Decimal
 import pandas as pd
 import yaml
 
-from receipts.common.config import load_config
 from receipts.common.baseline import expected as baseline_figure
+from receipts.common.config import load_config
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -786,9 +786,7 @@ def main():
         )
         # Net-negative clean rule: no NET dirty money (dirty_2026 <= 0)
         # reads clean; the unopposed test is the same net test.
-        if r['in_120th'] == 'yes' and not has_linkage:
-            expect['clean_2026'] = None
-        elif expect['unopposed_2026'] and expect['dirty_2026'] <= 0:
+        if r['in_120th'] == 'yes' and not has_linkage or expect['unopposed_2026'] and expect['dirty_2026'] <= 0:
             expect['clean_2026'] = None
         else:
             expect['clean_2026'] = expect['dirty_2026'] <= 0
