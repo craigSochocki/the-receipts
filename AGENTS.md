@@ -90,6 +90,9 @@ the-receipts/
 │   ├── common/                # config loader, baseline
 │   ├── domain/                # the rules, free of file formats: Money,
 │   │                          # which committee money counts
+│   ├── store/                 # silver tables (DuckDB, every FEC candidate and
+│   │                          # committee) + gold views; check_gold.py proves
+│   │                          # each view matches the old pipeline byte for byte
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:

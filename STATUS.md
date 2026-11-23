@@ -17,7 +17,16 @@
   float drift is latent, not active; the IE reader
   (`src/fec/independent_expenditures.py`) is exact by construction and
   reproduces the pipeline's per-candidate totals and exclusion counts
-  exactly. The three old IE scripts are left as they are until retired. **Reconciliation fix (Craig, Nov 22):** the
+  exactly. The three old IE scripts are left as they are until retired. **Silver store, first gold view (Nov 22):**
+  `src/store/build_store.py` loads every FEC candidate summary,
+  committee, contribution to a candidate (6.56M, each counted once,
+  exclusions labeled) and independent expenditure into
+  `data/store/receipts.duckdb` (~124 MB, ~90 s). Weball is kept as
+  filed; the 586 double-count corrections are rows in
+  `summary_corrections`. The `accepted_money` view reproduces
+  `money_pas2_weball.csv` and `money_per_cycle.json` (after
+  `apply_dedup`) byte for byte; CI checks it (`check_gold.py`). Next:
+  seats/terms/races, then the other gold views. **Reconciliation fix (Craig, Nov 22):** the
   weball col-26 comparison now excludes party committees, as col 26
   does (Form 3 line 11(b) vs 11(c)), and reports party money as its own
   line (`pas2_party_committees_cents`). It had been including them,
