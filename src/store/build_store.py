@@ -8,9 +8,9 @@ import duckdb
 import pandas as pd
 import yaml
 
-from src.common.settings import (AIPAC_PAC, CAREER_CYCLES, IE_CYCLES, PATHS,
+from src.common.settings import (AIPAC_PAC, CAREER_CYCLES, IE_CYCLES, PATHS, WINRED,
                                  load_double_count_records, load_roster)
-from src.domain.committee_classes import committee_class
+from src.domain.committee_classes import committee_class, unclassified_kind
 from src.domain.committee_money import is_voided_earmark, reported_once
 from src.domain.outside_spending import exclusion, latest_filings
 from src.domain.roster import candidate_ids
@@ -83,13 +83,21 @@ def counted_once(summaries, dedup_records, person_keys):
     return counted, corrections
 
 
-def committee_rows():
+def read_counts(file, cycle, bulk_file):
+    return {'file': file, 'cycle': cycle, 'rows_read': bulk_file.rows_read,
+            'malformed_rows': bulk_file.malformed_rows}
+
+
+def committee_rows(files_read):
     for cycle in CAREER_CYCLES:
-        for c in committees(BULK, cycle):
+        registry = committees(BULK, cycle)
+        for c in registry:
             yield {'committee_id': c.committee_id, 'cycle': cycle, 'name': c.name,
                    'committee_type': c.committee_type, 'designation': c.designation,
                    'organization_type': c.organization_type,
-                   'committee_class': committee_class(c, AIPAC_PAC).value}
+                   'committee_class': committee_class(c, AIPAC_PAC).value,
+                   'kind': unclassified_kind(c, WINRED)}
+        files_read.append(read_counts('cm', cycle, registry))
 
 
 def contribution_row(contribution, cycle, excluded_because):
@@ -99,7 +107,7 @@ def contribution_row(contribution, cycle, excluded_because):
             'date': contribution.date, 'excluded_because': excluded_because}
 
 
-def contribution_rows():
+def contribution_rows(files_read):
     """Every contribution to a candidate, each counted once.
 
     Voided earmarks are set aside before duplicates are matched, as the
@@ -107,7 +115,8 @@ def contribution_rows():
     """
     for cycle in CAREER_CYCLES:
         filed_once = reported_once()
-        for contribution in committee_contributions(BULK, cycle):
+        filed = committee_contributions(BULK, cycle)
+        for contribution in filed:
             if not contribution.is_to_candidate:
                 continue
             if is_voided_earmark(contribution):
@@ -118,6 +127,7 @@ def contribution_rows():
             yield contribution_row(contribution, cycle, None)
         for contribution in filed_once.dropped:
             yield contribution_row(contribution, cycle, REPORTED_AGAIN)
+        files_read.append(read_counts('pas2', cycle, filed))
 
 
 def identified_candidates(roster):
@@ -214,8 +224,10 @@ def main():
         insert(db, 'counted_summaries',
                (summary_row(key, s, counted[key]) for key, (s, _) in summaries.items()))
         insert(db, 'summary_corrections', corrections)
-        insert(db, 'committees', committee_rows())
-        insert(db, 'committee_contributions', contribution_rows())
+        files_read = []
+        insert(db, 'committees', committee_rows(files_read))
+        insert(db, 'committee_contributions', contribution_rows(files_read))
+        insert(db, 'files_read', files_read)
         insert(db, 'outside_spending', outside_spending_rows(roster))
         insert(db, 'seats', seats)
         insert(db, 'terms', terms)

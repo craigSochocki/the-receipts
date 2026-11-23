@@ -276,7 +276,7 @@ The points that matter for interpreting the numbers:
   Guard: the Curtis 2024 extension (§8.15) is enforced in the pull — if the kept-minus-
   dropped arithmetic for cols 6–9 does not come out to exactly $107,207.83, the pull
   fails loudly rather than silently emitting wrong figures.
-- **Other-committee pull (`src/ingest/pull_other_committees.py`).** Same pas2+cm join as the
+- **Other-committee pull (`src/store/other_committees.py`, read from the store).** Same pas2+cm join as the
   corporate pull, same dedup key, but the classification inverts it: everything that is
   not corporate and not the AIPAC PAC, split into the seven classes of §2. The
   `other_unclassified` class is 19.3% of the total; its composition (career): Q/N

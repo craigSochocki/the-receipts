@@ -92,12 +92,12 @@ the-receipts/
 │   │                          # which committee money counts
 │   ├── store/                 # silver tables (DuckDB, every FEC candidate and
 │   │                          # committee) + the views read from them;
-│   │                          # check_store.py checks seats and terms
+│   │                          # other_committees.py; check_store.py checks seats and terms
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
 │   │                          # pull_udp, pull_self_funding,
-│   │                          # pull_other_committees, pull_all_ie,
+│   │                          # pull_all_ie,
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
 │   │                          # compute_opposition,

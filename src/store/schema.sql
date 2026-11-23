@@ -84,6 +84,7 @@ CREATE TABLE committees (  -- cm
     designation        VARCHAR,
     organization_type  VARCHAR,
     committee_class    VARCHAR NOT NULL,
+    kind               VARCHAR NOT NULL,  -- finer than class: winred_conduit, super_pacs, ...
     PRIMARY KEY (committee_id, cycle)
 );
 
@@ -95,6 +96,14 @@ CREATE TABLE committee_contributions (  -- pas2, contributions to candidates
     is_earmark       BOOLEAN NOT NULL,
     date             VARCHAR,
     excluded_because VARCHAR  -- NULL when counted
+);
+
+CREATE TABLE files_read (  -- how many rows each FEC bulk file gave, and how many were malformed
+    file           VARCHAR NOT NULL,
+    cycle          INTEGER NOT NULL,
+    rows_read      BIGINT NOT NULL,
+    malformed_rows BIGINT NOT NULL,
+    PRIMARY KEY (file, cycle)
 );
 
 CREATE TABLE outside_spending (  -- independent expenditures, latest filing

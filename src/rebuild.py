@@ -22,7 +22,7 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.ingest.pull_udp              UDP independent-expenditure support
     src.ingest.pull_self_funding     self-funding + topline from weball
                                      (Curtis-corrected for cols 6-9)
-    src.ingest.pull_other_committees other-committee contributions (pas2 + cm)
+    src.store.other_committees       other-committee contributions, from the store
     src.ingest.pull_all_ie           all independent expenditures 2022-2026
                                      (+ top committees per person)
     src.transform.compute_opposition UDP opposition credit (runs BEFORE the
@@ -80,7 +80,7 @@ STEPS = [
     'src.store.accepted_money',
     'src.ingest.pull_udp',
     'src.ingest.pull_self_funding',
-    'src.ingest.pull_other_committees',
+    'src.store.other_committees',
     'src.ingest.pull_all_ie',
     'src.transform.compute_opposition',
     'src.transform.merge_dataset',

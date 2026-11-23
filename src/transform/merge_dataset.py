@@ -13,7 +13,7 @@ Inputs (all staged; see config.yaml `paths`):
   for cols 6-9 via the recorded dedup extension).
 - `other_committees_per_cycle.json` + `other_committees.csv` — other
   committee contributions from pas2 + cm (from
-  `pull_other_committees.py`).
+  `src/store/other_committees.py`).
 - `all_ie_per_cycle.json` + `all_ie.csv` + `all_ie_top_committees.json`
   — all independent expenditures 2022-2026 (from `pull_all_ie.py`).
 - `opposition-computed.json` — UDP opposition credit (from
