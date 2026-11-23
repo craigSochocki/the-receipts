@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Build the silver store (DuckDB) from the pinned FEC snapshot and the roster."""
 
+import csv
+import re
 from collections import defaultdict
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import duckdb
@@ -278,6 +281,32 @@ def check_candidate_snapshot():
         )
 
 
+def file_and_cycle(path):
+    """'pas2/pas224.zip' -> ('pas2', 2024); 'ie/2022/independent_expenditure_2022.csv' -> ('ie', 2022)."""
+    file, *_, name = path.split('/')
+    if year := re.search(r'\d{4}', name):
+        return file, int(year[0])
+    two_digits = int(Path(name).stem.removeprefix(file))
+    return file, (1900 if two_digits >= 50 else 2000) + two_digits
+
+
+def source_file_rows():
+    with open(BULK / 'PROVENANCE.tsv') as f:
+        for row in csv.DictReader(f, delimiter='\t'):
+            file, cycle = file_and_cycle(row['path'])
+            modified = row['last_modified']
+            yield {
+                'file': file,
+                'cycle': cycle,
+                'path': row['path'],
+                'last_modified': parsedate_to_datetime(modified).replace(tzinfo=None)
+                if modified
+                else None,
+                'bytes': int(row['bytes']),
+                'sha256': row['sha256'],
+            }
+
+
 def double_count_rows(dedup_records):
     for record in dedup_records:
         for dropped_id in record['dropped_ids']:
@@ -345,6 +374,7 @@ def main():
         insert(db, 'committee_contributions', contribution_rows(files_read))
         insert(db, 'outside_spending', outside_spending_rows(roster, files_read))
         insert(db, 'files_read', files_read)
+        insert(db, 'source_files', source_file_rows())
         insert(db, 'seats', seats)
         insert(db, 'terms', terms)
         insert(db, 'candidacies', candidacies)
