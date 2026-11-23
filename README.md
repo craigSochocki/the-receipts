@@ -32,7 +32,7 @@ python3 receipts/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `build_store` → `accepted_money` → `udp` → `self_funding` →
+→ `build_store` → `models` (dbt) → `accepted_money` → `udp` → `self_funding` →
 `other_committees` → `all_ie` → `opposition` →
 `build_dataset` (merge → ranking → 2026, written once) → `verify_dataset` —
 and backs the current dataset up to
@@ -90,6 +90,12 @@ What each step does (each script documents its own rules in its header):
   `data/intermediate/roster_intermediate.json` and `data/intermediate/roster.json`.
 - `store/build_store.py` — the silver store (DuckDB): every FEC candidate,
   committee and filing, with exclusions labeled rather than dropped.
+- `store/models.py` — runs `dbt build` on `dbt/`: the SQL models over the
+  store (`dbt/models/`) and every test on them (keys, allowed values,
+  relationships, seat and term facts in `dbt/tests/`). A failed test stops
+  the rebuild. To explore lineage and column docs:
+  `RECEIPTS_STORE=data/store/receipts.duckdb dbt docs generate --project-dir dbt --profiles-dir dbt`
+  then `dbt docs serve` with the same flags.
 - `store/accepted_money.py` — the roster's career money, read from the
   store with the recorded weball double-count removed
   (`data/source/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
