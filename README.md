@@ -90,10 +90,13 @@ What each step does (each script documents its own rules in its header):
   `data/intermediate/roster_intermediate.json` and `data/intermediate/roster.json`.
 - `store/build_store.py` — the silver store (DuckDB): every FEC candidate,
   committee and filing, with exclusions labeled rather than dropped.
-- `store/models.py` — runs `dbt build` on `dbt/`: the SQL models over the
-  store (`dbt/models/`) and every test on them (keys, allowed values,
-  relationships, seat and term facts in `dbt/tests/`). A failed test stops
-  the rebuild. To explore lineage and column docs:
+- `store/models.py` — runs `dbt build` on `dbt/` in three passes: `silver`
+  (views over the store's tables, before the money steps that read them),
+  `marts` (tracked people, career money and ranks over the gold tables the
+  money steps write to the store's `gold` schema), and `published` (after
+  the dataset is written: the marts must agree with it). Every pass runs
+  its tests (keys, allowed values, relationships, seat and term facts in
+  `dbt/tests/`); a failed test stops the rebuild. To explore lineage and column docs:
   `RECEIPTS_STORE=data/store/receipts.duckdb dbt docs generate --project-dir dbt --profiles-dir dbt`
   then `dbt docs serve` with the same flags.
 - `store/accepted_money.py` — the roster's career money, read from the
