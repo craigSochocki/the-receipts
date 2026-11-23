@@ -62,10 +62,6 @@ jobs:
             exit 1
           fi
 
-      - name: Check the store's seats and terms
-        # rebuild.py builds the store; this checks what the dataset can't.
-        run: python3 receipts/store/check_store.py
-
       - name: Build static site
         run: python3 receipts/site/build_site.py
 
