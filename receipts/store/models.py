@@ -13,7 +13,7 @@ from receipts.common.settings import PATHS, ROOT
 
 PROJECT = ROOT / 'dbt'
 LAYERS = {
-    'silver': ['--select', 'source:store', 'path:models/silver'],
+    'silver': ['--select', 'source:store', 'path:models/silver', '--exclude', 'source:gold'],
     'marts': ['--select', 'source:gold', 'path:models/marts'],
 }
 

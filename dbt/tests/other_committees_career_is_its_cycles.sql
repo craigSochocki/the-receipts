@@ -1,0 +1,16 @@
+{{ career_mismatches(source('gold', 'other_committees_people'), source('gold', 'other_committees_per_cycle'), [
+    ['party_committees_career', 'party_committees'],
+    ['leadership_pacs_career', 'leadership_pacs'],
+    ['labor_pacs_career', 'labor_pacs'],
+    ['trade_pacs_career', 'trade_pacs'],
+    ['membership_pacs_career', 'membership_pacs'],
+    ['cooperative_pacs_career', 'cooperative_pacs'],
+    ['other_unclassified_career', 'other_unclassified'],
+    ['party_committees_earmark_transmitted_career', 'earmark_party_committees'],
+    ['leadership_pacs_earmark_transmitted_career', 'earmark_leadership_pacs'],
+    ['labor_pacs_earmark_transmitted_career', 'earmark_labor_pacs'],
+    ['trade_pacs_earmark_transmitted_career', 'earmark_trade_pacs'],
+    ['membership_pacs_earmark_transmitted_career', 'earmark_membership_pacs'],
+    ['cooperative_pacs_earmark_transmitted_career', 'earmark_cooperative_pacs'],
+    ['other_unclassified_earmark_transmitted_career', 'earmark_other_unclassified'],
+]) }}
