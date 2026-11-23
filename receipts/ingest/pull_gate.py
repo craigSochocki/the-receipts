@@ -137,23 +137,15 @@ import argparse
 import json
 import os
 import sys
-import time
-import urllib.error
-import urllib.parse
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
-from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
 from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
-API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
-API_BASE = 'https://api.open.fec.gov/v1'
-SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
-RETRY = retry_settings(CFG)
 WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
 GATE_CFG = (CFG.get('freshness') or {}).get('gate') or {}
 GATE_FAMILIES = GATE_CFG.get('families') or ['F6', 'F24', 'F3']
@@ -163,25 +155,6 @@ STATE_PATH = ROOT / (CFG['paths'].get('freshness_state') or 'data/source/freshne
 CM_PATH = ROOT / (GATE_CFG.get('committee_master_path') or 'data/raw/cm/2026/cm.txt')
 F24_SWEEP_CYCLE = CFG['freshness']['f24_committee_sweep_cycle']
 F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
-
-
-def api_get(path, params):
-    params = dict(params)
-    params['api_key'] = API_KEY
-    url = API_BASE + path + '?' + urllib.parse.urlencode(params)
-    time.sleep(SLEEP)
-    try:
-        with open_with_retry(
-            url,
-            timeout=CFG['fec_api']['request_timeout_seconds'],
-            retry=RETRY,
-            label=f'FEC API {path}',
-        ) as resp:
-            return json.load(resp)
-    except urllib.error.HTTPError as e:
-        raise SystemExit(
-            f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})'
-        )
 
 
 def _receipt_day(row):

@@ -78,45 +78,19 @@ import argparse
 import json
 import os
 import sys
-import time
-import urllib.error
-import urllib.parse
 from datetime import datetime, timezone
 
-from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
+from receipts.common.fec_api import API_KEY, api_get
 from receipts.common.files import read_json
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
 CFG = load_config()
 ROOT = CFG['_root']
-API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_default'])
-API_BASE = 'https://api.open.fec.gov/v1'
-SLEEP = max(CFG['fec_api']['sleep_between_requests_seconds'], 1.0)
-RETRY = retry_settings(CFG)
 WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
 BULK_WEBALL_END = str(CFG['verification']['coverage_end']['weball'])
 F24_SWEEP_CYCLE = CFG['freshness']['f24_committee_sweep_cycle']
 F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
-
-
-def api_get(path, params):
-    params = dict(params)
-    params['api_key'] = API_KEY
-    url = API_BASE + path + '?' + urllib.parse.urlencode(params)
-    time.sleep(SLEEP)
-    try:
-        with open_with_retry(
-            url,
-            timeout=CFG['fec_api']['request_timeout_seconds'],
-            retry=RETRY,
-            label=f'FEC API {path}',
-        ) as resp:
-            return json.load(resp)
-    except urllib.error.HTTPError as e:
-        raise SystemExit(
-            f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})'
-        )
 
 
 def principal_committees(candidate_id, cycle=2026):
