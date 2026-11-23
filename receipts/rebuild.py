@@ -17,6 +17,8 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
                                      writes roster.json
     receipts.store.build_store            silver store: every FEC candidate,
                                      committee and filing, in DuckDB
+    receipts.store.models                 dbt models over the store (dbt/), and
+                                          every test on them
     receipts.store.accepted_money         the roster's counted money, read from
                                      the store (double counts removed)
     receipts.store.udp                    UDP independent-expenditure support, from the store
@@ -80,6 +82,7 @@ STEPS = [
     'receipts.transform.build_roster',
     'receipts.transform.apply_fec_lookup',
     'receipts.store.build_store',
+    'receipts.store.models',
     'receipts.store.accepted_money',
     'receipts.store.udp',
     'receipts.store.self_funding',
@@ -208,6 +211,28 @@ def restore_manual_lookup_entries(snapshot_path):
     print(f'restored {len(manual)} found-manual lookup entries: {sorted(manual)}')
 
 
+ROSTER_STEP, OPPOSITION_STEP, VERIFY_STEP = STEPS[0], 'receipts.store.opposition', STEPS[-1]
+
+
+def run_live_lookup():
+    lookup_path = ROOT / CFG['paths']['fec_lookup_results']
+    snapshot = INTERMEDIATE / '.fec_lookup_snapshot.json'
+    shutil.copy2(lookup_path, snapshot)
+    try:
+        run(LOOKUP_STEP)
+        restore_manual_lookup_entries(snapshot)
+    finally:
+        snapshot.unlink(missing_ok=True)
+
+
+def check_opposition_support():
+    mismatches = read_json(ROOT / CFG['paths']['opposition_computed']).get('support_mismatches')
+    if mismatches:
+        raise SystemExit(
+            f'opposition support mismatches (vs current dataset): {mismatches}; rebuild aborted'
+        )
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
@@ -238,28 +263,14 @@ def main():
         baseline.start_rebaseline_run()
     backup_dataset()
 
-    run(STEPS[0])
-    if args.with_fec_lookup:
-        lookup_path = ROOT / CFG['paths']['fec_lookup_results']
-        snapshot = INTERMEDIATE / '.fec_lookup_snapshot.json'
-        shutil.copy2(lookup_path, snapshot)
-        try:
-            run(LOOKUP_STEP)
-            restore_manual_lookup_entries(snapshot)
-        finally:
-            snapshot.unlink(missing_ok=True)
-    for step in STEPS[1:9]:
-        run(step)
-    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
-    if opp.get('support_mismatches'):
-        raise SystemExit(
-            f'opposition support mismatches (vs current dataset): '
-            f'{opp["support_mismatches"]}; rebuild aborted'
-        )
-    for step in STEPS[9:]:
-        if step == 'receipts.validate.verify_dataset' and args.skip_verify:
+    for step in STEPS:
+        if step == VERIFY_STEP and args.skip_verify:
             continue
         run(step)
+        if step == ROSTER_STEP and args.with_fec_lookup:
+            run_live_lookup()
+        if step == OPPOSITION_STEP:
+            check_opposition_support()
     if args.rebaseline:
         # The baseline also pins what the page says, so the site is rebuilt and verified too.
         run('receipts.site.build_site')

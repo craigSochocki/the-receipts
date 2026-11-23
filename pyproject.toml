@@ -7,7 +7,7 @@ name = "the-receipts"
 version = "0.1.0"
 description = "Congress money tracker: FEC data to a static site"
 requires-python = ">=3.10"
-dependencies = ["pyyaml>=6.0", "pandas>=2.0", "duckdb>=1.1"]
+dependencies = ["pyyaml>=6.0", "pandas>=2.0", "duckdb>=1.1", "dbt-duckdb>=1.9"]
 
 [project.optional-dependencies]
 test = ["pytest>=8.0", "ruff>=0.15"]

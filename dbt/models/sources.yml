@@ -1,0 +1,62 @@
+version: 2
+
+sources:
+  - name: store
+    description: Silver tables loaded by receipts/store/build_store.py from the pinned FEC snapshot.
+    schema: main
+    tables:
+      - name: people
+        columns:
+          - name: person_key
+            data_tests: [unique, not_null]
+      - name: person_candidate_ids
+        columns:
+          - name: person_key
+            data_tests:
+              - relationships: {arguments: {to: "source('store', 'people')", field: person_key}}
+      - name: candidate_summaries
+        description: weball as filed, one row per candidate ID and cycle.
+        data_tests:
+          - unique: {arguments: {column_name: "candidate_id || '/' || cycle"}}
+      - name: counted_summaries
+        description: weball with the recorded double counts removed.
+        data_tests:
+          - unique: {arguments: {column_name: "candidate_id || '/' || cycle"}}
+      - name: committees
+        columns:
+          - name: committee_class
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [aipac, corporate, party_committees, leadership_pacs, labor_pacs,
+                             trade_pacs, membership_pacs, cooperative_pacs, other_unclassified]
+      - name: committee_contributions
+        columns:
+          - name: excluded_because
+            data_tests:
+              - accepted_values: {arguments: {values: [voided_earmark, reported_again]}}
+      - name: outside_spending
+        columns:
+          - name: excluded_because
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: [unregistered_committee, blank_candidate, candidate_not_identified,
+                             reported_again]
+      - name: summary_corrections
+      - name: summary_differences
+      - name: files_read
+      - name: seats
+        columns:
+          - name: seat_id
+            data_tests: [unique, not_null]
+      - name: terms
+        columns:
+          - name: seat_id
+            data_tests:
+              - relationships: {arguments: {to: "source('store', 'seats')", field: seat_id}}
+      - name: candidacies
+        columns:
+          - name: seat_id
+            data_tests:
+              - relationships: {arguments: {to: "source('store', 'seats')", field: seat_id}}

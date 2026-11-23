@@ -21,3 +21,5 @@ __pycache__/
 # Local virtualenv (created by ./init.sh)
 .venv/
 *.egg-info/
+dbt/target/
+dbt/logs/
