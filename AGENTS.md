@@ -325,6 +325,12 @@ in comments; history belongs in commit messages and `STATUS.md`,
 definitions in `methodology.md`. Much of the existing code predates
 this rule and is being refactored toward it.
 
+Tooling enforces the mechanical part: `ruff check receipts tests` and
+`ruff format --check receipts tests` must pass (CI runs both; the rules
+are in `pyproject.toml`). Run `ruff format receipts tests` before
+committing. A script does its work in `main()` under
+`if __name__ == '__main__':`, never at import.
+
 ## 10. Human workflow (Craig in VS Code)
 
 Craig works on this repo in VS Code on a local clone. The same rules
