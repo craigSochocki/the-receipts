@@ -2,6 +2,7 @@ from receipts.domain.clean_2026 import (
     UNLINKED,
     UNOPPOSED,
     TolerancePreset,
+    aipac_udp_flagged,
     race_label,
     races_and_unopposed,
     tier,
@@ -47,3 +48,10 @@ def test_tiers_under_a_preset():
     assert tier(False, False, 4000, 10000, PRESET) == 'below_threshold'
     assert tier(True, False, 0, 0, PRESET) == 'clean'
     assert tier(False, False, 6000, 0, PRESET) == 'below_threshold'
+
+
+def test_any_aipac_or_udp_dollar_flags_a_member():
+    assert aipac_udp_flagged(0.01, 0) is True
+    assert aipac_udp_flagged(0, 2500.0) is True
+    assert aipac_udp_flagged(0, 0) is False
+    assert aipac_udp_flagged(-15000.0, 0) is False  # a refund flags no one

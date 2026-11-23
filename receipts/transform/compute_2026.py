@@ -158,6 +158,7 @@ from receipts.domain.clean_2026 import (
     UNLINKED_NOTE,
     UNOPPOSED,
     UNOPPOSED_NOTE,
+    aipac_udp_flagged,
     race_label,
     races_and_unopposed,
     tier,
@@ -208,7 +209,7 @@ def money_2026(r, credit):
     }
     m['udp_benefit_2026'] = round(m['udp_support_2026'] + credit, 2)
     m['dirty_2026'] = round(m['corp_2026'] + m['aipac_direct_2026'] + m['udp_benefit_2026'], 2)
-    m['aipac_udp_flag_2026'] = bool(m['aipac_direct_2026'] > 0 or m['udp_benefit_2026'] > 0)
+    m['aipac_udp_flag_2026'] = aipac_udp_flagged(m['aipac_direct_2026'], m['udp_benefit_2026'])
     accepted = m['individual_2026'] + m['corp_2026'] + m['aipac_direct_2026']
     dirty_accepted = m['corp_2026'] + m['aipac_direct_2026']
     m['dep_share_2026'] = round(dirty_accepted / accepted, 4) if accepted > 0 else None

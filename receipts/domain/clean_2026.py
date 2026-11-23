@@ -69,6 +69,11 @@ def verdict(in_120th, linked, unopposed, dirty):
     return dirty <= 0, None
 
 
+def aipac_udp_flagged(aipac_direct, udp_benefit):
+    """Any AIPAC PAC direct or UDP benefit dollar in 2026 makes a member dirty under every preset."""
+    return aipac_direct > 0 or udp_benefit > 0
+
+
 def corporate_money_material(corporate, total_receipts, preset):
     """Corporate PAC money counts as dirty under a preset only above BOTH its dollar and its
     share-of-receipts thresholds; with no positive receipts the share is undefined."""
