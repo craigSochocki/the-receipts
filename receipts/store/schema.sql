@@ -109,11 +109,10 @@ CREATE TABLE committee_contributions (  -- pas2, contributions to candidates
     excluded_because VARCHAR  -- NULL when counted
 );
 
-CREATE TABLE files_read (  -- how many rows each FEC bulk file gave, and how many were malformed
+CREATE TABLE files_read (  -- how many rows each FEC bulk file gave (a malformed row stops the build)
     file           VARCHAR NOT NULL,
     cycle          INTEGER NOT NULL,
     rows_read      BIGINT NOT NULL,
-    malformed_rows BIGINT NOT NULL,
     columns        VARCHAR,  -- the header, for files that have one
     PRIMARY KEY (file, cycle)
 );

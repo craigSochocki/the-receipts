@@ -8,6 +8,7 @@ from receipts.domain.outside_spending import (
     exclusion,
     latest_filings,
 )
+from receipts.fec.bulk_file import LayoutChanged
 from receipts.fec.independent_expenditures import IndependentExpenditure, independent_expenditures
 
 
@@ -93,3 +94,13 @@ def test_reads_the_bulk_csv_into_named_records(tmp_path):
 
     assert [(e.candidate_id, e.amount, e.cycle) for e in parsed] == [('H1', Money(250000), 2026)]
     assert rows.rows_read == 1
+
+
+def test_a_missing_column_stops_the_read(tmp_path):
+    folder = tmp_path / '2026'
+    folder.mkdir()
+    header = ','.join(c for c in IndependentExpenditure._fields[:-1] if c != 'exp_amo')
+    (folder / 'independent_expenditure_2026.csv').write_text(header + '\n')
+
+    with pytest.raises(LayoutChanged, match='has no exp_amo column'):
+        list(independent_expenditures(tmp_path, 2026))

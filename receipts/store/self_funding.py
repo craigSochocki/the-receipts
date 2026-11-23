@@ -92,7 +92,7 @@ DIFFERING = (
     'SELECT person_key, cycle, kept_id, candidate_id, field, kept_cents, dropped_cents '
     'FROM summary_differences ORDER BY position'
 )
-WEBALL_READS = "SELECT SUM(rows_read), SUM(malformed_rows) FROM files_read WHERE file = 'weball'"
+WEBALL_READS = "SELECT SUM(rows_read) FROM files_read WHERE file = 'weball'"
 
 
 def read_store(roster_ids):
@@ -100,7 +100,7 @@ def read_store(roster_ids):
         counted = for_candidates(db, COUNTED, roster_ids)
         differing = db.execute(DIFFERING).fetchall()
         cells_zeroed = db.execute('SELECT count(*) FROM summary_corrections').fetchone()[0]
-        rows_read, malformed = db.execute(WEBALL_READS).fetchone()
+        (rows_read,) = db.execute(WEBALL_READS).fetchone()
     finances = {
         (candidate_id, cycle): CampaignFinances.from_weball(
             {field: Money(cents) for field, cents in zip(FINANCIAL_FIELDS, amounts, strict=True)}
@@ -111,7 +111,6 @@ def read_store(roster_ids):
     counts = {
         'weball_rows_scanned': int(rows_read),
         'weball_rows_matched_roster': len(counted),
-        'weball_bad_field_count_rows': int(malformed),
     }
     return finances, coverage_end, differing, cells_zeroed, counts
 

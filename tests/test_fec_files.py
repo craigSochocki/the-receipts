@@ -1,5 +1,7 @@
+import pytest
+
 from receipts.domain.money import Money
-from receipts.fec.bulk_file import BulkFile
+from receipts.fec.bulk_file import BulkFile, LayoutChanged
 from receipts.fec.committee_contributions import CommitteeContribution
 from receipts.fec.committees import Committee
 
@@ -14,17 +16,22 @@ def committee(**overrides):
     return Committee(**{**blank, **overrides})
 
 
-def test_bulk_file_names_fields_and_counts_malformed_rows(tmp_path):
+def test_bulk_file_names_fields(tmp_path):
     path = tmp_path / 'cm.txt'
-    good = '|'.join(['C001', 'ACME PAC'] + [''] * 7 + ['Q', '', '', 'C', '', ''])
-    path.write_text(good + '\nC002|too|short\n')
-    rows = BulkFile(path, Committee)
+    path.write_text('|'.join(['C001', 'ACME PAC'] + [''] * 7 + ['Q', '', '', 'C', '', '']) + '\n')
 
-    parsed = list(rows)
+    parsed = list(BulkFile(path, Committee))
 
     assert [c.committee_id for c in parsed] == ['C001']
     assert parsed[0].is_corporate_pac
-    assert (rows.rows_read, rows.malformed_rows) == (2, 1)
+
+
+def test_a_row_with_the_wrong_number_of_fields_stops_the_read(tmp_path):
+    path = tmp_path / 'cm.txt'
+    path.write_text('C002|too|short\n')
+
+    with pytest.raises(LayoutChanged, match='line 1 has 3 fields where Committee expects 15'):
+        list(BulkFile(path, Committee))
 
 
 def test_corporate_pac_needs_pac_type_and_corporate_sponsor():

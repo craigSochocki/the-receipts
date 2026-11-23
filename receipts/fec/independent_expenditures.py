@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import NamedTuple
 
 from receipts.domain.money import Money
+from receipts.fec.bulk_file import LayoutChanged
 
 SUPPORT, OPPOSE = 'S', 'O'
 
@@ -79,23 +80,35 @@ class IndependentExpenditure(NamedTuple):
         return (self.spe_id, transaction or f'blank:{self.position}')
 
 
+COLUMNS = IndependentExpenditure._fields[:-1]
+
+
 class ExpenditureFile:
     def __init__(self, path):
         self.path = path
         self.rows_read = 0
-        self.malformed_rows = 0
         self.columns = None
 
     def __iter__(self):
         with open(self.path, newline='') as f:
             reader = csv.DictReader(f)
             self.columns = reader.fieldnames
+            self._check_header()
             for position, row in enumerate(reader):
                 self.rows_read += 1
-                fields = {
-                    name: (row.get(name) or '') for name in IndependentExpenditure._fields[:-1]
-                }
-                yield IndependentExpenditure(**fields, position=position)
+                if None in row or None in row.values():
+                    raise LayoutChanged(
+                        f'{self.path} line {position + 2} does not have one value per column '
+                        f'of its header: the FEC file layout changed'
+                    )
+                yield IndependentExpenditure(**{c: row[c] for c in COLUMNS}, position=position)
+
+    def _check_header(self):
+        missing = [c for c in COLUMNS if c not in (self.columns or [])]
+        if missing:
+            raise LayoutChanged(
+                f'{self.path} has no {", ".join(missing)} column: the FEC file layout changed'
+            )
 
 
 def independent_expenditures(ie_dir, cycle):

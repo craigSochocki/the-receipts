@@ -142,7 +142,6 @@ def read_counts(file, cycle, bulk_file):
         'file': file,
         'cycle': cycle,
         'rows_read': bulk_file.rows_read,
-        'malformed_rows': bulk_file.malformed_rows,
         'columns': ','.join(getattr(bulk_file, 'columns', None) or []) or None,
     }
 
