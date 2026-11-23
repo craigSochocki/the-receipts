@@ -25,7 +25,7 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.store.other_committees       other-committee contributions, from the store
     src.store.all_ie                 all independent expenditures 2022-2026, from the store
                                      (+ top committees per person)
-    src.transform.compute_opposition UDP opposition credit (runs BEFORE the
+    src.store.opposition             UDP opposition credit (runs BEFORE the
                                      merge so its sanity check reads the
                                      current dataset)
     src.transform.merge_dataset      roster + money + opposition -> base dataset
@@ -82,7 +82,7 @@ STEPS = [
     'src.store.self_funding',
     'src.store.other_committees',
     'src.store.all_ie',
-    'src.transform.compute_opposition',
+    'src.store.opposition',
     'src.transform.merge_dataset',
     'src.transform.compute_ranking',
     'src.transform.compute_2026',

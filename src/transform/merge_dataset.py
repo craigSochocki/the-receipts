@@ -17,7 +17,7 @@ Inputs (all staged; see config.yaml `paths`):
 - `all_ie_per_cycle.json` + `all_ie.csv` + `all_ie_top_committees.json`
   — all independent expenditures 2022-2026 (from `src/store/all_ie.py`).
 - `opposition-computed.json` — UDP opposition credit (from
-  `compute_opposition.py`).
+  `src/store/opposition.py`).
 - `dedup-notes.json` — per-person correction notes (from
   `src/store/accepted_money.py`).
 

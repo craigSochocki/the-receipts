@@ -93,14 +93,13 @@ the-receipts/
 │   ├── store/                 # silver tables (DuckDB, every FEC candidate and
 │   │                          # committee) + the views read from them;
 │   │                          # other_committees.py, self_funding.py, all_ie.py,
-│   │                          # udp.py;
+│   │                          # udp.py, opposition.py;
 │   │                          # check_store.py checks seats and terms
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
-│   │                          # compute_opposition,
 │   │                          # merge_dataset, compute_ranking, compute_2026
 │   ├── validate/              # verify_dataset.py — the standing audits
 │   └── rebuild.py             # the one command that runs the whole pipeline
