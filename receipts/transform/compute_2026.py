@@ -151,11 +151,11 @@ the clean counts do not match the expectations in config
 (verification.tiered_2026).
 """
 
-import json
 from collections import Counter
 
 from receipts.common.baseline import expected
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 from receipts.store.races import races_in
 
 CFG = load_config()
@@ -164,7 +164,7 @@ ROOT = CFG['_root']
 
 def with_2026(records):
     """Add the 2026 columns, clean flags and tiers; write the primary-targets list."""
-    opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
+    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
     credit_2026 = {}
     for race, pk, _name, amount, _detail in opp['credit_detail']:
         if race[0] == CFG['cycles']['current'] and not pk.startswith('__nonroster__'):

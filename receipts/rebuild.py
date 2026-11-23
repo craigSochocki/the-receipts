@@ -68,6 +68,7 @@ from datetime import datetime, timezone
 
 from receipts.common import baseline
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -190,7 +191,7 @@ def backup_dataset():
 
 def restore_manual_lookup_entries(snapshot_path):
     """Re-apply the recorded found-manual entries after a live lookup run."""
-    before = json.load(open(snapshot_path))
+    before = read_json(snapshot_path)
     manual = {
         k: v
         for k, v in before.items()
@@ -199,7 +200,7 @@ def restore_manual_lookup_entries(snapshot_path):
     if not manual:
         return
     path = ROOT / CFG['paths']['fec_lookup_results']
-    after = json.load(open(path))
+    after = read_json(path)
     for k, v in manual.items():
         after[k] = v
     with open(path, 'w') as f:
@@ -249,7 +250,7 @@ def main():
             snapshot.unlink(missing_ok=True)
     for step in STEPS[1:9]:
         run(step)
-    opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
+    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
     if opp.get('support_mismatches'):
         raise SystemExit(
             f'opposition support mismatches (vs current dataset): '

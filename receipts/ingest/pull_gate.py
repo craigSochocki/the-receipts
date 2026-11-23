@@ -146,6 +146,7 @@ from pathlib import Path
 
 from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -303,12 +304,12 @@ def load_state(state_path=None):
     if not path.exists():
         return default_state()
     try:
-        state = json.load(open(path))
+        state = read_json(path)
     except (json.JSONDecodeError, OSError) as e:
         raise ValueError(
             f'freshness state file {path} is not readable '
             f'as JSON ({e}); refusing to reset the baseline'
-        )
+        ) from e
     if not isinstance(state, dict) or not isinstance(state.get('families'), dict):
         raise ValueError(
             f'freshness state file {path} has an unexpected '
@@ -333,6 +334,17 @@ def save_state(state, state_path=None):
         json.dump(state, f, indent=1)
 
 
+def _text_lines(path):
+    with open(path, errors='replace') as f:
+        yield from f
+
+
+def _zipped_lines(zip_path, member):
+    with zipfile.ZipFile(zip_path) as archive, archive.open(member) as f:
+        for line in f:
+            yield line.decode('utf-8', errors='replace')
+
+
 def load_committee_map(cm_path=None):
     """Committee -> candidate map from the staged committee master.
 
@@ -350,7 +362,7 @@ def load_committee_map(cm_path=None):
     lines = None
     source = str(path)
     if path.exists():
-        lines = open(path, errors='replace')
+        lines = _text_lines(path)
     else:
         cycle_dir = path.parent.name
         zip_path = path.parent.parent / f'cm{cycle_dir[-2:]}.zip'
@@ -361,9 +373,7 @@ def load_committee_map(cm_path=None):
                 'cannot attribute filings, so no leg may be skipped'
             )
         source = f'{zip_path}!cm.txt'
-        lines = (
-            l.decode('utf-8', errors='replace') for l in zipfile.ZipFile(zip_path).open('cm.txt')
-        )
+        lines = _zipped_lines(zip_path, 'cm.txt')
     cmap = {}
     n_bad = 0
     for line in lines:
@@ -421,7 +431,7 @@ def gate_run(
     """
     fams = list(families or GATE_FAMILIES)
     if dataset is None:
-        dataset = json.load(open(ROOT / CFG['paths']['dataset_json']))
+        dataset = read_json(ROOT / CFG['paths']['dataset_json'])
     if by_candidate is None:
         by_candidate = {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
     if state is None:

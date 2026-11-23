@@ -85,6 +85,7 @@ from datetime import datetime, timezone
 
 from receipts.common.api_retry import open_with_retry, retry_settings, sanitize_url
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
 CFG = load_config()
@@ -419,7 +420,7 @@ def main():
             '(FEC_API_KEY env var). DEMO_KEY (~30/hr) cannot run '
             'the ~2,200-2,350 calls a full refresh needs.'
         )
-    dataset = json.load(open(ROOT / CFG['paths']['dataset_json']))
+    dataset = read_json(ROOT / CFG['paths']['dataset_json'])
     by_key = {r['person_key']: r for r in dataset}
     by_candidate = {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
     if args.f24_committee_sweep and CFG['fec_api']['api_key_default'] == API_KEY:

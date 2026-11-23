@@ -8,13 +8,11 @@ Sources:
 """
 
 import collections
-import json
 import re
 import unicodedata
 
-import yaml
-
 from receipts.common.config import load_config
+from receipts.common.files import read_json, read_yaml, write_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -154,7 +152,7 @@ def slug(first, last, state, extra=''):
 
 
 # ---------- 119th base ----------
-cur = yaml.safe_load(open(f'{SRC}/legislators-current.yaml'))
+cur = read_yaml(f'{SRC}/legislators-current.yaml')
 rows = {}  # bioguide -> row dict
 for p in cur:
     bg = p['id'].get('bioguide')
@@ -190,7 +188,7 @@ by_state_last = collections.defaultdict(list)
 for bg, r in rows.items():
     by_state_last[(r['state'], norm(r['last_name']))].append(r)
 
-hist = json.load(open(f'{SRC}/historical_lookup.json'))
+hist = read_json(f'{SRC}/historical_lookup.json')
 
 
 def first_agrees(entry_first, row):
@@ -239,7 +237,7 @@ def match_hist(entry_name, state):
 
 
 # ---------- 120th roster ----------
-r120 = json.load(open(f'{SRC}/120th_roster.json'))
+r120 = read_json(f'{SRC}/120th_roster.json')
 entries = []
 for s in r120['senate']:
     entries.append(
@@ -579,7 +577,7 @@ def _senate_class(r):
 for r in rows.values():
     r['senate_class'] = _senate_class(r)
 
-json.dump(list(rows.values()), open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
+write_json(f'{IM}/roster_intermediate.json', list(rows.values()))
 print('total rows:', len(rows))
 print('in 119th:', sum(1 for r in rows.values() if r['in_119th'] == 'yes'))
 print('in 120th:', sum(1 for r in rows.values() if r['in_120th'] == 'yes'))

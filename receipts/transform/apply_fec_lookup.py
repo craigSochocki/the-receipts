@@ -36,16 +36,17 @@ note appends already present are skipped).
 import json
 
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
 CURRENT = CFG['cycles']['current']
 
-rows = json.load(open(ROOT / CFG['paths']['roster_intermediate']))
+rows = read_json(ROOT / CFG['paths']['roster_intermediate'])
 by_key = {r['person_key']: r for r in rows}
 
 # ---------- 1. FEC lookup results ----------
-results = json.load(open(ROOT / CFG['paths']['fec_lookup_results']))
+results = read_json(ROOT / CFG['paths']['fec_lookup_results'])
 n_found = n_manual = n_skipped = 0
 for pk, res in results.items():
     row = by_key.get(pk)
@@ -66,7 +67,7 @@ for pk, res in results.items():
 print(f'fec lookup results: {n_found} found, {n_manual} found-manual, {n_skipped} skipped (no ID)')
 
 # ---------- 2. Manual note appends ----------
-notes = json.load(open(ROOT / CFG['paths']['manual_roster_notes']))
+notes = read_json(ROOT / CFG['paths']['manual_roster_notes'])
 n_notes = n_already = 0
 for pk, append in notes.items():
     row = by_key.get(pk)

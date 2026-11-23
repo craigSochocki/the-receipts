@@ -80,16 +80,15 @@ re-run of this one.
 """
 
 import argparse
-import json
 import sys
 from collections import Counter
 from decimal import Decimal
 
 import pandas as pd
-import yaml
 
 from receipts.common.baseline import expected as baseline_figure
 from receipts.common.config import load_config
+from receipts.common.files import read_json, read_yaml
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -204,7 +203,7 @@ def main():
     ap.add_argument('--dataset-json', default=CFG['paths']['dataset_json'])
     args = ap.parse_args()
 
-    records = json.load(open(ROOT / args.dataset_json))
+    records = read_json(ROOT / args.dataset_json)
     by_key = {r['person_key']: r for r in records}
     numeric = [r for r in records if r['individual_contribution_total_career'] != 'unknown']
 
@@ -213,7 +212,7 @@ def main():
     check('person_keys unique', len(by_key) == len(records))
     roster_keys = [
         r['person_key']
-        for r in json.load(open(ROOT / CFG['paths']['roster']))
+        for r in read_json(ROOT / CFG['paths']['roster'])
         if r['person_key'] != 'kristen-mcdonaldrivetmihouse'
     ]
     check('row order matches roster.json', [r['person_key'] for r in records] == roster_keys)
@@ -351,7 +350,7 @@ def main():
         mism == 0,
         f'{mism} mismatches',
     )
-    oc_diag = json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))
+    oc_diag = read_json(ROOT / CFG['paths']['other_committees_diagnostics'])
     cc = oc_diag['cross_checks_vs_methodology']
     check(
         'other-committee pull re-derives corporate/AIPAC to the cent',
@@ -402,7 +401,7 @@ def main():
         mism == 0,
         f'{mism} mismatches',
     )
-    aie_raw = json.load(open(ROOT / CFG['paths']['all_ie_per_cycle']))
+    aie_raw = read_json(ROOT / CFG['paths']['all_ie_per_cycle'])
     udp24 = aie_raw['validation']['udp_2024_exact']
     check(
         'all-IE UDP 2024 deduped S+O reproduces the UDP pull exactly',
@@ -697,7 +696,7 @@ def main():
         pin(f'{name} tier spot case', f'spot.tier.{slug}', {f: rec[f] for f in spot_fields})
 
     # (e) 2026 columns, clean rule, dep_share
-    opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
+    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
     race_map, by_cid = load_weball_2026_races()
     credit_2026 = {}
     for race, pk, _name, amount, _detail in opp['credit_detail']:
@@ -786,7 +785,12 @@ def main():
         )
         # Net-negative clean rule: no NET dirty money (dirty_2026 <= 0)
         # reads clean; the unopposed test is the same net test.
-        if r['in_120th'] == 'yes' and not has_linkage or expect['unopposed_2026'] and expect['dirty_2026'] <= 0:
+        if (
+            r['in_120th'] == 'yes'
+            and not has_linkage
+            or expect['unopposed_2026']
+            and expect['dirty_2026'] <= 0
+        ):
             expect['clean_2026'] = None
         else:
             expect['clean_2026'] = expect['dirty_2026'] <= 0
@@ -886,7 +890,7 @@ def main():
     # of build_roster.py — own latest Senate term's class field where
     # the person holds a seat into 2026, else the class of whoever held
     # that seat during 2026 (appointee/outgoing holder, same state).
-    leg = yaml.safe_load(open(ROOT / CFG['paths']['source'] / 'legislators-current.yaml'))
+    leg = read_yaml(ROOT / CFG['paths']['source'] / 'legislators-current.yaml')
     leg_terms = {
         e['id'].get('bioguide'): [t for t in e['terms'] if t.get('type') == 'sen'] for e in leg
     }
@@ -990,9 +994,9 @@ def main():
     )
 
     # (g) dedup audit
-    dedup = json.load(open(ROOT / CFG['paths']['dedup_applied']))
+    dedup = read_json(ROOT / CFG['paths']['dedup_applied'])
     # money_per_cycle.json is a dict keyed by person_key.
-    mpc_by_key = json.load(open(ROOT / CFG['paths']['money_per_cycle']))
+    mpc_by_key = read_json(ROOT / CFG['paths']['money_per_cycle'])
     mism = 0
     total_corrected = Decimal('0')
     for entry in dedup:

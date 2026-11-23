@@ -102,12 +102,12 @@ Internal consistency asserts (fail loudly, exit non-zero):
 """
 
 import csv
-import json
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
 from receipts.common.config import load_config
+from receipts.common.files import read_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -232,31 +232,31 @@ def money2float(s):
 def merged_records():
     """The base dataset rows: roster joined to every money family."""
     # ---------- Load ----------
-    roster = json.load(open(ROOT / CFG['paths']['roster_intermediate']))
-    mpc = json.load(open(ROOT / CFG['paths']['money_per_cycle']))
+    roster = read_json(ROOT / CFG['paths']['roster_intermediate'])
+    mpc = read_json(ROOT / CFG['paths']['money_per_cycle'])
     with open(ROOT / CFG['paths']['money_pas2_weball'], newline='') as f:
         pas2 = {r['person_key']: r for r in csv.DictReader(f)}
     with open(ROOT / CFG['paths']['money_udp'], newline='') as f:
         udp_csv = {r['person_key']: r for r in csv.DictReader(f)}
-    udp_pc = json.load(open(ROOT / CFG['paths']['money_udp_per_cycle']))
-    sf_pc_raw = json.load(open(ROOT / CFG['paths']['self_funding_per_cycle']))
+    udp_pc = read_json(ROOT / CFG['paths']['money_udp_per_cycle'])
+    sf_pc_raw = read_json(ROOT / CFG['paths']['self_funding_per_cycle'])
     sf_pc = sf_pc_raw['persons']
     with open(ROOT / CFG['paths']['self_funding_csv'], newline='') as f:
         sf_csv = {r['person_key']: r for r in csv.DictReader(f)}
-    oc_pc = json.load(open(ROOT / CFG['paths']['other_committees_per_cycle']))
+    oc_pc = read_json(ROOT / CFG['paths']['other_committees_per_cycle'])
     with open(ROOT / CFG['paths']['other_committees_csv'], newline='') as f:
         oc_csv = {r['person_key']: r for r in csv.DictReader(f)}
-    aie_raw = json.load(open(ROOT / CFG['paths']['all_ie_per_cycle']))
+    aie_raw = read_json(ROOT / CFG['paths']['all_ie_per_cycle'])
     with open(ROOT / CFG['paths']['all_ie_csv'], newline='') as f:
         aie_csv = {r['person_key']: r for r in csv.DictReader(f)}
-    aie_top = json.load(open(ROOT / CFG['paths']['all_ie_top_committees']))
-    opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
-    dedup_notes = json.load(open(ROOT / CFG['paths']['dedup_notes']))
+    aie_top = read_json(ROOT / CFG['paths']['all_ie_top_committees'])
+    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
+    dedup_notes = read_json(ROOT / CFG['paths']['dedup_notes'])
     LAMB_NOTE = lamb_note(
-        json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))['lamb_validation'],
+        read_json(ROOT / CFG['paths']['other_committees_diagnostics'])['lamb_validation'],
         CFG['verification']['coverage_end'],
     )
-    roster_json = json.load(open(ROOT / CFG['paths']['roster']))
+    roster_json = read_json(ROOT / CFG['paths']['roster'])
 
     # All-IE per-cycle entries, grouped per person from the pull's
     # per-candidate entries (keyed by candidate_id, not person_key).

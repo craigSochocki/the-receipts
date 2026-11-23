@@ -4,8 +4,9 @@
 Usage: python3 -m receipts.validate.baseline_changes OLD.json NEW.json [--count]
 """
 
-import json
 import sys
+
+from receipts.common.files import read_json
 
 SHOWN = 120
 
@@ -41,7 +42,7 @@ def table(moved):
 
 
 def main():
-    old, new = (json.load(open(path)) for path in sys.argv[1:3])
+    old, new = (read_json(path) for path in sys.argv[1:3])
     moved = changes(old, new)
     print(len(moved) if '--count' in sys.argv else table(moved))
 

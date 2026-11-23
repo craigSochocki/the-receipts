@@ -14,6 +14,7 @@ import urllib.parse
 import urllib.request
 
 from receipts.common.config import load_config
+from receipts.common.files import read_json, write_json
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -30,7 +31,7 @@ def norm(s):
     return re.sub(r'[^a-z ]', '', s.lower()).strip()
 
 
-rows = json.load(open(f'{IM}/roster_intermediate.json'))
+rows = read_json(f'{IM}/roster_intermediate.json')
 missing = [r for r in rows if not r['fec_candidate_ids']]
 print('rows missing FEC IDs:', len(missing))
 
@@ -111,7 +112,7 @@ for i, r in enumerate(missing):
         break
     time.sleep(CFG['fec_api']['sleep_between_requests_seconds'])
 
-json.dump(results, open(f'{SRC}/fec_lookup_results.json', 'w'), indent=1)
-json.dump(rows, open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
+write_json(f'{SRC}/fec_lookup_results.json', results)
+write_json(f'{IM}/roster_intermediate.json', rows)
 found = sum(1 for v in results.values() if v['status'] == 'found')
 print(f'found {found} of {len(results)} attempted')
