@@ -87,7 +87,11 @@ the-receipts/
 ├── config.yaml                # single source of truth for shared values
 ├── congress-money-tracker.csv / .json   # the dataset (stays at repo root)
 ├── src/
-│   ├── common/                # config loader (config.py)
+│   ├── common/                # config loader, baseline
+│   ├── domain/                # the rules, free of file formats: Money,
+│   │                          # which committee money counts
+│   ├── fec/                   # one typed reader per FEC bulk file
+│   │                          # (weball, cm, pas2)
 │   ├── ingest/                # pulls from FEC bulk + API:
 │   │                          # pull_money, pull_udp, pull_self_funding,
 │   │                          # pull_other_committees, pull_all_ie,
@@ -108,6 +112,7 @@ the-receipts/
 │   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
 │   └── evidence/              # one-off API dumps from spot checks
 ├── research/                  # pull logs, verification notes, source research
+├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
                                # from src/site/build_site.py; never hand-edited)
                                # — live on GitHub Pages since Nov 12, 2026
