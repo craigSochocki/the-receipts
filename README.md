@@ -33,7 +33,7 @@ python3 src/rebuild.py
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
 → `build_store` → `accepted_money` → `pull_udp` → `pull_self_funding` →
-`pull_other_committees` → `pull_all_ie` → `compute_opposition` →
+`other_committees` → `pull_all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
 `data/snapshots/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
@@ -101,8 +101,8 @@ What each step does (each script documents its own rules in its header):
   (candidate contributions/loans, loan repayments, debts owed by,
   total receipts/disbursements, transfers, cash on hand);
   writes `data/intermediate/self_funding_per_cycle.json` / `data/intermediate/self_funding.csv`.
-- `pull_other_committees.py` — other-committee contributions from
-  pas2 + cm (party, leadership, labor, trade, membership, cooperative,
+- `store/other_committees.py` — other-committee contributions, read from
+  the store (party, leadership, labor, trade, membership, cooperative,
   unclassified + earmark breakouts); writes
   `data/intermediate/other_committees_per_cycle.json` / `data/intermediate/other_committees.csv`
   / `data/intermediate/other_committees_diagnostics.json`.

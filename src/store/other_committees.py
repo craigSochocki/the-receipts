@@ -1,31 +1,28 @@
 #!/usr/bin/env python3
 """Contributions from every committee other than AIPAC and corporate PACs.
 
-Reads pas2 + cm; classes are in src/domain/committee_classes.py. Each
-class gets its own columns, never blended into total_accepted. Also
-re-derives the corporate and AIPAC totals as a cross-check on
-the store's accepted money, and reconciles against weball col 26.
+Read from the store's committee_money_by_class view; classes are in
+src/domain/committee_classes.py. Each class gets its own columns, never
+blended into total_accepted. Also re-derives the corporate and AIPAC
+totals as a cross-check, and reconciles against weball col 26.
 Evidence and findings: research/other-committees-notes.md.
 """
 import sys
 from decimal import Decimal
 
+import duckdb
+
 from src.common.baseline import expected
 from src.common.files import write_csv, write_json
-from src.common.settings import (AIPAC_PAC, CAREER_CYCLES as CYCLES, PATHS, WINRED,
+from src.common.settings import (CAREER_CYCLES as CYCLES, PATHS,
                                  load_double_count_records, load_roster)
-from src.domain.committee_classes import (OTHER_COMMITTEE_CLASSES, CommitteeClass,
-                                          committee_class, unclassified_kind)
-from src.domain.committee_money import Tally, is_voided_earmark, reported_once
+from src.domain.committee_classes import OTHER_COMMITTEE_CLASSES, CommitteeClass
 from src.domain.ledger import Ledger
 from src.domain.money import ZERO, Money
 from src.domain.roster import Roster, candidate_ids
-from src.fec.committee_contributions import committee_contributions
-from src.fec.committees import committees
-from src.fec.weball import candidate_summaries
 
-BULK = PATHS.bulk
 LAMB_CANDIDATE, LAMB_CYCLE = 'H6AZ05265', 2026
+WINRED_KIND = 'winred_conduit'
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 AIPAC = CommitteeClass.AIPAC.value
@@ -53,74 +50,75 @@ TRACKED_COLUMNS = BUCKETS + [AIPAC, CORPORATE]
 LEDGER_COLUMNS = TRACKED_COLUMNS + [earmark(c) for c in TRACKED_COLUMNS] + [WINRED_COLUMN]
 
 
-def read_registry(cycle):
-    registry = committees(BULK, cycle)
-    by_id = {committee.committee_id: committee for committee in registry}
-    return by_id, {'cm_rows': registry.rows_read, 'cm_bad_fields': registry.malformed_rows}
+def roster_rows(db, query, roster_ids, *params):
+    return db.execute(query + ' AND list_contains(?, candidate_id)',
+                      [*params, sorted(roster_ids)]).fetchall()
 
 
-def read_cycle(cycle, roster, ledger, composition):
-    registry, registry_counts = read_registry(cycle)
-    filed = committee_contributions(BULK, cycle)
-    filed_once = reported_once()
-    matched, voided, unregistered = 0, Tally(), Tally()
-    unregistered_committees = set()
+def money_by_class(db, roster_ids):
+    return roster_rows(db, 'SELECT candidate_id, cycle, committee_class, kind, amount_cents, '
+                           'earmark_cents FROM committee_money_by_class WHERE TRUE', roster_ids)
 
-    for contribution in filed:
-        if not contribution.is_to_candidate or contribution.candidate_id not in roster:
-            continue
-        matched += 1
-        if is_voided_earmark(contribution):
-            voided.add(contribution.amount)
-            continue
-        if contribution.committee_id not in registry:
-            unregistered.add(ZERO)
-            unregistered_committees.add(contribution.committee_id)
-            continue
-        filed_once.add(contribution)
 
-    kept = {column: ZERO for column in BUCKETS + [AIPAC, CORPORATE, WINRED_COLUMN]}
-    kept_earmarks = {column: ZERO for column in kept}
-    cycle_composition = {}
-    for contribution in filed_once:
-        committee = registry[contribution.committee_id]
-        column = committee_class(committee, AIPAC_PAC).value
-        amount = contribution.amount
-        ledger.add(contribution.candidate_id, cycle, column, amount)
-        kept[column] += amount
-        if contribution.is_earmark:
-            ledger.add(contribution.candidate_id, cycle, earmark(column), amount)
-            kept_earmarks[column] += amount
-        if column in (AIPAC, CORPORATE):
-            continue
-        if committee.committee_id == WINRED:
-            ledger.add(contribution.candidate_id, cycle, WINRED_COLUMN, amount)
-            kept[WINRED_COLUMN] += amount
-        if column == CommitteeClass.UNCLASSIFIED.value:
-            kind = unclassified_kind(committee, WINRED)
-            cycle_composition[kind] = cycle_composition.get(kind, ZERO) + amount
+def fill_ledger(rows):
+    ledger = Ledger(LEDGER_COLUMNS)
+    for candidate_id, cycle, column, kind, amount, earmarked in rows:
+        ledger.add(candidate_id, cycle, column, Money(amount))
+        ledger.add(candidate_id, cycle, earmark(column), Money(earmarked))
+        if kind == WINRED_KIND and column not in (AIPAC, CORPORATE):
+            ledger.add(candidate_id, cycle, WINRED_COLUMN, Money(amount))
+    return ledger
 
-    for kind, amount in cycle_composition.items():
-        composition[kind] = composition.get(kind, ZERO) + amount
+
+def unclassified_composition(rows, cycle=None):
+    composition = {}
+    for candidate_id, row_cycle, column, kind, amount, _ in rows:
+        if column == CommitteeClass.UNCLASSIFIED.value and cycle in (None, row_cycle):
+            composition[kind] = composition.get(kind, 0) + amount
+    return dict(sorted(composition.items()))
+
+
+FILE_READS = 'SELECT rows_read, malformed_rows FROM files_read WHERE file = ? AND cycle = ?'
+EXCLUDED = """
+    SELECT count(*), COALESCE(SUM(amount_cents), 0), count(DISTINCT committee_id)
+    FROM committee_contributions AS money
+    WHERE cycle = ? AND {condition}"""
+REGISTERED = ('EXISTS (SELECT 1 FROM committees AS registry '
+              'WHERE registry.committee_id = money.committee_id AND registry.cycle = money.cycle)')
+
+
+def cycle_diagnostics(db, cycle, roster_ids, ledger, rows):
+    def excluded(condition):
+        return roster_rows(db, EXCLUDED.format(condition=condition), roster_ids, cycle)[0]
+
+    cm_rows, cm_bad = db.execute(FILE_READS, ['cm', cycle]).fetchone()
+    pas2_rows, pas2_bad = db.execute(FILE_READS, ['pas2', cycle]).fetchone()
+    matched = excluded('TRUE')[0]
+    voided_rows, voided_cents, _ = excluded("excluded_because = 'voided_earmark'")
+    unregistered_rows, _, unregistered_committees = excluded(
+        f"excluded_because IS DISTINCT FROM 'voided_earmark' AND NOT {REGISTERED}")
+    dropped_rows, dropped_cents, _ = excluded(f"excluded_because = 'reported_again' AND {REGISTERED}")
+
+    def kept(column):
+        return Money.total(ledger.amount(c, cycle, column) for c in ledger.candidates_in(cycle))
+
     return {
-        'cycle': cycle, **registry_counts,
-        'pas2_rows': filed.rows_read, 'pas2_bad_fields': filed.malformed_rows,
+        'cycle': cycle, 'cm_rows': cm_rows, 'cm_bad_fields': cm_bad,
+        'pas2_rows': pas2_rows, 'pas2_bad_fields': pas2_bad,
         'pas2_matched_roster': matched,
-        'cm_missing_committees': len(unregistered_committees),
-        'cm_missing_rows': unregistered.rows,
-        'dedup_dropped_rows': len(filed_once.dropped),
-        'dedup_dropped_cents': Money.total(c.amount for c in filed_once.dropped).cents,
-        'void_earmark_rows': voided.rows, 'void_earmark_cents': voided.amount.cents,
-        'kept_cents': {bucket: kept[bucket].cents for bucket in BUCKETS},
-        'kept_earmark_cents': {bucket: kept_earmarks[bucket].cents for bucket in BUCKETS
-                               if kept_earmarks[bucket]},
-        'kept_winred_cents': kept[WINRED_COLUMN].cents,
-        'kept_corporate_cents': kept[CORPORATE].cents,
-        'kept_corporate_earmark_cents': kept_earmarks[CORPORATE].cents,
-        'kept_aipac_cents': kept[AIPAC].cents,
-        'kept_aipac_earmark_cents': kept_earmarks[AIPAC].cents,
-        'unclassified_composition_cents': {kind: amount.cents
-                                           for kind, amount in cycle_composition.items()},
+        'cm_missing_committees': unregistered_committees,
+        'cm_missing_rows': unregistered_rows,
+        'dedup_dropped_rows': dropped_rows, 'dedup_dropped_cents': dropped_cents,
+        'void_earmark_rows': voided_rows, 'void_earmark_cents': voided_cents,
+        'kept_cents': {bucket: kept(bucket).cents for bucket in BUCKETS},
+        'kept_earmark_cents': {bucket: kept(earmark(bucket)).cents for bucket in BUCKETS
+                               if kept(earmark(bucket))},
+        'kept_winred_cents': kept(WINRED_COLUMN).cents,
+        'kept_corporate_cents': kept(CORPORATE).cents,
+        'kept_corporate_earmark_cents': kept(earmark(CORPORATE)).cents,
+        'kept_aipac_cents': kept(AIPAC).cents,
+        'kept_aipac_earmark_cents': kept(earmark(AIPAC)).cents,
+        'unclassified_composition_cents': unclassified_composition(rows, cycle),
     }
 
 
@@ -140,9 +138,10 @@ def cross_checks(ledger):
             for column, recomputed in checked.items()}
 
 
-def weball_other_committee_money(cycle, roster):
-    return {summary.candidate_id: summary.amount('other_committee_contributions')
-            for summary in candidate_summaries(BULK, cycle) if summary.candidate_id in roster}
+def weball_other_committee_money(db, cycle, roster_ids):
+    return {candidate_id: Money(cents) for candidate_id, cents in roster_rows(
+        db, 'SELECT candidate_id, other_committee_contributions_cents FROM candidate_summaries '
+            'WHERE cycle = ?', roster_ids, cycle)}
 
 
 def without_double_counted_summaries(reported, dedup_records, cycle):
@@ -173,8 +172,8 @@ def pas2_comparable(ledger, candidate_id, cycle):
     return gross, earmarked
 
 
-def reconcile_cycle(cycle, roster, ledger, dedup_records):
-    raw = weball_other_committee_money(cycle, roster)
+def reconcile_cycle(db, cycle, roster_ids, ledger, dedup_records):
+    raw = weball_other_committee_money(db, cycle, roster_ids)
     corrected, zeroed, mismatched = without_double_counted_summaries(raw, dedup_records, cycle)
     gross_total = earmark_total = party_total = ZERO
     residual_raw = residual_corrected = residual_net = 0
@@ -222,12 +221,10 @@ def reconcile_cycle(cycle, roster, ledger, dedup_records):
     }
 
 
-def lamb_validation(ledger):
+def lamb_validation(db, ledger):
     by_bucket = {b: ledger.amount(LAMB_CANDIDATE, LAMB_CYCLE, b) for b in BUCKETS}
     pas2_total = Money.total(by_bucket.values())
-    weball = next((summary.amount('other_committee_contributions')
-                   for summary in candidate_summaries(BULK, LAMB_CYCLE)
-                   if summary.candidate_id == LAMB_CANDIDATE), None)
+    weball = weball_other_committee_money(db, LAMB_CYCLE, {LAMB_CANDIDATE}).get(LAMB_CANDIDATE)
     earmarked = {b: ledger.amount(LAMB_CANDIDATE, LAMB_CYCLE, earmark(b)) for b in BUCKETS}
     return {
         'candidate_id': LAMB_CANDIDATE, 'cycle': LAMB_CYCLE,
@@ -303,21 +300,24 @@ def roster_total(roster, ledger, column):
 
 def main():
     roster = Roster(load_roster())
+    roster_ids = {i for p in roster.people for i in candidate_ids(p)}
     dedup_records = load_double_count_records()
-    ledger = Ledger(LEDGER_COLUMNS)
-    composition = {}
-
-    diagnostics = [read_cycle(cycle, roster, ledger, composition) for cycle in CYCLES]
+    with duckdb.connect(str(PATHS.store), read_only=True) as db:
+        rows = money_by_class(db, roster_ids)
+        ledger = fill_ledger(rows)
+        diagnostics = [cycle_diagnostics(db, c, roster_ids, ledger, rows) for c in CYCLES]
+        reconciliation = [reconcile_cycle(db, c, roster_ids, ledger, dedup_records)
+                          for c in CYCLES]
+        lamb = lamb_validation(db, ledger)
     checks = cross_checks(ledger)
-    reconciliation = [reconcile_cycle(c, roster, ledger, dedup_records) for c in CYCLES]
 
-    rows = [career_row(person, ledger, roster) for person in roster.people]
-    write_csv(PATHS.other_committees_csv, rows)
+    write_csv(PATHS.other_committees_csv,
+              [career_row(person, ledger, roster) for person in roster.people])
     write_json(PATHS.other_committees_per_cycle,
                {p['person_key']: per_cycle_record(p, ledger) for p in roster.people})
     write_json(PATHS.other_committees_diagnostics, {
         'per_cycle': diagnostics,
-        'unclassified_composition_career_cents': {k: a.cents for k, a in composition.items()},
+        'unclassified_composition_career_cents': unclassified_composition(rows),
         'roster_totals_cents': {b: roster_total(roster, ledger, b).cents for b in BUCKETS},
         'roster_earmark_transmitted_cents': {
             b: roster_total(roster, ledger, earmark(b)).cents for b in BUCKETS},
@@ -326,7 +326,7 @@ def main():
             column: {'recomputed_cents': a, 'methodology_cents': b, 'match': a == b}
             for column, (a, b) in checks.items()},
         'reconciliation_vs_weball_col26': reconciliation,
-        'lamb_validation': lamb_validation(ledger),
+        'lamb_validation': lamb,
         'dedup_applied_finding': DEDUP_FINDING,
     })
 
