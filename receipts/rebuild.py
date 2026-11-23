@@ -212,7 +212,7 @@ def restore_manual_lookup_entries(snapshot_path):
     print(f'restored {len(manual)} found-manual lookup entries: {sorted(manual)}')
 
 
-ROSTER_STEP, OPPOSITION_STEP, VERIFY_STEP = STEPS[0], 'receipts.store.opposition', STEPS[-1]
+ROSTER_STEP, VERIFY_STEP = STEPS[0], STEPS[-1]
 
 
 def run_live_lookup():
@@ -224,14 +224,6 @@ def run_live_lookup():
         restore_manual_lookup_entries(snapshot)
     finally:
         snapshot.unlink(missing_ok=True)
-
-
-def check_opposition_support():
-    mismatches = read_json(ROOT / CFG['paths']['opposition_computed']).get('support_mismatches')
-    if mismatches:
-        raise SystemExit(
-            f'opposition support mismatches (vs current dataset): {mismatches}; rebuild aborted'
-        )
 
 
 def main():
@@ -270,8 +262,6 @@ def main():
         run(*step.split())
         if step == ROSTER_STEP and args.with_fec_lookup:
             run_live_lookup()
-        if step == OPPOSITION_STEP:
-            check_opposition_support()
     if args.rebaseline:
         # The baseline also pins what the page says, so the site is rebuilt and verified too.
         run('receipts.site.build_site')

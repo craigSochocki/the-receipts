@@ -153,6 +153,7 @@ def main():
         ],
         {'credit'},
     )
+    mismatches = support_mismatches(udp.rows, person_keys)
     write_json(
         PATHS.opposition_computed,
         {
@@ -160,7 +161,7 @@ def main():
             'credit_detail': credited,
             'no_credit': uncredited,
             'nonroster_credit': {k: dollars(v) for k, v in nonroster.items()},
-            'support_mismatches': support_mismatches(udp.rows, person_keys),
+            'support_mismatches': mismatches,
             'unresolved_blank_rows': len(udp.unresolved),
             'aipac_schedule_e_rows': aipac_rows(),
         },
@@ -169,6 +170,8 @@ def main():
         f'races credited: {len(credited)}; not credited: {len(uncredited)}; '
         f'credited to roster: ${dollars(sum(by_person.values())):,.2f}'
     )
+    if mismatches:
+        raise SystemExit(f'opposition support mismatches (vs current dataset): {mismatches}')
 
 
 if __name__ == '__main__':
