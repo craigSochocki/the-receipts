@@ -153,294 +153,160 @@ from collections import Counter
 
 from receipts.common.baseline import expected
 from receipts.common.config import load_config
-from receipts.common.files import read_json
+from receipts.domain.clean_2026 import (
+    NO_INDIVIDUAL_MONEY_NOTE,
+    UNLINKED_NOTE,
+    UNOPPOSED,
+    UNOPPOSED_NOTE,
+    race_label,
+    races_and_unopposed,
+    tier,
+    verdict,
+)
+from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.store.races import races_in
+from receipts.store.read import connect
 
 CFG = load_config()
 ROOT = CFG['_root']
+CURRENT = CFG['cycles']['current']
+PRESETS = CFG['verification']['tolerance_presets']
+BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
+CREDITS = (
+    'SELECT credited_to, SUM(credit) FROM gold.opposition_credits '
+    "WHERE cycle = ? AND credited_to NOT LIKE '__nonroster__%' GROUP BY credited_to"
+)
 
 
-def with_2026(records):
-    """Add the 2026 columns, clean flags and tiers; write the primary-targets list."""
-    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
-    credit_2026 = {}
-    for race, pk, _name, amount, _detail in opp['credit_detail']:
-        if race[0] == CFG['cycles']['current'] and not pk.startswith('__nonroster__'):
-            # Sum across phases: one person can now be credited in two phases
-            # of the same race (the race key includes ele_type).
-            credit_2026[pk] = round(credit_2026.get(pk, 0.0) + float(amount), 2)
+def current(entries):
+    return [e for e in entries if e['cycle'] == CURRENT]
 
-    BEAN_SOLIS_GAP = (
-        ' | 2026 DATA GAP: corporate PAC ${corp} in 2026 but $0 individual contributions — '
-        'the $0 individual figure is a likely missing-committee-linkage gap, not a real zero; '
-        'do not present as $0 raised from individuals.'
-    )
-    LURIA_GAP = (
-        " | 2026 DATA GAP: no 2026 per-cycle data found under the roster's linked candidate ID "
-        '(returning former member; 2026 committee ID not linked) — clean_2026=True reflects '
-        'absence of data, NOT verified zero fundraising; do not present as confirmed clean.'
-    )
-    LURIA_UNVERIFIED = (
-        ' | 2026 clean status UNVERIFIED — no 2026 per-cycle data under linked candidate ID '
-        '(returning former member; 2026 committee ID not linked). '
-        'Not counted as verified-clean.'
-    )
-    UNOPPOSED_NOTE = (
-        ' | 2026 clean status UNOPPOSED — ran unopposed in 2026 ({race}): '
-        'no opponent with receipts over $0, so $0 dirty money reflects no contest, '
-        'not a verified-clean campaign. Not counted as verified-clean.'
+
+def current_sum(entries, field):
+    """The 2026 total of a per-cycle field: int 0 when there is no 2026 entry at all."""
+    found = current(entries)
+    return round(sum(e[field] for e in found), 2) if found else 0
+
+
+def has_2026_linkage(r):
+    """2026 data in any money source: committee money, UDP, or a 2026 weball summary."""
+    return (
+        bool(current(r['per_cycle']))
+        or bool(current(r['udp_per_cycle']))
+        or any(
+            str(e.get('coverage_end_date', '')).endswith(f'/{CURRENT}')
+            for e in current(r['self_funding_per_cycle'])
+        )
     )
 
-    def unopposed_2026_races(r, race_map, by_cid):
-        """The person's 2026 races, and the subset with no funded opponent.
 
-        Returns (races, unopposed): races is every (office, state,
-        district) race behind a 2026 candidate ID of theirs in weball26;
-        unopposed is the subset in which no OTHER candidate has total
-        receipts over $0. Both are empty when they filed no 2026
-        candidacy at all. A filed opponent with $0 receipts does not
-        contest the race; a write-in opponent who never filed does not
-        appear.
-        """
-        ids = set(r['fec_candidate_ids'] or [])
-        races = sorted({by_cid[cid] for cid in ids if cid in by_cid})
-        unopposed = [
-            race
-            for race in races
-            if not any(cid not in ids and receipts > 0 for cid, receipts in race_map.get(race, []))
-        ]
-        return races, unopposed
-
-    def format_race(race):
-        office, state, district = race
-        return f'{state} Senate' if office == 'S' else f'{state}-{district}'
-
-    def cycle_sum(entries, field):
-        vals = [e[field] for e in entries if e['cycle'] == CFG['cycles']['current']]
-        return round(sum(vals), 2) if vals else 0
-
-    def has_2026_linkage(r):
-        """2026 committee linkage evidence (see module docstring).
-
-        True when the person's 2026 campaign committee is verifiably
-        linked: a tracked per_cycle / udp_per_cycle 2026 entry, or a
-        self-funding 2026 entry whose coverage end date falls in calendar
-        2026. Other-committee and all-IE 2026 entries do not count on
-        their own (third-party reports; Luria's stale-ID case).
-        """
-        if any(e['cycle'] == CFG['cycles']['current'] for e in r['per_cycle']):
-            return True
-        if any(e['cycle'] == CFG['cycles']['current'] for e in r['udp_per_cycle']):
-            return True
-        for e in r['self_funding_per_cycle']:
-            if e['cycle'] == CFG['cycles']['current'] and str(
-                e.get('coverage_end_date', '')
-            ).endswith('/2026'):
-                return True
-        return False
-
-    def corp_material_2026(r, preset):
-        """Corporate PAC counts as dirty under a tolerance preset only when
-        BOTH the dollar amount AND the share of 2026 total receipts exceed
-        the preset's thresholds (config tolerance_presets). The amount test
-        short-circuits: a corp total at or below the dollar threshold is
-        never material, whatever the share. A non-positive
-        total_receipts_2026 leaves the share undefined and the share test
-        cannot pass.
-        """
-        th = CFG['verification']['tolerance_presets'][preset]
-        if r['corp_2026'] <= th['corp_amount']:
-            return False
-        total = r['total_receipts_2026']
-        if not isinstance(total, (int, float)) or isinstance(total, bool) or total <= 0:
-            return False
-        return r['corp_2026'] / total > th['corp_share']
-
-    def tier_2026(r, preset):
-        """Tier under a tolerance preset (see module docstring): 'dirty'
-        when AIPAC/UDP-flagged or corporate-PAC-material; 'below_threshold'
-        when corporate PAC was taken but below the preset's thresholds;
-        'clean' otherwise. None exactly where clean_2026 is None.
-        """
-        if r['clean_2026'] is None:
-            return None
-        if r['aipac_udp_flag_2026'] or corp_material_2026(r, preset):
-            return 'dirty'
-        if r['corp_2026'] > 0:
-            return 'below_threshold'
-        return 'clean'
-
-    race_map, by_cid = races_in(CFG['cycles']['current'])
-
-    for r in records:
-        r['individual_2026'] = cycle_sum(r['per_cycle'], 'individual')
-        r['corp_2026'] = cycle_sum(r['per_cycle'], 'corporate_pac')
-        r['aipac_direct_2026'] = cycle_sum(r['per_cycle'], 'aipac_pac_direct')
-        r['udp_support_2026'] = cycle_sum(r['udp_per_cycle'], 'udp_ie_support')
-        r['udp_opp_credit_2026'] = credit_2026.get(r['person_key'], 0.0)
-        r['udp_benefit_2026'] = round(r['udp_support_2026'] + r['udp_opp_credit_2026'], 2)
-        r['dirty_2026'] = round(r['corp_2026'] + r['aipac_direct_2026'] + r['udp_benefit_2026'], 2)
-        # AIPAC/UDP flag (always on, not tolerance-based): any AIPAC direct
-        # dollar or UDP benefit dollar flags the member under every preset.
-        r['aipac_udp_flag_2026'] = bool(r['aipac_direct_2026'] > 0 or r['udp_benefit_2026'] > 0)
-        denom = r['individual_2026'] + r['corp_2026'] + r['aipac_direct_2026']
-        r['dep_share_2026'] = (
-            round((r['corp_2026'] + r['aipac_direct_2026']) / denom, 4) if denom > 0 else None
-        )
-
-        # New 2026 columns (complete-financial-picture build).
-        sf26 = [e for e in r['self_funding_per_cycle'] if e['cycle'] == CFG['cycles']['current']]
-        r['self_funding_2026'] = (
-            round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf26), 2)
-            if sf26
-            else 0
-        )
-        r['cand_loans_2026'] = cycle_sum(r['self_funding_per_cycle'], 'candidate_loans')
-        r['cand_contrib_2026'] = cycle_sum(r['self_funding_per_cycle'], 'candidate_contributions')
-        r['total_receipts_2026'] = cycle_sum(r['self_funding_per_cycle'], 'total_receipts')
-        r['total_disbursements_2026'] = cycle_sum(
-            r['self_funding_per_cycle'], 'total_disbursements'
-        )
-        r['cash_on_hand_2026'] = round(sum(e['cash_on_hand'] for e in sf26), 2) if sf26 else None
-        oc26 = [
-            e for e in r['other_committees_per_cycle'] if e['cycle'] == CFG['cycles']['current']
-        ]
-        r['other_committees_total_2026'] = (
-            round(
-                sum(
-                    sum(
-                        e[b]
-                        for b in (
-                            'party_committees',
-                            'leadership_pacs',
-                            'labor_pacs',
-                            'trade_pacs',
-                            'membership_pacs',
-                            'cooperative_pacs',
-                            'other_unclassified',
-                        )
-                    )
-                    for e in oc26
-                ),
-                2,
-            )
-            if oc26
-            else 0
-        )
-        r['all_ie_support_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_support')
-        r['all_ie_oppose_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_oppose')
-        r['all_ie_total_2026'] = cycle_sum(r['all_ie_per_cycle'], 'all_ie_total')
-
-        # Unopposed in 2026 (methodology §14): a race with no funded
-        # opponent is not a clean campaign — $0 dirty money there reflects
-        # no contest. Unopposed is a race fact for everyone (nine people
-        # ran unopposed, six of them dirty); only a would-be-clean
-        # unopposed verdict becomes null. Career-clean is derived from
-        # career money columns only and is untouched by this rule.
-        races_2026, unopp_races = unopposed_2026_races(r, race_map, by_cid)
-        r['unopposed_2026'] = bool(races_2026) and len(unopp_races) == len(races_2026)
-
-        # Clean rule (methodology §14): no NET dirty money in 2026
-        # (dirty_2026 <= 0 — refunds exceeding contributions read clean),
-        # and only when 2026 linkage exists (generalized Nov 12, 2026 —
-        # the old rule hardcoded the Luria exception via has_pre_2026).
-        # An unopposed would-be-clean verdict is null, not True — and the
-        # unopposed test is the same net test, so an unopposed member with
-        # net-negative dirty money is null, not clean (no such member in
-        # the current data; the 17 net-negative members are all contested).
-        if r['in_120th'] == 'yes' and not has_2026_linkage(r):
-            r['clean_2026'] = None
-            # Idempotent: compute_2026 appends to data_notes, so a
-            # standalone re-run over an already-noted dataset must not
-            # duplicate the segments (Nov 12, 2026: a targeted re-run
-            # doubled them; the full rebuild is safe because the merge
-            # regenerates data_notes fresh each time).
-            if 'UNVERIFIED' not in r['data_notes']:
-                r['data_notes'] = r['data_notes'] + LURIA_GAP + LURIA_UNVERIFIED
-        elif r['unopposed_2026'] and r['dirty_2026'] <= 0:
-            r['clean_2026'] = None
-            race_label = ', '.join(format_race(race) for race in unopp_races)
-            if 'UNOPPOSED' not in r['data_notes']:
-                r['data_notes'] = r['data_notes'] + UNOPPOSED_NOTE.format(race=race_label)
-        else:
-            r['clean_2026'] = r['dirty_2026'] <= 0
-
-        # Tolerance tiers (methodology §14): the flag takes precedence —
-        # a flagged member is dirty under every preset.
-        r['tier_balanced_2026'] = tier_2026(r, 'balanced')
-        r['tier_lenient_2026'] = tier_2026(r, 'lenient')
-
-        # Gap note: corporate PAC money with $0 individual in 2026.
-        if (
-            r['corp_2026'] > 0
-            and r['individual_2026'] == 0
-            and 'missing-committee-linkage gap' not in r['data_notes']
-        ):
-            r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(corp=f'{r["corp_2026"]:,.0f}')
-
-    # ---- Assert the expected clean counts (baseline clean_2026.*) ----
-    counts = {
-        'true_total': sum(1 for r in records if r['clean_2026'] is True),
-        'false_total': sum(1 for r in records if r['clean_2026'] is False),
-        'null_total': sum(1 for r in records if r['clean_2026'] is None),
+def money_2026(r, credit):
+    pc, sf, oc, ie = (r[k] for k in ('per_cycle', 'self_funding_per_cycle',
+                                     'other_committees_per_cycle', 'all_ie_per_cycle'))  # fmt: skip
+    m = {
+        'individual_2026': current_sum(pc, 'individual'),
+        'corp_2026': current_sum(pc, 'corporate_pac'),
+        'aipac_direct_2026': current_sum(pc, 'aipac_pac_direct'),
+        'udp_support_2026': current_sum(r['udp_per_cycle'], 'udp_ie_support'),
+        'udp_opp_credit_2026': credit,
     }
-    house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
-    house_clean = [r for r in house120 if r['clean_2026'] is True]
-    career_clean = [
-        r
-        for r in house120
-        if r['corporate_pac_career'] == 0
-        and r['aipac_pac_direct_career'] == 0
-        and r['udp_ie_support_career'] == 0
-    ]
-    career_keys = {r['person_key'] for r in career_clean}
-    r120 = [r for r in records if r['in_120th'] == 'yes']
-    observed = {f'clean_2026.{k}': v for k, v in counts.items()}
-    observed['clean_2026.house_120th_verified_clean'] = len(house_clean)
-    observed['clean_2026.house_120th_career_clean'] = len(career_clean)
-    for party in ('Democrat', 'Republican'):
-        observed[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
-            1 for r in house_clean if r['party_120'] == party
-        )
-        observed[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
-            1 for r in career_clean if r['party_120'] == party
-        )
-    observed['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
-        1 for r in house_clean if r['person_key'] not in career_keys
+    m['udp_benefit_2026'] = round(m['udp_support_2026'] + credit, 2)
+    m['dirty_2026'] = round(m['corp_2026'] + m['aipac_direct_2026'] + m['udp_benefit_2026'], 2)
+    m['aipac_udp_flag_2026'] = bool(m['aipac_direct_2026'] > 0 or m['udp_benefit_2026'] > 0)
+    accepted = m['individual_2026'] + m['corp_2026'] + m['aipac_direct_2026']
+    dirty_accepted = m['corp_2026'] + m['aipac_direct_2026']
+    m['dep_share_2026'] = round(dirty_accepted / accepted, 4) if accepted > 0 else None
+    sf26, oc26 = current(sf), current(oc)
+    m['self_funding_2026'] = (
+        round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf26), 2)
+        if sf26 else 0
+    )  # fmt: skip
+    for column, field in [('cand_loans_2026', 'candidate_loans'),
+                          ('cand_contrib_2026', 'candidate_contributions'),
+                          ('total_receipts_2026', 'total_receipts'),
+                          ('total_disbursements_2026', 'total_disbursements')]:  # fmt: skip
+        m[column] = current_sum(sf, field)
+    m['cash_on_hand_2026'] = round(sum(e['cash_on_hand'] for e in sf26), 2) if sf26 else None
+    m['other_committees_total_2026'] = (
+        round(sum(sum(e[b] for b in BUCKETS) for e in oc26), 2) if oc26 else 0
     )
-    # ---- ... and the flag and tier counts (baseline tiered_2026.*) ----
-    observed['tiered_2026.aipac_udp_flag_all'] = sum(1 for r in records if r['aipac_udp_flag_2026'])
-    observed['tiered_2026.aipac_udp_flag_120th'] = sum(1 for r in r120 if r['aipac_udp_flag_2026'])
-    tier_counts = {}
+    for column, field in [('all_ie_support_2026', 'all_ie_support'),
+                          ('all_ie_oppose_2026', 'all_ie_oppose'),
+                          ('all_ie_total_2026', 'all_ie_total')]:  # fmt: skip
+        m[column] = current_sum(ie, field)
+    return m
+
+
+def verdict_and_notes(r, race_map, race_of):
+    races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
+    r['unopposed_2026'] = bool(races) and len(unopposed) == len(races)
+    linked = has_2026_linkage(r)
+    r['clean_2026'], unknown_because = verdict(
+        r['in_120th'] == 'yes', linked, r['unopposed_2026'], r['dirty_2026']
+    )
+    if r['clean_2026'] is None:
+        note = (UNOPPOSED_NOTE.format(race=', '.join(race_label(x) for x in unopposed))
+                if unknown_because == UNOPPOSED else UNLINKED_NOTE)  # fmt: skip
+        r['data_notes'] += note
     for preset in ('balanced', 'lenient'):
-        tier_counts[preset] = Counter(r[f'tier_{preset}_2026'] for r in r120)
-        for tier_name in ('clean', 'below_threshold', 'dirty'):
-            observed[f'tiered_2026.{preset}.{tier_name}'] = tier_counts[preset].get(tier_name, 0)
-        observed[f'tiered_2026.{preset}.null'] = tier_counts[preset].get(None, 0)
-        observed[f'tiered_2026.{preset}.not_dirty'] = tier_counts[preset].get(
-            'clean', 0
-        ) + tier_counts[preset].get('below_threshold', 0)
-    for key, got in observed.items():
+        r[f'tier_{preset}_2026'] = tier(r['clean_2026'], r['aipac_udp_flag_2026'], r['corp_2026'],
+                                        r['total_receipts_2026'], PRESETS[preset])  # fmt: skip
+    if r['corp_2026'] > 0 and r['individual_2026'] == 0:
+        r['data_notes'] += NO_INDIVIDUAL_MONEY_NOTE.format(corp=f'{r["corp_2026"]:,.0f}')
+
+
+def credits_2026():
+    with connect() as db:
+        return {key: cents / 100 for key, cents in db.execute(CREDITS, [CURRENT]).fetchall()}
+
+
+def observed_counts(records):
+    r120 = [r for r in records if r['in_120th'] == 'yes']
+    house = [r for r in r120 if r['chamber_120'] == 'House']
+    house_clean = [r for r in house if r['clean_2026'] is True]
+    career_clean = [r for r in house if r['corporate_pac_career'] == 0
+                    and r['aipac_pac_direct_career'] == 0 and r['udp_ie_support_career'] == 0]  # fmt: skip
+    career_keys = {r['person_key'] for r in career_clean}
+    found = {
+        'clean_2026.true_total': sum(r['clean_2026'] is True for r in records),
+        'clean_2026.false_total': sum(r['clean_2026'] is False for r in records),
+        'clean_2026.null_total': sum(r['clean_2026'] is None for r in records),
+        'clean_2026.house_120th_verified_clean': len(house_clean),
+        'clean_2026.house_120th_career_clean': len(career_clean),
+    }
+    for party in ('Democrat', 'Republican'):
+        found[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
+            r['party_120'] == party for r in house_clean)  # fmt: skip
+        found[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
+            r['party_120'] == party for r in career_clean)  # fmt: skip
+    found['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
+        r['person_key'] not in career_keys for r in house_clean)  # fmt: skip
+    found['tiered_2026.aipac_udp_flag_all'] = sum(r['aipac_udp_flag_2026'] for r in records)
+    found['tiered_2026.aipac_udp_flag_120th'] = sum(r['aipac_udp_flag_2026'] for r in r120)
+    for preset in ('balanced', 'lenient'):
+        tiers = Counter(r[f'tier_{preset}_2026'] for r in r120)
+        for name in ('clean', 'below_threshold', 'dirty'):
+            found[f'tiered_2026.{preset}.{name}'] = tiers.get(name, 0)
+        found[f'tiered_2026.{preset}.null'] = tiers.get(None, 0)
+        found[f'tiered_2026.{preset}.not_dirty'] = tiers.get('clean', 0) + tiers.get(
+            'below_threshold', 0
+        )
+    return found
+
+
+def check_against_baseline(records):
+    for key, got in observed_counts(records).items():
         want = expected(key, got)
         if got != want:
             raise SystemExit(f'{key}: computed {got} != baseline {want}')
-    print(
-        f'clean_2026: True {counts["true_total"]}, False {counts["false_total"]}, '
-        f'None {counts["null_total"]}; '
-        f'unopposed_2026 True {sum(1 for r in records if r["unopposed_2026"])}; '
-        f'120th House clean {len(house_clean)} '
-        f'({observed["clean_2026.house_120th_verified_clean_democrat"]} D, '
-        f'{observed["clean_2026.house_120th_verified_clean_republican"]} R); '
-        f'career-clean 120th House {len(career_clean)}; '
-        f'aipac_udp_flag_2026 120th {observed["tiered_2026.aipac_udp_flag_120th"]} / '
-        f'roster {observed["tiered_2026.aipac_udp_flag_all"]}; '
-        f'tiers balanced {dict(tier_counts["balanced"])}; '
-        f'tiers lenient {dict(tier_counts["lenient"])}'
-    )
 
-    # ---- Primary-target list ----
-    targets = [r for r in house120 if r['party_120'] == 'Democrat' and r['dirty_2026'] > 0]
-    targets.sort(key=lambda r: -r['dirty_2026'])
+
+def write_primary_targets(records):
+    targets = sorted(
+        (r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House'
+         and r['party_120'] == 'Democrat' and r['dirty_2026'] > 0),
+        key=lambda r: -r['dirty_2026'],
+    )  # fmt: skip
     lines = [
         '# Primary targets — House Democrats in the 120th Congress, by dirty money in 2026',
         '',
@@ -454,18 +320,23 @@ def with_2026(records):
         '| # | Name | District | Dirty 2026 | Corp PAC 2026 | AIPAC 2026 | UDP benefit 2026 | Individual 2026 |',
         '|---|------|----------|-----------:|--------------:|-----------:|-----------------:|---------------:|',
     ]
-    for i, r in enumerate(targets, 1):
-        lines.append(
-            f'| {i} | {r["full_name"]} | {r["state"]}-{r["district_120"]} | '
-            f'${r["dirty_2026"]:,.2f} | ${r["corp_2026"]:,.2f} | '
-            f'${r["aipac_direct_2026"]:,.2f} | ${r["udp_benefit_2026"]:,.2f} | '
-            f'${r["individual_2026"]:,.2f} |'
-        )
-    with open(ROOT / CFG['paths']['primary_targets'], 'w') as f:
-        f.write('\n'.join(lines) + '\n')
-    print(f'wrote {CFG["paths"]["primary_targets"]} ({len(targets)} targets)')
+    lines += [
+        f'| {i} | {r["full_name"]} | {r["state"]}-{r["district_120"]} | '
+        f'${r["dirty_2026"]:,.2f} | ${r["corp_2026"]:,.2f} | '
+        f'${r["aipac_direct_2026"]:,.2f} | ${r["udp_benefit_2026"]:,.2f} | '
+        f'${r["individual_2026"]:,.2f} |'
+        for i, r in enumerate(targets, 1)
+    ]
+    (ROOT / CFG['paths']['primary_targets']).write_text('\n'.join(lines) + '\n')
 
-    # ---- Write the dataset in the final column order ----
-    json_keys = CFG['dataset']['json_keys']
-    ordered = [{k: r[k] for k in json_keys} for r in records]
-    return ordered
+
+def with_2026(records):
+    """Add the 2026 columns, clean flags and tiers; check the counts; write the target list."""
+    credits = credits_2026()
+    race_map, race_of = races_in(CURRENT)
+    for r in records:
+        r.update(money_2026(r, credits.get(r['person_key'], 0.0)))
+        verdict_and_notes(r, race_map, race_of)
+    check_against_baseline(records)
+    write_primary_targets(records)
+    return [{k: r[k] for k in CFG['dataset']['json_keys']} for r in records]
