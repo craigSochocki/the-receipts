@@ -1,7 +1,7 @@
 -- Gold views over the silver tables.
 
 CREATE OR REPLACE VIEW counted_committee_money AS
-SELECT money.*, registry.committee_class
+SELECT money.*, registry.committee_class, registry.kind
 FROM committee_contributions AS money
 JOIN committees AS registry USING (committee_id, cycle)
 WHERE money.excluded_because IS NULL;
@@ -28,6 +28,14 @@ SELECT candidate_id, cycle,
 FROM counted_summaries AS summary
 JOIN candidate_summaries AS filed USING (candidate_id, cycle)
 FULL OUTER JOIN committee_money AS money USING (candidate_id, cycle);
+
+-- Counted committee money per candidate ID and cycle, by class and kind.
+CREATE OR REPLACE VIEW committee_money_by_class AS
+SELECT candidate_id, cycle, committee_class, kind,
+    SUM(amount_cents)                              AS amount_cents,
+    COALESCE(SUM(amount_cents) FILTER (is_earmark), 0) AS earmark_cents
+FROM counted_committee_money
+GROUP BY candidate_id, cycle, committee_class, kind;
 
 -- Candidate IDs that appear anywhere in weball or pas2.
 CREATE OR REPLACE VIEW candidates_on_file AS
