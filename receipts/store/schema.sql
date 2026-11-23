@@ -76,6 +76,14 @@ CREATE TABLE summary_corrections (  -- every cell counted_summaries changed, and
     kept_id       VARCHAR NOT NULL
 );
 
+CREATE TABLE double_counts (  -- data/source/dedup-applied.json: one row per dropped copy
+    person_key    VARCHAR NOT NULL,
+    cycle         INTEGER NOT NULL,
+    kept_id       VARCHAR NOT NULL,
+    dropped_id    VARCHAR NOT NULL,
+    amount_cents  BIGINT NOT NULL
+);
+
 CREATE TABLE summary_differences (  -- dropped-copy cells left as filed: they differ from the kept copy
     position      INTEGER NOT NULL,  -- order the double-count record yields them
     person_key    VARCHAR NOT NULL,

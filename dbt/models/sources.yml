@@ -43,6 +43,7 @@ sources:
                   arguments:
                     values: [unregistered_committee, blank_candidate, candidate_not_identified,
                              reported_again]
+      - name: double_counts
       - name: summary_corrections
       - name: summary_differences
       - name: files_read
