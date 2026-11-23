@@ -6,12 +6,11 @@ from pathlib import Path
 
 import duckdb
 
-from receipts.common.files import write_csv, write_json
+from receipts.common.files import write_json
 from receipts.common.settings import CAREER_CYCLES as CYCLES
-from receipts.common.settings import PATHS, load_double_count_records
+from receipts.common.settings import PATHS
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
-from receipts.domain.weball_double_counts import correction_notes
 from receipts.store.gold import per_cycle_rows, write_gold
 
 COLUMNS = [
@@ -121,9 +120,7 @@ def write(out_dir):
 
     write_gold('accepted_money_people', rows, set(CAREER.values()))
     write_gold('accepted_money_per_cycle', per_cycle_rows(per_cycle), set(COLUMNS))
-    write_csv(out_dir / 'money_pas2_weball.csv', rows)
     write_json(out_dir / 'money_per_cycle.json', per_cycle)
-    write_json(out_dir / 'dedup-notes.json', correction_notes(load_double_count_records()))
 
 
 if __name__ == '__main__':

@@ -2,7 +2,6 @@
 
 `silver`: the views over the store's tables, and the store's own tests.
 `marts`: the per-person marts over the gold tables the money steps write.
-`published`: the check that the marts agree with the dataset just written.
 """
 
 import os
@@ -13,17 +12,14 @@ from dbt.cli.main import dbtRunner
 from receipts.common.settings import PATHS, ROOT
 
 PROJECT = ROOT / 'dbt'
-COMPARISON = 'marts_match_the_published_dataset'
 LAYERS = {
     'silver': ['--select', 'source:store', 'path:models/silver'],
-    'marts': ['--select', 'source:gold', 'path:models/marts', '--exclude', COMPARISON],
-    'published': ['--select', COMPARISON],
+    'marts': ['--select', 'source:gold', 'path:models/marts'],
 }
 
 
 def build(layer):
     os.environ['RECEIPTS_STORE'] = str(PATHS.store)
-    os.environ['RECEIPTS_DATASET'] = str(PATHS.dataset_json)
     args = ['build', '--project-dir', str(PROJECT), '--profiles-dir', str(PROJECT)]
     result = dbtRunner().invoke([*args, *LAYERS[layer]])
     if not result.success:

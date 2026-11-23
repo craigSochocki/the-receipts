@@ -51,21 +51,11 @@ paths:
   baseline: data/source/baseline.json
   manual_roster_notes: data/source/manual_roster_notes.json
   money_per_cycle: data/intermediate/money_per_cycle.json
-  money_pas2_weball: data/intermediate/money_pas2_weball.csv
-  money_udp: data/intermediate/money_udp.csv
-  money_udp_per_cycle: data/intermediate/money_udp_per_cycle.json
-  self_funding_per_cycle: data/intermediate/self_funding_per_cycle.json
-  self_funding_csv: data/intermediate/self_funding.csv
-  other_committees_per_cycle: data/intermediate/other_committees_per_cycle.json
-  other_committees_csv: data/intermediate/other_committees.csv
   other_committees_diagnostics: data/intermediate/other_committees_diagnostics.json
   all_ie_per_cycle: data/intermediate/all_ie_per_cycle.json
-  all_ie_csv: data/intermediate/all_ie.csv
-  all_ie_top_committees: data/intermediate/all_ie_top_committees.json
   freshness_snapshot: data/intermediate/freshness_snapshot.json
   freshness_state: data/source/freshness_state.json
   dedup_applied: data/source/dedup-applied.json
-  dedup_notes: data/intermediate/dedup-notes.json
   primary_targets: data/intermediate/primary-targets.md
   opposition_computed: data/intermediate/opposition-computed.json
   dataset_csv: congress-money-tracker.csv

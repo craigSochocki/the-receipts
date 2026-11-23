@@ -9,8 +9,7 @@ wording: research/udp-notes.md.
 from collections import defaultdict
 
 from receipts.common.baseline import expected
-from receipts.common.files import write_csv, write_json
-from receipts.common.settings import CURRENT_CYCLE, PATHS, load_roster
+from receipts.common.settings import CURRENT_CYCLE, load_roster
 from receipts.common.settings import IE_CYCLES as CYCLES
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.udp_rows import UdpRows
@@ -113,8 +112,6 @@ def main():
         ],
         {'udp_ie_support'},
     )
-    write_csv(PATHS.money_udp, people)
-    write_json(PATHS.money_udp_per_cycle, {entry['person_key']: entry for _, entry in outputs})
     print(
         f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
         f'name-index collisions: {len(udp.collisions)}'

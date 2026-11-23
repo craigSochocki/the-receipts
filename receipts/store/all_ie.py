@@ -12,7 +12,7 @@ from collections import defaultdict
 from typing import NamedTuple
 
 from receipts.common.baseline import expected
-from receipts.common.files import write_csv, write_json
+from receipts.common.files import write_json
 from receipts.common.settings import (
     CURRENT_CYCLE,
     DATA_AS_OF,
@@ -641,8 +641,6 @@ def main():
         ],
         {'support', 'oppose', 'total'},
     )
-    write_json(PATHS.intermediate / 'all_ie_top_committees.json', top)
-    write_csv(PATHS.intermediate / 'all_ie.csv', people)
     write_json(
         PATHS.intermediate / 'all_ie_per_cycle.json',
         {

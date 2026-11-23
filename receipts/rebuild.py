@@ -91,7 +91,6 @@ STEPS = [
     'receipts.store.opposition',
     'receipts.store.models marts',
     'receipts.transform.build_dataset',
-    'receipts.store.models published',
     'receipts.validate.verify_dataset',
 ]
 LOOKUP_STEP = 'receipts.transform.fec_lookup'
