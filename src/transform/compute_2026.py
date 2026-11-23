@@ -157,6 +157,7 @@ import pandas as pd
 
 from src.common.config import load_config
 from src.common.baseline import expected
+from src.store.races import races_in
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -183,36 +184,6 @@ LURIA_UNVERIFIED = (' | 2026 clean status UNVERIFIED — no 2026 per-cycle data 
 UNOPPOSED_NOTE = (' | 2026 clean status UNOPPOSED — ran unopposed in 2026 ({race}): '
                   'no opponent with receipts over $0, so $0 dirty money reflects no contest, '
                   'not a verified-clean campaign. Not counted as verified-clean.')
-
-
-def load_weball_2026_races():
-    """2026 races from the FEC all-candidates file (weball26).
-
-    Returns (race_map, by_cid): race_map maps (office, state, district)
-    to [(candidate_id, total_receipts)]; by_cid maps candidate_id to
-    its (office, state, district). weball is pipe-delimited, 30 fields,
-    no header: p[0] candidate ID (H/S/P prefix = office), p[5] total
-    receipts, p[18] state, p[19] district. The race comes from the
-    filing's own row, not the roster district (see module docstring —
-    the MP delegate race is filed under district 01, not the roster's 0).
-    """
-    yy = f"{CFG['cycles']['current'] % 100:02d}"
-    path = ROOT / CFG['paths']['bulk'] / 'weball' / f'weball{yy}.txt'
-    race_map = {}
-    by_cid = {}
-    with open(path) as f:
-        for line in f:
-            p = line.rstrip('\n').split('|')
-            if len(p) != 30:
-                continue
-            try:
-                receipts = float(p[5] or 0)
-            except ValueError:
-                receipts = 0.0
-            race = (p[0][0], p[18], p[19])
-            race_map.setdefault(race, []).append((p[0], receipts))
-            by_cid[p[0]] = race
-    return race_map, by_cid
 
 
 def unopposed_2026_races(r, race_map, by_cid):
@@ -297,7 +268,7 @@ def tier_2026(r, preset):
     return 'clean'
 
 
-race_map, by_cid = load_weball_2026_races()
+race_map, by_cid = races_in(CFG['cycles']['current'])
 
 for r in records:
     r['individual_2026'] = cycle_sum(r['per_cycle'], 'individual')
