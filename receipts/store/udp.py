@@ -12,6 +12,7 @@ from receipts.common.baseline import expected
 from receipts.common.files import write_csv, write_json
 from receipts.common.settings import CURRENT_CYCLE, PATHS, load_roster
 from receipts.common.settings import IE_CYCLES as CYCLES
+from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.udp_rows import UdpRows
 
 ATTRIBUTION = 'name_state_district_office_match; cand_id blank in FEC file'
@@ -101,7 +102,18 @@ def main():
             raise SystemExit(f'UDP S+O total for {cycle} does not reconcile with the prior pull')
     money = UdpMoney(udp.rows)
     outputs = [person_outputs(p, money) for p in roster]
-    write_csv(PATHS.money_udp, [row for row, _ in outputs])
+    people = [row for row, _ in outputs]
+    cycles = {entry['person_key']: entry for _, entry in outputs}
+    write_gold('udp_people', people, {'udp_ie_support_career'})
+    write_gold(
+        'udp_per_cycle',
+        [
+            {**r, 'attribution': r.get('attribution')}
+            for r in per_cycle_rows(cycles, 'udp_per_cycle')
+        ],
+        {'udp_ie_support'},
+    )
+    write_csv(PATHS.money_udp, people)
     write_json(PATHS.money_udp_per_cycle, {entry['person_key']: entry for _, entry in outputs})
     print(
         f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
