@@ -6,10 +6,16 @@ repo cold. It is the contract.
 
 - `README.md` is the setup guide (clone, rebuild, layout).
 - `methodology.md` is the definitions — every column, source, and
-  limitation. If this file and `methodology.md` disagree on a number,
-  `methodology.md` wins.
+  limitation. If this file and `methodology.md` disagree on a
+  definition, `methodology.md` wins.
 - `architecture.md` is the design (data model, North Star, gaps).
 - `STATUS.md` is where the build stands right now.
+- **Docs describe; data records.** This file, `README.md`,
+  `architecture.md`, `methodology.md`, `config.yaml` comments and code
+  comments carry no result figures, named cases or dated history.
+  Results live in `data/source/baseline.json` and the dataset, the
+  evidence behind each rule in `research/`, and open items and history
+  in `STATUS.md`. `tests/test_docs_have_no_figures.py` enforces it.
 
 ## 1. The job / North Star
 
@@ -286,8 +292,8 @@ Every build reports back with evidence, not adjectives:
 
 - md5s of the dataset CSV/JSON, audit count and result, the commit
   list (one change per commit), and what changed.
-- **Open items get documented** in `methodology.md` / `STATUS.md`,
-  never silently dropped. If an access route is blocked, name the
+- **Open items get documented** in `STATUS.md`, never silently
+  dropped. If an access route is blocked, name the
   blocker and what it would take to unblock it.
 - If a verification step fails, report what failed, what the evidence
   says, and what happens next — and stop. Do not retry a blocked step
