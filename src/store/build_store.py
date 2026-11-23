@@ -2,10 +2,12 @@
 """Build the silver store (DuckDB) from the pinned FEC snapshot and the roster."""
 import json
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import duckdb
 import pandas as pd
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.config import load_config
@@ -13,11 +15,13 @@ from src.domain.committee_classes import committee_class
 from src.domain.committee_money import ReportedOnce, is_voided_earmark
 from src.domain.outside_spending import LatestFiling, exclusion
 from src.domain.roster import candidate_ids
+from src.domain.seats import house_seat_id
 from src.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
 from src.fec.committee_contributions import committee_contributions
 from src.fec.committees import committees
 from src.fec.independent_expenditures import independent_expenditures
 from src.fec.weball import candidate_summaries
+from src.store import congress
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -27,14 +31,25 @@ SOURCE = ROOT / CFG['paths']['source']
 CAREER_CYCLES = range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2)
 IE_CYCLES = CFG['cycles']['udp']
 AIPAC_PAC = CFG['committees']['aipac_pac']
+CANDIDATE_SNAPSHOT = ROOT / CFG['paths']['bulk'] / 'cn' / 'SNAPSHOT'
 VOIDED_EARMARK = 'voided_earmark'
 REPORTED_AGAIN = 'reported_again'
 
 
-def people_rows(roster):
+def people_rows(roster, legislators_119th):
     people = [{'person_key': p['person_key'], 'full_name': p['full_name'],
-               'first_name': p.get('first_name'), 'last_name': p.get('last_name')}
-              for p in roster]
+               'first_name': p.get('first_name'), 'last_name': p.get('last_name'),
+               'roster_position': position}
+              for position, p in enumerate(roster)]
+    on_roster = {p['person_key'] for p in roster}
+    for legislator in legislators_119th:
+        if legislator['id']['bioguide'] not in on_roster:
+            name = legislator['name']
+            people.append({'person_key': legislator['id']['bioguide'],
+                           'full_name': name.get('official_full')
+                           or f"{name['first']} {name['last']}",
+                           'first_name': name['first'], 'last_name': name['last'],
+                           'roster_position': None})
     ids = [{'person_key': p['person_key'], 'candidate_id': candidate_id, 'position': position}
            for p in roster for position, candidate_id in enumerate(candidate_ids(p))]
     return people, ids
@@ -137,6 +152,35 @@ def outside_spending_rows(roster):
                    'excluded_because': exclusion(e, registered, identified)}
 
 
+def congress_rows(roster):
+    with open(SOURCE / 'house_maps.yaml') as f:
+        new_map_states = set(yaml.safe_load(f)['new_map_for_2026'])
+    legislators = congress.read_legislators(SOURCE)
+    legislators_119th = [p for p in legislators
+                         if any(congress.served_in_119th(t) for t in p.get('terms', []))]
+    terms = (list(congress.terms_119th(legislators_119th, new_map_states))
+             + list(congress.terms_120th(roster, new_map_states)))
+    senate_classes = congress.senate_classes_by_state(terms)
+    house_2024 = {(t['seat_id'].split('-')[1], int(t['seat_id'].split('-')[2].split('/')[0]))
+                  for t in terms if t['seat_id'].startswith('H-') and t['congress'] == 119}
+    house_2026 = defaultdict(dict)
+    for state, district in house_2024:
+        if state in new_map_states:
+            house_2026[state][district] = house_seat_id(state, district, 2026, new_map_states)
+    seats = congress.seat_rows(terms, house_2026, senate_classes)
+    candidacies = congress.candidacy_rows(BULK, CAREER_CYCLES, new_map_states, senate_classes,
+                                          {seat['seat_id'] for seat in seats})
+    return legislators_119th, seats, terms, candidacies
+
+
+def check_candidate_snapshot():
+    pinned = json.loads((SOURCE / 'baseline.json').read_text()).get('_candidates_snapshot')
+    staged = CANDIDATE_SNAPSHOT.read_text().strip() if CANDIDATE_SNAPSHOT.exists() else None
+    if staged != pinned:
+        raise SystemExit(f'staged candidate files are {staged}, but the baseline pins {pinned}; '
+                         f'run ./fetch_snapshot.sh')
+
+
 def batches(rows, size=250_000):
     batch = []
     for row in rows:
@@ -163,11 +207,13 @@ def main():
         roster = json.load(f)
     with open(SOURCE / 'dedup-applied.json') as f:
         dedup_records = json.load(f)
+    check_candidate_snapshot()
+    legislators_119th, seats, terms, candidacies = congress_rows(roster)
     STORE.parent.mkdir(parents=True, exist_ok=True)
     STORE.unlink(missing_ok=True)
     with duckdb.connect(str(STORE)) as db:
         db.execute((Path(__file__).parent / 'schema.sql').read_text())
-        people, ids = people_rows(roster)
+        people, ids = people_rows(roster, legislators_119th)
         insert(db, 'people', people)
         insert(db, 'person_candidate_ids', ids)
         summaries = read_summaries()
@@ -181,6 +227,9 @@ def main():
         insert(db, 'committees', committee_rows())
         insert(db, 'committee_contributions', contribution_rows())
         insert(db, 'outside_spending', outside_spending_rows(roster))
+        insert(db, 'seats', seats)
+        insert(db, 'terms', terms)
+        insert(db, 'candidacies', candidacies)
         db.execute((Path(__file__).parent / 'views.sql').read_text())
 
 

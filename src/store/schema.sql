@@ -5,7 +5,8 @@ CREATE TABLE people (
     person_key  VARCHAR PRIMARY KEY,
     full_name   VARCHAR NOT NULL,
     first_name  VARCHAR,
-    last_name   VARCHAR
+    last_name   VARCHAR,
+    roster_position INTEGER  -- order in the tracker; NULL = not tracked
 );
 
 CREATE TABLE person_candidate_ids (
@@ -109,4 +110,40 @@ CREATE TABLE outside_spending (  -- independent expenditures, latest filing
     office_district  VARCHAR,
     expenditure_date VARCHAR,
     excluded_because VARCHAR  -- NULL when counted
+);
+
+CREATE TABLE seats (  -- stable positions; a redrawn House map makes new seats
+    seat_id             VARCHAR PRIMARY KEY,
+    chamber             VARCHAR NOT NULL,
+    state               VARCHAR NOT NULL,
+    district            INTEGER,  -- House; 0 = at-large or delegate
+    senate_class        INTEGER,  -- Senate
+    voting              BOOLEAN NOT NULL,
+    map_first_election  INTEGER   -- House: first covered election on this map
+);
+
+CREATE TABLE terms (  -- who holds which seat, and from what source
+    person_key  VARCHAR NOT NULL,
+    seat_id     VARCHAR NOT NULL,
+    congress    INTEGER NOT NULL,
+    start_date  VARCHAR NOT NULL,
+    end_date    VARCHAR NOT NULL,
+    party       VARCHAR,
+    source      VARCHAR NOT NULL
+);
+
+CREATE TABLE candidacies (  -- cn: every registered candidate, per cycle file
+    candidate_id          VARCHAR NOT NULL,
+    cycle                 INTEGER NOT NULL,
+    name                  VARCHAR,
+    party                 VARCHAR,
+    election_year         INTEGER,
+    office                VARCHAR,
+    office_state          VARCHAR,
+    office_district       VARCHAR,
+    incumbent_challenger  VARCHAR,
+    status                VARCHAR,
+    principal_committee   VARCHAR,
+    seat_id               VARCHAR,  -- 2024/2026 House and regular Senate races
+    PRIMARY KEY (candidate_id, cycle)
 );
