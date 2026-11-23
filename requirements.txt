@@ -1,3 +1,4 @@
 # Installs this repo as an editable package, so `from receipts...` works from any script.
-# Dependencies live in pyproject.toml. (./init.sh runs this for you.)
+# Dependencies live in pyproject.toml; constraints.txt pins their exact versions. (./init.sh runs this for you.)
+-c constraints.txt
 -e .[test]

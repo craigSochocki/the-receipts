@@ -21,6 +21,22 @@ python3 --version   # 3.10+, tested on 3.12
 pip install -r requirements.txt  # installs the repo as a package, plus pyyaml, pandas, duckdb
 ```
 
+### Updating the pinned versions
+
+`constraints.txt` pins every package to the exact version CI installs,
+because a new pandas, DuckDB or dbt release can change the output and
+break the byte-identical rebuild. To move to newer versions, in a fresh
+Python 3.12 virtualenv:
+
+```sh
+pip install -e .[test]                      # no constraints: newest allowed versions
+pip freeze --exclude-editable > constraints.txt
+python3 receipts/rebuild.py                 # must still reproduce the committed dataset
+```
+
+Land it as its own commit; if the rebuild differs, a version changed the
+output, so stop and find which one.
+
 Or run `./init.sh` — it does the venv, the bulk download, the rebuild, and the site in one go.
 
 ## Rebuild from scratch
