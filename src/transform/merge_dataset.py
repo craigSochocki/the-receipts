@@ -7,7 +7,7 @@ Inputs (all staged; see config.yaml `paths`):
   (from `src/store/accepted_money.py`: the weball double-count is already
   corrected).
 - `money_udp.csv` + `money_udp_per_cycle.json` — UDP support (from
-  `pull_udp.py`).
+  `src/store/udp.py`).
 - `self_funding_per_cycle.json` + `self_funding.csv` — self-funding +
   topline from weball (from `src/store/self_funding.py`, Curtis-corrected
   for cols 6-9 via the recorded dedup extension).
