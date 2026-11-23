@@ -142,6 +142,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from receipts.common.config import load_config
+from receipts.common.fec_api import fec_api
 from receipts.common.files import read_json
 
 CFG = load_config()
@@ -190,7 +191,7 @@ def check_family(
             '(YYYY-MM-DD); pass the window start when '
             'there is no baseline'
         )
-    get = api_get or globals()['api_get']
+    get = api_get or fec_api.get
     per_page = int(per_page or GATE_PER_PAGE)
     max_pages = int(max_pages or GATE_MAX_PAGES)
     seen = set(seen_file_numbers or ())
