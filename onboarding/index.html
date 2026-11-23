@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Receipts Codebase Tour</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~68ch) with figures allowed wider; each data layer keeps one color everywhere it appears. */
+:root {
+  --paper: #f4f6f8; --card: #ffffff; --ink: #18212c; --muted: #566273; --rule: #d6dce4;
+  --raw: #64707f; --silver: #2c6cb0; --gold: #a86f12; --data: #0d7a83; --site: #7148b8;
+  --clean: #2b7a4b; --dirty: #c0392b;
+  --code-bg: #eef1f5;
+  --display: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --body: 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11151b; --card: #19202a; --ink: #e5e9ef; --muted: #9aa5b3; --rule: #2a3340;
+    --raw: #95a0ae; --silver: #6fa8e6; --gold: #e2aa4c; --data: #42bcc4; --site: #a98ae8;
+    --clean: #5cc48a; --dirty: #f0796a; --code-bg: #141a22; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11151b; --card: #19202a; --ink: #e5e9ef; --muted: #9aa5b3; --rule: #2a3340;
+  --raw: #95a0ae; --silver: #6fa8e6; --gold: #e2aa4c; --data: #42bcc4; --site: #a98ae8;
+  --clean: #5cc48a; --dirty: #f0796a; --code-bg: #141a22; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 4rem;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+.col { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-weight: 800; font-size: clamp(2.1rem, 5vw, 3.3rem); letter-spacing: -0.01em; }
+h2 { font-weight: 800; font-size: clamp(1.5rem, 3.2vw, 2rem); }
+h3 { font-weight: 600; font-size: 1.15rem; }
+p { margin: 0; }
+a { color: var(--silver); }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--silver); outline-offset: 2px; border-radius: 3px; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+:not(pre) > code { background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; }
+.eyebrow { font: 500 0.78rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; color: var(--ink); }
+.muted { color: var(--muted); }
+section { display: grid; gap: 1.1rem; padding-block: 2.6rem 0.4rem; border-top: 1px solid var(--rule); margin-top: 2.2rem; }
+section > * { min-width: 0; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; padding-block: 3rem 1rem; }
+.hero .text { display: grid; gap: 1rem; }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; gap: 1.6rem; } }
+.receipt {
+  background: var(--card); border: 1px solid var(--rule); border-radius: 2px; padding: 1.1rem 1.2rem 1.3rem;
+  font: 400 0.84rem/1.55 var(--mono); box-shadow: 0 1px 0 var(--rule), 0 10px 24px -18px rgba(0,0,0,.45);
+  max-width: 360px; justify-self: center; width: 100%;
+  -webkit-mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x;
+          mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x;
+}
+.receipt .hd { text-align: center; font-weight: 500; letter-spacing: 0.06em; }
+.receipt .row { display: flex; justify-content: space-between; gap: 1rem; font-variant-numeric: tabular-nums; }
+.receipt hr { border: 0; border-top: 1px dashed var(--muted); margin: 0.55rem 0; }
+.receipt .tot { font-weight: 500; }
+.receipt .foot { color: var(--muted); font-size: 0.76rem; text-align: center; margin-top: 0.5rem; }
+
+/* outcomes + toc */
+.outcomes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+@media (max-width: 760px) { .outcomes { grid-template-columns: 1fr; } }
+.outcome { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem 1rem; display: grid; gap: 0.3rem; align-content: start; }
+.outcome b { font-family: var(--display); font-weight: 600; }
+.toc { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.toc a { font: 500 0.82rem/1 var(--body); text-decoration: none; color: var(--ink); border: 1px solid var(--rule); background: var(--card); padding: 0.45rem 0.7rem; border-radius: 999px; }
+.toc a:hover { border-color: var(--silver); }
+
+/* principles */
+.principles { display: grid; gap: 0.8rem; counter-reset: p; }
+.principle { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: 0.9rem; align-items: start; }
+.principle::before { counter-increment: p; content: counter(p); font: 800 1.2rem/2.4rem var(--display); text-align: center; border-radius: 50%; background: var(--card); border: 1px solid var(--rule); color: var(--ink); width: 2.4rem; height: 2.4rem; }
+.principle div { display: grid; gap: 0.25rem; }
+
+/* figures */
+figure { margin: 0; display: grid; gap: 0.6rem; }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem; }
+.scroll svg { display: block; width: 100%; height: auto; min-width: 720px; }
+figcaption { font-size: 0.9rem; color: var(--muted); max-width: 72ch; }
+svg text { font-family: var(--body); fill: currentColor; }
+svg .mono { font-family: var(--mono); }
+.layers { display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem; font-size: 0.85rem; }
+.layers span { display: inline-flex; align-items: center; gap: 0.4rem; }
+.layers i { width: 0.8rem; height: 0.8rem; border-radius: 3px; display: inline-block; }
+
+/* code */
+pre { margin: 0; background: var(--code-bg); border: 1px solid var(--rule); border-radius: 8px; padding: 0.9rem 1rem; overflow-x: auto; font: 400 0.84rem/1.6 var(--mono); }
+pre .c { color: var(--muted); font-style: italic; }
+pre .s { color: var(--data); }
+pre .k { color: var(--site); font-weight: 500; }
+pre .hl { background: color-mix(in srgb, var(--gold) 22%, transparent); border-radius: 3px; padding: 0 2px; }
+pre .x { text-decoration: line-through; color: var(--dirty); }
+
+/* journey */
+.journey { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: step; }
+.journey > li { position: relative; display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); gap: 1rem; padding-bottom: 1.6rem; }
+.journey > li::before { counter-increment: step; content: counter(step); grid-column: 1; grid-row: 1; width: 2.6rem; height: 2.6rem; border-radius: 50%; display: grid; place-items: center; font: 800 1.05rem/1 var(--display); color: var(--paper); background: var(--layer); position: relative; z-index: 1; }
+.journey > li::after { content: ""; position: absolute; left: calc(1.3rem - 1px); top: 2.6rem; bottom: 0; width: 2px; background: var(--rule); }
+.journey > li:last-child::after { display: none; }
+.journey .body { grid-column: 2; grid-row: 1; display: grid; gap: 0.6rem; min-width: 0; }
+.journey .tag { font: 500 0.75rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--layer); }
+.l-raw { --layer: var(--raw); } .l-silver { --layer: var(--silver); } .l-gold { --layer: var(--gold); } .l-data { --layer: var(--data); } .l-site { --layer: var(--site); }
+
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 0.42rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 600 0.74rem/1.2 var(--body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+td.num, th.num { text-align: right; }
+.tablebox { overflow-x: auto; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; }
+tr.out td { color: var(--muted); text-decoration: line-through; }
+tr.out td:last-child { text-decoration: none; color: var(--dirty); }
+
+.callout { border-left: 3px solid var(--layer, var(--gold)); background: color-mix(in srgb, var(--layer, var(--gold)) 9%, var(--card)); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; display: grid; gap: 0.3rem; }
+.callout b { font-family: var(--display); font-weight: 600; }
+.trap { --layer: var(--dirty); }
+.tip { --layer: var(--clean); }
+
+/* rules */
+.rules { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+@media (max-width: 760px) { .rules { grid-template-columns: 1fr; } }
+.rules li { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.85rem 1rem; display: grid; gap: 0.25rem; align-content: start; }
+.rules b { font-family: var(--display); font-weight: 600; }
+
+/* repo map */
+.tree { font: 400 0.86rem/1.75 var(--mono); background: var(--card); border: 1px solid var(--rule); border-radius: 10px; padding: 1rem 1.1rem; overflow-x: auto; white-space: pre; }
+.tree .d { font-weight: 500; }
+.tree .n { color: var(--muted); font-family: var(--body); font-size: 0.84rem; }
+.dot { display: inline-block; width: 0.62rem; height: 0.62rem; border-radius: 2px; margin-right: 0.45rem; vertical-align: 0.02em; }
+
+/* commands */
+.cmds { display: grid; gap: 0.7rem; }
+.cmd { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.6rem; align-items: start; }
+.cmd .what { grid-column: 1 / -1; font-size: 0.92rem; }
+.cmd pre { padding-block: 0.6rem; }
+.copy { font: 500 0.8rem/1 var(--body); background: var(--card); color: var(--ink); border: 1px solid var(--rule); border-radius: 6px; padding: 0.55rem 0.75rem; cursor: pointer; align-self: center; }
+.copy:hover { border-color: var(--silver); }
+
+/* quiz */
+.quiz { display: grid; gap: 0.6rem; }
+details { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem 1rem; }
+details[open] { border-color: var(--clean); }
+summary { cursor: pointer; font-weight: 600; list-style-position: outside; }
+details > div { margin-top: 0.55rem; color: var(--ink); display: grid; gap: 0.4rem; }
+details .reveal { font: 500 0.75rem/1 var(--mono); color: var(--clean); letter-spacing: 0.06em; text-transform: uppercase; }
+
+dl.gloss { display: grid; grid-template-columns: minmax(9rem, max-content) minmax(0, 1fr); gap: 0.55rem 1.2rem; margin: 0; }
+dl.gloss dt { font: 500 0.9rem/1.5 var(--mono); }
+dl.gloss dd { margin: 0; }
+@media (max-width: 560px) { dl.gloss { grid-template-columns: 1fr; gap: 0.1rem; } dl.gloss dd { margin-bottom: 0.6rem; } }
+@media (prefers-reduced-motion: no-preference) { .toc a, .copy { transition: border-color .15s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="text">
+    <span class="eyebrow">Onboarding · the-receipts</span>
+    <h1>How a campaign filing becomes a voter guide</h1>
+    <p class="lede">The Receipts shows who pays for every member of Congress. This tour walks the code from first principles, following one real contribution from a raw government file to the public website.</p>
+    <p class="muted">About 25 minutes. No setup needed to read it. Figures are from the pinned FEC snapshot <code>fec-bulk-2026-11-22</code>.</p>
+  </div>
+  <div class="receipt" role="img" aria-label="Darren Soto's career money as a receipt: individual contributions $4,455,094.59, corporate PAC $2,202,552.00, AIPAC PAC direct $29,200.00, total accepted $6,686,846.59.">
+    <div class="hd">THE RECEIPTS</div>
+    <div class="hd muted" style="font-weight:400">REP. DARREN SOTO · FL-09</div>
+    <hr>
+    <div class="row"><span>Individuals</span><span>4,455,094.59</span></div>
+    <div class="row"><span>Corporate PACs</span><span>2,202,552.00</span></div>
+    <div class="row"><span>AIPAC PAC direct</span><span>29,200.00</span></div>
+    <hr>
+    <div class="row tot"><span>TOTAL ACCEPTED</span><span>6,686,846.59</span></div>
+    <div class="row muted"><span>Rank (of 664)</span><span>#359</span></div>
+    <div class="foot">career 1980–2026 · every line traces to an FEC filing</div>
+  </div>
+</header>
+
+<div class="outcomes">
+  <div class="outcome"><b>By the end you can say</b><span>what each stage of the pipeline reads, does, and writes.</span></div>
+  <div class="outcome"><b>You can trace</b><span>any number on the site back to the FEC rows it came from.</span></div>
+  <div class="outcome"><b>You know why</b><span>a change is only done when the rebuild comes out byte-for-byte the same.</span></div>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#principles">First principles</a>
+  <a href="#pipeline">The assembly line</a>
+  <a href="#journey">Follow one receipt</a>
+  <a href="#money">Which money adds up</a>
+  <a href="#safety">The safety nets</a>
+  <a href="#map">Where things live</a>
+  <a href="#settings">Settings</a>
+  <a href="#start">Your first hour</a>
+  <a href="#rules">House rules</a>
+  <a href="#check">Check yourself</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<section id="principles">
+  <span class="eyebrow">Part 1</span>
+  <h2>Five ideas the whole codebase rests on</h2>
+  <p class="col">Read these first. Every design choice later in the tour follows from one of them.</p>
+  <div class="principles col">
+    <div class="principle"><div><h3>The FEC's own files are the truth</h3><p>Every campaign must report its money to the Federal Election Commission, which publishes the reports as large text files. The app counts from those files and nothing else. Other trackers, like OpenSecrets, are used only to double-check.</p></div></div>
+    <div class="principle"><div><h3>Money is whole cents, never floats</h3><p>A float can turn $0.10 + $0.20 into $0.30000000000000004. The <code>Money</code> class stores an exact integer number of cents, so sums over millions of rows stay exact to the penny.</p></div></div>
+    <div class="principle"><div><h3>Time comes in two-year cycles</h3><p>Federal elections run on two-year cycles named for the election year (the 2026 cycle covers 2025–26). Money is counted per cycle, and a "career" figure is the sum of a person's cycles from 1980 to 2026.</p></div></div>
+    <div class="principle"><div><h3>Some money must never be mixed</h3><p>Money given to a campaign, money spent by outsiders about a race, and money a candidate lends themselves are different things. They live in separate columns and are never added together. Part 4 draws this.</p></div></div>
+    <div class="principle"><div><h3>The same input must give the same bytes</h3><p>The FEC data is frozen in a dated snapshot. Rebuilding from that snapshot must reproduce the committed dataset exactly, down to the byte. If it doesn't, something in the code, the data or the method changed, and you stop and find out which.</p></div></div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <span class="eyebrow">Part 2</span>
+  <h2>The assembly line</h2>
+  <p class="col">One command, <code>python3 receipts/rebuild.py</code>, runs the whole line in about two and a half minutes. Data moves left to right through five stations. Each color is one layer of data, and the same colors appear throughout this page.</p>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1040 330" role="img" aria-label="Pipeline: FEC bulk files are read into a silver DuckDB store, summed into gold per-person tables, assembled into the 664-row dataset, and rendered into the website. A roster of who to track feeds the store from above.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        </defs>
+        <g style="color: var(--raw)">
+          <rect x="222.5" y="10" width="150" height="62" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="297.5" y="36" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">Roster</text>
+          <text x="297.5" y="55" text-anchor="middle" font-size="11" style="fill: var(--muted)">664 people to track</text>
+          <line x1="297.5" y1="72" x2="297.5" y2="146" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+          <text x="306" y="114" font-size="11" style="fill: var(--muted)">who to look up</text>
+        </g>
+        <g>
+          <g style="color: var(--raw)"><rect x="0" y="150" width="150" height="100" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2.5"/><rect x="0" y="150" width="150" height="8" rx="3" fill="currentColor"/></g>
+          <text x="75" y="186" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">FEC bulk files</text>
+          <text x="75" y="207" text-anchor="middle" font-size="11" style="fill: var(--muted)">millions of rows,</text>
+          <text x="75" y="225" text-anchor="middle" font-size="11" style="fill: var(--muted)">frozen in a snapshot</text>
+
+          <g style="color: var(--silver)"><rect x="222.5" y="150" width="150" height="100" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2.5"/><rect x="222.5" y="150" width="150" height="8" rx="3" fill="currentColor"/></g>
+          <text x="297.5" y="186" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">Silver store</text>
+          <text x="297.5" y="207" text-anchor="middle" font-size="11" style="fill: var(--muted)">DuckDB database</text>
+          <text x="297.5" y="225" text-anchor="middle" font-size="11" style="fill: var(--muted)">every row, cleaned</text>
+
+          <g style="color: var(--gold)"><rect x="445" y="150" width="150" height="100" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2.5"/><rect x="445" y="150" width="150" height="8" rx="3" fill="currentColor"/></g>
+          <text x="520" y="186" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">Gold tables</text>
+          <text x="520" y="207" text-anchor="middle" font-size="11" style="fill: var(--muted)">totals per person</text>
+          <text x="520" y="225" text-anchor="middle" font-size="11" style="fill: var(--muted)">in cents</text>
+
+          <g style="color: var(--data)"><rect x="667.5" y="150" width="150" height="100" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2.5"/><rect x="667.5" y="150" width="150" height="8" rx="3" fill="currentColor"/></g>
+          <text x="742.5" y="186" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">Dataset</text>
+          <text x="742.5" y="207" text-anchor="middle" font-size="11" style="fill: var(--muted)">664 rows</text>
+          <text x="742.5" y="225" text-anchor="middle" font-size="11" style="fill: var(--muted)">JSON + CSV, in git</text>
+
+          <g style="color: var(--site)"><rect x="890" y="150" width="150" height="100" rx="8" fill="var(--card)" stroke="currentColor" stroke-width="2.5"/><rect x="890" y="150" width="150" height="8" rx="3" fill="currentColor"/></g>
+          <text x="965" y="186" text-anchor="middle" font-weight="600" font-size="13" style="fill: var(--ink)">Website</text>
+          <text x="965" y="207" text-anchor="middle" font-size="11" style="fill: var(--muted)">one HTML page</text>
+          <text x="965" y="225" text-anchor="middle" font-size="11" style="fill: var(--muted)">on GitHub Pages</text>
+        </g>
+        <g style="color: var(--ink)" font-size="12">
+          <line x1="152" y1="200" x2="219" y2="200" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+          <text x="186" y="190" text-anchor="middle" font-weight="600">read</text>
+          <line x1="374.5" y1="200" x2="441.5" y2="200" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+          <text x="408.5" y="190" text-anchor="middle" font-weight="600">sum</text>
+          <line x1="597" y1="200" x2="664" y2="200" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+          <text x="631" y="190" text-anchor="middle" font-weight="600">assemble</text>
+          <line x1="819.5" y1="200" x2="886.5" y2="200" stroke="currentColor" stroke-width="2" marker-end="url(#ar)"/>
+          <text x="853.5" y="190" text-anchor="middle" font-weight="600">render</text>
+        </g>
+        <g font-size="10" class="mono" style="fill: var(--muted)">
+          <text x="186" y="222" text-anchor="middle" class="mono">fec/</text>
+          <text x="408.5" y="222" text-anchor="middle" class="mono">store/</text>
+          <text x="631" y="222" text-anchor="middle" class="mono">transform/</text>
+          <text x="853.5" y="222" text-anchor="middle" class="mono">site/</text>
+        </g>
+        <g font-size="11" class="mono" style="fill: var(--muted)">
+          <text x="75" y="278" text-anchor="middle" class="mono">data/raw/</text>
+          <text x="297.5" y="278" text-anchor="middle" class="mono">data/store/</text>
+          <text x="520" y="278" text-anchor="middle" class="mono">gold schema</text>
+          <text x="742.5" y="278" text-anchor="middle" class="mono">repo root</text>
+          <text x="965" y="278" text-anchor="middle" class="mono">docs/</text>
+        </g>
+        <g style="color: var(--clean)">
+          <line x1="742.5" y1="284" x2="742.5" y2="302" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/>
+          <text x="742.5" y="320" text-anchor="middle" font-size="12" font-weight="600" style="fill: var(--clean)">verify: 14 audit groups</text>
+        </g>
+      </svg>
+    </div>
+    <div class="layers" aria-hidden="true">
+      <span><i style="background:var(--raw)"></i>raw input</span>
+      <span><i style="background:var(--silver)"></i>silver (cleaned rows)</span>
+      <span><i style="background:var(--gold)"></i>gold (per-person totals)</span>
+      <span><i style="background:var(--data)"></i>published dataset</span>
+      <span><i style="background:var(--site)"></i>website</span>
+    </div>
+    <figcaption>The five stations. Folder names under the arrows are the Python packages that do each move, and the paths along the bottom are where each layer lives on disk. "Silver" and "gold" are standard data-engineering names: silver is cleaned raw rows, gold is ready-to-use totals.</figcaption>
+  </figure>
+  <div class="callout tip col"><b>Why a database in the middle?</b><p>The raw files hold tens of millions of rows. Loading them once into DuckDB means every money step can ask a precise SQL question ("AIPAC's checks to this candidate, by cycle") instead of re-reading gigabytes of text.</p></div>
+  <details class="col">
+    <summary>See the exact step order <code>rebuild.py</code> runs</summary>
+    <div>
+<pre><span class="c"># receipts/rebuild.py, STEPS: each runs as `python3 -m &lt;module&gt;`</span>
+receipts.transform.build_roster      <span class="c"># who is in Congress</span>
+receipts.transform.apply_fec_lookup  <span class="c"># attach FEC candidate IDs</span>
+receipts.store.build_store           <span class="c"># raw files -> silver tables</span>
+receipts.validate.run_history        <span class="c"># did a file shrink or go stale?</span>
+receipts.store.models silver         <span class="c"># dbt models + tests on silver</span>
+receipts.store.accepted_money        <span class="c"># individual, corporate PAC, AIPAC</span>
+receipts.store.udp                   <span class="c"># UDP outside spending (support)</span>
+receipts.store.self_funding          <span class="c"># loans and own money</span>
+receipts.store.other_committees      <span class="c"># party, leadership, labor PACs...</span>
+receipts.store.all_ie                <span class="c"># all outside spending, 2022-2026</span>
+receipts.store.opposition            <span class="c"># UDP money spent against opponents</span>
+receipts.store.models marts          <span class="c"># dbt marts + tests on gold</span>
+receipts.transform.build_dataset     <span class="c"># write the 664-row JSON + CSV</span>
+receipts.validate.verify_dataset     <span class="c"># the 14 groups of standing audits</span></pre>
+    </div>
+  </details>
+</section>
+
+<section id="journey">
+  <span class="eyebrow">Part 3 · worked example</span>
+  <h2>Follow one receipt from filing to website</h2>
+  <p class="col">Abstract pipelines are hard to hold in your head, so here is a concrete one. In the 2026 cycle, AIPAC's PAC sent Rep. Darren Soto's campaign three checks of $5,000. Here is each step those dollars take, with the real rows and the real code.</p>
+  <ol class="journey">
+    <li class="l-raw">
+      <div class="body">
+        <span class="tag">Raw · data/raw/pas2/2026/itpas2.txt</span>
+        <h3>A line in a government text file</h3>
+        <p>The FEC's <code>pas2</code> file lists every contribution from a committee to a candidate, one per line, fields split by <code>|</code>. This is one of the three checks, exactly as filed:</p>
+<pre><span class="hl">C00797670</span>|A|M10|P2026|202603309856885719|<span class="hl">24K</span>|CCM|<span class="hl">DARREN SOTO FOR CONGRESS</span>|KISSIMMEE|FL|34742|||<span class="hl">09172025</span>|<span class="hl">5000</span>|C00581074|<span class="hl">H6FL09179</span>|B232F183ECDC847AC8CA|1956674|||4033120261434825202</pre>
+        <p class="muted">Highlighted, left to right: the giver (<code>C00797670</code>, AIPAC PAC), the type (<code>24K</code>, a contribution to a candidate), the recipient, the date (Sept 17, 2025), the amount in dollars, and the candidate's FEC ID.</p>
+      </div>
+    </li>
+    <li class="l-raw">
+      <div class="body">
+        <span class="tag">Read · receipts/fec/</span>
+        <h3>A reader turns the line into a named record</h3>
+        <p>Each FEC file has one reader. It names all 22 fields, and it stops the build if a line has the wrong number of fields. A changed file layout is never skipped or guessed around.</p>
+<pre><span class="c"># receipts/fec/bulk_file.py</span>
+fields = line.rstrip(<span class="s">'\n'</span>).split(<span class="s">'|'</span>)
+<span class="k">if</span> len(fields) != width:
+    <span class="k">raise</span> LayoutChanged(<span class="s">f'... the FEC file layout changed'</span>)
+<span class="k">yield</span> self.record._make(fields)
+
+<span class="c"># receipts/domain/money.py: '5000' becomes exact cents</span>
+Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents=500000)</span></pre>
+      </div>
+    </li>
+    <li class="l-silver">
+      <div class="body">
+        <span class="tag">Silver · committee_contributions table</span>
+        <h3>The store keeps every row, and says why it set any aside</h3>
+        <p><code>build_store.py</code> loads every contribution into DuckDB. Rows that must not count stay in the table with a reason instead of being deleted, so the decision can be audited. Soto's 2026 AIPAC rows:</p>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>committee</th><th>candidate</th><th>date</th><th class="num">amount_cents</th><th>excluded_because</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">C00797670</td><td class="mono">H6FL09179</td><td class="mono">09172025</td><td class="num mono">500000</td><td class="mono">—</td></tr>
+              <tr><td class="mono">C00797670</td><td class="mono">H6FL09179</td><td class="mono">10302025</td><td class="num mono">500000</td><td class="mono">—</td></tr>
+              <tr><td class="mono">C00797670</td><td class="mono">H6FL09179</td><td class="mono">08052026</td><td class="num mono">500000</td><td class="mono">—</td></tr>
+              <tr class="out"><td class="mono">C00797670</td><td class="mono">H6FL09179</td><td class="mono">11052025</td><td class="num mono">-600</td><td class="mono">voided_earmark</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The −$6 row is a refunded "earmark": a donor's money that AIPAC only passed along, then returned. The original pass-through isn't in the file, so subtracting the refund would invent a negative that never happened. A small rule in <code>domain/</code> says exactly that:</p>
+<pre><span class="c"># receipts/domain/committee_money.py</span>
+<span class="k">def</span> is_voided_earmark(contribution):
+    <span class="k">return</span> contribution.is_earmark <span class="k">and</span> contribution.amount.is_negative</pre>
+      </div>
+    </li>
+    <li class="l-gold">
+      <div class="body">
+        <span class="tag">Gold · gold.accepted_money_per_cycle</span>
+        <h3>A money step sums it per person, per cycle</h3>
+        <p><code>store/accepted_money.py</code> adds up the rows that count and writes one row per person per cycle, still in cents. Soto, 2026:</p>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>person_key</th><th>cycle</th><th class="num">individual</th><th class="num">corporate_pac</th><th class="num">aipac_pac_direct</th></tr></thead>
+            <tbody><tr><td class="mono">S001200</td><td class="mono">2026</td><td class="num mono">156791737</td><td class="num mono">62900000</td><td class="num mono" style="color:var(--gold);font-weight:500">1500000</td></tr></tbody>
+          </table>
+        </div>
+        <p class="muted">Three checks × 500,000 cents = 1,500,000 cents = $15,000. dbt tests then check that every career total equals the sum of its cycles.</p>
+      </div>
+    </li>
+    <li class="l-data">
+      <div class="body">
+        <span class="tag">Dataset · congress-money-tracker.json</span>
+        <h3>The dataset turns cents into dollars and applies the rules</h3>
+        <p><code>transform/compute_2026.py</code> builds the 2026 columns and decides each member's 2026 verdict. "Dirty" is the project's term for money from sources other than individual donors:</p>
+<pre><span class="s">"individual_2026"</span>:   1567917.37,
+<span class="s">"corp_2026"</span>:          629000.0,
+<span class="s">"aipac_direct_2026"</span>:   <span class="hl">15000.0</span>,
+<span class="s">"udp_benefit_2026"</span>:        0.0,
+<span class="s">"dirty_2026"</span>:         644000.0,   <span class="c">// corp + AIPAC + UDP benefit</span>
+<span class="s">"clean_2026"</span>:            false,   <span class="c">// clean means dirty_2026 &lt;= 0</span>
+<span class="s">"tier_balanced_2026"</span>:  <span class="s">"dirty"</span></pre>
+<pre><span class="c"># receipts/domain/clean_2026.py</span>
+<span class="k">def</span> verdict(in_120th, linked, unopposed, dirty):
+    <span class="k">if</span> in_120th <span class="k">and not</span> linked:
+        <span class="k">return</span> None, UNLINKED      <span class="c"># no 2026 data: unknown, never "clean"</span>
+    <span class="k">if</span> unopposed <span class="k">and</span> dirty &lt;= 0:
+        <span class="k">return</span> None, UNOPPOSED     <span class="c"># no contest: unknown, not clean</span>
+    <span class="k">return</span> dirty &lt;= 0, None</pre>
+      </div>
+    </li>
+    <li class="l-site">
+      <div class="body">
+        <span class="tag">Website · docs/index.html</span>
+        <h3>The page embeds the dataset and draws it</h3>
+        <p><code>site/build_site.py</code> fills the HTML templates and embeds all 664 rows, so the page needs no server. <code>verify_site.py</code> then decodes the embedded copy and checks that it matches the dataset field by field. A reader who opens Soto's row sees the same $15,000, and can follow it back through every step above.</p>
+      </div>
+    </li>
+  </ol>
+  <div class="callout trap col"><b>Common trap: "just fix the number"</b><p>If a figure looks wrong on the site, never edit the JSON or the page. Both are generated. Find which step produced it, fix the code or the rule there, and rebuild.</p></div>
+</section>
+
+<section id="money">
+  <span class="eyebrow">Part 4</span>
+  <h2>Which money adds up, and which never does</h2>
+  <p class="col">The hardest rule for newcomers is that the columns overlap on purpose but are never blended. Two headline figures share parts:</p>
+  <div class="col" style="display:grid;gap:.5rem">
+    <p><b>Total accepted</b> = individuals + corporate PACs + AIPAC PAC direct. This is money given to the campaign.</p>
+    <p><b>Dirty</b> = corporate PACs + AIPAC PAC direct + UDP spending for them + UDP spending against their opponents. Individual donations are never dirty.</p>
+    <p><b>Shown separately, never added in:</b> self-funding, other committees (party, leadership, labor PACs and so on), and all outside spending. <b>Earmarks</b> are a part of their parent column, never added a second time.</p>
+  </div>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 900 200" role="img" aria-label="Darren Soto, 2026, to scale: accepted money is $2,211,917 made of $1,567,917 from individuals, $629,000 from corporate PACs and $15,000 from AIPAC. Dirty money is $644,000: only the corporate PAC and AIPAC parts.">
+        <text x="0" y="52" font-size="13" font-weight="600" style="fill:var(--ink)">Accepted</text>
+        <text x="0" y="70" font-size="12" class="mono" style="fill:var(--muted)">$2,211,917</text>
+        <text x="0" y="132" font-size="13" font-weight="600" style="fill:var(--ink)">Dirty</text>
+        <text x="0" y="150" font-size="12" class="mono" style="fill:var(--muted)">$644,000</text>
+        <rect x="160" y="40" width="496.2" height="36" style="fill:var(--data)" opacity="0.85"/>
+        <rect x="656.2" y="40" width="199.1" height="36" style="fill:var(--dirty)"/>
+        <rect x="855.3" y="40" width="4.7" height="36" style="fill:var(--gold)"/>
+        <text x="172" y="63" font-size="12" font-weight="600" style="fill:var(--paper)">Individuals $1,567,917</text>
+        <text x="668" y="63" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
+        <text x="860" y="30" font-size="12" text-anchor="end" font-weight="600" style="fill:var(--gold)">AIPAC $15,000 ↓</text>
+        <rect x="160" y="120" width="496.2" height="36" fill="none" style="stroke:var(--rule)" stroke-dasharray="5 4" stroke-width="1.5"/>
+        <text x="408" y="143" font-size="12" text-anchor="middle" style="fill:var(--muted)">individual money is never dirty</text>
+        <rect x="656.2" y="120" width="199.1" height="36" style="fill:var(--dirty)"/>
+        <rect x="855.3" y="120" width="4.7" height="36" style="fill:var(--gold)"/>
+        <text x="668" y="143" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
+        <g style="color:var(--muted)" font-size="11" class="mono">
+          <line x1="160" y1="166" x2="860" y2="166" stroke="currentColor" stroke-width="1"/>
+          <line x1="160" y1="166" x2="160" y2="172" stroke="currentColor"/><text x="160" y="186" text-anchor="middle" class="mono">$0</text>
+          <line x1="476.5" y1="166" x2="476.5" y2="172" stroke="currentColor"/><text x="476.5" y="186" text-anchor="middle" class="mono">$1M</text>
+          <line x1="793" y1="166" x2="793" y2="172" stroke="currentColor"/><text x="793" y="186" text-anchor="middle" class="mono">$2M</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Soto's 2026 cycle, drawn to scale. Dirty money is not a slice of the total: it reuses two of the three accepted parts and would add UDP outside spending if there were any (here $0). AIPAC's $15,000 is the thin gold sliver at the far right.</figcaption>
+  </figure>
+  <div class="callout trap col"><b>Common trap: adding outside spending to the total</b><p>A super PAC like UDP spends money <em>about</em> a race, on ads, without giving it to the campaign. Adding it to <code>total_accepted</code> would overstate what the candidate received. It counts toward "dirty" because it benefits the candidate, but it is never "accepted".</p></div>
+</section>
+
+<section id="safety">
+  <span class="eyebrow">Part 5</span>
+  <h2>The safety nets</h2>
+  <p class="col">The project's motto is <i>show the evidence, never just the number</i>. That only works if a wrong number can't slip through quietly. Seven checks stand along the line, and each one stops the build when it fails.</p>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1040 150" role="img" aria-label="Seven checks along the pipeline, in the order they run: file layout, run history, dbt tests, baseline pins, dataset audits, CI byte-identical diff, and site verification.">
+        <g>
+          <rect x="0" y="20" width="200" height="14" rx="7" style="fill:var(--raw)"/>
+          <rect x="200" y="20" width="230" height="14" style="fill:var(--silver)"/>
+          <rect x="430" y="20" width="230" height="14" style="fill:var(--gold)"/>
+          <rect x="660" y="20" width="200" height="14" style="fill:var(--data)"/>
+          <rect x="860" y="20" width="180" height="14" rx="7" style="fill:var(--site)"/>
+        </g>
+        <g font-size="12" font-weight="800" text-anchor="middle" style="font-family:var(--display)">
+          <circle cx="110" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="110" y="31.5">1</text>
+          <circle cx="260" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="260" y="31.5">2</text>
+          <circle cx="370" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="370" y="31.5">3</text>
+          <circle cx="545" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="545" y="31.5">4</text>
+          <circle cx="720" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="720" y="31.5">5</text>
+          <circle cx="810" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="810" y="31.5">6</text>
+          <circle cx="950" cy="27" r="15" style="fill:var(--card);stroke:var(--ink)" stroke-width="2"/><text x="950" y="31.5">7</text>
+        </g>
+        <g font-size="12" text-anchor="middle" style="fill:var(--ink)">
+          <text x="110" y="66" font-weight="600">file layout</text><text x="110" y="83" style="fill:var(--muted)">wrong field count</text>
+          <text x="260" y="66" font-weight="600">run history</text><text x="260" y="83" style="fill:var(--muted)">file lost &gt;1% rows</text>
+          <text x="370" y="104" font-weight="600">dbt tests</text><text x="370" y="121" style="fill:var(--muted)">SQL checks on tables</text>
+          <text x="545" y="66" font-weight="600">baseline pins</text><text x="545" y="83" style="fill:var(--muted)">figure moved</text>
+          <text x="720" y="66" font-weight="600">audits</text><text x="720" y="83" style="fill:var(--muted)">rule recomputes wrong</text>
+          <text x="810" y="104" font-weight="600">byte-identical</text><text x="810" y="121" style="fill:var(--muted)">CI diff of dataset</text>
+          <text x="950" y="66" font-weight="600">site verify</text><text x="950" y="83" style="fill:var(--muted)">page ≠ dataset</text>
+        </g>
+        <g style="color:var(--muted)"><line x1="370" y1="42" x2="370" y2="90" stroke="currentColor" stroke-dasharray="3 3"/><line x1="810" y1="42" x2="810" y2="90" stroke="currentColor" stroke-dasharray="3 3"/></g>
+      </svg>
+    </div>
+    <figcaption>Numbered in the order they run; the colored bar is the same pipeline as Part 2. Numbers 4 and 6 are the two you'll meet most: a pinned figure that moved, and a rebuild that didn't reproduce the committed bytes.</figcaption>
+  </figure>
+  <div class="col" style="display:grid;gap:.7rem">
+    <p><b>Baseline pins (4)</b> are the heart of it. Every figure that new FEC data could move is stored once, in <code>data/source/baseline.json</code>. Code compares against it like this:</p>
+<pre><span class="c"># receipts/store/all_ie.py</span>
+<span class="k">def</span> pin_dollars(key, observed):
+    recorded = expected(key, observed)
+    <span class="k">if</span> abs(observed - recorded) &gt;= 0.005:
+        <span class="k">raise</span> SystemExit(<span class="s">f'all-IE {key} is {observed:,.2f}; the baseline says {recorded:,.2f}'</span>)</pre>
+    <p>New FEC data is accepted only through a <b>rebaseline</b>. A weekly workflow freezes the latest files, records every figure, and opens a pull request showing each figure that moved, old next to new. A person reviews and merges it. Nothing new reaches the dataset without that review.</p>
+  </div>
+  <div class="callout trap col"><b>Common trap: making the check pass</b><p>When a check fails, the number is telling you something. Never adjust a figure, a pin or a test to match. Find out whether the code, the data or the method is wrong, and report it.</p></div>
+  <div class="callout tip col"><b>The audits have a blind spot</b><p>They check the dataset against its own definitions, so they can't notice a kind of money nobody thought to pull. That's how candidate self-funding went uncounted until November 2026. A new kind of money needs a coverage check, not only a math check.</p></div>
+</section>
+
+<section id="map">
+  <span class="eyebrow">Part 6</span>
+  <h2>Where things live</h2>
+  <p class="col">The folders follow the assembly line. The colored squares match the layer colors from Part 2.</p>
+<div class="tree" role="list"><span class="d">the-receipts/</span>
+├─ <span class="d">receipts/</span>                <span class="n">the Python package</span>
+│  ├─ <span class="dot" style="background:var(--muted)"></span><span class="d">common/</span>             <span class="n">settings(), baseline pins, the FEC API client</span>
+│  ├─ <span class="dot" style="background:var(--muted)"></span><span class="d">domain/</span>             <span class="n">the rules, free of files: Money, clean/dirty, earmarks</span>
+│  ├─ <span class="dot" style="background:var(--raw)"></span><span class="d">fec/</span>                <span class="n">one reader per FEC bulk file</span>
+│  ├─ <span class="dot" style="background:var(--silver)"></span><span class="d">store/</span>              <span class="n">builds the DuckDB store; one script per money type</span>
+│  ├─ <span class="dot" style="background:var(--data)"></span><span class="d">transform/</span>          <span class="n">roster, 2026 columns, writes the dataset</span>
+│  ├─ <span class="dot" style="background:var(--clean)"></span><span class="d">validate/</span>           <span class="n">run checks and the standing audits</span>
+│  ├─ <span class="dot" style="background:var(--site)"></span><span class="d">site/</span>               <span class="n">templates, build_site.py, verify_site.py</span>
+│  ├─ <span class="dot" style="background:var(--raw)"></span><span class="d">ingest/</span>             <span class="n">"freshness": late money from the live API, never merged in</span>
+│  └─ rebuild.py          <span class="n">the one command that runs everything</span>
+├─ <span class="d">dbt/</span>                     <span class="n">SQL models and tests over the store</span>
+├─ <span class="d">data/</span>
+│  ├─ <span class="dot" style="background:var(--raw)"></span>raw/                <span class="n">FEC files, gigabytes, not in git</span>
+│  ├─ source/             <span class="n">committed inputs, incl. baseline.json</span>
+│  ├─ intermediate/       <span class="n">regenerated scratch files, not in git</span>
+│  └─ snapshots/          <span class="n">dated copies of the dataset before big changes</span>
+├─ <span class="dot" style="background:var(--data)"></span>congress-money-tracker.json / .csv   <span class="n">the dataset</span>
+├─ <span class="dot" style="background:var(--site)"></span><span class="d">docs/</span>index.html          <span class="n">the live site (generated)</span>
+├─ <span class="d">tests/</span>                   <span class="n">unit tests, plus the complexity and settings guards</span>
+├─ config.yaml              <span class="n">every shared value, in one place</span>
+└─ AGENTS.md · methodology.md · STATUS.md   <span class="n">the rules · the definitions · where things stand</span></div>
+  <div class="callout tip col"><b>Start reading in <code>domain/</code></b><p>It's the smallest and best-tested part (most files are 100% covered), and it holds the rules everything else applies. <code>money.py</code>, <code>clean_2026.py</code> and <code>committee_money.py</code> each take a few minutes.</p></div>
+</section>
+
+<section id="settings">
+  <span class="eyebrow">Part 7</span>
+  <h2>How code gets a setting</h2>
+  <p class="col">Every shared value (committee IDs, cycles, file paths, thresholds) lives in <code>config.yaml</code>. Code never types one in. It asks <code>settings()</code> at the moment it needs the value:</p>
+<pre><span class="c"># receipts/transform/build_dataset.py</span>
+<span class="k">from</span> receipts.common.settings <span class="k">import</span> settings
+
+<span class="k">def</span> write_dataset(records):
+    paths = settings().paths           <span class="c"># typed, read on first use</span>
+    <span class="k">with</span> open(paths.dataset_json, <span class="s">'w'</span>) <span class="k">as</span> f:
+        json.dump(records, f, indent=1)</pre>
+  <div class="col" style="display:grid;gap:.5rem">
+    <p><code>settings()</code> parses the file once into frozen, typed objects. A misspelled or missing key stops the run and names the key:</p>
+<pre>config.yaml cycles.current: expected int, got '2026'</pre>
+    <p>A test imports every module in a fresh process and fails if any of them reads the config at import time, so importing code never has side effects.</p>
+  </div>
+</section>
+
+<section id="start">
+  <span class="eyebrow">Part 8</span>
+  <h2>Your first hour</h2>
+  <p class="col">Run these in order from the repo root. The first rebuild needs the frozen FEC snapshot, about 1.7 GB on disk.</p>
+  <div class="cmds col">
+    <div class="cmd"><span class="what"><b>1. Install</b> the package and its exact pinned versions</span><pre id="c1">pip install -r requirements.txt</pre><button class="copy" type="button" data-for="c1">Copy</button></div>
+    <div class="cmd"><span class="what"><b>2. Run the fast checks</b>: lint, types, unit tests with the coverage floor</span><pre id="c2">ruff check receipts tests && mypy && python3 -m pytest -q --cov=receipts tests</pre><button class="copy" type="button" data-for="c2">Copy</button></div>
+    <div class="cmd"><span class="what"><b>3. Stage the frozen FEC data</b> named in <code>baseline.json</code></span><pre id="c3">./fetch_snapshot.sh</pre><button class="copy" type="button" data-for="c3">Copy</button></div>
+    <div class="cmd"><span class="what"><b>4. Rebuild everything</b> and run the audits (about 2½ minutes)</span><pre id="c4">python3 receipts/rebuild.py</pre><button class="copy" type="button" data-for="c4">Copy</button></div>
+    <div class="cmd"><span class="what"><b>5. Prove it reproduced</b>: this must print nothing</span><pre id="c5">git diff --stat -- congress-money-tracker.csv congress-money-tracker.json</pre><button class="copy" type="button" data-for="c5">Copy</button></div>
+  </div>
+  <div class="callout tip col"><b>A good first exercise</b><p>Pick any member on the live site. Find their row in the JSON, then their rows in <code>gold.accepted_money_per_cycle</code>, then in <code>committee_contributions</code>. You've traced a receipt the way Part 3 did.</p></div>
+</section>
+
+<section id="rules">
+  <span class="eyebrow">Part 9</span>
+  <h2>House rules</h2>
+  <p class="col">The full contract is <code>AGENTS.md</code>. These are the ones people trip on in their first week.</p>
+  <ul class="rules">
+    <li><b>Never hand-edit generated files</b><span>The dataset, <code>data/intermediate/</code> and <code>docs/index.html</code> are rebuilt from code. Change the code instead.</span></li>
+    <li><b>Never invent a figure</b><span>If a value isn't in a source you can cite, say you don't have it. If a route is blocked, write down the blocker.</span></li>
+    <li><b>One change per commit</b><span>Each commit does one thing and names it (<code>fix(dedup): …</code>), so the history stays auditable.</span></li>
+    <li><b>New rule, same change, in the docs</b><span>A new column or definition lands in <code>methodology.md</code> in the same change as the data.</span></li>
+    <li><b>Nothing goes public without Craig</b><span>The live site is the only public surface. Public figures change only through a reviewed pull request.</span></li>
+    <li><b>Pull first, then work on a branch</b><span>Others may have pushed since you looked. Never work the same files as another person or agent at the same time.</span></li>
+  </ul>
+</section>
+
+<section id="check">
+  <span class="eyebrow">Part 10</span>
+  <h2>Check yourself</h2>
+  <p class="col">Answer each in your head before opening it. Recalling an answer fixes it in memory far better than rereading.</p>
+  <div class="quiz col">
+    <details><summary>Why does the app store $15,000 as 1,500,000?</summary><div><span class="reveal">Answer</span><p>Money is whole cents (principle 2). Integer cents add up exactly; floating-point dollars pick up rounding errors over millions of rows.</p></div></details>
+    <details><summary>A member got $200,000 in UDP ads supporting them. Does their <code>total_accepted</code> go up?</summary><div><span class="reveal">Answer</span><p>No. UDP spent the money on ads about the race and never gave it to the campaign. It shows up in the UDP columns and counts toward <code>dirty</code>, never toward <code>total_accepted</code>.</p></div></details>
+    <details><summary>Why was the −$6 row in Part 3 left out instead of subtracted?</summary><div><span class="reveal">Answer</span><p>It refunds an earmark whose original pass-through isn't in the file. Subtracting it would create a negative contribution that never happened, so the store marks it <code>voided_earmark</code> and keeps it for the record.</p></div></details>
+    <details><summary>You fix a typo in a code comment and the rebuild's dataset md5 changes. What do you do?</summary><div><span class="reveal">Answer</span><p>Stop. A comment can't change the output, so something else differs: your inputs, a library version, or a real code change. Find which before committing anything. Never "fix" the dataset to match.</p></div></details>
+    <details><summary>A member in the 120th Congress has no 2026 filings linked. Is <code>clean_2026</code> true?</summary><div><span class="reveal">Answer</span><p>No, it's <code>null</code> (unknown). Missing data is never read as clean. The same goes for someone who ran unopposed: $0 dirty money means there was no contest, not a verified-clean campaign.</p></div></details>
+    <details><summary>Where would you add a new FEC committee ID the code needs?</summary><div><span class="reveal">Answer</span><p>In <code>config.yaml</code>, and in the matching class in <code>receipts/common/settings.py</code>. Code reads it with <code>settings()</code>, never as a typed-in literal.</p></div></details>
+  </div>
+</section>
+
+<section id="glossary">
+  <span class="eyebrow">Reference</span>
+  <h2>Glossary</h2>
+  <dl class="gloss col">
+    <dt>FEC</dt><dd>Federal Election Commission. Publishes every federal campaign's money reports as bulk files.</dd>
+    <dt>cycle</dt><dd>A two-year election period named for its election year. The 2026 cycle covers 2025–26.</dd>
+    <dt>weball</dt><dd>FEC file of each candidate's summary totals per cycle: receipts, loans, cash on hand.</dd>
+    <dt>pas2</dt><dd>FEC file of itemized contributions from committees (PACs) to candidates.</dd>
+    <dt>cm</dt><dd>The committee master file: every registered committee and the candidate it belongs to.</dd>
+    <dt>PAC</dt><dd>Political action committee. A group that raises money and gives it to candidates.</dd>
+    <dt>IE</dt><dd>Independent expenditure: money spent for or against a candidate without giving it to them, such as ads.</dd>
+    <dt>UDP</dt><dd>United Democracy Project, a super PAC affiliated with AIPAC. Its spending is tracked separately.</dd>
+    <dt>earmark</dt><dd>A donor's money that a committee only passes along to a campaign. It's a subset of its column and never counted twice.</dd>
+    <dt>dirty money</dt><dd>The project's term for corporate PAC + AIPAC PAC direct + UDP benefit. Individual donations never count.</dd>
+    <dt>tier</dt><dd>A softer reading of dirty under a tolerance preset (Strict, Balanced, Lenient): clean, below threshold, or dirty.</dd>
+    <dt>silver / gold</dt><dd>Silver tables hold cleaned raw rows; gold tables hold each money step's per-person totals.</dd>
+    <dt>snapshot</dt><dd>A frozen, dated copy of the FEC files, published as a GitHub Release, so a rebuild always reads the same input.</dd>
+    <dt>baseline</dt><dd><code>data/source/baseline.json</code>: every figure new data could move, recorded from one snapshot.</dd>
+    <dt>rebaseline</dt><dd>Accepting a new snapshot: record every figure again and review what moved in a pull request.</dd>
+    <dt>freshness</dt><dd>A separate report of money filed after the bulk snapshot's cutoff. Shown on its own, never merged into totals.</dd>
+  </dl>
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var pre = document.getElementById(btn.dataset.for);
+    var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1500); };
+    var select = function () {
+      var range = document.createRange(); range.selectNodeContents(pre);
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      btn.textContent = 'Selected';
+      setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(pre.textContent).then(done, select);
+      } else { select(); }
+    } catch (e) { select(); }
+  });
+});
+</script>
+</body>
+</html>

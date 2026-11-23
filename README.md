@@ -4,6 +4,10 @@ Show the money behind politics — who funds every member of Congress, and what
 that money buys. Audit-first: every number traces back to an FEC filing, and
 the method for every column is written down in `methodology.md`.
 
+**New to the code?** Open `onboarding/index.html` in a browser: a start-to-finish
+tour of the pipeline that follows one real contribution from the FEC file to
+the site.
+
 ## What you get by cloning
 
 The finished dataset is already here: `congress-money-tracker.csv` /
