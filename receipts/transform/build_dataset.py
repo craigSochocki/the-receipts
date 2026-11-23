@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Assemble the dataset in one pass and write it once: merge, rank, then 2026."""
+"""Assemble the dataset from the store and write it once: base rows, then the 2026 columns."""
 
 import json
 
 import pandas as pd
 
 from receipts.common.config import load_config
+from receipts.transform.assemble import base_records
 from receipts.transform.compute_2026 import with_2026
-from receipts.transform.compute_ranking import ranked
-from receipts.transform.merge_dataset import merged_records
 
 CFG = load_config()
 ROOT = CFG['_root']
+BASE_KEYS = [k for k in CFG['dataset']['json_keys'] if '2026' not in k]
 
 
 def write_dataset(records):
@@ -24,7 +24,7 @@ def write_dataset(records):
 
 
 def main():
-    write_dataset(with_2026(ranked(merged_records())))
+    write_dataset(with_2026(base_records(BASE_KEYS)))
 
 
 if __name__ == '__main__':

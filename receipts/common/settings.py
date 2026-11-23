@@ -16,6 +16,7 @@ AIPAC_PAC = _CFG['committees']['aipac_pac']
 WINRED = _CFG['committees']['winred']
 UDP = _CFG['committees']['udp']
 DATA_AS_OF = _CFG.get('data_as_of')
+COVERAGE_END = _CFG['verification']['coverage_end']
 
 
 def load_roster():

@@ -12,9 +12,7 @@ and the 2026 opposition credit in `opposition-computed.json`:
   credit (float, `0.0` when none).
 - `udp_benefit_2026` = support + credit; `dirty_2026` = corp + AIPAC
   direct + benefit. Individual contributions are NOT dirty money.
-  (`dirty_career`, the career analog, is computed in
-  `compute_ranking.py` — it runs first and rewrites the dataset in
-  final column order.)
+  (`dirty_career`, the career analog, is the `person_money` dbt mart's.)
 - `self_funding_2026`, `cand_loans_2026`, `cand_contrib_2026`,
   `total_receipts_2026`, `total_disbursements_2026` — the 2026
   `self_funding_per_cycle` sums, same int-0-when-empty rule.
@@ -142,8 +140,8 @@ with dirty_2026 > 0, ranked by dirty_2026 descending — the
 primary-challenge research list (public-facing use needs Craig's
 explicit go-ahead; see STATUS.md).
 
-Reads the dataset written by `compute_ranking.py` and rewrites both
-files in the FINAL column order (note: the CSV and JSON orders differ
+Takes the base rows from `receipts/transform/assemble.py` and returns
+them in the FINAL column order (note: the CSV and JSON orders differ
 in the 2026 trio — CSV is individual/corp/AIPAC, JSON is
 corp/AIPAC/individual; both orders come from config). Fails loudly if
 the clean counts do not match the expectations in config
