@@ -9,6 +9,7 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_dispatch:  # the FEC refresh starts CI on its own branch this way
 
 permissions:
   contents: read

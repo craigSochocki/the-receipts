@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Build the silver store (DuckDB) from the pinned FEC snapshot and the roster."""
-import json
 from collections import defaultdict
 from pathlib import Path
 
@@ -8,6 +7,7 @@ import duckdb
 import pandas as pd
 import yaml
 
+from src.common import baseline
 from src.common.settings import (AIPAC_PAC, CAREER_CYCLES, IE_CYCLES, PATHS, WINRED,
                                  load_double_count_records, load_roster)
 from src.domain.committee_classes import committee_class, unclassified_kind
@@ -193,9 +193,9 @@ def congress_rows(roster):
 
 
 def check_candidate_snapshot():
-    pinned = json.loads((SOURCE / 'baseline.json').read_text()).get('_candidates_snapshot')
+    pinned = baseline.candidates_snapshot()
     staged = CANDIDATE_SNAPSHOT.read_text().strip() if CANDIDATE_SNAPSHOT.exists() else None
-    if staged != pinned:
+    if staged != pinned and not baseline.rebaselining():
         raise SystemExit(f'staged candidate files are {staged}, but the baseline pins {pinned}; '
                          f'run ./fetch_snapshot.sh')
 

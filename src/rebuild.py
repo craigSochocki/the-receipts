@@ -116,6 +116,11 @@ def staged_snapshot():
     return marker.read_text().strip() if marker.exists() else None
 
 
+def staged_candidates_snapshot():
+    marker = ROOT / CFG['paths']['raw'] / 'cn' / 'SNAPSHOT'
+    return marker.read_text().strip() if marker.exists() else None
+
+
 def check_data_as_of(tag):
     snapshot_date = tag.removeprefix('fec-bulk-')
     if str(CFG['data_as_of']) != snapshot_date:
@@ -126,9 +131,9 @@ def check_data_as_of(tag):
 
 def check_snapshot(rebaseline):
     staged, pinned = staged_snapshot(), baseline.snapshot()
-    if rebaseline and staged is None:
+    if rebaseline and (staged is None or staged_candidates_snapshot() is None):
         raise SystemExit('cannot rebaseline from an unpinned download; '
-                         'stage a snapshot with ./fetch_snapshot.sh <tag>')
+                         'stage both snapshots with ./fetch_snapshot.sh <tag>')
     if not rebaseline and staged != pinned:
         raise SystemExit(
             f'staged bulk data is {staged or "an unpinned live download"}, but the baseline '
@@ -241,8 +246,9 @@ def main():
         run('src.site.build_site')
         run('src.site.verify_site')
         baseline.start_rebaseline_run()
-        baseline.set_snapshot(staged_snapshot())
-        print(f'\nbaseline recorded from {staged_snapshot()} — review '
+        baseline.set_snapshots(staged_snapshot(), staged_candidates_snapshot())
+        print(f'\nbaseline recorded from {staged_snapshot()} and '
+              f'{staged_candidates_snapshot()} — review '
               f'`git diff {CFG["paths"]["baseline"]}` before committing.')
     print('\nrebuild complete.')
 

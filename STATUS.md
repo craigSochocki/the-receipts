@@ -101,8 +101,8 @@
   the top; baseline.json is authoritative); (c) DONE Nov 23: the one-cent all-IE
   mismatch CI reported Nov 13 could not be reproduced (the inputs are
   gone); all-IE money is now summed in exact cents (`src/store/all_ie.py`),
-  with every published figure unchanged on this snapshot; (d) `scheduled-refresh.yml`
-  needs replacing with snapshot → rebaseline → pull request;
+  with every published figure unchanged on this snapshot; (d) DONE Nov 23: `scheduled-refresh.yml`
+  is replaced by `fec-refresh.yml` (weekly snapshot → rebaseline → pull request);
   (e) remaining named-person assumptions in the smoke test (Stevens as
   the first tracker row / drill-down target).
 

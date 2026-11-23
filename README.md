@@ -195,7 +195,7 @@ source `docs/` on `master`). The page carries a visible "Data as of" stamp
 
 ## Automation (GitHub Actions)
 
-Two workflows in `.github/workflows/`:
+Three workflows in `.github/workflows/`:
 
 - **`ci.yml` — CI on push and pull request to `master`.** Checks out the
   repo, sets up Python 3.12, installs `requirements.txt`, stages the
@@ -208,58 +208,43 @@ Two workflows in `.github/workflows/`:
   GitHub Pages serves `docs/` on `master` automatically.
   `permissions: contents: read`. It needs no secrets, so it is safe to
   run on pull requests, including PRs from forks.
-- **`fec-snapshot.yml` — manual.** Downloads the live FEC bulk files once
+- **`fec-snapshot.yml` — manual, and called by the refresh.** Downloads the live FEC bulk files once
   and publishes them as an immutable `fec-bulk-<date>` Release (raw
   files + `SHA256SUMS` + `PROVENANCE.tsv`). It does not touch the dataset.
-- **`scheduled-refresh.yml` — PAUSED (manual dispatch only).** It never
-  completed: it rebuilt from a live download, and any new filing moved
-  the totals the pipeline checks itself against, so both scheduled runs
-  (Nov 15 and Nov 22, 2026) failed and committed nothing. Its planned
-  replacement automates the reviewed path above — snapshot, rebaseline,
-  open a pull request — and never pushes to `master` directly. The
-  rest of this section describes the paused workflow as written.
+- **`fec-refresh.yml` — weekly, Sundays 09:17 UTC (04:17 ET).** Also runs
+  on demand (Actions → FEC refresh → Run workflow, or push a branch named
+  `refresh-now`). It automates the reviewed path above:
+  1. Snapshot today's FEC bulk and candidate files as Releases (through
+     `fec-snapshot.yml`; a snapshot already taken today is reused).
+  2. Stage both, set `data_as_of` to the snapshot date, and run
+     `python3 src/rebuild.py --rebaseline` (rebuild, audits, site).
+  3. If any baseline figure moved, push a `fec-refresh-<date>-r<run>`
+     branch and open a pull request whose body lists every figure that
+     moved, old next to new (`src/validate/baseline_changes.py`). Then
+     start CI on that branch: a pull request opened by the workflow's own
+     token does not trigger CI by itself.
+  4. Close any older open refresh pull request as superseded.
 
-**Failure behavior.** A failed rebuild or verify commits nothing and
-pushes nothing: the commit step is gated on the earlier steps succeeding
-(`if: success()`), so a bad run leaves the committed dataset and site
-untouched. In CI the same failure fails the run.
+  It never pushes to `master`. Merging changes the public site, so that
+  is Craig's call, after re-judging `verification.coverage_end`; the
+  workflow cannot judge those dates and leaves them as they were. A week
+  in which no figure moved opens nothing. A failed rebuild or audit
+  fails the run and opens nothing. Opening the pull request needs the
+  repo setting Settings → Actions → General → "Allow GitHub Actions to
+  create and approve pull requests"; without it the run fails with a
+  link to open the pull request by hand.
 
-**Commit gate (scheduled refresh only).** The dataset counts on any diff.
-The site counts only on a content change: the generation timestamp line
-("Generated YYYY-MM-DD HH:MM UTC") is ignored via `git diff -I`, using
-the same pattern `verify_site.py` strips in its determinism check — so a
-timestamp-only rebuild commits nothing and a no-change run is a no-op.
+**Pinned, not cached.** CI downloads the pinned snapshot Release on every run and verifies every sha256 — the inputs are identified by content, so there is nothing to go stale. Only the snapshot step downloads the live files.
 
-**Pinned, not cached.** CI downloads the pinned snapshot Release on every run and verifies every sha256 — the inputs are identified by content, so there is nothing to go stale. The paused scheduled refresh re-downloads the live files with `./download_bulk.sh`.
-
-**FEC API key (`FEC_API_KEY` secret) — optional.** The freshness step
-(`python3 src/ingest/pull_freshness.py --all`, ~45–60+ minutes for ~2,200–2,350
-keyed API calls at an effective 1.0 s/call) runs **only** when the
-`FEC_API_KEY` repository secret is set. When it runs, the snapshot
-(`data/intermediate/freshness_snapshot.json`) is uploaded as a workflow
-artifact (90-day retention) — it is never merged into dataset totals and
-never committed. When the secret is absent, the step logs `SKIP: freshness
-refresh not run — FEC_API_KEY secret is not set.` and the run continues
-without it. The key is set: Craig registered at api.data.gov and added it
-as the `FEC_API_KEY` repository secret Nov 12, 2026 (repo Settings →
-Secrets and variables → Actions; rotate it there if it ever leaks or
-expires). The first scheduled run will confirm it by logging whether
-freshness ran or skipped. Everything else — CI, the scheduled rebuild, the
-commit-back — works without it. The scheduled run covers the F24 leg via
-the six committee sweeps (`config.yaml`, `freshness.f24_committee_sweep`);
-the first live confirmation is the Sunday Nov 15, 2026 run.
-
-**Rate limit — the freshness step can fail on 429, and that no longer blocks the
-deploy.** A standard registered api.data.gov key allows 1,000 requests/hour, but a
-full `--all` freshness run makes ~2,200–2,350 calls in ~45–60 minutes, so it hits
-HTTP 429 (`OVER_RATE_LIMIT`) roughly 25 minutes in. The fetch helpers retry a 429 —
-honoring `Retry-After` when present, otherwise exponential backoff up to a cap —
-and fail loudly naming the limit and the raise path if the wait exceeds budget. A
-raise to 120 calls/min (7,200/hour) has been requested from apiinfo@fec.gov and is
-pending, not granted. In the scheduled workflow the freshness step is non-blocking
-(`continue-on-error`): if it fails, the dataset/site rebuild and commit-back still
-proceed, and that run's freshness snapshot is simply absent or partial. See
-`methodology.md` §16 for the full account.
+**Freshness overlay — not scheduled.** `python3 src/ingest/pull_freshness.py --all`
+(late money from the FEC API; never merged into dataset totals) ran only in the
+retired `scheduled-refresh.yml`, which never completed a run. No workflow runs it
+now; run it by hand with the `FEC_API_KEY` key (Craig registered it at
+api.data.gov; it is also stored as a repository secret, added Nov 12, 2026).
+A full `--all` run makes ~2,200–2,350 calls, over the standard 1,000 requests/hour,
+so expect HTTP 429s, which the fetch helpers retry with backoff. A raise to
+120 calls/min has been requested from apiinfo@fec.gov and is pending.
+See `methodology.md` §16.
 
 **Where to watch runs:** the repo's Actions tab —
 https://github.com/craigSochocki/the-receipts/actions.

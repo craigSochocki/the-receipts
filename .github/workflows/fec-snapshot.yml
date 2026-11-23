@@ -2,6 +2,8 @@
 # (fec-bulk-<date>: raw files, SHA256SUMS, PROVENANCE.tsv).
 # The FEC updates these files in place, so a rebuild is only
 # reproducible against a pinned copy. Does not touch the dataset.
+# Also called by the FEC refresh workflow; a snapshot already taken
+# today is reused, never overwritten.
 
 name: FEC snapshot
 
@@ -13,6 +15,15 @@ on:
         default: bulk
         type: choice
         options: [bulk, candidates]
+  workflow_call:
+    inputs:
+      set:
+        type: string
+        default: bulk
+    outputs:
+      tag:
+        description: "The snapshot's Release tag"
+        value: ${{ jobs.snapshot.outputs.tag }}
 
 permissions:
   contents: write  # create the Release
@@ -29,15 +40,32 @@ jobs:
     env:
       SET: ${{ inputs.set || 'bulk' }}
       PREFIX: ${{ inputs.set == 'candidates' && 'fec-candidates' || 'fec-bulk' }}
+    outputs:
+      tag: ${{ steps.today.outputs.tag }}
 
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
 
+      - name: Look for today's snapshot
+        id: today
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="$PREFIX-$(date -u +%F)"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "taken=true" >> "$GITHUB_OUTPUT"
+            echo "$tag already exists; reusing it (snapshots are immutable)."
+          fi
+
       - name: Download FEC bulk
+        if: steps.today.outputs.taken != 'true'
         run: ./download_bulk.sh
 
       - name: Record provenance
+        if: steps.today.outputs.taken != 'true'
         run: |
           set -euo pipefail
           BASE="https://www.fec.gov/files/bulk-downloads"
@@ -66,6 +94,7 @@ jobs:
           wc -l < ../../files.txt
 
       - name: Package
+        if: steps.today.outputs.taken != 'true'
         run: |
           set -euo pipefail
           echo "SNAP_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
@@ -73,6 +102,7 @@ jobs:
           ls -l "$PREFIX"-*.tar
 
       - name: Publish Release
+        if: steps.today.outputs.taken != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
