@@ -24,6 +24,7 @@ from receipts.common.settings import (
     IE_CYCLES as CYCLES,
 )
 from receipts.domain.blank_candidates import name_key, roster_matches
+from receipts.store.gold import write_gold
 from receipts.store.read import connect
 
 REPLACED = 'reported_again'
@@ -622,14 +623,26 @@ def main():
     }
     per_person = {p['person_key']: person_totals(p, totals) for p in roster.people}
 
-    write_json(
-        PATHS.intermediate / 'all_ie_top_committees.json',
-        {p['person_key']: top_committees_for(p, totals) for p in roster.people},
+    top = {p['person_key']: top_committees_for(p, totals) for p in roster.people}
+    people = [csv_row(p, per_person[p['person_key']]) for p in roster.people]
+    by_candidate = per_candidate_entries(totals, roster)
+    write_gold('all_ie_people', people, {c for c in people[0] if c.startswith('all_ie_')})
+    write_gold(
+        'all_ie_per_candidate_cycle',
+        [{k: v for k, v in e.items() if k != 'top_committees'} for e in by_candidate],
+        {'all_ie_support', 'all_ie_oppose', 'all_ie_total', 'no_direction_amount'},
     )
-    write_csv(
-        PATHS.intermediate / 'all_ie.csv',
-        [csv_row(p, per_person[p['person_key']]) for p in roster.people],
+    write_gold(
+        'all_ie_top_committees',
+        [
+            {'person_key': person_key, 'entry': n, **committee}
+            for person_key, committees in top.items()
+            for n, committee in enumerate(committees or [])
+        ],
+        {'support', 'oppose', 'total'},
     )
+    write_json(PATHS.intermediate / 'all_ie_top_committees.json', top)
+    write_csv(PATHS.intermediate / 'all_ie.csv', people)
     write_json(
         PATHS.intermediate / 'all_ie_per_cycle.json',
         {
@@ -647,7 +660,7 @@ def main():
             'blank_attribution_diagnostic': {str(c): blank_diagnostic[c] for c in CYCLES},
             'name_index_collisions': collisions,
             'per_cycle_summaries': {str(c): summaries[c] for c in CYCLES},
-            'per_candidate_per_cycle': per_candidate_entries(totals, roster),
+            'per_candidate_per_cycle': by_candidate,
             'validation': validation(udp_totals, prior, summaries),
             'bogus_examples': bogus_examples(kept),
             'roster_career_totals': roster_career_totals(roster, per_person, totals),

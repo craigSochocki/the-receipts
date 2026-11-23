@@ -24,6 +24,7 @@ from receipts.domain.money import Money
 from receipts.domain.roster import Roster, candidate_ids
 from receipts.domain.weball_double_counts import FINANCIAL_FIELDS
 from receipts.fec.weball import CandidateSummary
+from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.read import connect, for_candidates
 
 PER_CYCLE_FIELDS = [
@@ -251,6 +252,10 @@ def main():
         },
         **counts,
     }
+    write_gold(
+        'self_funding_people', rows, {c for c in CSV_FIELDS if c.endswith(('_career', '_2026'))}
+    )
+    write_gold('self_funding_per_cycle', per_cycle_rows(persons), set(PER_CYCLE_FIELDS))
     write_json(PATHS.self_funding_per_cycle, {'meta': meta, 'persons': persons})
 
     print('persons:', len(rows))

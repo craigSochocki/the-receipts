@@ -16,6 +16,7 @@ from receipts.common.baseline import expected
 from receipts.common.files import write_json
 from receipts.common.settings import AIPAC_PAC, PATHS, load_roster
 from receipts.common.settings import IE_CYCLES as CYCLES
+from receipts.store.gold import write_gold
 from receipts.store.read import connect
 from receipts.store.udp_rows import UdpRows
 
@@ -135,6 +136,23 @@ def main():
         expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
     person_keys = person_of(roster)
     by_person, nonroster, credited, uncredited = credits(races_of(udp.rows), person_keys)
+    write_gold(
+        'opposition_credits',
+        [
+            {
+                'cycle': race[0],
+                'office': race[1],
+                'state': race[2],
+                'district': race[3],
+                'election_type': race[4],
+                'credited_to': credited_to,
+                'backed_name': name,
+                'credit': amount,
+            }
+            for race, credited_to, name, amount, _ in credited
+        ],
+        {'credit'},
+    )
     write_json(
         PATHS.opposition_computed,
         {

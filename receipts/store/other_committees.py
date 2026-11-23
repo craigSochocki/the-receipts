@@ -25,6 +25,7 @@ from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES, Committee
 from receipts.domain.ledger import Ledger
 from receipts.domain.money import ZERO, Money
 from receipts.domain.roster import Roster, candidate_ids
+from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.read import connect, for_candidates
 
 LAMB_CANDIDATE, LAMB_CYCLE = 'H6AZ05265', 2026
@@ -344,6 +345,11 @@ def per_cycle_record(person, ledger):
     }
 
 
+def flat_entry(row):
+    earmarks = row.pop('earmark_transmitted')
+    return {**row, **{f'earmark_{b}': earmarks.get(b) for b in BUCKETS}}
+
+
 def roster_total(roster, ledger, column):
     return Money.total(ledger.total(candidate_ids(p), CYCLES, column) for p in roster.people)
 
@@ -360,13 +366,16 @@ def main():
         lamb = lamb_validation(db, ledger)
     checks = cross_checks(ledger)
 
-    write_csv(
-        PATHS.other_committees_csv, [career_row(person, ledger, roster) for person in roster.people]
+    people = [career_row(person, ledger, roster) for person in roster.people]
+    cycles = {p['person_key']: per_cycle_record(p, ledger) for p in roster.people}
+    write_gold('other_committees_people', people, {c for c in people[0] if c.endswith('_career')})
+    write_gold(
+        'other_committees_per_cycle',
+        [flat_entry(r) for r in per_cycle_rows(cycles)],
+        {*BUCKETS, *(f'earmark_{b}' for b in BUCKETS), 'winred_included'},
     )
-    write_json(
-        PATHS.other_committees_per_cycle,
-        {p['person_key']: per_cycle_record(p, ledger) for p in roster.people},
-    )
+    write_csv(PATHS.other_committees_csv, people)
+    write_json(PATHS.other_committees_per_cycle, cycles)
     write_json(
         PATHS.other_committees_diagnostics,
         {

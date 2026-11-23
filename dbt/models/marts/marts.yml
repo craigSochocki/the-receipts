@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: tracked_people
+    description: The tracker's rows, in roster order, one per person.
+    columns:
+      - name: person_key
+        data_tests: [unique, not_null]
+  - name: person_money
+    description: Career money per tracked person in cents; NULL is unknown (no FEC candidate ID).
+    columns:
+      - name: person_key
+        data_tests: [unique, not_null]
+  - name: person_ranks
+    description: The twelve competition ranks of the dataset.
+    columns:
+      - name: person_key
+        data_tests: [unique, not_null]

@@ -114,7 +114,9 @@ the-receipts/
 │   └── evidence/              # one-off API dumps from spot checks
 ├── research/                  # pull logs, verification notes, source research
 ├── dbt/                       # SQL models over the store, and their tests
-│                              # (dbt-duckdb; run by receipts.store.models)
+│                              # (dbt-duckdb; run by receipts.store.models):
+│                              # models/silver over the FEC tables, models/marts
+│                              # over the gold tables the money steps write
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
                                # from receipts/site/build_site.py; never hand-edited)

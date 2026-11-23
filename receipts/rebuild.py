@@ -82,14 +82,16 @@ STEPS = [
     'receipts.transform.build_roster',
     'receipts.transform.apply_fec_lookup',
     'receipts.store.build_store',
-    'receipts.store.models',
+    'receipts.store.models silver',
     'receipts.store.accepted_money',
     'receipts.store.udp',
     'receipts.store.self_funding',
     'receipts.store.other_committees',
     'receipts.store.all_ie',
     'receipts.store.opposition',
+    'receipts.store.models marts',
     'receipts.transform.build_dataset',
+    'receipts.store.models published',
     'receipts.validate.verify_dataset',
 ]
 LOOKUP_STEP = 'receipts.transform.fec_lookup'
@@ -266,7 +268,7 @@ def main():
     for step in STEPS:
         if step == VERIFY_STEP and args.skip_verify:
             continue
-        run(step)
+        run(*step.split())
         if step == ROSTER_STEP and args.with_fec_lookup:
             run_live_lookup()
         if step == OPPOSITION_STEP:
