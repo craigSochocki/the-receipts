@@ -334,7 +334,6 @@ def main():
         insert(db, 'seats', seats)
         insert(db, 'terms', terms)
         insert(db, 'candidacies', candidacies)
-        db.execute((Path(__file__).parent / 'views.sql').read_text())
 
 
 if __name__ == '__main__':

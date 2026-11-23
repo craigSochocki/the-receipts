@@ -1,0 +1,12 @@
+name: receipts
+version: "1.0.0"
+profile: receipts
+
+model-paths: [models]
+macro-paths: [macros]
+test-paths: [tests]
+target-path: target
+
+models:
+  receipts:
+    +materialized: view

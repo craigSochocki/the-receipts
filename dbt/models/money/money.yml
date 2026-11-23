@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: counted_committee_money
+    description: Every committee contribution that counts, with its committee's class and kind.
+  - name: accepted_money
+    description: Individual, AIPAC and corporate money per candidate ID and cycle, in cents.
+    data_tests:
+      - unique: {arguments: {column_name: "candidate_id || '/' || cycle"}}
+    columns:
+      - name: candidate_id
+        data_tests: [not_null]
+  - name: committee_money_by_class
+    description: Counted committee money per candidate ID, cycle, class and kind, in cents.
+    data_tests:
+      - unique: {arguments: {column_name: "candidate_id || '/' || cycle || '/' || committee_class || '/' || kind"}}
+  - name: candidates_on_file
+    description: Candidate IDs found in weball or pas2.
+    columns:
+      - name: candidate_id
+        data_tests: [unique]

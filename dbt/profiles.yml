@@ -1,0 +1,7 @@
+receipts:
+  target: store
+  outputs:
+    store:
+      type: duckdb
+      path: "{{ env_var('RECEIPTS_STORE', 'data/store/receipts.duckdb') }}"
+      threads: 1

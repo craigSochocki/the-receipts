@@ -91,10 +91,9 @@ the-receipts/
 │   ├── domain/                # the rules, free of file formats: Money,
 │   │                          # which committee money counts
 │   ├── store/                 # silver tables (DuckDB, every FEC candidate and
-│   │                          # committee) + the views read from them;
+│   │                          # committee) and the scripts that read them:
 │   │                          # other_committees.py, self_funding.py, all_ie.py,
-│   │                          # udp.py, opposition.py;
-│   │                          # check_store.py checks seats and terms
+│   │                          # udp.py, opposition.py; models.py runs dbt
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
@@ -114,6 +113,8 @@ the-receipts/
 │   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
 │   └── evidence/              # one-off API dumps from spot checks
 ├── research/                  # pull logs, verification notes, source research
+├── dbt/                       # SQL models over the store, and their tests
+│                              # (dbt-duckdb; run by receipts.store.models)
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
                                # from receipts/site/build_site.py; never hand-edited)
