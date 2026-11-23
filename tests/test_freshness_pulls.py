@@ -3,7 +3,9 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
+from receipts.common.config import repo_root
 from receipts.ingest import pull_f6, pull_f24
 from receipts.ingest import pull_freshness as freshness
 
@@ -207,3 +209,12 @@ def test_the_summary_adds_up_the_legs():
     assert summary['committee_sweeps_f24_ie'] == 3.0
     assert summary['committee_sweeps_open_residuals'] == []
     assert summary['gate_applied'] is False
+
+
+def test_the_snapshot_records_the_bulk_coverage_from_config():
+    with open(repo_root() / 'config.yaml') as f:
+        coverage_end = yaml.safe_load(f)['verification']['coverage_end']
+    snapshot = freshness.build_snapshot([], [], {'gate_error': None}, {})
+    assert snapshot['bulk_coverage'] == {k: str(v) for k, v in coverage_end.items()}
+    assert list(snapshot['bulk_coverage']) == list(coverage_end)
+    assert snapshot['window_start'] == coverage_end['freshness_window_start']

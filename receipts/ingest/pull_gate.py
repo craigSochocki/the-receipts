@@ -35,22 +35,16 @@ from datetime import datetime, timezone
 from itertools import takewhile
 from pathlib import Path
 
-from receipts.common.config import load_config
 from receipts.common.fec_api import client
 from receipts.common.files import read_json
+from receipts.common.settings import settings
 from receipts.fec.committees import committees
 
-CFG = load_config()
-ROOT = CFG['_root']
-WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
-GATE_CFG = CFG['freshness']['gate']
-GATE_FAMILIES = GATE_CFG['families']
-GATE_PER_PAGE = int(GATE_CFG['per_page'])
-GATE_MAX_PAGES = int(GATE_CFG['max_pages_per_family'])
-COMMITTEE_MASTER_CYCLE = GATE_CFG['committee_master_cycle']
-STATE_PATH = ROOT / CFG['paths']['freshness_state']
-F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
 CANDIDATE_FAMILIES = ('F6', 'F3')
+
+
+def gate_settings():
+    return settings().freshness.gate
 
 
 def receipt_day(row):
@@ -109,8 +103,8 @@ def check_family(
         api or client(),
         form_type,
         since_date,
-        per_page or GATE_PER_PAGE,
-        max_pages or GATE_MAX_PAGES,
+        per_page or gate_settings().per_page,
+        max_pages or gate_settings().max_pages_per_family,
     )
     new_filings = [
         r
@@ -144,7 +138,7 @@ def default_state(families=None):
     """Fresh state: every family at "no baseline" (last_seen null)."""
     return {
         'version': 1,
-        'families': {f: empty_family_state() for f in families or GATE_FAMILIES},
+        'families': {f: empty_family_state() for f in families or gate_settings().families},
     }
 
 
@@ -154,7 +148,7 @@ def load_state(state_path=None):
     A present but unreadable or misshapen file raises ValueError: the
     baseline is never silently reset.
     """
-    path = Path(state_path) if state_path else STATE_PATH
+    path = Path(state_path) if state_path else settings().paths.freshness_state
     if not path.exists():
         return default_state()
     try:
@@ -170,7 +164,7 @@ def load_state(state_path=None):
             'shape (need {"families": {...}}); refusing to '
             'reset the baseline'
         )
-    for fam in GATE_FAMILIES:
+    for fam in gate_settings().families:
         entry = state['families'].get(fam)
         if isinstance(entry, dict):
             entry.setdefault('last_seen', None)
@@ -181,7 +175,7 @@ def load_state(state_path=None):
 
 
 def save_state(state, state_path=None):
-    path = Path(state_path) if state_path else STATE_PATH
+    path = Path(state_path) if state_path else settings().paths.freshness_state
     os.makedirs(path.parent, exist_ok=True)
     with open(path, 'w') as f:
         json.dump(state, f, indent=1)
@@ -198,12 +192,13 @@ def advanced_family_state(family_state, since, result):
     return {'last_seen': newest, 'seen_file_numbers': result['boundary_file_numbers']}
 
 
-def load_committee_map(bulk_dir=None, cycle=COMMITTEE_MASTER_CYCLE):
+def load_committee_map(bulk_dir=None, cycle=None):
     """{committee_id: {candidate_id, designation}} from the staged committee master, and stats.
 
     A missing file raises: with no attribution source, no leg may be skipped.
     """
-    master = committees(Path(bulk_dir) if bulk_dir else ROOT / CFG['paths']['bulk'], cycle)
+    cycle = cycle or gate_settings().committee_master_cycle
+    master = committees(Path(bulk_dir) if bulk_dir else settings().paths.bulk, cycle)
     if not master.path.exists():
         raise FileNotFoundError(
             f'gate attribution: committee master not found at {master.path} '
@@ -252,8 +247,8 @@ def map_filing_to_person(row, committee_map, by_candidate):
 
 def sweep_committees():
     return [
-        {'committee_id': c['committee_id'], 'committee_name': c['committee_name']}
-        for c in F24_SWEEP_COMMITTEES
+        {'committee_id': c.committee_id, 'committee_name': c.committee_name}
+        for c in settings().freshness.f24_committee_sweep
     ]
 
 
@@ -371,9 +366,9 @@ def gate_run(
     driver must run everything without saving state. Otherwise
     ``new_state`` is the state to save once the gated run completes.
     """
-    families = list(families or GATE_FAMILIES)
+    families = list(families or gate_settings().families)
     if dataset is None and by_candidate is None:
-        dataset = read_json(ROOT / CFG['paths']['dataset_json'])
+        dataset = read_json(settings().paths.dataset_json)
     if by_candidate is None:
         by_candidate = candidate_index(dataset)
     if state is None:
@@ -386,7 +381,10 @@ def gate_run(
     try:
         for family in families:
             family_state = (state.get('families') or {}).get(family) or {}
-            since = family_state.get('last_seen') or WINDOW_START
+            since = (
+                family_state.get('last_seen')
+                or settings().verification.coverage_end.freshness_window_start
+            )
             result = check_family(
                 family,
                 since,

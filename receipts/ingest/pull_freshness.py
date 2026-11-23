@@ -29,19 +29,19 @@ import argparse
 import json
 import os
 import sys
+from dataclasses import asdict
 from datetime import datetime, timezone
 
-from receipts.common.config import load_config
 from receipts.common.fec_api import client
 from receipts.common.files import read_json
+from receipts.common.settings import settings
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
-CFG = load_config()
-ROOT = CFG['_root']
-WINDOW_START = CFG['verification']['coverage_end']['freshness_window_start']
-BULK_WEBALL_END = str(CFG['verification']['coverage_end']['weball'])
-F24_SWEEP_CYCLE = CFG['freshness']['f24_committee_sweep_cycle']
-F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
+
+def bulk_coverage_end():
+    return settings().verification.coverage_end
+
+
 CADENCE_NOTE = (
     'Final 20 days before an election: daily. '
     'Cycle in progress outside final 20 days: weekly. '
@@ -79,7 +79,7 @@ def totals_refresh(candidate_id, cycle=2026):
         'cycle': cycle,
         'found': True,
         'coverage_end_date': coverage_end,
-        'newer_than_bulk': bool(coverage_date and coverage_date > BULK_WEBALL_END),
+        'newer_than_bulk': bool(coverage_date and coverage_date > bulk_coverage_end().weball),
         'total_receipts': row.get('receipts'),
         'total_disbursements': row.get('disbursements'),
         'candidate_contributions': row.get('candidate_contribution'),
@@ -113,7 +113,7 @@ def totals_leg(person):
 
 def f6_leg(person):
     return [
-        pull_f6.pull_committee(cmte, since=WINDOW_START)
+        pull_f6.pull_committee(cmte, since=bulk_coverage_end().freshness_window_start)
         for cid in candidate_ids(person)
         for cmte in principal_committees(cid)
     ]
@@ -125,7 +125,9 @@ def refresh_person(person, f24_committees):
     for cid in candidate_ids(person):
         entry['totals'].append(totals_refresh(cid))
         for cmte in principal_committees(cid):
-            entry['f6'].append(pull_f6.pull_committee(cmte, since=WINDOW_START))
+            entry['f6'].append(
+                pull_f6.pull_committee(cmte, since=bulk_coverage_end().freshness_window_start)
+            )
     entry['f24'] = [
         pull_f24.sweep(cmte, cid) for cmte in f24_committees for cid in candidate_ids(person)
     ]
@@ -235,7 +237,12 @@ def sweep_committee_f24(committee_id, committee_name, cycle, by_candidate):
 
 def committee_sweeps(committees, by_candidate):
     return [
-        sweep_committee_f24(c['committee_id'], c['committee_name'], F24_SWEEP_CYCLE, by_candidate)
+        sweep_committee_f24(
+            c['committee_id'],
+            c['committee_name'],
+            settings().freshness.f24_committee_sweep_cycle,
+            by_candidate,
+        )
         for c in committees
     ]
 
@@ -427,7 +434,7 @@ def full_refresh(args, persons, f24_persons, roster):
         for p in f24_persons
         if p['person_key'] not in args.person
     ]
-    sweeps = committee_sweeps(F24_SWEEP_COMMITTEES, roster.by_candidate) if args.all else []
+    sweeps = committee_sweeps(pull_gate.sweep_committees(), roster.by_candidate) if args.all else []
     return entries, sweeps
 
 
@@ -438,8 +445,8 @@ def ungated_record(reason):
 def build_snapshot(entries, sweeps, gate_record, summary):
     return {
         'generated_at': datetime.now(timezone.utc).isoformat(),
-        'window_start': WINDOW_START,
-        'bulk_coverage': {k: str(v) for k, v in CFG['verification']['coverage_end'].items()},
+        'window_start': bulk_coverage_end().freshness_window_start,
+        'bulk_coverage': asdict(bulk_coverage_end()),
         'api_key_type': client().key_type,
         'cadence_note': CADENCE_NOTE,
         'entries': entries,
@@ -451,7 +458,7 @@ def build_snapshot(entries, sweeps, gate_record, summary):
 
 
 def write_snapshot(out, snapshot):
-    out = out or str(ROOT / CFG['paths']['freshness_snapshot'])
+    out = out or str(settings().paths.freshness_snapshot)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, 'w') as f:
         json.dump(snapshot, f, indent=1)
@@ -474,7 +481,7 @@ def advance_gate_state(decision):
 
 
 def sweeps_only(args, roster):
-    sweeps = committee_sweeps(F24_SWEEP_COMMITTEES, roster.by_candidate)
+    sweeps = committee_sweeps(pull_gate.sweep_committees(), roster.by_candidate)
     record = ungated_record('--f24-committee-sweep mode: the gate applies to --all only')
     snapshot = build_snapshot([], sweeps, record, summarize([], sweeps))
     write_snapshot(args.out, snapshot)
@@ -510,7 +517,7 @@ def main():
     ap, args = parse_args()
     if args.all:
         refuse_demo_key('--all', 'the ~2,200-2,350 calls a full refresh needs')
-    roster = Roster(read_json(ROOT / CFG['paths']['dataset_json']))
+    roster = Roster(read_json(settings().paths.dataset_json))
     if args.f24_committee_sweep:
         refuse_demo_key(
             '--f24-committee-sweep',
