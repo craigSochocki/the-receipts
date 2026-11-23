@@ -100,14 +100,19 @@ the-receipts/
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
 │   │                          # assemble, compute_2026, build_dataset
-│   ├── validate/              # verify_dataset.py — the standing audits
+│   ├── site/                  # build_site.py fills templates/ (page.html,
+│   │                          # style.css, tracker.js, views.js, method.html)
+│   │                          # into docs/index.html; verify_site.py checks it
+│   ├── validate/              # verify_dataset.py — the standing audits;
+│   │                          # run_history.py — the FEC input checks
 │   └── rebuild.py             # the one command that runs the whole pipeline
 ├── data/
 │   ├── raw/                   # staged FEC bulk (~5.6 GB), GITIGNORED,
 │   │                          # re-downloadable — see research/bulk-inventory.md
 │   ├── source/                # committed TRUE inputs: legislators yaml,
 │   │                          # dedup-applied.json, manual_roster_notes.json,
-│   │                          # fec_lookup_results.json
+│   │                          # fec_lookup_results.json, baseline.json,
+│   │                          # run_history.csv
 │   ├── intermediate/          # regenerable staging files, GITIGNORED —
 │   │                          # rebuild.py recreates them all
 │   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
