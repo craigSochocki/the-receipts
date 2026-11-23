@@ -12,15 +12,7 @@ import pandas as pd
 import yaml
 
 from receipts.common import baseline
-from receipts.common.settings import (
-    AIPAC_PAC,
-    CAREER_CYCLES,
-    IE_CYCLES,
-    PATHS,
-    WINRED,
-    load_double_count_records,
-    load_roster,
-)
+from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.committee_classes import committee_class, unclassified_kind
 from receipts.domain.committee_money import is_voided_earmark, reported_once
 from receipts.domain.money import Money
@@ -34,10 +26,12 @@ from receipts.fec.independent_expenditures import independent_expenditures
 from receipts.fec.weball import candidate_summaries
 from receipts.store import congress
 
-BULK, STORE, SOURCE = PATHS.bulk, PATHS.store, PATHS.source
-CANDIDATE_SNAPSHOT = BULK / 'cn' / 'SNAPSHOT'
 VOIDED_EARMARK = 'voided_earmark'
 REPORTED_AGAIN = 'reported_again'
+
+
+def candidate_snapshot_marker():
+    return settings().paths.bulk / 'cn' / 'SNAPSHOT'
 
 
 def people_rows(roster, legislators_119th):
@@ -75,8 +69,8 @@ def people_rows(roster, legislators_119th):
 def read_summaries(files_read):
     """{(candidate_id, cycle): (summary, {field: Money})} for every weball row."""
     found = {}
-    for cycle in CAREER_CYCLES:
-        weball = candidate_summaries(BULK, cycle)
+    for cycle in settings().cycles.career:
+        weball = candidate_summaries(settings().paths.bulk, cycle)
         for summary in weball:
             amounts = {field: summary.amount(field) for field in FINANCIAL_FIELDS}
             found[summary.candidate_id, cycle] = (summary, amounts)
@@ -151,8 +145,8 @@ def read_counts(file, cycle, bulk_file):
 
 
 def committee_rows(files_read):
-    for cycle in CAREER_CYCLES:
-        registry = committees(BULK, cycle)
+    for cycle in settings().cycles.career:
+        registry = committees(settings().paths.bulk, cycle)
         for c in registry:
             yield {
                 'committee_id': c.committee_id,
@@ -161,8 +155,8 @@ def committee_rows(files_read):
                 'committee_type': c.committee_type,
                 'designation': c.designation,
                 'organization_type': c.organization_type,
-                'committee_class': committee_class(c, AIPAC_PAC).value,
-                'kind': unclassified_kind(c, WINRED),
+                'committee_class': committee_class(c, settings().committees.aipac_pac).value,
+                'kind': unclassified_kind(c, settings().committees.winred),
             }
         files_read.append(read_counts('cm', cycle, registry))
 
@@ -185,9 +179,9 @@ def contribution_rows(files_read):
     Voided earmarks are set aside before duplicates are matched, as the
     money pulls have always done.
     """
-    for cycle in CAREER_CYCLES:
+    for cycle in settings().cycles.career:
         filed_once = reported_once()
-        filed = committee_contributions(BULK, cycle)
+        filed = committee_contributions(settings().paths.bulk, cycle)
         for contribution in filed:
             if not contribution.is_to_candidate:
                 continue
@@ -204,8 +198,8 @@ def contribution_rows(files_read):
 
 def identified_candidates(roster):
     found = {candidate_id for p in roster for candidate_id in candidate_ids(p)}
-    for cycle in CAREER_CYCLES:
-        found |= {s.candidate_id for s in candidate_summaries(BULK, cycle)}
+    for cycle in settings().cycles.career:
+        found |= {s.candidate_id for s in candidate_summaries(settings().paths.bulk, cycle)}
     return found
 
 
@@ -231,10 +225,10 @@ def outside_spending_row(e, file_order, excluded_because):
 
 def outside_spending_rows(roster, files_read):
     identified = identified_candidates(roster)
-    for cycle in IE_CYCLES:
-        registered = {c.committee_id for c in committees(BULK, cycle)}
+    for cycle in settings().cycles.ie:
+        registered = {c.committee_id for c in committees(settings().paths.bulk, cycle)}
         filings = latest_filings()
-        filed = independent_expenditures(BULK / 'ie', cycle)
+        filed = independent_expenditures(settings().paths.bulk / 'ie', cycle)
         for expenditure in filed:
             filings.add(expenditure)
         for file_order, e in enumerate(filings):
@@ -245,9 +239,9 @@ def outside_spending_rows(roster, files_read):
 
 
 def congress_rows(roster):
-    with open(SOURCE / 'house_maps.yaml') as f:
+    with open(settings().paths.source / 'house_maps.yaml') as f:
         new_map_states = set(yaml.safe_load(f)['new_map_for_2026'])
-    legislators = congress.read_legislators(SOURCE)
+    legislators = congress.read_legislators(settings().paths.source)
     legislators_119th = [
         p for p in legislators if any(congress.served_in_119th(t) for t in p.get('terms', []))
     ]
@@ -266,14 +260,22 @@ def congress_rows(roster):
             house_2026[state][district] = house_seat_id(state, district, 2026, new_map_states)
     seats = congress.seat_rows(terms, house_2026, senate_classes)
     candidacies = congress.candidacy_rows(
-        BULK, CAREER_CYCLES, new_map_states, senate_classes, {seat['seat_id'] for seat in seats}
+        settings().paths.bulk,
+        settings().cycles.career,
+        new_map_states,
+        senate_classes,
+        {seat['seat_id'] for seat in seats},
     )
     return legislators_119th, seats, terms, candidacies
 
 
 def check_candidate_snapshot():
     pinned = baseline.candidates_snapshot()
-    staged = CANDIDATE_SNAPSHOT.read_text().strip() if CANDIDATE_SNAPSHOT.exists() else None
+    staged = (
+        candidate_snapshot_marker().read_text().strip()
+        if candidate_snapshot_marker().exists()
+        else None
+    )
     if staged != pinned and not baseline.rebaselining():
         raise SystemExit(
             f'staged candidate files are {staged}, but the baseline pins {pinned}; '
@@ -291,7 +293,7 @@ def file_and_cycle(path):
 
 
 def source_file_rows():
-    with open(BULK / 'PROVENANCE.tsv') as f:
+    with open(settings().paths.bulk / 'PROVENANCE.tsv') as f:
         for row in csv.DictReader(f, delimiter='\t'):
             file, cycle = file_and_cycle(row['path'])
             modified = row['last_modified']
@@ -345,9 +347,9 @@ def main():
     dedup_records = load_double_count_records()
     check_candidate_snapshot()
     legislators_119th, seats, terms, candidacies = congress_rows(roster)
-    STORE.parent.mkdir(parents=True, exist_ok=True)
-    STORE.unlink(missing_ok=True)
-    with duckdb.connect(str(STORE)) as db:
+    settings().paths.store.parent.mkdir(parents=True, exist_ok=True)
+    settings().paths.store.unlink(missing_ok=True)
+    with duckdb.connect(str(settings().paths.store)) as db:
         db.execute((Path(__file__).parent / 'schema.sql').read_text())
         people, ids = people_rows(roster, legislators_119th)
         insert(db, 'people', people)

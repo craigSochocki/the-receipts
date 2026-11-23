@@ -9,14 +9,7 @@ research/self-funding-notes.md.
 """
 
 from receipts.common.files import text_or_blank, text_or_none
-from receipts.common.settings import (
-    CAREER_CYCLES as CYCLES,
-)
-from receipts.common.settings import (
-    CURRENT_CYCLE,
-    load_double_count_records,
-    load_roster,
-)
+from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.campaign_finances import FLOWS, STOCKS, CampaignFinances
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster, candidate_ids
@@ -78,7 +71,7 @@ def read_store(roster_ids):
 
 def per_cycle_entries(person, finances, coverage_end):
     entries = []
-    for cycle in CYCLES:
+    for cycle in settings().cycles.career:
         for candidate_id in candidate_ids(person):
             cycle_finances = finances.get((candidate_id, cycle))
             if not cycle_finances:
@@ -121,13 +114,17 @@ def person_summary(person, finances):
         unknown = dict.fromkeys(FLOWS + STOCKS + ['self_funding'])
         return unknown, dict(unknown), ''
     by_cycle = {
-        cycle: [finances[cid, cycle] for cid in ids if (cid, cycle) in finances] for cycle in CYCLES
+        cycle: [finances[cid, cycle] for cid in ids if (cid, cycle) in finances]
+        for cycle in settings().cycles.career
     }
     cycles_with_rows = [cycle for cycle, found in by_cycle.items() if found]
     every_cycle = [f for found in by_cycle.values() for f in found]
     latest = cycles_with_rows[-1] if cycles_with_rows else None
     career = {**flows_and_self_funding(every_cycle), **stocks(by_cycle.get(latest, []))}
-    current = {**flows_and_self_funding(by_cycle[CURRENT_CYCLE]), **stocks(by_cycle[CURRENT_CYCLE])}
+    current = {
+        **flows_and_self_funding(by_cycle[settings().cycles.current]),
+        **stocks(by_cycle[settings().cycles.current]),
+    }
     return career, current, str(latest) if latest else ''
 
 
@@ -136,7 +133,7 @@ def notes_for(person, finances, roster, differing):
     notes = []
     if not ids:
         notes.append('no FEC candidate IDs in roster — self-funding unknown (null, not zero)')
-    elif not any((cid, cycle) in finances for cid in ids for cycle in CYCLES):
+    elif not any((cid, cycle) in finances for cid in ids for cycle in settings().cycles.career):
         notes.append('no weball rows found')
     if roster.shared_id_note(person):
         notes.append(roster.shared_id_note(person))

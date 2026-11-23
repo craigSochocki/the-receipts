@@ -3,7 +3,7 @@
 import duckdb
 import pandas as pd
 
-from receipts.common.settings import PATHS
+from receipts.common.settings import settings
 from receipts.domain.money import Money
 
 SQL_TYPES = {bool: 'BOOLEAN', int: 'BIGINT', str: 'VARCHAR'}
@@ -25,7 +25,7 @@ def write_gold(table, rows, dollar_columns):
     columns = list(rows[0])
     stored = [{c: cents(r[c]) if c in dollar_columns else r[c] for c in columns} for r in rows]
     definition = ', '.join(f'{c} {sql_type(c, stored, dollar_columns)}' for c in columns)
-    with duckdb.connect(str(PATHS.store)) as db:
+    with duckdb.connect(str(settings().paths.store)) as db:
         db.execute('CREATE SCHEMA IF NOT EXISTS gold')
         db.execute(f'CREATE OR REPLACE TABLE gold.{table} ({definition})')
         db.register('frame', pd.DataFrame(stored, columns=columns))

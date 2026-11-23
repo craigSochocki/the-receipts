@@ -14,8 +14,7 @@ from collections import Counter, defaultdict
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
-from receipts.common.settings import AIPAC_PAC, PATHS, load_roster
-from receipts.common.settings import IE_CYCLES as CYCLES
+from receipts.common.settings import load_roster, settings
 from receipts.store.gold import write_gold
 from receipts.store.read import connect
 from receipts.store.udp_rows import UdpRows
@@ -111,7 +110,7 @@ def support_mismatches(rows, person_keys):
     for row in rows:
         if row.direction == 'S' and row.candidate_id in person_keys:
             support[person_keys[row.candidate_id]] += row.cents
-    with open(PATHS.dataset_csv, newline='') as f:
+    with open(settings().paths.dataset_csv, newline='') as f:
         published = {r['person_key']: r['udp_ie_support_career'] for r in csv.DictReader(f)}
     return [
         (key, float(value), dollars(support.get(key, 0)))
@@ -125,14 +124,14 @@ def aipac_rows():
         return db.execute(
             'SELECT count(*) FROM outside_spending WHERE spender_id = ? '
             "AND excluded_because IS DISTINCT FROM 'reported_again'",
-            [AIPAC_PAC],
+            [settings().committees.aipac_pac],
         ).fetchone()[0]
 
 
 def main():
     roster = load_roster()
     udp = UdpRows(roster)
-    for cycle in CYCLES:
+    for cycle in settings().cycles.ie:
         expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
     person_keys = person_of(roster)
     by_person, nonroster, credited, uncredited = credits(races_of(udp.rows), person_keys)
@@ -174,7 +173,7 @@ def main():
     )
     mismatches = support_mismatches(udp.rows, person_keys)
     write_json(
-        PATHS.opposition_computed,
+        settings().paths.opposition_computed,
         {
             'credit_by_person': {k: dollars(v) for k, v in by_person.items()},
             'credit_detail': credited,

@@ -9,8 +9,7 @@ wording: research/udp-notes.md.
 from collections import defaultdict
 
 from receipts.common.baseline import expected
-from receipts.common.settings import CURRENT_CYCLE, load_roster
-from receipts.common.settings import IE_CYCLES as CYCLES
+from receipts.common.settings import load_roster, settings
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.udp_rows import UdpRows
 
@@ -52,9 +51,11 @@ def note_for(ids, entries, total, opposed, money):
         return 'No FEC candidate ID on file; not searchable in IE data.'
     if total:
         by_cycle = '; '.join(f'{e["cycle"]}: ${e["udp_ie_support"]:,.2f}' for e in entries)
-        note = f'UDP support by cycle ({CURRENT_CYCLE} partial) — {by_cycle}.'
+        note = f'UDP support by cycle ({settings().cycles.current} partial) — {by_cycle}.'
     else:
-        note = f'No UDP support spending found in {"/".join(map(str, CYCLES))} IE files.'
+        note = (
+            f'No UDP support spending found in {"/".join(map(str, settings().cycles.ie))} IE files.'
+        )
     if len(ids) > 1:
         note += f' Summed across {len(ids)} candidate IDs.'
     for e in entries:
@@ -95,7 +96,7 @@ def person_outputs(person, money):
 def main():
     roster = load_roster()
     udp = UdpRows(roster)
-    for cycle in CYCLES:
+    for cycle in settings().cycles.ie:
         prior = expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
         if abs(dollars(udp.cycle_total(cycle)) - prior) >= 0.005:
             raise SystemExit(f'UDP S+O total for {cycle} does not reconcile with the prior pull')
