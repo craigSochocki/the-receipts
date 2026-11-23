@@ -841,7 +841,7 @@ bucket; the general-phase anti-Lee spending, $1,238,852.88, is in the no-credit
 bucket because UDP backed nobody in the general phase). Blank-`cand_id` oppose
 rows (30, all 2022: Cisneros, Garcia) need no resolution — the oppose total is
 summed per race from the office/state/district columns, and the opposed person's
-name is in the row. Computation script: `src/transform/compute_opposition.py`; race-level
+name is in the row. Computation script: `src/store/opposition.py`; race-level
 record: `data/intermediate/opposition-computed.json`. Full per-cycle reconciliation: the
 computation's deduped S+O totals match the earlier UDP pull exactly in all three
 cycles ($26,107,515.77 / $38,044,932.69 / $54,322,881.51, $0.00 difference), and

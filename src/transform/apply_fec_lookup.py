@@ -27,7 +27,7 @@ the committed files):
   enrichments, nothing else).
 - `roster.json` — the same rows minus every `_`-prefixed key (`_bioguide`,
   `_fec_source`, `_nickname`, `_official`). This is what the store
-  and `compute_opposition.py` read.
+  and `src/store/opposition.py` read.
 
 Idempotent: re-running applies nothing twice (IDs are set, not appended;
 note appends already present are skipped).
