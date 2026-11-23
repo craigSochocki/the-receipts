@@ -32,7 +32,7 @@ python3 src/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `build_store` → `accepted_money` → `pull_udp` → `self_funding` →
+→ `build_store` → `accepted_money` → `udp` → `self_funding` →
 `other_committees` → `all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
@@ -95,7 +95,7 @@ What each step does (each script documents its own rules in its header):
   (`data/source/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
   plus the Curtis 2024 extension to weball cols 6–9); also writes
   `data/intermediate/dedup-notes.json`.
-- `pull_udp.py` — UDP independent-expenditure support; also writes the
+- `store/udp.py` — UDP independent-expenditure support, read from the store; also writes the
   per-cycle breakdown `data/intermediate/money_udp_per_cycle.json`.
 - `store/self_funding.py` — self-funding + topline from weball, read from the store
   (candidate contributions/loans, loan repayments, debts owed by,

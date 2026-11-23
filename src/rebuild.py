@@ -19,7 +19,7 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
                                      committee and filing, in DuckDB
     src.store.accepted_money         the roster's counted money, read from
                                      the store (double counts removed)
-    src.ingest.pull_udp              UDP independent-expenditure support
+    src.store.udp                    UDP independent-expenditure support, from the store
     src.store.self_funding           self-funding + topline, from the store
                                      (Curtis-corrected for cols 6-9)
     src.store.other_committees       other-committee contributions, from the store
@@ -78,7 +78,7 @@ STEPS = [
     'src.transform.apply_fec_lookup',
     'src.store.build_store',
     'src.store.accepted_money',
-    'src.ingest.pull_udp',
+    'src.store.udp',
     'src.store.self_funding',
     'src.store.other_committees',
     'src.store.all_ie',
