@@ -72,13 +72,8 @@ import sys
 from datetime import datetime, timezone
 
 from receipts.common import baseline
-from receipts.common.config import load_config
 from receipts.common.files import read_json
-
-CFG = load_config()
-ROOT = CFG['_root']
-SNAPSHOTS = ROOT / CFG['paths']['snapshots']
-INTERMEDIATE = ROOT / CFG['paths']['intermediate']
+from receipts.common.settings import settings
 
 # Pipeline steps in order (module names; run with `python3 -m <module>`).
 STEPS = [
@@ -122,20 +117,20 @@ REQUIRED_ROSTER_SOURCES = [
 
 
 def staged_snapshot():
-    marker = ROOT / CFG['paths']['raw'] / 'SNAPSHOT'
+    marker = settings().paths.raw / 'SNAPSHOT'
     return marker.read_text().strip() if marker.exists() else None
 
 
 def staged_candidates_snapshot():
-    marker = ROOT / CFG['paths']['raw'] / 'cn' / 'SNAPSHOT'
+    marker = settings().paths.raw / 'cn' / 'SNAPSHOT'
     return marker.read_text().strip() if marker.exists() else None
 
 
 def check_data_as_of(tag):
     snapshot_date = tag.removeprefix('fec-bulk-')
-    if str(CFG['data_as_of']) != snapshot_date:
+    if settings().data_as_of != snapshot_date:
         raise SystemExit(
-            f'config.yaml data_as_of is {CFG["data_as_of"]} but the staged snapshot is '
+            f'config.yaml data_as_of is {settings().data_as_of} but the staged snapshot is '
             f'{tag}; set data_as_of: "{snapshot_date}" in the same change'
         )
 
@@ -161,7 +156,7 @@ def check_snapshot(rebaseline):
 def run(module, *args):
     cmd = [sys.executable, '-m', module, *args]
     print(f'\n=== {module} ===', flush=True)
-    proc = subprocess.run(cmd, cwd=ROOT)
+    proc = subprocess.run(cmd, cwd=settings().root)
     if proc.returncode != 0:
         raise SystemExit(f'{module} failed (exit {proc.returncode}); rebuild aborted')
 
@@ -169,12 +164,14 @@ def run(module, *args):
 def ensure_dirs():
     """Create the output directories a fresh clone lacks: intermediates
     are gitignored, so the directory itself is not in the repo."""
-    for d in (INTERMEDIATE, SNAPSHOTS):
+    for d in (settings().paths.intermediate, settings().paths.snapshots):
         d.mkdir(parents=True, exist_ok=True)
 
 
 def check_staged():
-    missing = [p for p in REQUIRED_BULK + REQUIRED_ROSTER_SOURCES if not (ROOT / p).exists()]
+    missing = [
+        p for p in REQUIRED_BULK + REQUIRED_ROSTER_SOURCES if not (settings().root / p).exists()
+    ]
     if missing:
         raise SystemExit(
             'bulk data not staged — cannot rebuild.\n'
@@ -187,12 +184,12 @@ def check_staged():
 
 def backup_dataset():
     stamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
-    for key in ('dataset_csv', 'dataset_json'):
-        src = ROOT / CFG['paths'][key]
+    paths = settings().paths
+    for src in (paths.dataset_csv, paths.dataset_json):
         if not src.exists():
             print(f'no existing {src.name} to back up (first build)')
             continue
-        dst = SNAPSHOTS / f'congress-money-tracker-pre-rebuild-{stamp}{src.suffix}'
+        dst = settings().paths.snapshots / f'congress-money-tracker-pre-rebuild-{stamp}{src.suffix}'
         shutil.copy2(src, dst)
         print(f'backed up {src.name} -> {dst.name}')
 
@@ -207,7 +204,7 @@ def restore_manual_lookup_entries(snapshot_path):
     }
     if not manual:
         return
-    path = ROOT / CFG['paths']['fec_lookup_results']
+    path = settings().paths.fec_lookup_results
     after = read_json(path)
     for k, v in manual.items():
         after[k] = v
@@ -220,8 +217,8 @@ ROSTER_STEP, VERIFY_STEP = STEPS[0], STEPS[-1]
 
 
 def run_live_lookup():
-    lookup_path = ROOT / CFG['paths']['fec_lookup_results']
-    snapshot = INTERMEDIATE / '.fec_lookup_snapshot.json'
+    lookup_path = settings().paths.fec_lookup_results
+    snapshot = settings().paths.intermediate / '.fec_lookup_snapshot.json'
     shutil.copy2(lookup_path, snapshot)
     try:
         run(LOOKUP_STEP)
@@ -275,7 +272,7 @@ def main():
         print(
             f'\nbaseline recorded from {staged_snapshot()} and '
             f'{staged_candidates_snapshot()} — review '
-            f'`git diff {CFG["paths"]["baseline"]}` before committing.'
+            f'`git diff {settings().relative(settings().paths.baseline)}` before committing.'
         )
     print('\nrebuild complete.')
 
