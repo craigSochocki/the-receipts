@@ -289,7 +289,7 @@ The points that matter for interpreting the numbers:
   corporate+AIPAC amounts can explain; the mechanism is unresolved (likely joint-
   fundraising-committee / transfer reporting) and needs the `oth` bulk file or F3
   line-item work — no figure was adjusted to force a match.
-- **All-IE pull (`src/ingest/pull_all_ie.py`).** Same three IE bulk files as the UDP pull, but
+- **All-IE pull (`src/store/all_ie.py`, read from the store; money in exact cents).** Same three IE bulk files as the UDP pull, but
   every registered committee, not just UDP. Dedup key is (`spe_id`, `tran_id`): `tran_id`
   alone is unsound because different spenders reuse transaction IDs. Filter: spender must
   be a registered committee in the same cycle's `cm` file, and `cand_id` must be

@@ -98,10 +98,10 @@
   $32,650 residual) and went stale on this snapshot; it is now
   generated ($105,750.00 pas2 / $129,150.00 weball / $23,400.00
   residual) and audited. **Open, for Craig:** (b) methodology.md prose still quotes Nov 12 figures (banner added at
-  the top; baseline.json is authoritative); (c) the one-cent all-IE
+  the top; baseline.json is authoritative); (c) DONE Nov 23: the one-cent all-IE
   mismatch CI reported Nov 13 could not be reproduced (the inputs are
-  gone) — money is still summed as floats in `pull_all_ie.py`, to be
-  replaced by exact cents in the refactor; (d) `scheduled-refresh.yml`
+  gone); all-IE money is now summed in exact cents (`src/store/all_ie.py`),
+  with every published figure unchanged on this snapshot; (d) `scheduled-refresh.yml`
   needs replacing with snapshot → rebaseline → pull request;
   (e) remaining named-person assumptions in the smoke test (Stevens as
   the first tracker row / drill-down target).
