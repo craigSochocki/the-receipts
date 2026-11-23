@@ -7,7 +7,7 @@
 - **Refactor in progress (Nov 22).** One pipeline step at a time onto
   `src/domain/` (rules, Money in exact cents) and `src/fec/` (typed
   readers), each step byte-identical. Done: `pull_money`,
-  `pull_other_committees`. **Reconciliation fix (Craig, Nov 22):** the
+  `pull_other_committees`, `pull_self_funding`. **Reconciliation fix (Craig, Nov 22):** the
   weball col-26 comparison now excludes party committees, as col 26
   does (Form 3 line 11(b) vs 11(c)), and reports party money as its own
   line (`pas2_party_committees_cents`). It had been including them,
