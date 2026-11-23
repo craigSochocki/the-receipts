@@ -31,3 +31,7 @@ def test_truthiness_and_sign():
     assert Money(1)
     assert Money(-1).is_negative
     assert not Money(1).is_negative
+
+
+def test_money_formats_with_or_without_thousands_separators():
+    assert (str(Money(-123456789)), f'{Money(10720783):,}') == ('-1234567.89', '107,207.83')
