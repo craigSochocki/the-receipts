@@ -1,6 +1,6 @@
 # Congress Money Tracker — Data Architecture Principles
 
-## North Star (Craig, Nov 12, 2026)
+## North Star (Craig)
 
 Expose the effect money has on politics, as a voter guide for 2028. The layers,
 in order:
@@ -20,7 +20,7 @@ in order:
 6. **The voter guide:** the synthesis — a guide for people deciding who to
    vote for in 2028.
 
-### Signals and scores (Craig, Nov 12, 2026)
+### Signals and scores (Craig)
 
 Per candidate, beyond money and votes: **behavior** — platforms, campaign
 websites, social media, press releases, and **what is said about them in the
@@ -39,7 +39,7 @@ just an opinion, and this app's whole point is the opposite. Scores recompute
 on a schedule whenever inputs change (new votes, new filings, new
 statements), never by hand.
 
-### Geography (Craig, Nov 12, 2026)
+### Geography (Craig)
 
 Federal first. Then **state (Michigan), county (Oakland County), and
 municipal (Ferndale)** — the same tables and the same patterns, with a
@@ -53,7 +53,7 @@ Every layer is a separate table with its own source and as-of date, joined on
 the same stable keys (person = FEC candidate ID). No layer is allowed to
 contaminate another's sourcing.
 
-**Status:** design guide, not a migration plan. Written Nov 12, 2026. The tracker is a
+**Status:** design guide, not a migration plan. The tracker is a
 static web page today; the long-term goal is a full political-analytics app.
 Nothing here requires a rebuild now. These rules exist so each expansion
 (2026 columns, losing candidates, public launch) makes the future app easier,
@@ -66,48 +66,27 @@ not harder.
 - If a number exists in two places and they disagree, the JSON wins and the
   disagreement is a bug.
 
-## 1a. Configuration — one source of truth (added Nov 12, 2026)
+## 1a. Configuration — one source of truth
 - `config.yaml` (repo root) holds every value shared across pipeline
   scripts: FEC committee IDs (AIPAC PAC, UDP), cycles (career range, UDP
   cycles, current cycle), repo-relative paths, FEC API settings (base URL,
   key from `FEC_API_KEY` with `DEMO_KEY` fallback, timeout, request delay),
-  party-code map, verification constants (prior UDP cycle totals), and
-  reporting thresholds.
+  party-code map, tolerance presets and the run-check limits. Figures that
+  new FEC data can move live in `data/source/baseline.json`, never here.
 - `settings()` in `receipts/common/settings.py` loads it, typed and checked
   key by key, on first use; every script resolves paths from the repo root
   (derived from the script's own location), never from an absolute path and
   never from the current working directory. The repo runs from any checkout
   location. No script may re-hardcode a value from `config.yaml`; a new
   shared value goes in `config.yaml` first.
-- Verified Nov 12, 2026: the config refactor reproduced outputs exactly —
-  `pull_money.py` re-run byte-identical to the original script's output,
-  `compute_opposition.py` re-run byte-identical, `build_roster.py` re-run in
-  a copied checkout identical except for post-build enrichment (see below).
-- Reproducibility gap — CLOSED Nov 12, 2026. Every step that used to live
-  only in the builder's head is now a script, and one command runs them
-  all: `python3 receipts/rebuild.py` (build_roster → apply_fec_lookup →
-  pull_money → pull_udp → apply_dedup → pull_self_funding →
-  pull_other_committees → pull_all_ie → compute_opposition →
-  merge_dataset → compute_ranking → compute_2026 → verify_dataset). The weball
-  double-count dedup is applied by `receipts/transform/apply_dedup.py`, which reads the
-  kept/dropped decisions from `data/source/dedup-applied.json` as data (it does
-  not re-derive them). The roster enrichment is `receipts/transform/apply_fec_lookup.py`
-  (committed lookup results + the 7 recorded manual notes in
-  `data/source/manual_roster_notes.json`); the live lookup is optional
-  (`--with-fec-lookup`) and restores the manual entries afterwards. The
-  assembly (`receipts/transform/assemble.py`, over the store's gold tables and
-  dbt marts, which compute career totals and ranks) and 2026 columns (`receipts/transform/compute_2026.py`, including the primary-target
-  list) are scripted, and `receipts/validate/verify_dataset.py` runs the standing
-  audits. Verified Nov 12, 2026: a fresh clone with staged bulk data
-  rebuilds the committed dataset byte-identically (csv md5
-  f346fca949d1c160317f2f1b45100273, json md5
-  48c2a2146523ef9aa1c4f11ac3d361a7), all intermediates byte-identical,
-  all 93 audits passing. Two judgment calls are recorded as data, not
-  re-derived: the dedup decisions (`dedup-applied.json`) and the manual
-  roster notes (`manual_roster_notes.json`); the Rivet roster collapse and
-  the Luria unverified-clean rule are hardcoded constants in the merge and
-  2026 scripts with their exact committed text, and both scripts fail
-  loudly if the data stops matching those constants.
+- One command runs the whole pipeline: `python3 receipts/rebuild.py`, whose
+  step list (`STEPS`) is the order of record. Every step is a script; none
+  lives only in someone's head. Two judgment calls are recorded as data and
+  never re-derived: the weball double-count decisions
+  (`data/source/dedup-applied.json`) and the manual roster notes
+  (`data/source/manual_roster_notes.json`). A fresh clone with the pinned
+  snapshot staged must rebuild the committed dataset byte-identically; CI
+  checks that on every pull request.
 
 ## 2. Stable keys — join on IDs, never on names
 - Person = `person_key` (Bioguide ID from the legislators dataset — the
@@ -119,10 +98,9 @@ not harder.
 - Name-based matching is a documented fallback only (blank candidate IDs,
   non-roster people), and each fallback is logged with its rule.
 
-## 2a. Data model — tables by grain (proposed Nov 12, 2026)
+## 2a. Data model — tables by grain (proposed)
 
-Today the mart is one wide record per person (664 rows, 91 fields, JSON
-~4 MB): identity, career money, ranks, embedded `per_cycle` /
+Today the mart is one wide record per person: identity, career money, ranks, embedded `per_cycle` /
 `udp_per_cycle` / `self_funding_per_cycle` / `other_committees_per_cycle` /
 `all_ie_per_cycle` lists, the JSON-only `all_ie_top_committees`, and 2026
 columns. That works at this scale. It does not
@@ -166,11 +144,11 @@ Money stays exact: cents as integers in the store; ad estimates as
 min/max/mid with an `is_estimate` flag. Versioned snapshots become a
 `dataset_versions` table plus `as_of` on every row.
 
-## 2b. Future direction — data lives outside the repo (Craig, Nov 12, 2026)
+## 2b. Future direction — data lives outside the repo (Craig)
 
 Eventually the data does not live in git at all: the tables above live in
 a database, and the repo holds code, config, and the published dataset
-only. That move is NOT built yet. The Nov 12, 2026 restructure prepares
+only. That move is NOT built yet. The current layout prepares
 for it: every script reads and writes data through the `config.yaml`
 paths layer (`settings().paths`), never through hardcoded repo-relative
 file paths, so pointing the pipeline at a database-backed store is a
@@ -231,16 +209,17 @@ layout mirrors the future tables — `data/source/` (inputs),
   tables.
 
 ## 9. App-ready seams
-- The static page embeds the mart, which is fine at 664 rows and workable at
-  ~4,400. The seams to watch: if rows grow past ~10k, or if refresh becomes
+- The static page embeds the mart, which is fine at today's size and workable
+  several times larger. The seams to watch: if rows grow by an order of
+  magnitude, or if refresh becomes
   frequent, or if users need to save/filter server-side, move to a backend +
   database serving the same mart tables over an API. The presentation layer
   then reads the API, not a file. Do not make that move until one of those
   triggers fires.
 - Keep the public/private boundary explicit: a flag for what is publishable.
   A public build must never show unverified or partial-cycle figures without
-  labeling them as such (e.g. "2026 cycle partial — committee money through
-  Oct 14, weball through Oct 14, independent expenditures through Nov 3").
+  labeling them as such (e.g. "2026 cycle partial", with each data family's
+  coverage end date from `config.yaml`).
 
 ## 10. Methodology ships with the data
 - Every new column, rule, or definition lands in `methodology.md` in the same
@@ -250,28 +229,25 @@ layout mirrors the future tables — `data/source/` (inputs),
 ## 11. Interface: mobile-first web app, native later
 - The interface is a **mobile-first web app**: a link that works natively on
   iPhone and Android (responsive layout, touch-friendly controls, fast load
-  even at ~4,400 rows). That is the first interface and the foundation.
-- **Static site — BUILT Nov 12, 2026.** `docs/index.html` is generated from
+  as the roster grows). That is the first interface and the foundation.
+- **Static site — built.** `docs/index.html` is generated from
   the canonical dataset by `receipts/site/build_site.py` (one command:
   `python3 receipts/site/build_site.py`; verified by
   `receipts/site/verify_site.py`, which decodes the embedded data and checks it
   against the dataset field-by-field, plus a Node runtime smoke test
   `receipts/site/smoke_test.js`). Single self-contained page, no external
-  dependencies: the dataset is embedded in a compact positional encoding
-  (1.6 MB for 664 rows). Content parity with the private tracker artifact
-  (v6): search, filters, sort by every money column, totals strip + footer,
+  dependencies: the dataset is embedded in a compact positional encoding.
+  Content parity with the private tracker artifact: search, filters, sort by every money column, totals strip + footer,
   per-person drill-down with cycle-by-cycle tables, leaderboards, clean-money
   view, party-by-chamber breakdown, 2026 primary-target list, methodology
-  section, CSV download from the same embedded figures. The 14
+  section, CSV download from the same embedded figures. The
   complete-picture columns are shown through switchable column views, not
-  one 25-column table. **Never hand-edit `docs/index.html`** — edit the
-  generator and re-run it. GitHub Pages is the publishing source (`docs/`);
-  enabling Pages in repo Settings is Craig's step — the site is not public
-  until he does that.
+  one very wide table. **Never hand-edit `docs/index.html`** — edit the
+  generator and re-run it. GitHub Pages is the publishing source (`docs/`),
+  enabled by Craig.
 - **Native apps (App Store, Google Play) and a desktop app come later** — as
   packaging of the same web app and the same data layer (e.g. a web-view
-  wrapper), not a rebuild. They need developer accounts (Apple $99/yr,
-  Google $25 one-time) and store review; the data pipeline, mart, and API do
+  wrapper), not a rebuild. They need developer accounts and store review; the data pipeline, mart, and API do
   not change.
 - The presentation layer must never become the source of truth: whatever the
   interface, it reads the mart (or an API over it), never its own copy of the
