@@ -41,8 +41,11 @@ jobs:
           ruff check receipts tests
           ruff format --check receipts tests
 
-      - name: Unit tests
-        run: python3 -m pytest -q tests
+      - name: Type check
+        run: mypy
+
+      - name: Unit tests, complexity limits and coverage floor
+        run: python3 -m pytest -q --cov=receipts tests
 
       - name: Stage the pinned FEC snapshot
         run: ./fetch_snapshot.sh
