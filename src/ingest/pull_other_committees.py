@@ -166,11 +166,13 @@ def without_double_counted_summaries(reported, dedup_records, cycle):
     return corrected, zeroed, mismatched
 
 
+PARTY = CommitteeClass.PARTY.value
+COL_26_COLUMNS = [b for b in BUCKETS if b != PARTY] + [CORPORATE, AIPAC]
+
+
 def pas2_comparable(ledger, candidate_id, cycle):
-    # Includes party committees, although weball col 26 excludes them
-    # (Form 3 line 11(b) vs 11(c)). Kept as the pipeline has always run;
-    # open question in STATUS.md.
-    columns = BUCKETS + [CORPORATE, AIPAC]
+    """What weball col 26 covers: committee money other than party (Form 3 line 11(c))."""
+    columns = COL_26_COLUMNS
     gross = Money.total(ledger.amount(candidate_id, cycle, c) for c in columns)
     earmarked = Money.total(ledger.amount(candidate_id, cycle, earmark(c)) for c in columns)
     return gross, earmarked
@@ -179,7 +181,7 @@ def pas2_comparable(ledger, candidate_id, cycle):
 def reconcile_cycle(cycle, roster, ledger, dedup_records):
     raw = weball_other_committee_money(cycle, roster)
     corrected, zeroed, mismatched = without_double_counted_summaries(raw, dedup_records, cycle)
-    gross_total = earmark_total = ZERO
+    gross_total = earmark_total = party_total = ZERO
     residual_raw = residual_corrected = residual_net = 0
     exact_raw = exact_corrected = exact_net = considered = 0
     residuals = []
@@ -189,6 +191,7 @@ def reconcile_cycle(cycle, roster, ledger, dedup_records):
         gross, earmarked = pas2_comparable(ledger, candidate_id, cycle)
         gross_total += gross
         earmark_total += earmarked
+        party_total += ledger.amount(candidate_id, cycle, PARTY)
         net = gross.cents - earmarked.cents
         if not (weball_raw or gross):
             continue
@@ -212,6 +215,7 @@ def reconcile_cycle(cycle, roster, ledger, dedup_records):
         'pas2_nonparty_gross_cents': gross_total.cents,
         'pas2_nonparty_net_of_earmarks_cents': gross_total.cents - earmark_total.cents,
         'pas2_earmark_transmitted_cents': earmark_total.cents,
+        'pas2_party_committees_cents': party_total.cents,
         'residual_weball_raw_minus_pas2_gross_cents': residual_raw,
         'residual_weball_corrected_minus_pas2_gross_cents': residual_corrected,
         'residual_weball_corrected_minus_pas2_net_cents': residual_net,
