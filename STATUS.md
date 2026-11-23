@@ -4,6 +4,15 @@
 
 ## What is built
 
+- **Refactor in progress (Nov 22).** One pipeline step at a time onto
+  `src/domain/` (rules, Money in exact cents) and `src/fec/` (typed
+  readers), each step byte-identical. Done: `pull_money`,
+  `pull_other_committees`. **Open:** the weball col-26 reconciliation
+  in `pull_other_committees` includes party committees, although col 26
+  excludes them (Form 3 line 11(b) vs 11(c)) and the old header said
+  they were left out. Diagnostics only — no dataset column depends on
+  it. Kept as-is pending Craig's call.
+
 - **Pinned snapshots + baseline (branch `claude/rebaseline`, PENDING
   CRAIG'S REVIEW — not on master) — Nov 22.** Why: every CI run since
   Nov 13 and both scheduled refreshes (Nov 15, Nov 22) failed. CI
