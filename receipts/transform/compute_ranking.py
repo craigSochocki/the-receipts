@@ -32,7 +32,6 @@ through the JSON and has no CSV column, so the CSV/JSON order check
 below allows for exactly that one key.
 """
 
-
 from receipts.common.config import load_config
 
 CFG = load_config()
@@ -76,8 +75,11 @@ def ranked(records):
 
     # total_accepted_career
     for r in records:
-        ind, corp, aipac = (r['individual_contribution_total_career'],
-                            r['corporate_pac_career'], r['aipac_pac_direct_career'])
+        ind, corp, aipac = (
+            r['individual_contribution_total_career'],
+            r['corporate_pac_career'],
+            r['aipac_pac_direct_career'],
+        )
         if is_num(ind) and is_num(corp) and is_num(aipac):
             r['total_accepted_career'] = round(ind + corp + aipac, 2)
         else:
@@ -85,16 +87,18 @@ def ranked(records):
 
     # dirty_career (same three dirty sources as dirty_2026, all cycles)
     for r in records:
-        parts = (r['corporate_pac_career'], r['aipac_pac_direct_career'],
-                 r['udp_ie_total_benefit_career'])
+        parts = (
+            r['corporate_pac_career'],
+            r['aipac_pac_direct_career'],
+            r['udp_ie_total_benefit_career'],
+        )
         if all(is_num(v) for v in parts):
             r['dirty_career'] = round(sum(parts), 2)
         else:
             r['dirty_career'] = None
 
     # ranks
-    rank_maps = {rank_col: competition_ranks(records, val_col)
-                 for rank_col, val_col in RANK_DEFS}
+    rank_maps = {rank_col: competition_ranks(records, val_col) for rank_col, val_col in RANK_DEFS}
     for r in records:
         for rank_col, _ in RANK_DEFS:
             r[rank_col] = rank_maps[rank_col][r['person_key']]
@@ -104,8 +108,9 @@ def ranked(records):
     # all_ie_top_committees, which is JSON-only by design.
     csv_cols = [c for c in CFG['dataset']['csv_columns'] if '2026' not in c]
     json_keys = [k for k in CFG['dataset']['json_keys'] if '2026' not in k]
-    assert [k for k in json_keys if k != 'all_ie_top_committees'] == csv_cols, \
+    assert [k for k in json_keys if k != 'all_ie_top_committees'] == csv_cols, (
         'CSV/JSON orders diverge before the 2026 columns (beyond all_ie_top_committees)'
+    )
     assert 'all_ie_top_committees' in json_keys, 'all_ie_top_committees missing from json_keys'
     ordered = [{k: r[k] for k in json_keys} for r in records]
     return ordered

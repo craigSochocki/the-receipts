@@ -4,16 +4,19 @@ Shared by the UDP support pull and the opposition credit. UDP files many
 rows with a blank candidate ID; the name index is built from its own rows
 that carry one, across all cycles, a later row winning a name collision.
 """
+
 from typing import NamedTuple
 
 from receipts.common.settings import UDP
 from receipts.domain.blank_candidates import name_key, resolve
 from receipts.store.read import connect
 
-ROWS = ("SELECT candidate_id, candidate_name, cycle, direction, amount_cents, office, "
-        "office_state, office_district, election_type, transaction_id "
-        "FROM outside_spending WHERE spender_id = ? "
-        "AND excluded_because IS DISTINCT FROM 'reported_again' ORDER BY cycle, file_order")
+ROWS = (
+    'SELECT candidate_id, candidate_name, cycle, direction, amount_cents, office, '
+    'office_state, office_district, election_type, transaction_id '
+    'FROM outside_spending WHERE spender_id = ? '
+    "AND excluded_because IS DISTINCT FROM 'reported_again' ORDER BY cycle, file_order"
+)
 
 
 class UdpRow(NamedTuple):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Assemble the dataset in one pass and write it once: merge, rank, then 2026."""
+
 import json
 
 import pandas as pd
@@ -17,8 +18,9 @@ def write_dataset(records):
     with open(ROOT / CFG['paths']['dataset_json'], 'w') as f:
         json.dump(records, f, indent=1)
     pd.DataFrame(records, columns=CFG['dataset']['csv_columns']).to_csv(
-        ROOT / CFG['paths']['dataset_csv'], index=False)
-    print(f"wrote {CFG['paths']['dataset_json']} and .csv ({len(records)} rows)")
+        ROOT / CFG['paths']['dataset_csv'], index=False
+    )
+    print(f'wrote {CFG["paths"]["dataset_json"]} and .csv ({len(records)} rows)')
 
 
 def main():

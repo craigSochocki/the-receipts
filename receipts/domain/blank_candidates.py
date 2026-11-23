@@ -12,11 +12,14 @@ def name_key(candidate_name, state, district, office):
 def roster_matches(candidate_name, state, district, people):
     """Roster people whose last name, first-name start, state and district match."""
     last, first = _last_and_first(candidate_name)
-    return [p for p in people
-            if p['last_name'].upper() == last
-            and (not first or p['first_name'].upper().startswith(first.split()[0]))
-            and p['state'] == state
-            and _represents(p, district)]
+    return [
+        p
+        for p in people
+        if p['last_name'].upper() == last
+        and (not first or p['first_name'].upper().startswith(first.split()[0]))
+        and p['state'] == state
+        and _represents(p, district)
+    ]
 
 
 def _last_and_first(candidate_name):
@@ -27,8 +30,10 @@ def _last_and_first(candidate_name):
 
 
 def _represents(person, district):
-    return any(str(person.get(seat) or '').zfill(2) == district
-               for seat in ('district_119', 'district_120'))
+    return any(
+        str(person.get(seat) or '').zfill(2) == district
+        for seat in ('district_119', 'district_120')
+    )
 
 
 def resolve(row, index, people):

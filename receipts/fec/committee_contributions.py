@@ -1,4 +1,5 @@
 """pas2: itemized contributions from committees to candidates."""
+
 from typing import NamedTuple
 
 from receipts.domain.money import Money
@@ -62,8 +63,14 @@ class CommitteeContribution(NamedTuple):
         The transaction ID alone is not enough: some filers reuse it
         across distinct contributions.
         """
-        return (self.committee_id, self.transaction_id or self.submission_id,
-                self.candidate_id, self.amount, self.date, self.election)
+        return (
+            self.committee_id,
+            self.transaction_id or self.submission_id,
+            self.candidate_id,
+            self.amount,
+            self.date,
+            self.election,
+        )
 
 
 def committee_contributions(bulk_dir, cycle):

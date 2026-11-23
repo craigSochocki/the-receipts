@@ -14,6 +14,7 @@ installed the repo as a package:
 `load_config()` finds the root from this file's own location
 (receipts/common/ -> parents[2]), never from the working directory.
 """
+
 from pathlib import Path
 
 import yaml
@@ -29,8 +30,8 @@ def load_config():
     """Load config.yaml from the repo root. Returns the parsed dict plus
     `_root` (pathlib.Path). Raises if config.yaml is missing."""
     root = repo_root()
-    cfg_path = root / "config.yaml"
+    cfg_path = root / 'config.yaml'
     with open(cfg_path) as f:
         cfg = yaml.safe_load(f)
-    cfg["_root"] = root
+    cfg['_root'] = root
     return cfg

@@ -4,6 +4,7 @@ Uses api.open.fec.gov with the API key from the FEC_API_KEY environment
 variable (config fec_api.api_key_default as fallback). Matches on
 office + state + district + party; stops on rate limiting and leaves the
 rest empty rather than guessing."""
+
 import json, time, urllib.request, urllib.parse, unicodedata, re, os
 
 from receipts.common.config import load_config
@@ -17,9 +18,11 @@ API_KEY = os.environ.get(CFG['fec_api']['api_key_env'], CFG['fec_api']['api_key_
 CURRENT_ELECTION_YEAR = CFG['cycles']['current']
 PARTY = CFG['party_codes']
 
+
 def norm(s):
     s = unicodedata.normalize('NFKD', s or '').encode('ascii', 'ignore').decode()
     return re.sub(r'[^a-z ]', '', s.lower()).strip()
+
 
 rows = json.load(open(f'{IM}/roster_intermediate.json'))
 missing = [r for r in rows if not r['fec_candidate_ids']]
@@ -27,12 +30,19 @@ print('rows missing FEC IDs:', len(missing))
 
 results = {}
 
+
 def lookup(r):
     chamber = r['chamber_120'] or r['chamber_119']
     office = 'S' if chamber == 'Senate' else 'H'
-    name_q = f"{r['last_name']}, {r['first_name']}"
-    params = {'api_key': API_KEY, 'name': name_q, 'election_year': CURRENT_ELECTION_YEAR,
-              'office': office, 'state': r['state'], 'per_page': 20}
+    name_q = f'{r["last_name"]}, {r["first_name"]}'
+    params = {
+        'api_key': API_KEY,
+        'name': name_q,
+        'election_year': CURRENT_ELECTION_YEAR,
+        'office': office,
+        'state': r['state'],
+        'per_page': 20,
+    }
     url = API + '?' + urllib.parse.urlencode(params)
     try:
         with urllib.request.urlopen(url, timeout=CFG['fec_api']['request_timeout_seconds']) as resp:
@@ -54,8 +64,11 @@ def lookup(r):
             continue
         if c.get('office') != office:
             continue
-        if want_dist is not None and c.get('district_number') is not None \
-                and int(c['district_number']) != want_dist:
+        if (
+            want_dist is not None
+            and c.get('district_number') is not None
+            and int(c['district_number']) != want_dist
+        ):
             continue
         if want_party and c.get('party') and c['party'] != want_party:
             continue
@@ -74,14 +87,19 @@ def lookup(r):
         return ('ambiguous', [c['candidate_id'] for c in scored])
     return ('not_found', [c.get('candidate_id') for c in cands])
 
+
 for i, r in enumerate(missing):
     status, val = lookup(r)
-    results[r['person_key']] = {'name': r['full_name'], 'state': r['state'],
-                                'status': status, 'value': val}
+    results[r['person_key']] = {
+        'name': r['full_name'],
+        'state': r['state'],
+        'status': status,
+        'value': val,
+    }
     if status == 'found':
         r['fec_candidate_ids'] = [val]
         r['_fec_source'] = f'fec-api-{CURRENT_ELECTION_YEAR}'
-    print(f"{i+1}/{len(missing)} {r['full_name']} ({r['state']}): {status} {val}")
+    print(f'{i + 1}/{len(missing)} {r["full_name"]} ({r["state"]}): {status} {val}')
     if status == 'http_error' and val == 429:
         print('RATE LIMITED — stopping')
         break
@@ -90,4 +108,4 @@ for i, r in enumerate(missing):
 json.dump(results, open(f'{SRC}/fec_lookup_results.json', 'w'), indent=1)
 json.dump(rows, open(f'{IM}/roster_intermediate.json', 'w'), indent=1)
 found = sum(1 for v in results.values() if v['status'] == 'found')
-print(f"found {found} of {len(results)} attempted")
+print(f'found {found} of {len(results)} attempted')

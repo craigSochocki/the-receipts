@@ -1,4 +1,5 @@
 """cm: the committee master file, one row per registered committee per cycle."""
+
 from typing import NamedTuple
 
 from receipts.fec.bulk_file import BulkFile

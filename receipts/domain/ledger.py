@@ -1,4 +1,5 @@
 """Money per candidate ID, cycle and column."""
+
 from collections import defaultdict
 
 from receipts.domain.money import ZERO, Money
@@ -18,13 +19,17 @@ class Ledger:
         return self._amounts.get((candidate_id, cycle, column), ZERO)
 
     def total(self, candidate_ids, cycles, column):
-        return Money.total(self.amount(candidate_id, cycle, column)
-                           for candidate_id in candidate_ids for cycle in cycles)
+        return Money.total(
+            self.amount(candidate_id, cycle, column)
+            for candidate_id in candidate_ids
+            for cycle in cycles
+        )
 
     def column_total(self, column):
         self._require(column)
-        return Money.total(amount for (_, _, recorded), amount in self._amounts.items()
-                           if recorded == column)
+        return Money.total(
+            amount for (_, _, recorded), amount in self._amounts.items() if recorded == column
+        )
 
     def candidates_in(self, cycle):
         return {candidate_id for candidate_id, recorded, _ in self._amounts if recorded == cycle}

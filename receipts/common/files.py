@@ -1,4 +1,5 @@
 """Writing the pipeline's CSV and JSON files the way every step always has."""
+
 import csv
 import json
 

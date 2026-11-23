@@ -5,6 +5,7 @@ Only support rows count toward a person's total; UDP's spending against
 a person is recorded in the note, never added. Rules and the exact note
 wording: research/udp-notes.md.
 """
+
 from collections import defaultdict
 
 from receipts.common.baseline import expected
@@ -49,21 +50,25 @@ def note_for(ids, entries, total, opposed, money):
     if not ids:
         return 'No FEC candidate ID on file; not searchable in IE data.'
     if total:
-        by_cycle = '; '.join(f"{e['cycle']}: ${e['udp_ie_support']:,.2f}" for e in entries)
+        by_cycle = '; '.join(f'{e["cycle"]}: ${e["udp_ie_support"]:,.2f}' for e in entries)
         note = f'UDP support by cycle ({CURRENT_CYCLE} partial) — {by_cycle}.'
     else:
-        note = f"No UDP support spending found in {'/'.join(map(str, CYCLES))} IE files."
+        note = f'No UDP support spending found in {"/".join(map(str, CYCLES))} IE files.'
     if len(ids) > 1:
         note += f' Summed across {len(ids)} candidate IDs.'
     for e in entries:
         attributed = money.attributed.get((e['candidate_id'], e['cycle']), 0)
         if attributed:
-            note += (f" Includes ${dollars(attributed):,.2f} of {e['cycle']} support identified by "
-                     f'candidate name/state/district; the FEC file left cand_id blank '
-                     f'for those rows.')
+            note += (
+                f' Includes ${dollars(attributed):,.2f} of {e["cycle"]} support identified by '
+                f'candidate name/state/district; the FEC file left cand_id blank '
+                f'for those rows.'
+            )
     if opposed:
-        note += (f' UDP also spent ${dollars(opposed):,.2f} opposing this person '
-                 f'(excluded from support total).')
+        note += (
+            f' UDP also spent ${dollars(opposed):,.2f} opposing this person '
+            f'(excluded from support total).'
+        )
     return note
 
 
@@ -72,12 +77,18 @@ def person_outputs(person, money):
     entries = support_entries(ids, money)
     total = sum(money.support[e['candidate_id'], e['cycle']] for e in entries)
     opposed = sum(money.oppose.get(candidate_id, 0) for candidate_id in ids)
-    row = {'person_key': person['person_key'], 'full_name': person['full_name'],
-           'fec_candidate_ids': ';'.join(ids),
-           'udp_ie_support_career': f'{dollars(total):.2f}',
-           'data_notes': note_for(ids, entries, total, opposed, money)}
-    return row, {'person_key': person['person_key'], 'full_name': person['full_name'],
-                 'udp_per_cycle': entries}
+    row = {
+        'person_key': person['person_key'],
+        'full_name': person['full_name'],
+        'fec_candidate_ids': ';'.join(ids),
+        'udp_ie_support_career': f'{dollars(total):.2f}',
+        'data_notes': note_for(ids, entries, total, opposed, money),
+    }
+    return row, {
+        'person_key': person['person_key'],
+        'full_name': person['full_name'],
+        'udp_per_cycle': entries,
+    }
 
 
 def main():
@@ -91,8 +102,10 @@ def main():
     outputs = [person_outputs(p, money) for p in roster]
     write_csv(PATHS.money_udp, [row for row, _ in outputs])
     write_json(PATHS.money_udp_per_cycle, {entry['person_key']: entry for _, entry in outputs})
-    print(f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
-          f'name-index collisions: {len(udp.collisions)}')
+    print(
+        f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
+        f'name-index collisions: {len(udp.collisions)}'
+    )
 
 
 if __name__ == '__main__':

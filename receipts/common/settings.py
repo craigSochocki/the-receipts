@@ -1,4 +1,5 @@
 """Settings the new pipeline code shares, read once from config.yaml."""
+
 import json
 from types import SimpleNamespace
 

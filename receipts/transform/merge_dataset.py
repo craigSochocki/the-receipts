@@ -100,6 +100,7 @@ Internal consistency asserts (fail loudly, exit non-zero):
   (support + oppose + blank-direction rows = total);
 - 664 rows after the collapse.
 """
+
 import csv, json
 from collections import defaultdict
 from datetime import datetime
@@ -113,20 +114,29 @@ ROOT = CFG['_root']
 CURRENT = CFG['cycles']['current']
 
 # Recorded special-case notes (exact committed text; do not reword).
-ARMSTRONG_NOTE = ('No FEC candidate IDs in roster (appointed senator, never ran for the seat); '
-                  'money totals unknown, not zero. Not searchable in UDP IE data.')
+ARMSTRONG_NOTE = (
+    'No FEC candidate IDs in roster (appointed senator, never ran for the seat); '
+    'money totals unknown, not zero. Not searchable in UDP IE data.'
+)
 RIVET_FIX_NOTES = {
-    'M001237': ('Roster fix: Kristen McDonald Rivet appeared twice in the source roster '
-                '(person_keys M001237 and kristen-mcdonaldrivetmihouse, same FEC ID H4MI08218, '
-                'identical money totals); collapsed to a single row. Money totals counted once, '
-                'not twice. She served in the 119th (MI-08) and was re-elected to the 120th (MI-08).'),
+    'M001237': (
+        'Roster fix: Kristen McDonald Rivet appeared twice in the source roster '
+        '(person_keys M001237 and kristen-mcdonaldrivetmihouse, same FEC ID H4MI08218, '
+        'identical money totals); collapsed to a single row. Money totals counted once, '
+        'not twice. She served in the 119th (MI-08) and was re-elected to the 120th (MI-08).'
+    ),
 }
 # Mark Lamb's 2026 other-committee money by pas2 does not reach his weball
 # col 26 figure (methodology §8.17). Recorded, not adjusted.
-LAMB_LABELS = [('party_committees', 'party'), ('leadership_pacs', 'leadership'),
-               ('labor_pacs', 'labor'), ('trade_pacs', 'trade'),
-               ('membership_pacs', 'membership'), ('cooperative_pacs', 'cooperative'),
-               ('other_unclassified', 'other-unclassified')]
+LAMB_LABELS = [
+    ('party_committees', 'party'),
+    ('leadership_pacs', 'leadership'),
+    ('labor_pacs', 'labor'),
+    ('trade_pacs', 'trade'),
+    ('membership_pacs', 'membership'),
+    ('cooperative_pacs', 'cooperative'),
+    ('other_unclassified', 'other-unclassified'),
+]
 
 
 def lamb_note(validation, coverage):
@@ -141,37 +151,75 @@ def lamb_note(validation, coverage):
         date = datetime.strptime(str(iso_date), '%Y-%m-%d')
         return f'{date:%b} {date.day}'
 
-    by_class = '; '.join(f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
-                         for bucket, label in LAMB_LABELS
-                         if validation['pas2_breakdown_cents'][bucket])
+    by_class = '; '.join(
+        f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
+        for bucket, label in LAMB_LABELS
+        if validation['pas2_breakdown_cents'][bucket]
+    )
     cycle = validation['cycle']
-    return (f'{cycle} PENDING RECONCILIATION: other-committee money in {cycle} is '
-            f'{usd(validation["pas2_total_cents"])} by pas2 ({by_class}) '
-            f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
-            f'{usd(validation["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
-            f'not reproducible from the staged bulk files (pas2 judged complete through '
-            f'{month_day(coverage["committee_money_pas2"])}, weball through '
-            f'{month_day(coverage["weball"])}). Do not adjust either figure.')
+    return (
+        f'{cycle} PENDING RECONCILIATION: other-committee money in {cycle} is '
+        f'{usd(validation["pas2_total_cents"])} by pas2 ({by_class}) '
+        f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
+        f'{usd(validation["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
+        f'not reproducible from the staged bulk files (pas2 judged complete through '
+        f'{month_day(coverage["committee_money_pas2"])}, weball through '
+        f'{month_day(coverage["weball"])}). Do not adjust either figure.'
+    )
 
 
-ROSTER_FIELDS = ['person_key', 'full_name', 'chamber_119', 'chamber_120', 'state',
-                 'district_119', 'district_120', 'party_119', 'party_120',
-                 'leadership_119', 'leadership_120', 'in_119th', 'in_120th',
-                 'fec_candidate_ids', 'senate_class']
-MONEY_COLS = ['individual_contribution_total_career', 'aipac_pac_direct_career',
-              'aipac_earmark_transmitted_career', 'corporate_pac_career',
-              'corporate_earmark_transmitted_career', 'udp_ie_support_career']
+ROSTER_FIELDS = [
+    'person_key',
+    'full_name',
+    'chamber_119',
+    'chamber_120',
+    'state',
+    'district_119',
+    'district_120',
+    'party_119',
+    'party_120',
+    'leadership_119',
+    'leadership_120',
+    'in_119th',
+    'in_120th',
+    'fec_candidate_ids',
+    'senate_class',
+]
+MONEY_COLS = [
+    'individual_contribution_total_career',
+    'aipac_pac_direct_career',
+    'aipac_earmark_transmitted_career',
+    'corporate_pac_career',
+    'corporate_earmark_transmitted_career',
+    'udp_ie_support_career',
+]
 # New career money columns (complete-financial-picture build, Nov 12 2026).
-SF_FLOW_COLS = ['cand_contrib_career', 'cand_loans_career', 'self_funding_career',
-                'loan_repayments_career', 'total_receipts_career',
-                'total_disbursements_career', 'transfers_from_auth_career',
-                'transfers_to_auth_career']
+SF_FLOW_COLS = [
+    'cand_contrib_career',
+    'cand_loans_career',
+    'self_funding_career',
+    'loan_repayments_career',
+    'total_receipts_career',
+    'total_disbursements_career',
+    'transfers_from_auth_career',
+    'transfers_to_auth_career',
+]
 SF_STOCK_COLS = ['debts_owed_by_career', 'cash_on_hand_career']
 SF_COLS = SF_FLOW_COLS + ['debts_owed_to_career'] + SF_STOCK_COLS
-OC_BUCKETS = ['party_committees', 'leadership_pacs', 'labor_pacs', 'trade_pacs',
-              'membership_pacs', 'cooperative_pacs', 'other_unclassified']
-OC_COLS = ([f'{b}_career' for b in OC_BUCKETS] + ['other_committees_total_career']
-           + [f'{b}_earmark_transmitted_career' for b in OC_BUCKETS])
+OC_BUCKETS = [
+    'party_committees',
+    'leadership_pacs',
+    'labor_pacs',
+    'trade_pacs',
+    'membership_pacs',
+    'cooperative_pacs',
+    'other_unclassified',
+]
+OC_COLS = (
+    [f'{b}_career' for b in OC_BUCKETS]
+    + ['other_committees_total_career']
+    + [f'{b}_earmark_transmitted_career' for b in OC_BUCKETS]
+)
 AIE_COLS = ['all_ie_support_career', 'all_ie_oppose_career', 'all_ie_total_career']
 NEW_MONEY_COLS = SF_COLS + OC_COLS + AIE_COLS
 ALL_MONEY_COLS = MONEY_COLS + NEW_MONEY_COLS
@@ -206,7 +254,8 @@ def merged_records():
     dedup_notes = json.load(open(ROOT / CFG['paths']['dedup_notes']))
     LAMB_NOTE = lamb_note(
         json.load(open(ROOT / CFG['paths']['other_committees_diagnostics']))['lamb_validation'],
-        CFG['verification']['coverage_end'])
+        CFG['verification']['coverage_end'],
+    )
     roster_json = json.load(open(ROOT / CFG['paths']['roster']))
 
     # All-IE per-cycle entries, grouped per person from the pull's
@@ -215,12 +264,16 @@ def merged_records():
     for _e in aie_raw['per_candidate_per_cycle']:
         _cid = _e['candidate_id']
         for _pk in {p['person_key'] for p in roster if _cid in (p.get('fec_candidate_ids') or [])}:
-            aie_pc_by_person.setdefault(_pk, []).append({
-                'cycle': _e['cycle'], 'candidate_id': _cid,
-                'all_ie_support': _e['all_ie_support'],
-                'all_ie_oppose': _e['all_ie_oppose'],
-                'all_ie_total': _e['all_ie_total'],
-                'no_direction_amount': _e['no_direction_amount']})
+            aie_pc_by_person.setdefault(_pk, []).append(
+                {
+                    'cycle': _e['cycle'],
+                    'candidate_id': _cid,
+                    'all_ie_support': _e['all_ie_support'],
+                    'all_ie_oppose': _e['all_ie_oppose'],
+                    'all_ie_total': _e['all_ie_total'],
+                    'no_direction_amount': _e['no_direction_amount'],
+                }
+            )
     for _pk in aie_pc_by_person:
         aie_pc_by_person[_pk].sort(key=lambda e: (e['cycle'], e['candidate_id']))
 
@@ -229,19 +282,25 @@ def merged_records():
     # ---------- Collapse duplicate roster rows (shared FEC ID, same person) ----------
     id_to_keys = defaultdict(list)
     for r in roster:
-        for cid in (r.get('fec_candidate_ids') or []):
+        for cid in r.get('fec_candidate_ids') or []:
             id_to_keys[cid].append(r['person_key'])
-    collapsed = {}   # dropped key -> kept key
+    collapsed = {}  # dropped key -> kept key
     for cid, keys in sorted(id_to_keys.items()):
         if len(keys) < 2:
             continue
         names = {by_key[k]['full_name'] for k in keys}
         if len(names) != 1:
-            raise SystemExit(f'FEC ID {cid} shared by different people {sorted(keys)}: {sorted(names)}')
+            raise SystemExit(
+                f'FEC ID {cid} shared by different people {sorted(keys)}: {sorted(names)}'
+            )
         # Keep the Bioguide-style key (e.g. M001237) over a slug key.
-        kept = sorted(keys, key=lambda k: (0 if len(k) == 7 and k[0].isalpha() and k[1:].isdigit() else 1, k))[0]
+        kept = sorted(
+            keys, key=lambda k: (0 if len(k) == 7 and k[0].isalpha() and k[1:].isdigit() else 1, k)
+        )[0]
         if kept not in RIVET_FIX_NOTES:
-            raise SystemExit(f'roster collapse for {kept} has no recorded fix note; add one, do not invent it')
+            raise SystemExit(
+                f'roster collapse for {kept} has no recorded fix note; add one, do not invent it'
+            )
         for k in keys:
             if k == kept:
                 continue
@@ -249,27 +308,55 @@ def merged_records():
             # The 120th-only row supplies the 120th fields; the kept row supplies the 119th.
             for suffix in ('119', '120'):
                 if keep.get(f'in_{suffix}th') != 'yes' and drop.get(f'in_{suffix}th') == 'yes':
-                    for f in (f'chamber_{suffix}', f'district_{suffix}', f'party_{suffix}',
-                              f'leadership_{suffix}', f'in_{suffix}th'):
+                    for f in (
+                        f'chamber_{suffix}',
+                        f'district_{suffix}',
+                        f'party_{suffix}',
+                        f'leadership_{suffix}',
+                        f'in_{suffix}th',
+                    ):
                         keep[f] = drop[f]
             # Money must be identical between the two rows, or the collapse is invalid.
-            for src, name in ((mpc, 'money_per_cycle'), (pas2, 'money_pas2_weball'),
-                              (udp_csv, 'money_udp'), (udp_pc, 'money_udp_per_cycle'),
-                              (sf_pc, 'self_funding_per_cycle'), (sf_csv, 'self_funding'),
-                              (oc_pc, 'other_committees_per_cycle'),
-                              (oc_csv, 'other_committees'),
-                              (aie_csv, 'all_ie'),
-                              (aie_pc_by_person, 'all_ie_per_cycle')):
+            for src, name in (
+                (mpc, 'money_per_cycle'),
+                (pas2, 'money_pas2_weball'),
+                (udp_csv, 'money_udp'),
+                (udp_pc, 'money_udp_per_cycle'),
+                (sf_pc, 'self_funding_per_cycle'),
+                (sf_csv, 'self_funding'),
+                (oc_pc, 'other_committees_per_cycle'),
+                (oc_csv, 'other_committees'),
+                (aie_csv, 'all_ie'),
+                (aie_pc_by_person, 'all_ie_per_cycle'),
+            ):
                 a, b = src.get(kept), src.get(k)
                 if a is None or b is None:
                     raise SystemExit(f'collapse {kept}/{k}: missing from {name}')
                 if name == 'money_per_cycle':
-                    va = [(e['cycle'], e['candidate_id'], e['individual'], e['aipac_pac_direct'],
-                           e['aipac_earmark_transmitted'], e['corporate_pac'],
-                           e['corporate_earmark_transmitted']) for e in a['per_cycle']]
-                    vb = [(e['cycle'], e['candidate_id'], e['individual'], e['aipac_pac_direct'],
-                           e['aipac_earmark_transmitted'], e['corporate_pac'],
-                           e['corporate_earmark_transmitted']) for e in b['per_cycle']]
+                    va = [
+                        (
+                            e['cycle'],
+                            e['candidate_id'],
+                            e['individual'],
+                            e['aipac_pac_direct'],
+                            e['aipac_earmark_transmitted'],
+                            e['corporate_pac'],
+                            e['corporate_earmark_transmitted'],
+                        )
+                        for e in a['per_cycle']
+                    ]
+                    vb = [
+                        (
+                            e['cycle'],
+                            e['candidate_id'],
+                            e['individual'],
+                            e['aipac_pac_direct'],
+                            e['aipac_earmark_transmitted'],
+                            e['corporate_pac'],
+                            e['corporate_earmark_transmitted'],
+                        )
+                        for e in b['per_cycle']
+                    ]
                 elif name == 'money_udp_per_cycle':
                     va, vb = a['udp_per_cycle'], b['udp_per_cycle']
                 elif name in ('self_funding_per_cycle', 'other_committees_per_cycle'):
@@ -280,8 +367,9 @@ def merged_records():
                 else:
                     # Money figures must be identical; data_notes legitimately
                     # differ (each duplicate row names the other key).
-                    money_fields = [f for f in a
-                                    if f not in ('person_key', 'full_name', 'data_notes')]
+                    money_fields = [
+                        f for f in a if f not in ('person_key', 'full_name', 'data_notes')
+                    ]
                     va = {f: a[f] for f in money_fields}
                     vb = {f: b[f] for f in money_fields}
                 if va != vb:
@@ -292,36 +380,60 @@ def merged_records():
     print(f'roster rows: {len(roster)} -> {len(rows)} after collapse')
 
     # ---------- Build records ----------
-    PER_CYCLE_MAP = [('individual', 'individual'), ('aipac_pac_direct', 'aipac_pac_direct'),
-                     ('aipac_earmark_transmitted', 'aipac_earmark_transmitted'),
-                     ('corporate_pac', 'corporate_pac'),
-                     ('corporate_earmark_transmitted', 'corporate_earmark_transmitted')]
+    PER_CYCLE_MAP = [
+        ('individual', 'individual'),
+        ('aipac_pac_direct', 'aipac_pac_direct'),
+        ('aipac_earmark_transmitted', 'aipac_earmark_transmitted'),
+        ('corporate_pac', 'corporate_pac'),
+        ('corporate_earmark_transmitted', 'corporate_earmark_transmitted'),
+    ]
     records = []
     for r in rows:
         pk = r['person_key']
         ids = r.get('fec_candidate_ids') or []
-        if (pk not in mpc or pk not in pas2 or pk not in udp_csv or pk not in udp_pc
-                or pk not in sf_pc or pk not in sf_csv or pk not in oc_pc or pk not in oc_csv
-                or pk not in aie_csv or pk not in aie_top):
+        if (
+            pk not in mpc
+            or pk not in pas2
+            or pk not in udp_csv
+            or pk not in udp_pc
+            or pk not in sf_pc
+            or pk not in sf_csv
+            or pk not in oc_pc
+            or pk not in oc_csv
+            or pk not in aie_csv
+            or pk not in aie_top
+        ):
             raise SystemExit(f'{pk} ({r["full_name"]}) missing from a money file')
         # FEC IDs must agree between roster and money files. (money_per_cycle
         # carries no fec_candidate_ids field; its IDs are the per_cycle entries'.)
         mpc_ids = sorted({e['candidate_id'] for e in mpc[pk]['per_cycle']})
         if not set(mpc_ids) <= set(ids):
-            raise SystemExit(f'{pk}: per_cycle IDs {mpc_ids} not a subset of roster IDs {sorted(ids)}')
-        for src, label in ((pas2[pk], 'money_pas2_weball'), (udp_csv[pk], 'money_udp'),
-                           (sf_csv[pk], 'self_funding'), (oc_csv[pk], 'other_committees'),
-                           (aie_csv[pk], 'all_ie')):
+            raise SystemExit(
+                f'{pk}: per_cycle IDs {mpc_ids} not a subset of roster IDs {sorted(ids)}'
+            )
+        for src, label in (
+            (pas2[pk], 'money_pas2_weball'),
+            (udp_csv[pk], 'money_udp'),
+            (sf_csv[pk], 'self_funding'),
+            (oc_csv[pk], 'other_committees'),
+            (aie_csv[pk], 'all_ie'),
+        ):
             have = src['fec_candidate_ids']
             have = have.split(';') if have else []
             if sorted(have) != sorted(ids):
-                raise SystemExit(f'{pk}: FEC IDs disagree between roster {sorted(ids)} and {label} {sorted(have)}')
+                raise SystemExit(
+                    f'{pk}: FEC IDs disagree between roster {sorted(ids)} and {label} {sorted(have)}'
+                )
         sf_ids = sorted({e['candidate_id'] for e in sf_pc[pk]['per_cycle']})
         if not set(sf_ids) <= set(ids):
-            raise SystemExit(f'{pk}: self_funding per_cycle IDs {sf_ids} not a subset of roster IDs {sorted(ids)}')
+            raise SystemExit(
+                f'{pk}: self_funding per_cycle IDs {sf_ids} not a subset of roster IDs {sorted(ids)}'
+            )
         oc_ids = sorted({e['candidate_id'] for e in oc_pc[pk]['per_cycle']})
         if not set(oc_ids) <= set(ids):
-            raise SystemExit(f'{pk}: other_committees per_cycle IDs {oc_ids} not a subset of roster IDs {sorted(ids)}')
+            raise SystemExit(
+                f'{pk}: other_committees per_cycle IDs {oc_ids} not a subset of roster IDs {sorted(ids)}'
+            )
         rec = {f: r[f] for f in ROSTER_FIELDS}
         rec['fec_candidate_ids'] = list(ids)
 
@@ -335,8 +447,11 @@ def merged_records():
         rec['per_cycle'] = per_cycle
         udp_entries = []
         for e in udp_pc[pk]['udp_per_cycle']:
-            entry = {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-                     'udp_ie_support': money2float(e['udp_ie_support'])}
+            entry = {
+                'cycle': e['cycle'],
+                'candidate_id': e['candidate_id'],
+                'udp_ie_support': money2float(e['udp_ie_support']),
+            }
             if 'attribution' in e:
                 entry['attribution'] = e['attribution']
             udp_entries.append(entry)
@@ -346,18 +461,21 @@ def merged_records():
         # omits all-zero (cycle, candidate) pairs, staged order preserved).
         sf_entries = []
         for e in sf_pc[pk]['per_cycle']:
-            entry = {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-                     'candidate_contributions': money2float(e['candidate_contributions']),
-                     'candidate_loans': money2float(e['candidate_loans']),
-                     'loan_repayments': money2float(e['loan_repayments']),
-                     'debts_owed_by': money2float(e['debts_owed_by']),
-                     'debts_owed_to': None,
-                     'total_receipts': money2float(e['total_receipts']),
-                     'total_disbursements': money2float(e['total_disbursements']),
-                     'cash_on_hand': money2float(e['cash_on_hand']),
-                     'transfers_from_auth': money2float(e['transfers_from_auth']),
-                     'transfers_to_auth': money2float(e['transfers_to_auth']),
-                     'coverage_end_date': e['coverage_end_date']}
+            entry = {
+                'cycle': e['cycle'],
+                'candidate_id': e['candidate_id'],
+                'candidate_contributions': money2float(e['candidate_contributions']),
+                'candidate_loans': money2float(e['candidate_loans']),
+                'loan_repayments': money2float(e['loan_repayments']),
+                'debts_owed_by': money2float(e['debts_owed_by']),
+                'debts_owed_to': None,
+                'total_receipts': money2float(e['total_receipts']),
+                'total_disbursements': money2float(e['total_disbursements']),
+                'cash_on_hand': money2float(e['cash_on_hand']),
+                'transfers_from_auth': money2float(e['transfers_from_auth']),
+                'transfers_to_auth': money2float(e['transfers_to_auth']),
+                'coverage_end_date': e['coverage_end_date'],
+            }
             sf_entries.append(entry)
         rec['self_funding_per_cycle'] = sf_entries
 
@@ -367,20 +485,26 @@ def merged_records():
             entry = {'cycle': e['cycle'], 'candidate_id': e['candidate_id']}
             for b in OC_BUCKETS:
                 entry[b] = money2float(e[b])
-            entry['earmark_transmitted'] = {b: money2float(v)
-                                            for b, v in e.get('earmark_transmitted', {}).items()}
+            entry['earmark_transmitted'] = {
+                b: money2float(v) for b, v in e.get('earmark_transmitted', {}).items()
+            }
             entry['winred_included'] = money2float(e.get('winred_included', '0.00'))
             oc_entries.append(entry)
         rec['other_committees_per_cycle'] = oc_entries
 
         # all_ie_per_cycle entries (already floats, built from the pull's
         # per-candidate entries above; sorted by (cycle, candidate_id)).
-        aie_entries = [{'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-                        'all_ie_support': e['all_ie_support'],
-                        'all_ie_oppose': e['all_ie_oppose'],
-                        'all_ie_total': e['all_ie_total'],
-                        'no_direction_amount': e['no_direction_amount']}
-                       for e in aie_pc_by_person.get(pk, [])]
+        aie_entries = [
+            {
+                'cycle': e['cycle'],
+                'candidate_id': e['candidate_id'],
+                'all_ie_support': e['all_ie_support'],
+                'all_ie_oppose': e['all_ie_oppose'],
+                'all_ie_total': e['all_ie_total'],
+                'no_direction_amount': e['no_direction_amount'],
+            }
+            for e in aie_pc_by_person.get(pk, [])
+        ]
         rec['all_ie_per_cycle'] = aie_entries
         rec['all_ie_top_committees'] = aie_top.get(pk)
 
@@ -411,16 +535,20 @@ def merged_records():
         rec['udp_ie_support_career'] = udp_support
         # Cross-checks against the staged career files (to the cent).
         pas2_row = pas2[pk]
-        for col, val in (('individual_contribution_total_career', sums['individual']),
-                         ('aipac_pac_direct_career', sums['aipac_pac_direct']),
-                         ('aipac_earmark_transmitted_career', sums['aipac_earmark_transmitted']),
-                         ('corporate_pac_career', sums['corporate_pac']),
-                         ('corporate_earmark_transmitted_career', sums['corporate_earmark_transmitted'])):
+        for col, val in (
+            ('individual_contribution_total_career', sums['individual']),
+            ('aipac_pac_direct_career', sums['aipac_pac_direct']),
+            ('aipac_earmark_transmitted_career', sums['aipac_earmark_transmitted']),
+            ('corporate_pac_career', sums['corporate_pac']),
+            ('corporate_earmark_transmitted_career', sums['corporate_earmark_transmitted']),
+        ):
             if Decimal(pas2_row[col]) != Decimal(str(val)):
                 raise SystemExit(f'{pk}: pas2 {col} {pas2_row[col]} != per-cycle sum {val}')
         if Decimal(udp_csv[pk]['udp_ie_support_career']) != Decimal(str(udp_support)):
-            raise SystemExit(f"{pk}: money_udp.csv {udp_csv[pk]['udp_ie_support_career']} "
-                             f"!= per-cycle UDP sum {udp_support}")
+            raise SystemExit(
+                f'{pk}: money_udp.csv {udp_csv[pk]["udp_ie_support_career"]} '
+                f'!= per-cycle UDP sum {udp_support}'
+            )
 
         # Self-funding / topline: flows summed; stocks (cash on hand, debts
         # owed by) are the latest cycle's values, per the recorded stock
@@ -443,35 +571,45 @@ def merged_records():
             val = round(float(sum(e[src_key] for e in sf_entries)), 2)
             rec[dst_col] = val
             if Decimal(sf_row[csv_col]) != Decimal(str(val)):
-                raise SystemExit(f'{pk}: self_funding {csv_col} {sf_row[csv_col]} '
-                                 f'!= per-cycle sum {val}')
-        rec['self_funding_career'] = round(rec['cand_contrib_career']
-                                           + rec['cand_loans_career'], 2)
+                raise SystemExit(
+                    f'{pk}: self_funding {csv_col} {sf_row[csv_col]} != per-cycle sum {val}'
+                )
+        rec['self_funding_career'] = round(rec['cand_contrib_career'] + rec['cand_loans_career'], 2)
         if Decimal(sf_row['self_funding_career']) != Decimal(str(rec['self_funding_career'])):
-            raise SystemExit(f"{pk}: self_funding self_funding_career {sf_row['self_funding_career']} "
-                             f"!= per-cycle sum {rec['self_funding_career']}")
+            raise SystemExit(
+                f'{pk}: self_funding self_funding_career {sf_row["self_funding_career"]} '
+                f'!= per-cycle sum {rec["self_funding_career"]}'
+            )
         if sf_row['cash_on_hand_cycle'] != sf_row['debts_owed_by_cycle']:
-            raise SystemExit(f"{pk}: self_funding stock cycles disagree: "
-                             f"{sf_row['cash_on_hand_cycle']} vs {sf_row['debts_owed_by_cycle']}")
+            raise SystemExit(
+                f'{pk}: self_funding stock cycles disagree: '
+                f'{sf_row["cash_on_hand_cycle"]} vs {sf_row["debts_owed_by_cycle"]}'
+            )
         stock_cycle = sf_row['cash_on_hand_cycle']
-        for src_key, dst_col in (('cash_on_hand', 'cash_on_hand_career'),
-                                 ('debts_owed_by', 'debts_owed_by_career')):
+        for src_key, dst_col in (
+            ('cash_on_hand', 'cash_on_hand_career'),
+            ('debts_owed_by', 'debts_owed_by_career'),
+        ):
             if stock_cycle == '':
                 val = None
             else:
-                val = round(float(sum(e[src_key] for e in sf_entries
-                                      if str(e['cycle']) == stock_cycle)), 2)
+                val = round(
+                    float(sum(e[src_key] for e in sf_entries if str(e['cycle']) == stock_cycle)), 2
+                )
             rec[dst_col] = val
             if sf_row[dst_col] == '':
                 if val is not None:
                     raise SystemExit(f'{pk}: self_funding {dst_col} blank but per-cycle sum {val}')
             elif Decimal(sf_row[dst_col]) != Decimal(str(val)):
-                raise SystemExit(f'{pk}: self_funding {dst_col} {sf_row[dst_col]} '
-                                 f'!= per-cycle sum {val}')
+                raise SystemExit(
+                    f'{pk}: self_funding {dst_col} {sf_row[dst_col]} != per-cycle sum {val}'
+                )
         rec['debts_owed_to_career'] = None
         if sf_row['debts_owed_to_career'] != '':
-            raise SystemExit(f"{pk}: self_funding debts_owed_to_career unexpectedly "
-                             f"non-blank: {sf_row['debts_owed_to_career']}")
+            raise SystemExit(
+                f'{pk}: self_funding debts_owed_to_career unexpectedly '
+                f'non-blank: {sf_row["debts_owed_to_career"]}'
+            )
 
         # Other committees: per-class sums, earmark sums, total.
         oc_row = oc_csv[pk]
@@ -479,29 +617,38 @@ def merged_records():
             val = round(float(sum(e[b] for e in oc_entries)), 2)
             rec[f'{b}_career'] = val
             if Decimal(oc_row[f'{b}_career']) != Decimal(str(val)):
-                raise SystemExit(f'{pk}: other_committees {b}_career {oc_row[f"{b}_career"]} '
-                                 f'!= per-cycle sum {val}')
+                raise SystemExit(
+                    f'{pk}: other_committees {b}_career {oc_row[f"{b}_career"]} '
+                    f'!= per-cycle sum {val}'
+                )
             em = round(float(sum(e['earmark_transmitted'].get(b, 0.0) for e in oc_entries)), 2)
             rec[f'{b}_earmark_transmitted_career'] = em
             if Decimal(oc_row[f'{b}_earmark_transmitted_career']) != Decimal(str(em)):
-                raise SystemExit(f'{pk}: other_committees {b}_earmark_transmitted_career '
-                                 f"{oc_row[f'{b}_earmark_transmitted_career']} != per-cycle sum {em}")
+                raise SystemExit(
+                    f'{pk}: other_committees {b}_earmark_transmitted_career '
+                    f'{oc_row[f"{b}_earmark_transmitted_career"]} != per-cycle sum {em}'
+                )
         oc_total = round(float(sum(rec[f'{b}_career'] for b in OC_BUCKETS)), 2)
         rec['other_committees_total_career'] = oc_total
         if Decimal(oc_row['other_committees_total_career']) != Decimal(str(oc_total)):
-            raise SystemExit(f"{pk}: other_committees total {oc_row['other_committees_total_career']} "
-                             f"!= per-cycle sum {oc_total}")
+            raise SystemExit(
+                f'{pk}: other_committees total {oc_row["other_committees_total_career"]} '
+                f'!= per-cycle sum {oc_total}'
+            )
 
         # All-IE: support / oppose / total (total includes blank-direction rows).
         aie_row = aie_csv[pk]
-        for src_key, dst_col in (('all_ie_support', 'all_ie_support_career'),
-                                 ('all_ie_oppose', 'all_ie_oppose_career'),
-                                 ('all_ie_total', 'all_ie_total_career')):
+        for src_key, dst_col in (
+            ('all_ie_support', 'all_ie_support_career'),
+            ('all_ie_oppose', 'all_ie_oppose_career'),
+            ('all_ie_total', 'all_ie_total_career'),
+        ):
             val = round(float(sum(e[src_key] for e in aie_entries)), 2)
             rec[dst_col] = val
             if Decimal(aie_row[dst_col]) != Decimal(str(val)):
-                raise SystemExit(f'{pk}: all_ie {dst_col} {aie_row[dst_col]} '
-                                 f'!= per-cycle sum {val}')
+                raise SystemExit(
+                    f'{pk}: all_ie {dst_col} {aie_row[dst_col]} != per-cycle sum {val}'
+                )
 
         # data_notes: pas2 note + ' | ' + UDP note; dedup note appended with a space.
         if pk in RIVET_FIX_NOTES:
@@ -514,8 +661,7 @@ def merged_records():
             note = f'{note} {dedup_notes[pk]}' if note else dedup_notes[pk]
         if pk == 'marklambazhouse' and LAMB_NOTE:
             note = f'{note} | {LAMB_NOTE}' if note else LAMB_NOTE
-        winred_segments = [s for s in (oc_row['data_notes'] or '').split(' | ')
-                           if 'WinRed' in s]
+        winred_segments = [s for s in (oc_row['data_notes'] or '').split(' | ') if 'WinRed' in s]
         for s in winred_segments:
             note = f'{note} | {s}' if note else s
         rec['data_notes'] = note
@@ -528,8 +674,12 @@ def merged_records():
         records.append(rec)
 
     # Row order: roster.json order (case-insensitive last, first); assert it.
-    records.sort(key=lambda r: (by_key[r['person_key']]['last_name'].lower(),
-                                by_key[r['person_key']]['first_name'].lower()))
+    records.sort(
+        key=lambda r: (
+            by_key[r['person_key']]['last_name'].lower(),
+            by_key[r['person_key']]['first_name'].lower(),
+        )
+    )
     expected_order = [r['person_key'] for r in roster_json if r['person_key'] not in collapsed]
     if [r['person_key'] for r in records] != expected_order:
         raise SystemExit('merged row order does not match roster.json order')
@@ -543,11 +693,22 @@ def merged_records():
     # by design and must survive into the JSON even though it has no CSV
     # column. The other writers (compute_ranking.py, compute_2026.py) use
     # the same rule.
-    PRODUCED = (ROSTER_FIELDS + ALL_MONEY_COLS
-                + ['data_as_of', 'data_notes', 'per_cycle', 'udp_per_cycle',
-                   'self_funding_per_cycle', 'other_committees_per_cycle',
-                   'all_ie_per_cycle', 'all_ie_top_committees',
-                   'udp_ie_opposing_opponents_career', 'udp_ie_total_benefit_career'])
+    PRODUCED = (
+        ROSTER_FIELDS
+        + ALL_MONEY_COLS
+        + [
+            'data_as_of',
+            'data_notes',
+            'per_cycle',
+            'udp_per_cycle',
+            'self_funding_per_cycle',
+            'other_committees_per_cycle',
+            'all_ie_per_cycle',
+            'all_ie_top_committees',
+            'udp_ie_opposing_opponents_career',
+            'udp_ie_total_benefit_career',
+        ]
+    )
     json_keys = [k for k in CFG['dataset']['json_keys'] if k in PRODUCED]
     ordered = [{k: rec[k] for k in json_keys} for rec in records]
     return ordered

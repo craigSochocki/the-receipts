@@ -9,5 +9,6 @@ def test_lists_changed_added_and_removed_figures_but_not_snapshot_tags():
 
 def test_the_table_shows_old_next_to_new():
     assert table([('roster.total', 10.5, 1234.5)]).splitlines()[-1] == (
-        '| `roster.total` | 10.50 | 1,234.50 |')
+        '| `roster.total` | 10.50 | 1,234.50 |'
+    )
     assert table([]) == 'No baseline figure moved.'

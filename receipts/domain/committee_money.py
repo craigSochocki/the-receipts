@@ -2,8 +2,10 @@
 
 Rules and evidence: methodology.md §4.
 """
+
 from receipts.domain.money import ZERO
 from receipts.domain.one_copy import OneCopyEach
+
 
 def is_voided_earmark(contribution):
     """A refunded conduit earmark. The original transmission is not in
@@ -13,6 +15,7 @@ def is_voided_earmark(contribution):
 
 def reported_once():
     """One row per contribution: the non-memo row, then the earliest filing."""
+
     def rank(contribution):
         return (contribution.is_memo, contribution.file_number)
 

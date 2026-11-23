@@ -3,6 +3,7 @@
 First match wins. AIPAC and corporate PACs are counted in their own
 columns; every other committee lands in exactly one class.
 """
+
 from enum import Enum
 
 PARTY_TYPES = ('X', 'Y')
@@ -25,8 +26,9 @@ class CommitteeClass(Enum):
     UNCLASSIFIED = 'other_unclassified'
 
 
-OTHER_COMMITTEE_CLASSES = [c for c in CommitteeClass
-                           if c not in (CommitteeClass.AIPAC, CommitteeClass.CORPORATE)]
+OTHER_COMMITTEE_CLASSES = [
+    c for c in CommitteeClass if c not in (CommitteeClass.AIPAC, CommitteeClass.CORPORATE)
+]
 
 PAC_CLASS_BY_SPONSOR = {
     'L': CommitteeClass.LABOR,

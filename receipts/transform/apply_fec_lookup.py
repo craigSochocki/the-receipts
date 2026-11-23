@@ -32,6 +32,7 @@ the committed files):
 Idempotent: re-running applies nothing twice (IDs are set, not appended;
 note appends already present are skipped).
 """
+
 import json
 
 from receipts.common.config import load_config
@@ -62,8 +63,7 @@ for pk, res in results.items():
     else:
         # not_found / ambiguous / http_error / error: no ID, leave the row.
         n_skipped += 1
-print(f'fec lookup results: {n_found} found, {n_manual} found-manual, '
-      f'{n_skipped} skipped (no ID)')
+print(f'fec lookup results: {n_found} found, {n_manual} found-manual, {n_skipped} skipped (no ID)')
 
 # ---------- 2. Manual note appends ----------
 notes = json.load(open(ROOT / CFG['paths']['manual_roster_notes']))

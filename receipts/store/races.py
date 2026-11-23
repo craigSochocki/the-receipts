@@ -3,10 +3,13 @@
 The race is the filing's own (office, state, district), not the roster's:
 the Northern Mariana Islands delegate race is filed under district 01.
 """
+
 from receipts.store.read import connect
 
-SUMMARIES = ('SELECT candidate_id, office_state, office_district, total_receipts_cents '
-             'FROM candidate_summaries WHERE cycle = ?')
+SUMMARIES = (
+    'SELECT candidate_id, office_state, office_district, total_receipts_cents '
+    'FROM candidate_summaries WHERE cycle = ?'
+)
 
 
 def races_in(cycle):

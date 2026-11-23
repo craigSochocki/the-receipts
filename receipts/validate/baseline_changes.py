@@ -3,6 +3,7 @@
 
 Usage: python3 -m receipts.validate.baseline_changes OLD.json NEW.json [--count]
 """
+
 import json
 import sys
 
@@ -29,9 +30,13 @@ def table(moved):
     if not moved:
         return 'No baseline figure moved.'
     lines = ['| Figure | Before | After |', '|---|---:|---:|']
-    lines += [f'| `{key}` | {shown(before)} | {shown(after)} |' for key, before, after in moved[:SHOWN]]
+    lines += [
+        f'| `{key}` | {shown(before)} | {shown(after)} |' for key, before, after in moved[:SHOWN]
+    ]
     if len(moved) > SHOWN:
-        lines.append(f'\n…and {len(moved) - SHOWN} more; see the diff of `data/source/baseline.json`.')
+        lines.append(
+            f'\n…and {len(moved) - SHOWN} more; see the diff of `data/source/baseline.json`.'
+        )
     return '\n'.join(lines)
 
 

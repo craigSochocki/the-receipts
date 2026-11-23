@@ -132,6 +132,7 @@ Usage:
     # The driver (pull_freshness.py --all) runs this by default;
     # --no-gate forces the full run, ignoring the gate.
 """
+
 import argparse
 import json
 import os
@@ -158,10 +159,8 @@ GATE_CFG = (CFG.get('freshness') or {}).get('gate') or {}
 GATE_FAMILIES = GATE_CFG.get('families') or ['F6', 'F24', 'F3']
 GATE_PER_PAGE = int(GATE_CFG.get('per_page', 100))
 GATE_MAX_PAGES = int(GATE_CFG.get('max_pages_per_family', 200))
-STATE_PATH = ROOT / (CFG['paths'].get('freshness_state')
-                     or 'data/source/freshness_state.json')
-CM_PATH = ROOT / (GATE_CFG.get('committee_master_path')
-                  or 'data/raw/cm/2026/cm.txt')
+STATE_PATH = ROOT / (CFG['paths'].get('freshness_state') or 'data/source/freshness_state.json')
+CM_PATH = ROOT / (GATE_CFG.get('committee_master_path') or 'data/raw/cm/2026/cm.txt')
 F24_SWEEP_CYCLE = CFG['freshness']['f24_committee_sweep_cycle']
 F24_SWEEP_COMMITTEES = CFG['freshness']['f24_committee_sweep']
 
@@ -172,11 +171,17 @@ def api_get(path, params):
     url = API_BASE + path + '?' + urllib.parse.urlencode(params)
     time.sleep(SLEEP)
     try:
-        with open_with_retry(url, timeout=CFG['fec_api']['request_timeout_seconds'],
-                             retry=RETRY, label=f'FEC API {path}') as resp:
+        with open_with_retry(
+            url,
+            timeout=CFG['fec_api']['request_timeout_seconds'],
+            retry=RETRY,
+            label=f'FEC API {path}',
+        ) as resp:
             return json.load(resp)
     except urllib.error.HTTPError as e:
-        raise SystemExit(f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})')
+        raise SystemExit(
+            f'FEC API {path} failed: HTTP {e.code} {e.reason} (url {sanitize_url(url)})'
+        )
 
 
 def _receipt_day(row):
@@ -184,8 +189,9 @@ def _receipt_day(row):
     return (row.get('receipt_date') or '')[:10]
 
 
-def check_family(form_type, since_date, seen_file_numbers=(), api_get=None,
-                 per_page=None, max_pages=None):
+def check_family(
+    form_type, since_date, seen_file_numbers=(), api_get=None, per_page=None, max_pages=None
+):
     """Global /filings/ check for one form family.
 
     ``since_date`` (YYYY-MM-DD, required) is the comparison date: the
@@ -206,9 +212,11 @@ def check_family(form_type, since_date, seen_file_numbers=(), api_get=None,
     (path, params) and return the parsed JSON.
     """
     if not since_date:
-        raise ValueError(f'gate {form_type}: since_date is required '
-                         '(YYYY-MM-DD); pass the window start when '
-                         'there is no baseline')
+        raise ValueError(
+            f'gate {form_type}: since_date is required '
+            '(YYYY-MM-DD); pass the window start when '
+            'there is no baseline'
+        )
     get = api_get or globals()['api_get']
     per_page = int(per_page or GATE_PER_PAGE)
     max_pages = int(max_pages or GATE_MAX_PAGES)
@@ -218,14 +226,17 @@ def check_family(form_type, since_date, seen_file_numbers=(), api_get=None,
     calls_used = 0
     page = 1
     while True:
-        data = get('/filings/', {'form_type': form_type, 'per_page': per_page,
-                                 'page': page, 'sort': '-receipt_date'})
+        data = get(
+            '/filings/',
+            {'form_type': form_type, 'per_page': per_page, 'page': page, 'sort': '-receipt_date'},
+        )
         calls_used += 1
         if not isinstance(data, dict) or not isinstance(data.get('results'), list):
             keys = sorted(data.keys()) if isinstance(data, dict) else type(data).__name__
             raise ValueError(
                 f'gate {form_type}: unexpected /filings/ response shape '
-                f'(keys: {keys}); refusing to read it as "nothing new"')
+                f'(keys: {keys}); refusing to read it as "nothing new"'
+            )
         results = data['results']
         if not results:
             break
@@ -244,19 +255,28 @@ def check_family(form_type, since_date, seen_file_numbers=(), api_get=None,
             raise RuntimeError(
                 f'gate {form_type}: exceeded max_pages={max_pages} '
                 f'scanning back to {since_date}; refusing to continue '
-                '(fall back to a full run)')
-    new_filings = [r for r in collected
-                   if _receipt_day(r) > since_date
-                   or (_receipt_day(r) == since_date
-                       and r.get('file_number') not in seen)]
+                '(fall back to a full run)'
+            )
+    new_filings = [
+        r
+        for r in collected
+        if _receipt_day(r) > since_date
+        or (_receipt_day(r) == since_date and r.get('file_number') not in seen)
+    ]
     boundary_file_numbers = sorted(
-        {r.get('file_number') for r in collected
-         if newest_seen and _receipt_day(r) == newest_seen
-         and r.get('file_number') is not None})
+        {
+            r.get('file_number')
+            for r in collected
+            if newest_seen and _receipt_day(r) == newest_seen and r.get('file_number') is not None
+        }
+    )
     return {
-        'form_type': form_type, 'since_date': since_date,
-        'newest_seen': newest_seen, 'new_filings': new_filings,
-        'n_new_filings': len(new_filings), 'calls_used': calls_used,
+        'form_type': form_type,
+        'since_date': since_date,
+        'newest_seen': newest_seen,
+        'new_filings': new_filings,
+        'n_new_filings': len(new_filings),
+        'calls_used': calls_used,
         'skipped': not new_filings,
         'boundary_file_numbers': boundary_file_numbers,
         'n_rows_scanned': len(collected),
@@ -266,9 +286,10 @@ def check_family(form_type, since_date, seen_file_numbers=(), api_get=None,
 def default_state(families=None):
     """Fresh state: every family at "no baseline" (last_seen null)."""
     fams = families or GATE_FAMILIES
-    return {'version': 1,
-            'families': {f: {'last_seen': None, 'seen_file_numbers': []}
-                         for f in fams}}
+    return {
+        'version': 1,
+        'families': {f: {'last_seen': None, 'seen_file_numbers': []} for f in fams},
+    }
 
 
 def load_state(state_path=None):
@@ -285,17 +306,20 @@ def load_state(state_path=None):
     try:
         state = json.load(open(path))
     except (json.JSONDecodeError, OSError) as e:
-        raise ValueError(f'freshness state file {path} is not readable '
-                         f'as JSON ({e}); refusing to reset the baseline')
+        raise ValueError(
+            f'freshness state file {path} is not readable '
+            f'as JSON ({e}); refusing to reset the baseline'
+        )
     if not isinstance(state, dict) or not isinstance(state.get('families'), dict):
-        raise ValueError(f'freshness state file {path} has an unexpected '
-                         'shape (need {"families": {...}}); refusing to '
-                         'reset the baseline')
+        raise ValueError(
+            f'freshness state file {path} has an unexpected '
+            'shape (need {"families": {...}}); refusing to '
+            'reset the baseline'
+        )
     for fam in GATE_FAMILIES:
         entry = state['families'].get(fam)
         if not isinstance(entry, dict):
-            state['families'][fam] = {'last_seen': None,
-                                      'seen_file_numbers': []}
+            state['families'][fam] = {'last_seen': None, 'seen_file_numbers': []}
         else:
             entry.setdefault('last_seen', None)
             entry.setdefault('seen_file_numbers', [])
@@ -330,15 +354,17 @@ def load_committee_map(cm_path=None):
         lines = open(path, errors='replace')
     else:
         cycle_dir = path.parent.name
-        zip_path = path.parent.parent / f"cm{cycle_dir[-2:]}.zip"
+        zip_path = path.parent.parent / f'cm{cycle_dir[-2:]}.zip'
         if not zip_path.exists():
             raise FileNotFoundError(
                 f'gate attribution: committee master not found at '
                 f'{path} or {zip_path} (run ./download_bulk.sh); '
-                'cannot attribute filings, so no leg may be skipped')
+                'cannot attribute filings, so no leg may be skipped'
+            )
         source = f'{zip_path}!cm.txt'
-        lines = (l.decode('utf-8', errors='replace') for l in
-                 zipfile.ZipFile(zip_path).open('cm.txt'))
+        lines = (
+            l.decode('utf-8', errors='replace') for l in zipfile.ZipFile(zip_path).open('cm.txt')
+        )
     cmap = {}
     n_bad = 0
     for line in lines:
@@ -346,10 +372,8 @@ def load_committee_map(cm_path=None):
         if len(p) != 15 or not p[0].strip():
             n_bad += 1
             continue
-        cmap[p[0].strip()] = {'candidate_id': p[14].strip() or None,
-                              'designation': p[8].strip()}
-    stats = {'source': source, 'n_committees': len(cmap),
-             'n_malformed_lines': n_bad}
+        cmap[p[0].strip()] = {'candidate_id': p[14].strip() or None, 'designation': p[8].strip()}
+    stats = {'source': source, 'n_committees': len(cmap), 'n_malformed_lines': n_bad}
     return cmap, stats
 
 
@@ -374,9 +398,16 @@ def map_filing_to_person(row, committee_map, by_candidate):
     return person['person_key'], None
 
 
-def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
-             committee_map=None, families=None, per_page=None,
-             max_pages=None):
+def gate_run(
+    dataset=None,
+    by_candidate=None,
+    state=None,
+    api_get=None,
+    committee_map=None,
+    families=None,
+    per_page=None,
+    max_pages=None,
+):
     """Run the pre-flight gate over the configured families.
 
     Returns the gate decision dict (see the module docstring). On ANY
@@ -393,22 +424,30 @@ def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
     if dataset is None:
         dataset = json.load(open(ROOT / CFG['paths']['dataset_json']))
     if by_candidate is None:
-        by_candidate = {cid: r for r in dataset
-                        for cid in (r.get('fec_candidate_ids') or [])}
+        by_candidate = {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
     if state is None:
         state = load_state()
-    sweep = [{'committee_id': c['committee_id'],
-              'committee_name': c['committee_name']}
-             for c in F24_SWEEP_COMMITTEES]
+    sweep = [
+        {'committee_id': c['committee_id'], 'committee_name': c['committee_name']}
+        for c in F24_SWEEP_COMMITTEES
+    ]
     sweep_ids = {c['committee_id'] for c in sweep}
     decision = {
-        'gated': True, 'run_full': False, 'gate_error': None,
-        'families': {}, 'affected_person_keys': [],
-        'f6_person_keys': [], 'totals_person_keys': [],
-        'f24_sweep_committees': [], 'f24_sweeps_skipped': [],
-        'non_sweep_f24_committees': {}, 'unattributed_filings': [],
-        'non_principal_committee_filings': [], 'calls_used': 0,
-        'all_skipped': False, 'new_state': None,
+        'gated': True,
+        'run_full': False,
+        'gate_error': None,
+        'families': {},
+        'affected_person_keys': [],
+        'f6_person_keys': [],
+        'totals_person_keys': [],
+        'f24_sweep_committees': [],
+        'f24_sweeps_skipped': [],
+        'non_sweep_f24_committees': {},
+        'unattributed_filings': [],
+        'non_principal_committee_filings': [],
+        'calls_used': 0,
+        'all_skipped': False,
+        'new_state': None,
     }
     f6_persons, totals_persons = set(), set()
     f24_sweep_hit = set()
@@ -430,44 +469,56 @@ def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
             fam_state = (state.get('families') or {}).get(fam) or {}
             since = fam_state.get('last_seen') or WINDOW_START
             seen = fam_state.get('seen_file_numbers') or []
-            result = check_family(fam, since, seen_file_numbers=seen,
-                                  api_get=api_get, per_page=per_page,
-                                  max_pages=max_pages)
+            result = check_family(
+                fam,
+                since,
+                seen_file_numbers=seen,
+                api_get=api_get,
+                per_page=per_page,
+                max_pages=max_pages,
+            )
             decision['families'][fam] = result
             decision['calls_used'] += result['calls_used']
             newest = result['newest_seen']
             if newest is None or newest < since:
-                new_families[fam] = {'last_seen': fam_state.get('last_seen'),
-                                     'seen_file_numbers': list(seen)}
+                new_families[fam] = {
+                    'last_seen': fam_state.get('last_seen'),
+                    'seen_file_numbers': list(seen),
+                }
             else:
                 new_families[fam] = {
                     'last_seen': newest,
-                    'seen_file_numbers': result['boundary_file_numbers']}
+                    'seen_file_numbers': result['boundary_file_numbers'],
+                }
             if fam in ('F6', 'F3'):
                 target = f6_persons if fam == 'F6' else totals_persons
                 cmap = get_map()
                 for row in result['new_filings']:
-                    person_key, reason = map_filing_to_person(
-                        row, cmap, by_candidate)
-                    designation = (cmap.get(row.get('committee_id')) or {}
-                                   ).get('designation')
+                    person_key, reason = map_filing_to_person(row, cmap, by_candidate)
+                    designation = (cmap.get(row.get('committee_id')) or {}).get('designation')
                     if designation and designation != 'P':
-                        non_principal.append({
-                            'form_type': fam,
-                            'file_number': row.get('file_number'),
-                            'committee_id': row.get('committee_id'),
-                            'receipt_date': row.get('receipt_date'),
-                            'designation': designation,
-                            'candidate_id': (cmap.get(
-                                row.get('committee_id')) or {}
-                            ).get('candidate_id')})
+                        non_principal.append(
+                            {
+                                'form_type': fam,
+                                'file_number': row.get('file_number'),
+                                'committee_id': row.get('committee_id'),
+                                'receipt_date': row.get('receipt_date'),
+                                'designation': designation,
+                                'candidate_id': (cmap.get(row.get('committee_id')) or {}).get(
+                                    'candidate_id'
+                                ),
+                            }
+                        )
                     if person_key is None:
-                        unattributed.append({
-                            'form_type': fam,
-                            'file_number': row.get('file_number'),
-                            'committee_id': row.get('committee_id'),
-                            'receipt_date': row.get('receipt_date'),
-                            'reason': reason})
+                        unattributed.append(
+                            {
+                                'form_type': fam,
+                                'file_number': row.get('file_number'),
+                                'committee_id': row.get('committee_id'),
+                                'receipt_date': row.get('receipt_date'),
+                                'reason': reason,
+                            }
+                        )
                     else:
                         target.add(person_key)
             elif fam == 'F24':
@@ -477,33 +528,36 @@ def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
                         f24_sweep_hit.add(cmte)
                     else:
                         bucket = non_sweep.setdefault(
-                            cmte, {'n_filings': 0, 'file_numbers': [],
-                                   'latest_receipt_date': None})
+                            cmte, {'n_filings': 0, 'file_numbers': [], 'latest_receipt_date': None}
+                        )
                         bucket['n_filings'] += 1
                         bucket['file_numbers'].append(row.get('file_number'))
                         rd = _receipt_day(row)
-                        if (bucket['latest_receipt_date'] is None
-                                or rd > bucket['latest_receipt_date']):
+                        if (
+                            bucket['latest_receipt_date'] is None
+                            or rd > bucket['latest_receipt_date']
+                        ):
                             bucket['latest_receipt_date'] = rd
     except (Exception, SystemExit) as e:
         # SAFETY PROPERTY: a gate error is never "nothing new".
         # Log loudly; the driver falls back to the FULL run.
         failed_family = current_family or fams[0]
-        print(f'GATE ERROR in family {failed_family}: {e} — falling '
-              f'back to the FULL freshness run; state NOT advanced.',
-              file=sys.stderr, flush=True)
+        print(
+            f'GATE ERROR in family {failed_family}: {e} — falling '
+            f'back to the FULL freshness run; state NOT advanced.',
+            file=sys.stderr,
+            flush=True,
+        )
         decision['run_full'] = True
-        decision['gate_error'] = {'family': failed_family,
-                                  'error': str(e)}
+        decision['gate_error'] = {'family': failed_family, 'error': str(e)}
         decision['new_state'] = None
         decision['f6_person_keys'] = sorted(f6_persons)
         decision['totals_person_keys'] = sorted(totals_persons)
-        decision['affected_person_keys'] = sorted(
-            f6_persons | totals_persons)
-        decision['f24_sweep_committees'] = [
-            c for c in sweep if c['committee_id'] in f24_sweep_hit]
+        decision['affected_person_keys'] = sorted(f6_persons | totals_persons)
+        decision['f24_sweep_committees'] = [c for c in sweep if c['committee_id'] in f24_sweep_hit]
         decision['f24_sweeps_skipped'] = [
-            c for c in sweep if c['committee_id'] not in f24_sweep_hit]
+            c for c in sweep if c['committee_id'] not in f24_sweep_hit
+        ]
         decision['non_sweep_f24_committees'] = non_sweep
         decision['unattributed_filings'] = unattributed
         decision['non_principal_committee_filings'] = non_principal
@@ -512,15 +566,12 @@ def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
     decision['f6_person_keys'] = sorted(f6_persons)
     decision['totals_person_keys'] = sorted(totals_persons)
     decision['affected_person_keys'] = sorted(f6_persons | totals_persons)
-    decision['f24_sweep_committees'] = [
-        c for c in sweep if c['committee_id'] in f24_sweep_hit]
-    decision['f24_sweeps_skipped'] = [
-        c for c in sweep if c['committee_id'] not in f24_sweep_hit]
+    decision['f24_sweep_committees'] = [c for c in sweep if c['committee_id'] in f24_sweep_hit]
+    decision['f24_sweeps_skipped'] = [c for c in sweep if c['committee_id'] not in f24_sweep_hit]
     decision['non_sweep_f24_committees'] = non_sweep
     decision['unattributed_filings'] = unattributed
     decision['non_principal_committee_filings'] = non_principal
-    decision['all_skipped'] = all(
-        r['skipped'] for r in decision['families'].values())
+    decision['all_skipped'] = all(r['skipped'] for r in decision['families'].values())
     new_state = dict(state)
     new_state['families'] = new_families
     new_state['updated_at'] = datetime.now(timezone.utc).isoformat()
@@ -533,30 +584,37 @@ def gate_run(dataset=None, by_candidate=None, state=None, api_get=None,
 def main():
     ap = argparse.ArgumentParser(
         description='Freshness pre-flight gate (dry run): global '
-                    '/filings/ check per family; prints the decision JSON.')
-    ap.add_argument('--families', nargs='+', default=None,
-                    help='form families to check (default: config gate.families)')
-    ap.add_argument('--out', default=None,
-                    help='write the decision JSON here (default: stdout)')
+        '/filings/ check per family; prints the decision JSON.'
+    )
+    ap.add_argument(
+        '--families',
+        nargs='+',
+        default=None,
+        help='form families to check (default: config gate.families)',
+    )
+    ap.add_argument('--out', default=None, help='write the decision JSON here (default: stdout)')
     args = ap.parse_args()
     decision = gate_run(families=args.families)
     if args.out:
         with open(args.out, 'w') as f:
             json.dump(decision, f, indent=1)
-        print(f"wrote {args.out}")
+        print(f'wrote {args.out}')
     else:
         json.dump(decision, sys.stdout, indent=1)
         print()
     fams = ', '.join(
-        f"{fam}: {'SKIP' if r['skipped'] else str(r['n_new_filings']) + ' new'} "
-        f"(newest {r['newest_seen']}, {r['calls_used']} calls)"
-        for fam, r in decision['families'].items())
-    print(f"gate: {fams}; affected persons: "
-          f"{decision['affected_person_keys'] or 'none'}; "
-          f"F24 sweeps to run: "
-          f"{[c['committee_id'] for c in decision['f24_sweep_committees']] or 'none'}; "
-          f"total gate calls: {decision['calls_used']}",
-          file=sys.stderr)
+        f'{fam}: {"SKIP" if r["skipped"] else str(r["n_new_filings"]) + " new"} '
+        f'(newest {r["newest_seen"]}, {r["calls_used"]} calls)'
+        for fam, r in decision['families'].items()
+    )
+    print(
+        f'gate: {fams}; affected persons: '
+        f'{decision["affected_person_keys"] or "none"}; '
+        f'F24 sweeps to run: '
+        f'{[c["committee_id"] for c in decision["f24_sweep_committees"]] or "none"}; '
+        f'total gate calls: {decision["calls_used"]}',
+        file=sys.stderr,
+    )
 
 
 if __name__ == '__main__':
