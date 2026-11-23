@@ -33,7 +33,7 @@ python3 src/rebuild.py
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
 → `build_store` → `accepted_money` → `pull_udp` → `self_funding` →
-`other_committees` → `pull_all_ie` → `compute_opposition` →
+`other_committees` → `all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
 `data/snapshots/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
@@ -106,8 +106,9 @@ What each step does (each script documents its own rules in its header):
   unclassified + earmark breakouts); writes
   `data/intermediate/other_committees_per_cycle.json` / `data/intermediate/other_committees.csv`
   / `data/intermediate/other_committees_diagnostics.json`.
-- `pull_all_ie.py` — ALL independent expenditures 2022–2026 (every
-  registered committee, not just UDP), plus top 5 committees per person;
+- `store/all_ie.py` — ALL independent expenditures 2022–2026 (every
+  registered committee, not just UDP), read from the store, plus top 5
+  committees per person;
   writes `data/intermediate/all_ie_per_cycle.json` / `data/intermediate/all_ie.csv` /
   `data/intermediate/all_ie_top_committees.json`.
 - `compute_opposition.py` — UDP opposition credit (exactly-one-backed

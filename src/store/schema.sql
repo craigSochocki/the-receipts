@@ -114,10 +114,12 @@ CREATE TABLE files_read (  -- how many rows each FEC bulk file gave, and how man
     cycle          INTEGER NOT NULL,
     rows_read      BIGINT NOT NULL,
     malformed_rows BIGINT NOT NULL,
+    columns        VARCHAR,  -- the header, for files that have one
     PRIMARY KEY (file, cycle)
 );
 
-CREATE TABLE outside_spending (  -- independent expenditures, latest filing
+CREATE TABLE outside_spending (  -- independent expenditures, every filing
+    file_order       INTEGER,  -- first appearance in the file; NULL for a replaced filing
     spender_id       VARCHAR NOT NULL,
     spender_name     VARCHAR,
     candidate_id     VARCHAR,
@@ -129,7 +131,9 @@ CREATE TABLE outside_spending (  -- independent expenditures, latest filing
     office_state     VARCHAR,
     office_district  VARCHAR,
     expenditure_date VARCHAR,
-    excluded_because VARCHAR  -- NULL when counted
+    election_type    VARCHAR,
+    transaction_id   VARCHAR,
+    excluded_because VARCHAR  -- NULL when counted; reported_again for a replaced filing
 );
 
 CREATE TABLE seats (  -- stable positions; a redrawn House map makes new seats

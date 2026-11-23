@@ -92,7 +92,8 @@ def counted_once(summaries, dedup_records, person_keys):
 
 def read_counts(file, cycle, bulk_file):
     return {'file': file, 'cycle': cycle, 'rows_read': bulk_file.rows_read,
-            'malformed_rows': bulk_file.malformed_rows}
+            'malformed_rows': bulk_file.malformed_rows,
+            'columns': ','.join(getattr(bulk_file, 'columns', None) or []) or None}
 
 
 def committee_rows(files_read):
@@ -144,21 +145,30 @@ def identified_candidates(roster):
     return found
 
 
-def outside_spending_rows(roster):
+def outside_spending_row(e, file_order, excluded_because):
+    return {'file_order': file_order, 'spender_id': e.spender_id,
+            'spender_name': e.spe_nam.strip(),
+            'candidate_id': e.candidate_id, 'candidate_name': e.cand_name.strip(),
+            'cycle': e.cycle, 'direction': e.direction, 'amount_cents': e.amount.cents,
+            'office': e.can_office.strip(), 'office_state': e.can_office_state.strip(),
+            'office_district': e.can_office_dis.strip(),
+            'expenditure_date': e.exp_date.strip(), 'election_type': e.ele_type.strip(),
+            'transaction_id': e.tran_id.strip(), 'excluded_because': excluded_because}
+
+
+def outside_spending_rows(roster, files_read):
     identified = identified_candidates(roster)
     for cycle in IE_CYCLES:
         registered = {c.committee_id for c in committees(BULK, cycle)}
         filings = latest_filings()
-        for expenditure in independent_expenditures(BULK / 'ie', cycle):
+        filed = independent_expenditures(BULK / 'ie', cycle)
+        for expenditure in filed:
             filings.add(expenditure)
-        for e in filings:
-            yield {'spender_id': e.spender_id, 'spender_name': e.spe_nam.strip(),
-                   'candidate_id': e.candidate_id, 'candidate_name': e.cand_name.strip(),
-                   'cycle': e.cycle, 'direction': e.direction, 'amount_cents': e.amount.cents,
-                   'office': e.can_office.strip(), 'office_state': e.can_office_state.strip(),
-                   'office_district': e.can_office_dis.strip(),
-                   'expenditure_date': e.exp_date.strip(),
-                   'excluded_because': exclusion(e, registered, identified)}
+        for file_order, e in enumerate(filings):
+            yield outside_spending_row(e, file_order, exclusion(e, registered, identified))
+        for e in filings.dropped:
+            yield outside_spending_row(e, None, REPORTED_AGAIN)
+        files_read.append(read_counts('ie', cycle, filed))
 
 
 def congress_rows(roster):
@@ -235,8 +245,8 @@ def main():
         insert(db, 'summary_differences', differences)
         insert(db, 'committees', committee_rows(files_read))
         insert(db, 'committee_contributions', contribution_rows(files_read))
+        insert(db, 'outside_spending', outside_spending_rows(roster, files_read))
         insert(db, 'files_read', files_read)
-        insert(db, 'outside_spending', outside_spending_rows(roster))
         insert(db, 'seats', seats)
         insert(db, 'terms', terms)
         insert(db, 'candidacies', candidacies)

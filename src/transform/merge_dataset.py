@@ -15,7 +15,7 @@ Inputs (all staged; see config.yaml `paths`):
   committee contributions from pas2 + cm (from
   `src/store/other_committees.py`).
 - `all_ie_per_cycle.json` + `all_ie.csv` + `all_ie_top_committees.json`
-  — all independent expenditures 2022-2026 (from `pull_all_ie.py`).
+  — all independent expenditures 2022-2026 (from `src/store/all_ie.py`).
 - `opposition-computed.json` — UDP opposition credit (from
   `compute_opposition.py`).
 - `dedup-notes.json` — per-person correction notes (from

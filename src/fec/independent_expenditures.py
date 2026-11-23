@@ -82,10 +82,14 @@ class ExpenditureFile:
     def __init__(self, path):
         self.path = path
         self.rows_read = 0
+        self.malformed_rows = 0
+        self.columns = None
 
     def __iter__(self):
         with open(self.path, newline='') as f:
-            for position, row in enumerate(csv.DictReader(f)):
+            reader = csv.DictReader(f)
+            self.columns = reader.fieldnames
+            for position, row in enumerate(reader):
                 self.rows_read += 1
                 fields = {name: (row.get(name) or '') for name in IndependentExpenditure._fields[:-1]}
                 yield IndependentExpenditure(**fields, position=position)

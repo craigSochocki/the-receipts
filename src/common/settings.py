@@ -13,6 +13,7 @@ IE_CYCLES = tuple(_CFG['cycles']['udp'])
 CURRENT_CYCLE = _CFG['cycles']['current']
 AIPAC_PAC = _CFG['committees']['aipac_pac']
 WINRED = _CFG['committees']['winred']
+UDP = _CFG['committees']['udp']
 DATA_AS_OF = _CFG.get('data_as_of')
 
 
