@@ -201,9 +201,10 @@ A change to data or pipeline is not done until it passes this gate:
    python3 receipts/rebuild.py
    ```
 
-   It runs the pipeline in order (roster → FEC lookup → money → UDP →
-   dedup → self-funding → other-committees → all-IE → opposition →
-   dbt marts → assemble → 2026 → verify), backing the current dataset up
+   It runs the pipeline in order (roster → FEC lookup → store →
+   run checks → dbt silver → accepted money → UDP → self-funding →
+   other committees → all-IE → opposition → dbt marts → dataset (with
+   2026) → verify), backing the current dataset up
    to `data/snapshots/` first. It refuses to run on anything but the
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
    FEC updates its bulk files in place, so a live download is a
@@ -212,6 +213,11 @@ A change to data or pipeline is not done until it passes this gate:
    Python 3.11 / 3.12 / 3.13 (CSV md5
    `6ada15a535ce1865b9485ff2f2b4ebbf`, JSON md5
    `f5b46dbcb954c4443c4fa9edb81797c1`).
+   The run checks (`receipts/validate/run_history.py`) stop a rebuild when
+   a FEC file lost rows since the last snapshot in
+   `data/source/run_history.csv`, or the newest current-cycle file is
+   stale (limits in `config.yaml` → `run_checks`). A rebaseline records
+   the snapshot's rows there, so they land with the refresh PR.
 2. **All audits in `receipts/validate/verify_dataset.py` pass** (per-cycle
    sums for every column family, roster totals, all rank columns, clean
    counts and the generalized clean rule, tiers, 2026 columns,
