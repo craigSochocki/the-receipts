@@ -83,159 +83,152 @@ def fetch_f6_csv(file_number):
     return fec_api.fetch_text(f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv')
 
 
-def parse_f6_csv(text):
-    """Parse an F6 docquery CSV into {'header': F6N dict, 'items': [F65 dicts]}.
+# Field positions in the docquery CSV records, counted from the live Constantino
+# filing (file 2044138, Oct 29, 2026) against the FEC .fec v8.x layout.
+HEADER_FIELDS = {
+    'committee_id': 1,
+    'committee_name': 3,
+    'candidate_id': 9,
+    'candidate_last': 10,
+    'candidate_first': 11,
+    'candidate_middle': 12,
+    'office': 15,
+    'office_state': 16,
+    'office_district': 17,
+    'treasurer_last': 18,
+    'treasurer_first': 19,
+    'filing_date': 23,
+}
+LINE_ITEM_FIELDS = {
+    'committee_id': 1,
+    'form_line': 2,
+    'contributor_type': 3,
+    'contributor_last': 5,
+    'contributor_first': 6,
+    'contributor_middle': 7,
+    'city': 12,
+    'state': 13,
+    'zip': 14,
+}
+LINE_ITEM_DATE, LINE_ITEM_AMOUNT, LINE_ITEM_EMPLOYER, LINE_ITEM_OCCUPATION = 16, 17, 18, 19
+HEADER_RECORDS = ('F6N', 'F6A')
+LINE_ITEM_RECORD = 'F65'
+CANDIDATE_CONTRIBUTOR = 'CAN'
 
-    F6N (header) fields, by position (counted from the live Constantino
-    filing, file 2044138): committee_id 1, committee_name 3, zip 8,
-    candidate_id 9, candidate_last 10, candidate_first 11,
-    candidate_middle 12, office 15, office_state 16, office_district 17,
-    treasurer_last 18, treasurer_first 19, filing_date 23 (YYYYMMDD).
-    F65 (line item) fields, by position: committee_id, form_line,
-    contributor_type, _, contributor_last, contributor_first,
-    contributor_middle, _, _, street, street2, city, state, zip, _,
-    date (YYYYMMDD), amount, employer, occupation. Positions are taken
-    from the live Constantino filing (file 2044138, Oct 29, 2026) and
-    the FEC .fec v8.x layout; unknown slots are kept as raw strings.
-    """
+
+def field(row, i):
+    return row[i] if i < len(row) else ''
+
+
+def fields(row, positions):
+    return {name: field(row, i) for name, i in positions.items()}
+
+
+def parse_amount(raw):
+    """Dollars as a float; 0.0 when blank, None when unreadable."""
+    raw = raw.replace(',', '').strip()
+    try:
+        return float(raw) if raw else 0.0
+    except ValueError:
+        return None
+
+
+def parse_date(raw):
+    """YYYYMMDD as YYYY-MM-DD; anything else as given."""
+    raw = raw.strip()
+    if len(raw) == 8 and raw.isdigit():
+        return f'{raw[0:4]}-{raw[4:6]}-{raw[6:8]}'
+    return raw
+
+
+def line_item(row):
+    contributor_type = field(row, LINE_ITEM_FIELDS['contributor_type'])
+    return {
+        **fields(row, LINE_ITEM_FIELDS),
+        'date': parse_date(field(row, LINE_ITEM_DATE)),
+        'amount': parse_amount(field(row, LINE_ITEM_AMOUNT)),
+        'employer': field(row, LINE_ITEM_EMPLOYER),
+        'occupation': field(row, LINE_ITEM_OCCUPATION),
+        'is_candidate': contributor_type == CANDIDATE_CONTRIBUTOR,
+    }
+
+
+def parse_f6_csv(text):
+    """An F6 docquery CSV as {'header': F6N/F6A fields, 'items': [F65 line items]}."""
     header = None
     items = []
-    reader = csv.reader(io.StringIO(text))
-    for row in reader:
-        if not row:
-            continue
-        kind = row[0]
-        if kind == 'HDR':
-            continue
-        if kind == 'F6N' or kind == 'F6A':
-
-            def g(i, row=row):
-                return row[i] if i < len(row) else ''
-
-            header = {
-                'committee_id': g(1),
-                'committee_name': g(3),
-                'candidate_id': g(9),
-                'candidate_last': g(10),
-                'candidate_first': g(11),
-                'candidate_middle': g(12),
-                'office': g(15),
-                'office_state': g(16),
-                'office_district': g(17),
-                'treasurer_last': g(18),
-                'treasurer_first': g(19),
-                'filing_date': g(23),
-            }
-        elif kind == 'F65':
-
-            def g(i, row=row):
-                return row[i] if i < len(row) else ''
-
-            raw_amount = g(17).replace(',', '').strip()
-            try:
-                amount = float(raw_amount) if raw_amount else 0.0
-            except ValueError:
-                amount = None
-            raw_date = g(16).strip()
-            date = (
-                f'{raw_date[0:4]}-{raw_date[4:6]}-{raw_date[6:8]}'
-                if len(raw_date) == 8 and raw_date.isdigit()
-                else raw_date
-            )
-            items.append(
-                {
-                    'committee_id': g(1),
-                    'form_line': g(2),
-                    'contributor_type': g(3),
-                    'contributor_last': g(5),
-                    'contributor_first': g(6),
-                    'contributor_middle': g(7),
-                    'city': g(12),
-                    'state': g(13),
-                    'zip': g(14),
-                    'date': date,
-                    'amount': amount,
-                    'employer': g(18),
-                    'occupation': g(19),
-                    'is_candidate': g(3) == 'CAN',
-                }
-            )
+    for row in csv.reader(io.StringIO(text)):
+        kind = row[0] if row else None
+        if kind in HEADER_RECORDS:
+            header = fields(row, HEADER_FIELDS)
+        elif kind == LINE_ITEM_RECORD:
+            items.append(line_item(row))
     return {'header': header, 'items': items}
 
 
-def pull_committee(committee_id, since=None):
-    """Discover + fetch + parse every F6 for one committee in-window.
+def superseded_file_numbers(filings):
+    """File numbers replaced by a later amendment in any discovered filing's chain.
 
-    Amendment chains: the filings endpoint returns BOTH the original
-    and its amended version (e.g. El-Sayed C00902668: file 2044921 and
-    its amendment 2045386 re-list most of the same contributions).
-    A filing is superseded if another discovered filing's
-    amendment_chain contains its file number; superseded filings are
-    dropped and only the latest version of each chain is kept. Without
-    this the El-Sayed F6 total overstates by $351,042.26 (the two
-    superseded filings' totals).
+    The filings endpoint returns an original and its amendments (El-Sayed
+    C00902668: 2044921 and its amendment 2045386); counting both overstated
+    his F6 total by $351,042.26.
     """
+    return {fn for f in filings for fn in (f.get('amendment_chain') or [])[:-1]}
+
+
+def sum_amounts(items, from_candidate):
+    return round(
+        sum(
+            i['amount']
+            for i in items
+            if i['is_candidate'] == from_candidate and i['amount'] is not None
+        ),
+        2,
+    )
+
+
+def candidate_name(header):
+    header = header or {}
+    return ' '.join(
+        x for x in (header.get('candidate_first', ''), header.get('candidate_last', '')) if x
+    )
+
+
+def filing_report(filing):
+    """One F6 filing's metadata, line items, and candidate loans split from contributions."""
+    file_number = filing.get('file_number')
+    parsed = (
+        parse_f6_csv(fetch_f6_csv(file_number)) if file_number else {'header': None, 'items': []}
+    )
+    return {
+        'file_number': file_number,
+        'receipt_date': filing.get('receipt_date'),
+        'is_amended': filing.get('is_amended'),
+        'amendment_chain': filing.get('amendment_chain'),
+        'candidate_id': (parsed['header'] or {}).get('candidate_id'),
+        'candidate_name': candidate_name(parsed['header']),
+        'candidate_loans': sum_amounts(parsed['items'], from_candidate=True),
+        'contributions': sum_amounts(parsed['items'], from_candidate=False),
+        'items': parsed['items'],
+    }
+
+
+def pull_committee(committee_id, since=None):
+    """Every in-window F6 for one committee, latest version of each amendment chain only."""
     filings = discover_f6(committee_id, since=since)
-    superseded = set()
-    for f in filings:
-        chain = f.get('amendment_chain') or []
-        for fn in chain[:-1]:
-            superseded.add(fn)
+    superseded = superseded_file_numbers(filings)
     kept = [f for f in filings if f.get('file_number') not in superseded]
-    out = {
+    reports = [filing_report(f) for f in kept]
+    return {
         'committee_id': committee_id,
         'since': since,
         'n_filings': len(kept),
         'n_superseded_dropped': len(filings) - len(kept),
         'superseded_file_numbers': sorted(superseded),
-        'filings': [],
+        'filings': reports,
+        'total_candidate_loans': round(sum(f['candidate_loans'] for f in reports), 2),
+        'total_contributions': round(sum(f['contributions'] for f in reports), 2),
     }
-    for f in kept:
-        file_number = f.get('file_number')
-        parsed = (
-            parse_f6_csv(fetch_f6_csv(file_number))
-            if file_number
-            else {'header': None, 'items': []}
-        )
-        cand_loans = round(
-            sum(
-                i['amount']
-                for i in parsed['items']
-                if i['is_candidate'] and i['amount'] is not None
-            ),
-            2,
-        )
-        contrib = round(
-            sum(
-                i['amount']
-                for i in parsed['items']
-                if not i['is_candidate'] and i['amount'] is not None
-            ),
-            2,
-        )
-        out['filings'].append(
-            {
-                'file_number': file_number,
-                'receipt_date': f.get('receipt_date'),
-                'is_amended': f.get('is_amended'),
-                'amendment_chain': f.get('amendment_chain'),
-                'candidate_id': (parsed['header'] or {}).get('candidate_id'),
-                'candidate_name': ' '.join(
-                    x
-                    for x in (
-                        (parsed['header'] or {}).get('candidate_first', ''),
-                        (parsed['header'] or {}).get('candidate_last', ''),
-                    )
-                    if x
-                ),
-                'candidate_loans': cand_loans,
-                'contributions': contrib,
-                'items': parsed['items'],
-            }
-        )
-    out['total_candidate_loans'] = round(sum(f['candidate_loans'] for f in out['filings']), 2)
-    out['total_contributions'] = round(sum(f['contributions'] for f in out['filings']), 2)
-    return out
 
 
 def main():
