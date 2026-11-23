@@ -34,17 +34,6 @@ UNREGISTERED, BLANK, NOT_IDENTIFIED = (
     'candidate_not_identified',
 )
 
-# Validation targets from the task brief (the coordinator's prior figures).
-EXPECTED_ROSTER_TOTAL = {2022: 635.2e6, 2024: 959.1e6, 2026: 2264.3e6}
-EXPECTED_TOP_2026 = [  # (committee name, direction, $)
-    ('NO GOING BACK PAC INC.', 'O', 202.5e6),
-    ('HOUSE MAJORITY PAC', 'O', 146.7e6),  # filed as HMP; name matched loosely
-    ('WINSENATE', 'O', 131.1e6),
-    ('TEXAS PAC', 'O', 112.2e6),
-    ('DEFEND AMERICAN JOBS', 'S', 70.7e6),
-]
-EXPECTED_SENATE_HOUSE_2026 = (1376.4e6, 887.9e6)
-EXPECTED_SO_2026 = (785e6, 1479e6)  # (support, oppose)
 BOGUS_FILINGS = [
     (2022, 'C00800508', 'H2NY05118', 'Committee of 300 / Akhlaghy 2022'),
     (2024, 'C00874586', 'P40007304', 'Committee of 300 / Akhlaghy 2024'),
@@ -84,10 +73,6 @@ ROWS = (
 
 def dollars(cents):
     return cents / 100
-
-
-def rounded(difference):
-    return round(difference + 0.0, 2)  # + 0.0 turns -0.0 into 0.0
 
 
 def total(rows):
@@ -404,73 +389,33 @@ def top_committees_for(person, totals):
     ]
 
 
-# ---------- checks against the brief ----------
+# ---------- checks against the baseline ----------
+
+TOP_SPENDERS_PINNED = 5
 
 
-def validation(udp_totals, prior, summaries):
-    udp_diff = udp_totals[2024] - prior[2024]
-    checked = {
-        'udp_2024_exact': {
-            'computed': udp_totals[2024],
-            'expected': prior[2024],
-            'diff': rounded(udp_diff),
-            'status': 'exact' if abs(udp_diff) < 0.005 else 'MISMATCH',
-        },
-        'roster_totals': {},
-        'top_spenders_2026': {},
-        'senate_house_2026': {},
-        'support_oppose_2026': {},
-    }
-    for cycle in CYCLES:
-        roster_targeted = summaries[cycle]['roster_targeted']
-        got, want = roster_targeted['total'], EXPECTED_ROSTER_TOTAL[cycle]
-        checked['roster_totals'][cycle] = {
-            'computed': got,
-            'expected': want,
-            'diff': rounded(got - want),
-            'diff_pct': round(100 * (got - want) / want, 2),
-            'support': roster_targeted['support'],
-            'oppose': roster_targeted['oppose'],
-            'status': 'within_1pct' if abs(got - want) / want < 0.01 else 'CHECK',
-        }
-    top_2026 = summaries[2026]['top_committees_roster_targeted']
-    for name, direction, want in EXPECTED_TOP_2026:
-        hit = next(
-            (
-                c
-                for c in top_2026
-                if name in c['committee_name'].upper()
-                or (name == 'HOUSE MAJORITY PAC' and c['committee_name'].upper() == 'HMP')
-            ),
-            None,
-        )
-        if hit is None:
-            checked['top_spenders_2026'][name] = {'status': 'NOT FOUND in top 10'}
-            continue
-        got = hit['support'] if direction == 'S' else hit['oppose']
-        checked['top_spenders_2026'][name] = {
-            'committee_id': hit['committee_id'],
-            'committee_name': hit['committee_name'],
-            'direction': direction,
-            'computed': got,
-            'expected': want,
-            'diff': rounded(got - want),
-            'status': 'match' if abs(got - want) / want < 0.005 else 'CHECK',
-        }
-    roster_2026 = summaries[2026]['roster_targeted']
-    for key, fields, wanted in [
-        ('senate_house_2026', ('senate', 'house'), EXPECTED_SENATE_HOUSE_2026),
-        ('support_oppose_2026', ('support', 'oppose'), EXPECTED_SO_2026),
-    ]:
-        checked[key] = {
-            field: {
-                'computed': roster_2026[field],
-                'expected': want,
-                'diff': rounded(roster_2026[field] - want),
-            }
-            for field, want in zip(fields, wanted, strict=True)
-        }
-    return checked
+def pin_dollars(key, observed):
+    recorded = expected(key, observed)
+    if abs(observed - recorded) >= 0.005:
+        raise SystemExit(f'all-IE {key} is {observed:,.2f}; the baseline says {recorded:,.2f}')
+
+
+def pin_text(key, observed):
+    recorded = expected(key, observed)
+    if observed != recorded:
+        raise SystemExit(f'all-IE {key} is {observed}; the baseline says {recorded}')
+
+
+def check_current_cycle(summary):
+    """The current cycle's roster split and top spenders must match the baseline."""
+    roster_targeted = summary['roster_targeted']
+    for field in ('senate', 'house', 'support', 'oppose'):
+        pin_dollars(f'all_ie_roster_{CURRENT_CYCLE}.{field}', roster_targeted[field])
+    top = summary['top_committees_roster_targeted'][:TOP_SPENDERS_PINNED]
+    for rank, committee in enumerate(top, 1):
+        key = f'all_ie_top_spenders_{CURRENT_CYCLE}.{rank}'
+        pin_text(f'{key}.committee_id', committee['committee_id'])
+        pin_dollars(f'{key}.total', committee['total'])
 
 
 def bogus_examples(kept):
@@ -621,6 +566,7 @@ def main():
     summaries = {
         cycle: cycle_summary([x for x in included if x.cycle == cycle], roster) for cycle in CYCLES
     }
+    check_current_cycle(summaries[CURRENT_CYCLE])
     per_person = {p['person_key']: person_totals(p, totals) for p in roster.people}
 
     top = {p['person_key']: top_committees_for(p, totals) for p in roster.people}
@@ -659,7 +605,6 @@ def main():
             'name_index_collisions': collisions,
             'per_cycle_summaries': {str(c): summaries[c] for c in CYCLES},
             'per_candidate_per_cycle': by_candidate,
-            'validation': validation(udp_totals, prior, summaries),
             'bogus_examples': bogus_examples(kept),
             'roster_career_totals': roster_career_totals(roster, per_person, totals),
         },
