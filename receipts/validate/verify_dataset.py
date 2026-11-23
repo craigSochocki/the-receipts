@@ -5,7 +5,8 @@ Usage:
     python3 receipts/validate/verify_dataset.py [--dataset-csv PATH] [--dataset-json PATH]
 
 Checks (exit non-zero on any mismatch, printing every failure):
-  (a) per-cycle sums reproduce every career column (0 mismatches).
+  (a) per-cycle sums reproduce every career column: dbt tests on the
+      gold tables (dbt/tests/*_career_is_its_cycles.sql), run by the marts pass.
   (b) roster totals match config verification.methodology_totals to the
       cent (Armstrong's "unknown" money excluded from every sum).
   (c) all twelve rank columns recompute exactly (competition ranking:
@@ -31,13 +32,10 @@ Checks (exit non-zero on any mismatch, printing every failure):
       True/False/empty, dep_share by float value; the per-cycle lists
       compare by repr; all_ie_top_committees is JSON-only and skipped).
   (i) 664 rows, unique person_keys, row order matches roster.json.
-  (j) self-funding / topline: per-cycle sums reproduce every new
-      career column (flows summed; cash on hand and debts owed by are
-      the latest cycle's values); named spot cases (Constantino
+  (j) self-funding / topline: named spot cases (Constantino
       $17,000,000.00 exactly, Scott $89,994,251.12, …); debts owed to
       is null everywhere; Armstrong unknown, not zero.
-  (k) other committees: per-cycle sums reproduce every class, earmark
-      and total column; the corporate/AIPAC re-derivation in
+  (k) other committees: the corporate/AIPAC re-derivation in
       other_committees_diagnostics.json matches methodology to the
       cent; Lamb 2026 pas2-derived $96,500 with the $32,650 residual
       recorded.
@@ -217,70 +215,8 @@ def main():
     ]
     check('row order matches roster.json', [r['person_key'] for r in records] == roster_keys)
 
-    # (a) per-cycle sums reproduce every career column
-    pc_map = [
-        ('individual', 'individual_contribution_total_career'),
-        ('aipac_pac_direct', 'aipac_pac_direct_career'),
-        ('aipac_earmark_transmitted', 'aipac_earmark_transmitted_career'),
-        ('corporate_pac', 'corporate_pac_career'),
-        ('corporate_earmark_transmitted', 'corporate_earmark_transmitted_career'),
-    ]
-    mism = 0
-    for r in numeric:
-        for src, dst in pc_map:
-            if round(sum(e[src] for e in r['per_cycle']), 2) != r[dst]:
-                mism += 1
-        if (
-            round(sum(e['udp_ie_support'] for e in r['udp_per_cycle']), 2)
-            != r['udp_ie_support_career']
-        ):
-            mism += 1
-    check(
-        'per-cycle sums reproduce every career column (0 mismatches)',
-        mism == 0,
-        f'{mism} mismatches',
-    )
-
-    # (j) self-funding / topline per-cycle sums (flows summed; stocks =
-    # latest cycle's value); named spot cases; debts owed to null.
-    sf_map = [
-        ('candidate_contributions', 'cand_contrib_career'),
-        ('candidate_loans', 'cand_loans_career'),
-        ('loan_repayments', 'loan_repayments_career'),
-        ('total_receipts', 'total_receipts_career'),
-        ('total_disbursements', 'total_disbursements_career'),
-        ('transfers_from_auth', 'transfers_from_auth_career'),
-        ('transfers_to_auth', 'transfers_to_auth_career'),
-    ]
-    mism = 0
-    for r in numeric:
-        entries = r['self_funding_per_cycle']
-        for src, dst in sf_map:
-            if round(sum(e[src] for e in entries), 2) != r[dst]:
-                mism += 1
-        if (
-            round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in entries), 2)
-            != r['self_funding_career']
-        ):
-            mism += 1
-        for src, dst in (
-            ('cash_on_hand', 'cash_on_hand_career'),
-            ('debts_owed_by', 'debts_owed_by_career'),
-        ):
-            if entries:
-                latest = max(e['cycle'] for e in entries)
-                want = round(sum(e[src] for e in entries if e['cycle'] == latest), 2)
-            else:
-                want = None
-            if r[dst] != want:
-                mism += 1
-        if r['debts_owed_to_career'] is not None:
-            mism += 1
-    check(
-        'self-funding/topline per-cycle sums reproduce career columns (0 mismatches)',
-        mism == 0,
-        f'{mism} mismatches',
-    )
+    # (j) self-funding spot cases; debts owed to is null. The per-cycle sums
+    # are dbt tests on the gold tables (dbt/tests/*_career_is_its_cycles.sql).
     named_sf = {
         'anthonyconstantinonyhouse': 'Constantino',
         'S001217': 'Rick Scott',
@@ -319,7 +255,7 @@ def main():
         and arm['all_ie_top_committees'] is None,
     )
 
-    # (k) other-committee per-cycle sums (classes, earmarks, total).
+    # (k) other committees: the methodology cross-check and Lamb's 2026 residual.
     oc_buckets = [
         'party_committees',
         'leadership_pacs',
@@ -329,27 +265,6 @@ def main():
         'cooperative_pacs',
         'other_unclassified',
     ]
-    mism = 0
-    for r in numeric:
-        entries = r['other_committees_per_cycle']
-        for b in oc_buckets:
-            if round(sum(e[b] for e in entries), 2) != r[f'{b}_career']:
-                mism += 1
-            if (
-                round(sum(e['earmark_transmitted'].get(b, 0.0) for e in entries), 2)
-                != r[f'{b}_earmark_transmitted_career']
-            ):
-                mism += 1
-        if (
-            round(sum(r[f'{b}_career'] for b in oc_buckets), 2)
-            != r['other_committees_total_career']
-        ):
-            mism += 1
-    check(
-        'other-committee per-cycle sums reproduce career columns (0 mismatches)',
-        mism == 0,
-        f'{mism} mismatches',
-    )
     oc_diag = read_json(ROOT / CFG['paths']['other_committees_diagnostics'])
     cc = oc_diag['cross_checks_vs_methodology']
     check(
@@ -384,23 +299,7 @@ def main():
         lamb['data_notes'][-260:],
     )
 
-    # (l) all-IE per-cycle sums; UDP 2024 exact; cycle totals; the
-    # $21,231.43 blank-direction reconciliation; top committees.
-    mism = 0
-    for r in numeric:
-        entries = r['all_ie_per_cycle']
-        for src, dst in (
-            ('all_ie_support', 'all_ie_support_career'),
-            ('all_ie_oppose', 'all_ie_oppose_career'),
-            ('all_ie_total', 'all_ie_total_career'),
-        ):
-            if round(sum(e[src] for e in entries), 2) != r[dst]:
-                mism += 1
-    check(
-        'all-IE per-cycle sums reproduce career columns (0 mismatches)',
-        mism == 0,
-        f'{mism} mismatches',
-    )
+    # (l) all-IE: UDP 2024 exact; cycle totals; the blank-direction gap; top committees.
     aie_raw = read_json(ROOT / CFG['paths']['all_ie_per_cycle'])
     udp24 = aie_raw['validation']['udp_2024_exact']
     check(
