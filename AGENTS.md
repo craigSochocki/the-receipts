@@ -268,7 +268,7 @@ Every build reports back with evidence, not adjectives:
 
 ## 8. Automation (GitHub Actions)
 
-Two workflows in `.github/workflows/` (see `README.md`, "Automation
+Three workflows in `.github/workflows/` (see `README.md`, "Automation
 (GitHub Actions)", for the operator-facing version):
 
 - **`ci.yml`** — push + pull request to `master`. Checkout, Python 3.12,
@@ -281,37 +281,35 @@ Two workflows in `.github/workflows/` (see `README.md`, "Automation
   step — GitHub Pages serves `docs/` on `master` automatically.
   `permissions: contents: read`. Needs no secrets, so it is safe on PRs
   from forks.
-- **`fec-snapshot.yml`** — manual. Publishes the live FEC bulk files as
+- **`fec-snapshot.yml`** — manual, and called by the refresh. Publishes the live FEC bulk files as
   an immutable `fec-bulk-<date>` Release (raw files + `SHA256SUMS` +
   `PROVENANCE.tsv`). Public FEC data; Craig approved publishing these
   snapshots Nov 22, 2026. Does not touch the dataset.
-- **`scheduled-refresh.yml`** — **PAUSED, manual dispatch only** (Nov 22,
-  2026). It never completed a run: it rebuilt from a live download and
-  failed on the first new filing (Nov 15 and Nov 22). Do not re-enable
-  the cron as written. Its replacement automates §5 step 2a and opens a
-  pull request; it never pushes to `master`. The rules below describe
-  the paused workflow.
-
-**Commit-back rule (scheduled refresh only).** Commit and push only if
-the dataset changed OR the site changed apart from its generation
-timestamp — the timestamp line is ignored via `git diff -I`, the same
-pattern `verify_site.py` strips. A timestamp-only rebuild commits
-nothing. A failed rebuild/verify commits and pushes nothing (commit step
-gated on `success()`). The bot's push triggers CI, which re-verifies.
+- **`fec-refresh.yml`** — weekly (Sundays 09:17 UTC), on demand, or on
+  a push to `refresh-now`. Automates §5 step 2a: snapshot today's bulk
+  and candidate files (via `fec-snapshot.yml`), stage them, set
+  `data_as_of`, `python3 src/rebuild.py --rebaseline`, and, if any
+  baseline figure moved, open a pull request from a fresh
+  `fec-refresh-<date>-r<run>` branch listing every moved figure
+  (`src/validate/baseline_changes.py`), start CI on it, and close any
+  older open refresh pull request as superseded. **It never pushes to
+  `master` and never force-pushes**; merging is Craig's call (§6), after
+  re-judging `verification.coverage_end`, which the workflow leaves as
+  it was. Replaces `scheduled-refresh.yml` (retired Nov 23, 2026; it
+  rebuilt from a live download and never completed a run).
 
 **Pinned, not cached.** CI stages the pinned snapshot Release on every
 run and verifies every sha256, so its inputs are identified by content.
 Never point CI back at `./download_bulk.sh`: a live download is a
-different input every day.
+different input every day. Only the snapshot step downloads live files.
 
-**FEC API key.** The freshness step (`pull_freshness.py --all`) runs only
-when the `FEC_API_KEY` repository secret is set; the snapshot is uploaded
-as a workflow artifact (90-day retention), never merged into dataset
-totals, never committed. When the secret is absent the step logs a skip
-line and the run continues. The key was added Nov 12, 2026 (Craig
-registered at api.data.gov); the first scheduled run will confirm it by
-logging whether freshness ran or skipped. Rotate it in repo Settings →
-Secrets and variables → Actions if it ever leaks or expires. `--all` runs the six F24 committee sweeps (gated per committee by the pre-flight gate, `src/ingest/pull_gate.py`); `--no-gate` forces the full run.
+**Freshness overlay — not scheduled.** `pull_freshness.py --all` ran only
+in the retired scheduled refresh, which never completed a run. No
+workflow runs it now; it is run by hand with the `FEC_API_KEY` key
+(registered by Craig at api.data.gov, also a repository secret since
+Nov 12, 2026; rotate it in Settings → Secrets and variables → Actions if
+it leaks or expires). `--all` runs the six F24 committee sweeps (gated
+per committee by `src/ingest/pull_gate.py`); `--no-gate` forces the full run.
 
 **Workflow files change like any other code** — one change per commit
 (§2), and a workflow change is its own commit, never bundled with a data
