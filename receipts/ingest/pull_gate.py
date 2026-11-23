@@ -93,9 +93,9 @@ shared retry, network error, unexpected response shape, page-guard
 trip, missing committee master — the gate logs loudly to stderr and
 ``gate_run`` returns ``run_full=True`` with ``gate_error`` set, and
 the driver falls back to the FULL ``--all`` run. State is not
-advanced on a gate error. ``open_with_retry`` handles 429s (see
-``receipts/common/api_retry.py``); the api_key is never logged —
-``sanitize_url`` strips it from every error/log URL (commit 28b390f).
+advanced on a gate error. ``FecApi`` handles 429s (see
+``receipts/common/fec_api.py``); the api_key is never logged —
+``public`` strips it from every error/log URL.
 
 F24 coverage note. The global F24 check sees F24 activity from
 committees OUTSIDE the six sweeps. That is surfaced in the decision

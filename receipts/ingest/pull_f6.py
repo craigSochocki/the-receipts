@@ -38,18 +38,8 @@ import csv
 import io
 import json
 import sys
-import urllib.error
-import urllib.parse
 
-from receipts.common.api_retry import (
-    DOCQUERY_RATE_LIMIT_NOTE,
-    open_with_retry,
-)
-from receipts.common.config import load_config
-from receipts.common.fec_api import RETRY, api_get
-
-CFG = load_config()
-ROOT = CFG['_root']
+from receipts.common.fec_api import fec_api
 
 
 def discover_f6(committee_id, since=None):
@@ -62,7 +52,7 @@ def discover_f6(committee_id, since=None):
     filings = []
     page = 1
     while True:
-        data = api_get(
+        data = fec_api.get(
             '/filings/',
             {
                 'form_type': 'F6',
@@ -88,25 +78,9 @@ def discover_f6(committee_id, since=None):
 
 
 def fetch_f6_csv(file_number):
-    """Fetch one filing's docquery CSV (no API key). Returns raw text.
-
-    Same 429 retry as the API paths (receipts/common/api_retry.py): docquery
-    needs no key, so the api.data.gov 1,000/hr limit does not apply
-    here, but a 429 from docquery would kill a run the same way.
-    """
+    """One filing's docquery CSV as text (no API key needed)."""
     last3 = str(file_number)[-3:]
-    url = f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv'
-    try:
-        with open_with_retry(
-            url,
-            timeout=CFG['fec_api']['request_timeout_seconds'],
-            retry=RETRY,
-            label='docquery CSV',
-            limit_note=DOCQUERY_RATE_LIMIT_NOTE,
-        ) as resp:
-            return resp.read().decode('utf-8', errors='replace')
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})') from e
+    return fec_api.fetch_text(f'https://docquery.fec.gov/csv/{last3}/{file_number}.csv')
 
 
 def parse_f6_csv(text):

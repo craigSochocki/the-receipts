@@ -33,10 +33,7 @@ import argparse
 import json
 import sys
 
-from receipts.common.config import load_config
-from receipts.common.fec_api import api_get
-
-CFG = load_config()
+from receipts.common.fec_api import fec_api
 
 
 def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_form=None):
@@ -69,7 +66,7 @@ def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_fo
             params['cycle'] = cycle
         if filing_form:
             params['filing_form'] = filing_form
-        data = api_get('/schedules/schedule_e/', params)
+        data = fec_api.get('/schedules/schedule_e/', params)
         results = data.get('results', [])
         if not results:
             break
