@@ -1,0 +1,108 @@
+# Hand-curated roster facts the legislators file and the 120th roster can't
+# supply, as of the Nov 12, 2026 sources (see build_roster.py). Read by
+# receipts/transform/build_roster.py; each note is appended to the matching
+# row's notes, in file order.
+#   added_members: rows for people in neither source (fields not given take
+#     the roster defaults; fec_from_history names the historical_lookup entry
+#     whose FEC IDs they get).
+#   notes / late_notes: a note for the row with person_key, or for every row
+#     whose fields equal `match`. late_notes apply after the uncalled seats.
+#   unknown_in_120th: 119th members whose 120th seat is uncalled; their
+#     in_120th becomes 'unknown'.
+#   leadership_119: verified roles, by chamber.
+#   unverified_leadership_120: roles Wikipedia lists before the leadership
+#     elections; kept as notes only.
+added_members:
+- person_key: B000944
+  full_name: Sherrod Brown
+  first_name: Sherrod
+  last_name: Brown
+  chamber_119: Senate
+  chamber_120: Senate
+  state: OH
+  party_119: Democrat
+  party_120: Democrat
+  in_119th: 'yes'
+  in_120th: 'yes'
+  notes: Won OH Senate special election Nov 3, 2026 (defeated appointed incumbent Jon Husted); takes seat Dec 15, 2026, so serves in both the 119th (from Dec 15) and 120th; term runs to Jan 2029.
+  _bioguide: B000944
+  _fec_source: repo-historical
+  fec_from_history: Sherrod Brown
+notes:
+- person_key: H001082
+  note: Elected to Senate Nov 3, 2026; sworn in Nov 30, 2026 to fill remainder of 119th term (succeeding appointed Sen. Alan Armstrong) and full 120th term. House OK-1 successor Mark Tedford takes that seat in the 120th.
+- person_key: A000383
+  note: Appointed senator Mar 24, 2026 (after Markwayne Mullin resigned to become Homeland Security Secretary); term ends Nov 30, 2026 when Kevin Hern is sworn in; not in 120th.
+- person_key: H001104
+  note: Appointed senator Jan 21, 2025; lost OH special election Nov 3, 2026 to Sherrod Brown; serves until Dec 15, 2026; not in 120th.
+- person_key: M001244
+  note: Appointed senator Jan 21, 2025; re-elected in FL special election Nov 3, 2026; serves in both 119th and 120th.
+- person_key: G000608
+  note: Appointed senator Jul 14, 2026 after Sen. Lindsey Graham died Jul 11, 2026; lost Nov 3, 2026 election to Annie Andrews; not in 120th.
+- match:
+    last_name: Blackburn
+    state: TN
+  note: Elected Tennessee governor Nov 3, 2026; plans to resign from Senate Jan 2027; successor to be appointed until a special election in Nov 2028 (per Wikipedia 120th Congress). Counted in 120th as seated at its start.
+- match:
+    last_name: Klobuchar
+  note: Elected Minnesota governor Nov 3, 2026; plans to resign from Senate Jan 2027; successor to be appointed until a special election in Nov 2027 (per Wikipedia 120th Congress). Counted in 120th as seated at its start.
+unknown_in_120th:
+- match:
+    chamber_119: Senate
+    state: AK
+    last_name: Sullivan
+  note: Dan Sullivan (R) — AK Senate race uncalled as of Nov 12, 2026.
+- match:
+    chamber_119: House
+    state: AK
+  note: Nick Begich III (R) — AK at-large House race uncalled as of Nov 12, 2026.
+- match:
+    chamber_119: House
+    state: CA
+    district_119: '4'
+  note: Mike Thompson (D) — CA-04 listed TBD (D) on Wikipedia 120th page, Nov 12, 2026.
+- match:
+    chamber_119: House
+    state: CA
+    district_119: '23'
+  note: Jay Obernolte (R) — CA-23 listed TBD on Wikipedia 120th page, Nov 12, 2026.
+- match:
+    chamber_119: House
+    state: LA
+    district_119: '6'
+  note: Cleo Fields (D) — LA-06 runoff Dec 12, 2026; winner TBD.
+late_notes:
+- match:
+    last_name: Clark
+    first_name: Jasmine
+    state: GA
+  note: Wikipedia new-members note says elected in a special election to replace David Scott (d. Apr 22, 2026); whether she is seated before Jan 3, 2027 is UNVERIFIED — counted as 120th-only pending confirmation.
+leadership_119:
+  House:
+    Mike Johnson: Speaker of the House
+    Steve Scalise: Majority Leader
+    Tom Emmer: Majority Whip
+    Lisa McClain: Chair, House Republican Conference
+    Kevin Hern: Chair, House Republican Policy Committee
+    Blake Moore: Vice Chair, House Republican Conference
+    Hakeem Jeffries: Minority Leader
+    Katherine Clark: Minority Whip
+    Pete Aguilar: Chair, House Democratic Caucus
+    Ted Lieu: Vice Chair, House Democratic Caucus
+  Senate:
+    John Thune: Majority Leader
+    John Barrasso: Majority Whip
+    Tom Cotton: Chair, Senate Republican Conference
+    Chuck Grassley: President pro tempore
+    Chuck Schumer: Minority Leader; Chair, Senate Democratic Caucus
+    Dick Durbin: Minority Whip
+    Amy Klobuchar: Chair, Senate Democratic Steering and Policy Committee
+unverified_leadership_120:
+  John Thune: Senate Minority Leader
+  John Barrasso: Senate Minority Whip
+  Tom Cotton: Chair, Senate Republican Conference
+  Bernie Moreno: Chair, National Republican Senatorial Committee
+  Jim Jordan: House Minority Leader
+  Tom Emmer: House Minority Whip
+  Lisa McClain: Chair, House Republican Conference
+  Brian Jack: Chair, National Republican Congressional Committee
