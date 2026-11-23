@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Write money_pas2_weball.csv and money_per_cycle.json from the silver store."""
-
-import sys
-from pathlib import Path
+"""Write the accepted-money gold tables from the silver store."""
 
 import duckdb
 
-from receipts.common.files import write_json
 from receipts.common.settings import CAREER_CYCLES as CYCLES
 from receipts.common.settings import PATHS
 from receipts.domain.money import Money
@@ -76,7 +72,7 @@ def notes_for(person, career, roster, on_file):
     return ' | '.join(notes)
 
 
-def write(out_dir):
+def write():
     with duckdb.connect(str(PATHS.store), read_only=True) as db:
         people = tracked_people(db)
         roster_ids = {i for p in people for i in p['fec_candidate_ids']}
@@ -120,8 +116,7 @@ def write(out_dir):
 
     write_gold('accepted_money_people', rows, set(CAREER.values()))
     write_gold('accepted_money_per_cycle', per_cycle_rows(per_cycle), set(COLUMNS))
-    write_json(out_dir / 'money_per_cycle.json', per_cycle)
 
 
 if __name__ == '__main__':
-    write(Path(sys.argv[1]) if len(sys.argv) > 1 else PATHS.intermediate)
+    write()
