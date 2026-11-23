@@ -86,7 +86,7 @@ the-receipts/
 ├── README.md, STATUS.md, methodology.md, architecture.md
 ├── config.yaml                # single source of truth for shared values
 ├── congress-money-tracker.csv / .json   # the dataset (stays at repo root)
-├── src/
+├── receipts/               # the Python package
 │   ├── common/                # settings, baseline, file writers
 │   ├── domain/                # the rules, free of file formats: Money,
 │   │                          # which committee money counts
@@ -99,7 +99,7 @@ the-receipts/
 │   ├── ingest/                # pulls from FEC bulk + API:
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
-│   │                          # merge_dataset, compute_ranking, compute_2026
+│   │                          # assemble, compute_2026, build_dataset
 │   ├── validate/              # verify_dataset.py — the standing audits
 │   └── rebuild.py             # the one command that runs the whole pipeline
 ├── data/
@@ -203,7 +203,7 @@ A change to data or pipeline is not done until it passes this gate:
 
    It runs the pipeline in order (roster → FEC lookup → money → UDP →
    dedup → self-funding → other-committees → all-IE → opposition →
-   merge → ranking → 2026 → verify), backing the current dataset up
+   dbt marts → assemble → 2026 → verify), backing the current dataset up
    to `data/snapshots/` first. It refuses to run on anything but the
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
    FEC updates its bulk files in place, so a live download is a

@@ -8,14 +8,12 @@ Column map, verification and the dedup decisions:
 research/self-funding-notes.md.
 """
 
-from receipts.common.files import text_or_blank, text_or_none, write_csv, write_json
+from receipts.common.files import text_or_blank, text_or_none
 from receipts.common.settings import (
     CAREER_CYCLES as CYCLES,
 )
 from receipts.common.settings import (
     CURRENT_CYCLE,
-    DATA_AS_OF,
-    PATHS,
     load_double_count_records,
     load_roster,
 )
@@ -47,37 +45,6 @@ CSV_FIELDS = (
     + [f'{field}_2026' for field in SUMMARY_FIELDS]
     + ['data_notes']
 )
-META_TEXT = {
-    'source': 'staged bulk weball files data/raw/weball/weballYY.txt, cycles 1980-2026',
-    'data_as_of': DATA_AS_OF,
-    'column_map_1indexed': {
-        'total_receipts': 6,
-        'transfers_from_auth': 7,
-        'total_disbursements': 8,
-        'transfers_to_auth': 9,
-        'cash_on_hand_coh_cop': 11,
-        'candidate_contributions': 12,
-        'candidate_loans': 13,
-        'loan_repayments_cand_loan_repay_plus_other_loan_repay': '15+16',
-        'debts_owed_by': 17,
-        'coverage_end_date': 28,
-        'debts_owed_to': None,
-    },
-    'debts_owed_to_note': 'No weball column exists for debts owed TO the committee; '
-    'output as null everywhere, never zero. FEC API spot-check '
-    '(Constantino, cycles 2024 and 2026): '
-    'last_debts_owed_to_committee $0.00.',
-    'weball_vs_api': 'FEC API candidate-totals endpoint (DEMO_KEY, Nov 12, 2026) '
-    'returns values identical to weball to the cent for Constantino '
-    'H6NY21157 in both cycles 2024 and 2026. The $17,000,000 loan / '
-    '$17,064,951 receipts figures are CAREER sums (2024 $2.6M + 2026 '
-    '$14.4M), not 2026-only values; there is no weball-vs-API '
-    'discrepancy at matched coverage. Caveat is timeliness only: '
-    'staged 2026 weball covers through 10/14/2026 (pre-general).',
-    'aggregation': 'Flows summed across cycles; cash_on_hand and debts_owed_by '
-    'are stocks = latest cycle value (see cash_on_hand_cycle / '
-    'debts_owed_by_cycle).',
-}
 
 
 def weball_column(field):
@@ -93,15 +60,12 @@ DIFFERING = (
     'SELECT person_key, cycle, kept_id, candidate_id, field, kept_cents, dropped_cents '
     'FROM summary_differences ORDER BY position'
 )
-WEBALL_READS = "SELECT SUM(rows_read) FROM files_read WHERE file = 'weball'"
 
 
 def read_store(roster_ids):
     with connect() as db:
         counted = for_candidates(db, COUNTED, roster_ids)
         differing = db.execute(DIFFERING).fetchall()
-        cells_zeroed = db.execute('SELECT count(*) FROM summary_corrections').fetchone()[0]
-        (rows_read,) = db.execute(WEBALL_READS).fetchone()
     finances = {
         (candidate_id, cycle): CampaignFinances.from_weball(
             {field: Money(cents) for field, cents in zip(FINANCIAL_FIELDS, amounts, strict=True)}
@@ -109,11 +73,7 @@ def read_store(roster_ids):
         for candidate_id, cycle, _, *amounts in counted
     }
     coverage_end = {(candidate_id, cycle): end for candidate_id, cycle, end, *_ in counted}
-    counts = {
-        'weball_rows_scanned': int(rows_read),
-        'weball_rows_matched_roster': len(counted),
-    }
-    return finances, coverage_end, differing, cells_zeroed, counts
+    return finances, coverage_end, differing
 
 
 def per_cycle_entries(person, finances, coverage_end):
@@ -224,49 +184,17 @@ def describe(differing, dedup_records):
 
 def main():
     roster = Roster(load_roster())
-    dedup_records = load_double_count_records()
-
     roster_ids = {i for p in roster.people for i in candidate_ids(p)}
-    finances, coverage_end, found_differing, cells_zeroed, counts = read_store(roster_ids)
-    differing = describe(found_differing, dedup_records)
-
+    finances, coverage_end, found_differing = read_store(roster_ids)
+    differing = describe(found_differing, load_double_count_records())
     rows = [csv_row(person, finances, roster, differing) for person in roster.people]
-    write_csv(PATHS.self_funding_csv, rows, CSV_FIELDS)
-
-    persons = {
-        p['person_key']: {
-            'person_key': p['person_key'],
-            'full_name': p['full_name'],
-            'fec_candidate_ids': candidate_ids(p),
-            'per_cycle': per_cycle_entries(p, finances, coverage_end),
-        }
-        for p in roster.people
-    }
-    meta = {
-        **META_TEXT,
-        'dedup': {
-            'groups_in_record': len(dedup_records),
-            'groups_applied': len(dedup_records),
-            'identical_cells_zeroed': cells_zeroed,
-            'differing_columns_flagged_not_corrected': differing,
-        },
-        **counts,
-    }
+    persons = {p['person_key']: {'per_cycle': per_cycle_entries(p, finances, coverage_end)}
+               for p in roster.people}  # fmt: skip
     write_gold(
         'self_funding_people', rows, {c for c in CSV_FIELDS if c.endswith(('_career', '_2026'))}
     )
     write_gold('self_funding_per_cycle', per_cycle_rows(persons), set(PER_CYCLE_FIELDS))
-    write_json(PATHS.self_funding_per_cycle, {'meta': meta, 'persons': persons})
-
-    print('persons:', len(rows))
-    print(
-        'dedup groups applied:',
-        len(dedup_records),
-        'identical cells zeroed:',
-        cells_zeroed,
-        'differing columns flagged:',
-        len(differing),
-    )
+    print(f'persons: {len(rows)}; differing columns flagged, not corrected: {len(differing)}')
 
 
 if __name__ == '__main__':

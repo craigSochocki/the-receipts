@@ -90,11 +90,11 @@ What each step does (each script documents its own rules in its header):
   `data/intermediate/roster_intermediate.json` and `data/intermediate/roster.json`.
 - `store/build_store.py` — the silver store (DuckDB): every FEC candidate,
   committee and filing, with exclusions labeled rather than dropped.
-- `store/models.py` — runs `dbt build` on `dbt/` in three passes: `silver`
+- `store/models.py` — runs `dbt build` on `dbt/` in two passes: `silver`
   (views over the store's tables, before the money steps that read them),
   `marts` (tracked people, career money and ranks over the gold tables the
-  money steps write to the store's `gold` schema), and `published` (after
-  the dataset is written: the marts must agree with it). Every pass runs
+  money steps write to the store's `gold` schema), which the dataset is
+  assembled from (`receipts/transform/assemble.py`). Every pass runs
   its tests (keys, allowed values, relationships, seat and term facts in
   `dbt/tests/`); a failed test stops the rebuild. To explore lineage and column docs:
   `RECEIPTS_STORE=data/store/receipts.duckdb dbt docs generate --project-dir dbt --profiles-dir dbt`
@@ -123,9 +123,9 @@ What each step does (each script documents its own rules in its header):
 - `store/opposition.py` — UDP opposition credit, read from the store (exactly-one-backed
   rule); runs before the merge so its sanity check reads the current
   dataset.
-- `merge_dataset.py` — roster + money + opposition → base dataset
-  (collapses the duplicate Kristen McDonald Rivet rows).
-- `compute_ranking.py` — total accepted + twelve rank columns.
+- `assemble.py` — the base dataset rows from the store: roster fields, the
+  gold tables' money and notes, and the dbt marts' career totals and twelve
+  ranks (folds the duplicate Kristen McDonald Rivet roster entry).
 - `compute_2026.py` — the 2026 columns, clean/dirty flags, and
   `data/intermediate/primary-targets.md` (House Democrats by dirty_2026).
 - `verify_dataset.py` — the standing audits; exit non-zero on any

@@ -94,8 +94,8 @@ not harder.
   (committed lookup results + the 7 recorded manual notes in
   `data/source/manual_roster_notes.json`); the live lookup is optional
   (`--with-fec-lookup`) and restores the manual entries afterwards. The
-  merge (`receipts/transform/merge_dataset.py`), ranking (`receipts/transform/compute_ranking.py`),
-  and 2026 columns (`receipts/transform/compute_2026.py`, including the primary-target
+  assembly (`receipts/transform/assemble.py`, over the store's gold tables and
+  dbt marts, which compute career totals and ranks) and 2026 columns (`receipts/transform/compute_2026.py`, including the primary-target
   list) are scripted, and `receipts/validate/verify_dataset.py` runs the standing
   audits. Verified Nov 12, 2026: a fresh clone with staged bulk data
   rebuilds the committed dataset byte-identically (csv md5

@@ -9,14 +9,16 @@ Evidence and findings: research/other-committees-notes.md.
 """
 
 import sys
+from datetime import datetime
 from decimal import Decimal
 
 from receipts.common.baseline import expected
-from receipts.common.files import write_csv, write_json
+from receipts.common.files import write_json
 from receipts.common.settings import (
     CAREER_CYCLES as CYCLES,
 )
 from receipts.common.settings import (
+    COVERAGE_END,
     PATHS,
     load_double_count_records,
     load_roster,
@@ -345,6 +347,46 @@ def per_cycle_record(person, ledger):
     }
 
 
+LAMB_LABELS = [
+    ('party_committees', 'party'),
+    ('leadership_pacs', 'leadership'),
+    ('labor_pacs', 'labor'),
+    ('trade_pacs', 'trade'),
+    ('membership_pacs', 'membership'),
+    ('cooperative_pacs', 'cooperative'),
+    ('other_unclassified', 'other-unclassified'),
+]
+
+
+def reconciliation_note(validation, coverage):
+    residual = validation['weball_minus_pas2_cents']
+    if residual == 0:
+        return ''
+
+    def usd(cents):
+        return f'${cents / 100:,.2f}'
+
+    def month_day(iso_date):
+        date = datetime.strptime(str(iso_date), '%Y-%m-%d')
+        return f'{date:%b} {date.day}'
+
+    by_class = '; '.join(
+        f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
+        for bucket, label in LAMB_LABELS
+        if validation['pas2_breakdown_cents'][bucket]
+    )
+    cycle = validation['cycle']
+    return (
+        f'{cycle} PENDING RECONCILIATION: other-committee money in {cycle} is '
+        f'{usd(validation["pas2_total_cents"])} by pas2 ({by_class}) '
+        f'but weball col 26 (OTHER_POL_CMTE_CONTRIB) reports '
+        f'{usd(validation["weball_other_pol_cmte_contrib_cents"])} — {usd(residual)} residual, '
+        f'not reproducible from the staged bulk files (pas2 judged complete through '
+        f'{month_day(coverage["committee_money_pas2"])}, weball through '
+        f'{month_day(coverage["weball"])}). Do not adjust either figure.'
+    )
+
+
 def flat_entry(row):
     earmarks = row.pop('earmark_transmitted')
     return {**row, **{f'earmark_{b}': earmarks.get(b) for b in BUCKETS}}
@@ -368,14 +410,23 @@ def main():
 
     people = [career_row(person, ledger, roster) for person in roster.people]
     cycles = {p['person_key']: per_cycle_record(p, ledger) for p in roster.people}
-    write_gold('other_committees_people', people, {c for c in people[0] if c.endswith('_career')})
+    note = reconciliation_note(lamb, COVERAGE_END)
+    write_gold(
+        'other_committees_people',
+        [
+            {
+                **row,
+                'reconciliation_note': note if LAMB_CANDIDATE in row['fec_candidate_ids'] else '',
+            }
+            for row in people
+        ],
+        {c for c in people[0] if c.endswith('_career')},
+    )
     write_gold(
         'other_committees_per_cycle',
         [flat_entry(r) for r in per_cycle_rows(cycles)],
         {*BUCKETS, *(f'earmark_{b}' for b in BUCKETS), 'winred_included'},
     )
-    write_csv(PATHS.other_committees_csv, people)
-    write_json(PATHS.other_committees_per_cycle, cycles)
     write_json(
         PATHS.other_committees_diagnostics,
         {
