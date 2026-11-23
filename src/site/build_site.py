@@ -414,7 +414,7 @@ TEMPLATE_BODY = """
 
 <section id="tab-targets" hidden tabindex="-1">
 <h2 class="sec">2026 primary targets — House Democrats, by dirty money in 2026</h2>
-<p style="color:var(--muted)">192 House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
+<p style="color:var(--muted)">%%TARGETS_2026_HOUSE%% House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
 <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
@@ -2337,6 +2337,14 @@ def main():
     html = html.replace("%%COLS_JSON%%", safe_json(cols_payload))
     html = html.replace("%%DATA_JSON%%", safe_json(rows))
     html = html.replace("%%OPP_JSON%%", safe_json(opp_payload))
+    # 2026 primary-target intro count: computed, never typed (it was a
+    # typed "192" until the Nov 22, 2026 snapshot moved it).
+    targets_2026_house = sum(
+        1 for r in dataset
+        if r["in_120th"] == "yes" and r["chamber_120"] == "House"
+        and r["party_120"] == "Democrat"
+        and isinstance(r["dirty_2026"], (int, float)) and r["dirty_2026"] > 0)
+    html = html.replace("%%TARGETS_2026_HOUSE%%", str(targets_2026_house))
     html = html.replace("%%DATASET_MD5%%", dataset_md5)
     html = html.replace("%%DATA_AS_OF%%", ", ".join(data_as_of))
     html = html.replace("%%STAMP%%", stamp)

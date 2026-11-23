@@ -63,6 +63,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -212,9 +213,10 @@ for r in udp_rows:
         oppose[r['cand_id']] += r['amount']
 
 # ---------- 4. Reconciliation vs the prior pull's deduped totals ----------
-prior = {int(k): v for k, v in CFG['verification']['udp_prior_cycle_totals'].items()}
+prior = {}
 for yr in CYCLES:
     tot = sum(r['amount'] for r in udp_rows if r['cycle'] == yr)
+    prior[yr] = expected(f'udp_prior_cycle_totals.{yr}', round(tot, 2))
     mark = 'OK' if abs(tot - prior[yr]) < 0.005 else 'MISMATCH'
     print(f'cycle {yr}: deduped S+O total ${tot:,.2f} vs prior ${prior[yr]:,.2f} [{mark}]')
     if mark == 'MISMATCH':

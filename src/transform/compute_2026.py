@@ -159,6 +159,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -380,76 +381,50 @@ for r in records:
         if 'missing-committee-linkage gap' not in r['data_notes']:
             r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(corp=f'{r["corp_2026"]:,.0f}')
 
-# ---- Assert the expected clean counts (config verification.clean_2026) ----
-exp = CFG['verification']['clean_2026']
+# ---- Assert the expected clean counts (baseline clean_2026.*) ----
 counts = {'true_total': sum(1 for r in records if r['clean_2026'] is True),
           'false_total': sum(1 for r in records if r['clean_2026'] is False),
           'null_total': sum(1 for r in records if r['clean_2026'] is None)}
-for key in ('true_total', 'false_total', 'null_total'):
-    if counts[key] != exp[key]:
-        raise SystemExit(f'clean_2026 {key} count {counts[key]} != expected {exp[key]}')
 house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
 house_clean = [r for r in house120 if r['clean_2026'] is True]
-if len(house_clean) != exp['house_120th_verified_clean']:
-    raise SystemExit(f"120th House clean {len(house_clean)} != expected "
-                     f"{exp['house_120th_verified_clean']}")
-by_party = {'Democrat': sum(1 for r in house_clean if r['party_120'] == 'Democrat'),
-            'Republican': sum(1 for r in house_clean if r['party_120'] == 'Republican')}
-for party in ('Democrat', 'Republican'):
-    key = f"house_120th_verified_clean_{party.lower()}"
-    if by_party[party] != exp[key]:
-        raise SystemExit(f'120th House clean {party} {by_party[party]} != expected {exp[key]}')
 career_clean = [r for r in house120 if r['corporate_pac_career'] == 0
                 and r['aipac_pac_direct_career'] == 0 and r['udp_ie_support_career'] == 0]
-if len(career_clean) != exp['house_120th_career_clean']:
-    raise SystemExit(f"career-clean 120th House {len(career_clean)} != expected "
-                     f"{exp['house_120th_career_clean']}")
-career_by_party = {'Democrat': sum(1 for r in career_clean if r['party_120'] == 'Democrat'),
-                   'Republican': sum(1 for r in career_clean if r['party_120'] == 'Republican')}
-for party in ('Democrat', 'Republican'):
-    key = f"house_120th_career_clean_{party.lower()}"
-    if career_by_party[party] != exp[key]:
-        raise SystemExit(f'career-clean 120th House {party} {career_by_party[party]} '
-                         f'!= expected {exp[key]}')
 career_keys = {r['person_key'] for r in career_clean}
-not_career = sum(1 for r in house_clean if r['person_key'] not in career_keys)
-if not_career != exp['house_120th_clean_2026_not_career_clean']:
-    raise SystemExit(f'2026-clean but not career-clean {not_career} != expected '
-                     f"{exp['house_120th_clean_2026_not_career_clean']}")
-# ---- Assert the expected flag and tier counts (config verification.tiered_2026) ----
-exp_t = CFG['verification']['tiered_2026']
-flag_all = sum(1 for r in records if r['aipac_udp_flag_2026'])
-if flag_all != exp_t['aipac_udp_flag_all']:
-    raise SystemExit(f'aipac_udp_flag_2026 roster-wide {flag_all} != expected '
-                     f"{exp_t['aipac_udp_flag_all']}")
 r120 = [r for r in records if r['in_120th'] == 'yes']
-flag_120 = sum(1 for r in r120 if r['aipac_udp_flag_2026'])
-if flag_120 != exp_t['aipac_udp_flag_120th']:
-    raise SystemExit(f'aipac_udp_flag_2026 120th {flag_120} != expected '
-                     f"{exp_t['aipac_udp_flag_120th']}")
+observed = {f'clean_2026.{k}': v for k, v in counts.items()}
+observed['clean_2026.house_120th_verified_clean'] = len(house_clean)
+observed['clean_2026.house_120th_career_clean'] = len(career_clean)
+for party in ('Democrat', 'Republican'):
+    observed[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
+        1 for r in house_clean if r['party_120'] == party)
+    observed[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
+        1 for r in career_clean if r['party_120'] == party)
+observed['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
+    1 for r in house_clean if r['person_key'] not in career_keys)
+# ---- ... and the flag and tier counts (baseline tiered_2026.*) ----
+observed['tiered_2026.aipac_udp_flag_all'] = sum(1 for r in records if r['aipac_udp_flag_2026'])
+observed['tiered_2026.aipac_udp_flag_120th'] = sum(1 for r in r120 if r['aipac_udp_flag_2026'])
 tier_counts = {}
 for preset in ('balanced', 'lenient'):
     tier_counts[preset] = Counter(r[f'tier_{preset}_2026'] for r in r120)
     for tier_name in ('clean', 'below_threshold', 'dirty'):
-        if tier_counts[preset].get(tier_name, 0) != exp_t[preset][tier_name]:
-            raise SystemExit(f'tier_{preset}_2026 {tier_name} '
-                             f"{tier_counts[preset].get(tier_name, 0)} != expected "
-                             f"{exp_t[preset][tier_name]}")
-    if tier_counts[preset].get(None, 0) != exp_t[preset]['null']:
-        raise SystemExit(f"tier_{preset}_2026 null {tier_counts[preset].get(None, 0)} "
-                         f"!= expected {exp_t[preset]['null']}")
-    not_dirty = (tier_counts[preset].get('clean', 0)
-                 + tier_counts[preset].get('below_threshold', 0))
-    if not_dirty != exp_t[preset]['not_dirty']:
-        raise SystemExit(f'tier_{preset}_2026 not-dirty {not_dirty} != expected '
-                         f"{exp_t[preset]['not_dirty']}")
+        observed[f'tiered_2026.{preset}.{tier_name}'] = tier_counts[preset].get(tier_name, 0)
+    observed[f'tiered_2026.{preset}.null'] = tier_counts[preset].get(None, 0)
+    observed[f'tiered_2026.{preset}.not_dirty'] = (
+        tier_counts[preset].get('clean', 0) + tier_counts[preset].get('below_threshold', 0))
+for key, got in observed.items():
+    want = expected(key, got)
+    if got != want:
+        raise SystemExit(f'{key}: computed {got} != baseline {want}')
 print(f"clean_2026: True {counts['true_total']}, False {counts['false_total']}, "
       f"None {counts['null_total']}; "
       f"unopposed_2026 True {sum(1 for r in records if r['unopposed_2026'])}; "
       f"120th House clean {len(house_clean)} "
-      f"({by_party['Democrat']} D, {by_party['Republican']} R); "
+      f"({observed['clean_2026.house_120th_verified_clean_democrat']} D, "
+      f"{observed['clean_2026.house_120th_verified_clean_republican']} R); "
       f"career-clean 120th House {len(career_clean)}; "
-      f"aipac_udp_flag_2026 120th {flag_120} / roster {flag_all}; "
+      f"aipac_udp_flag_2026 120th {observed['tiered_2026.aipac_udp_flag_120th']} / "
+      f"roster {observed['tiered_2026.aipac_udp_flag_all']}; "
       f"tiers balanced {dict(tier_counts['balanced'])}; "
       f"tiers lenient {dict(tier_counts['lenient'])}")
 

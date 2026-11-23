@@ -2,7 +2,7 @@
 """Rebuild the tracker dataset end to end from the staged sources.
 
 Usage:
-    python3 src/rebuild.py [--with-fec-lookup] [--skip-verify]
+    python3 src/rebuild.py [--with-fec-lookup] [--skip-verify] [--rebaseline]
 
 Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.transform.build_roster       roster from legislators-current.yaml +
@@ -39,6 +39,19 @@ and writes data/intermediate/freshness_snapshot.json — new money found
 since bulk coverage (Oct 14), labeled by source and date, NEVER merged
 into the dataset totals. See methodology.md §16.
 
+Baseline and snapshots. Every data-dependent expected figure the steps
+check themselves against lives in data/source/baseline.json, recorded
+from ONE pinned FEC bulk snapshot (a `fec-bulk-<date>` GitHub Release;
+stage it with ./fetch_snapshot.sh, which writes data/raw/SNAPSHOT).
+A normal run REFUSES to start unless the staged snapshot is the one the
+baseline was recorded from — the FEC updates its bulk files in place,
+so any other input legitimately produces different figures.
+`--rebaseline` is how new data is accepted: it runs the same pipeline,
+records every figure it observes into baseline.json (cross-step
+agreement is still enforced), and stamps the new snapshot tag. Review
+`git diff data/source/baseline.json` — every figure that moved, old
+next to new — before committing. See src/common/baseline.py.
+
 Prerequisites: the staged FEC bulk data in data/raw/ (see README.md).
 The script fails fast with a clear message when bulk is not staged.
 The current dataset is backed up first to
@@ -52,6 +65,7 @@ snapshots them first and restores them afterwards.
 """
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -60,6 +74,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # repo root
 from src.common.config import load_config
+from src.common import baseline
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -104,6 +119,46 @@ REQUIRED_ROSTER_SOURCES = [
     'data/source/historical_lookup.json',
     'data/source/120th_roster.json',
 ]
+
+
+def staged_snapshot():
+    """Tag of the bulk snapshot staged in data/raw/ (written by
+    ./fetch_snapshot.sh), or None for an unpinned live download."""
+    marker = ROOT / CFG['paths']['raw'] / 'SNAPSHOT'
+    return marker.read_text().strip() if marker.exists() else None
+
+
+def check_data_as_of(tag):
+    """config.yaml data_as_of must be the snapshot's date — every dataset
+    row carries it, so a stale value mislabels the whole dataset."""
+    snap_date = tag.removeprefix('fec-bulk-')
+    if str(CFG['data_as_of']) != snap_date:
+        raise SystemExit(
+            f"config.yaml data_as_of is {CFG['data_as_of']} but the staged "
+            f"snapshot is {tag}. Set data_as_of: \"{snap_date}\" in the same "
+            f"change as the rebaseline.")
+
+
+def check_snapshot(rebaseline):
+    staged, pinned = staged_snapshot(), baseline.snapshot()
+    if rebaseline:
+        if staged is None:
+            raise SystemExit(
+                'cannot rebaseline from an unpinned download: data/raw/SNAPSHOT is '
+                'missing, so the inputs could not be reproduced later.\n'
+                'Publish a snapshot (the "FEC snapshot" workflow) and stage it with '
+                './fetch_snapshot.sh <tag> first.')
+        print(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
+        check_data_as_of(staged)
+        return
+    if staged != pinned:
+        raise SystemExit(
+            f'staged bulk data is {staged or "an unpinned live download"}, but '
+            f'data/source/baseline.json was recorded from {pinned}.\n'
+            f'Stage the pinned snapshot with ./fetch_snapshot.sh, or accept the '
+            f'new data with `python3 src/rebuild.py --rebaseline` and review the '
+            f'baseline diff.')
+    check_data_as_of(staged)
 
 
 def run(module, *args):
@@ -167,10 +222,20 @@ def main():
                          'default: use the committed fec_lookup_results.json)')
     ap.add_argument('--skip-verify', action='store_true',
                     help='skip the final verify_dataset.py run')
+    ap.add_argument('--rebaseline', action='store_true',
+                    help='accept the staged snapshot as the new baseline: record '
+                         'every observed figure into data/source/baseline.json '
+                         '(review the diff before committing)')
     args = ap.parse_args()
+    if args.rebaseline and args.skip_verify:
+        raise SystemExit('--rebaseline needs the verify step (it records the audit figures)')
 
     check_staged()
     ensure_dirs()
+    check_snapshot(args.rebaseline)
+    if args.rebaseline:
+        os.environ['RECEIPTS_REBASELINE'] = '1'  # inherited by every step
+        baseline.start_rebaseline_run()
     backup_dataset()
 
     run(STEPS[0])
@@ -193,6 +258,17 @@ def main():
         if step == 'src.validate.verify_dataset' and args.skip_verify:
             continue
         run(step)
+    if args.rebaseline:
+        # The baseline also pins what the public page says (site.* keys),
+        # so a rebaseline rebuilds and verifies the site in the same run —
+        # the site's figures must agree with the dataset figures recorded
+        # by the steps above.
+        run('src.site.build_site')
+        run('src.site.verify_site')
+        baseline.start_rebaseline_run()  # clear the per-run record
+        baseline.set_snapshot(staged_snapshot())
+        print(f'\nbaseline recorded from {staged_snapshot()} — review '
+              f'`git diff {CFG["paths"]["baseline"]}` before committing.')
     print('\nrebuild complete.')
 
 

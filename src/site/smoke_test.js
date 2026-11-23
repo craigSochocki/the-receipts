@@ -869,6 +869,17 @@ vm.runInThisContext(appScripts[1], { filename: "site-app-2.js" });
 
 /* ---- assertions ---- */
 assert.strictEqual(PEOPLE.length, 664, "PEOPLE.length");
+// EXP: what the page should show, computed in Python from the embedded
+// dataset by src/site/expectations.py and handed over by verify_site.py
+// (node smoke_test.js <index.html> <site_expectations.json>). No figure
+// below is typed in: a new FEC snapshot moves EXP with the data.
+if (!process.argv[3]) {
+  throw new Error("usage: node smoke_test.js <index.html> <site_expectations.json> — run via src/site/verify_site.py");
+}
+const EXP = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
+const TOP5 = EXP.headline.top5.map((x) => x[0]);
+const T28 = EXP.targets_2028;
+const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1); // "dirty D" -> "Dirty D"
 /* ---- FE7: hidden Explore does not render at load ---- */
 assert.strictEqual(
   document.getElementById("stats").innerHTML, "",
@@ -882,11 +893,13 @@ assert.strictEqual(
 
 /* ---- front door (landing-first): dirtiest, clean story, default mode ---- */
 const headlineHtml = document.getElementById("dirtiest-headline").innerHTML;
-assert.ok(headlineHtml.includes("Stevens"), "headline leads with Stevens: " + headlineHtml);
-assert.ok(headlineHtml.includes("$31.03M"), "headline shows Stevens $31.03M");
-assert.ok(headlineHtml.includes("next four combined"), "headline compares #1 to next four");
-assert.ok(headlineHtml.includes("2.04"), "headline ratio is about 2.04x");
-assert.ok(headlineHtml.includes("$15.21M"), "headline shows next-four total $15.21M");
+assert.ok(headlineHtml.includes(TOP5[0]), "headline leads with the dirtiest member: " + headlineHtml);
+assert.ok(headlineHtml.includes(EXP.headline.top1_compact), "headline shows #1's dirty 2026 " + EXP.headline.top1_compact);
+assert.strictEqual(headlineHtml.includes("next four combined"), EXP.headline.exceeds_next_four, "headline compares #1 to next four only if it holds");
+if (EXP.headline.exceeds_next_four) {
+  assert.ok(headlineHtml.includes(EXP.headline.ratio), "headline ratio is " + EXP.headline.ratio + "x");
+  assert.ok(headlineHtml.includes(EXP.headline.next_four_compact), "headline shows next-four total " + EXP.headline.next_four_compact);
+}
 
 /* ---- U6: one-line dirty definition under the hook ---- */
 const hookDef = document.getElementById("hook-definition").textContent;
@@ -900,15 +913,14 @@ assert.ok(
   hookDef.includes("any AIPAC direct or UDP benefit dollar always counts"),
   "hook definition states the flag rule");
 const dirtiestHtml = document.getElementById("dirtiest-list").innerHTML;
-["Stevens", "Boafo", "Gallrein", "Bell", "Guthrie"].forEach((n) =>
+TOP5.forEach((n) =>
   assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));
 assert.ok(
-  dirtiestHtml.indexOf("Stevens") < dirtiestHtml.indexOf("Boafo") &&
-  dirtiestHtml.indexOf("Boafo") < dirtiestHtml.indexOf("Gallrein") &&
-  dirtiestHtml.indexOf("Gallrein") < dirtiestHtml.indexOf("Bell") &&
-  dirtiestHtml.indexOf("Bell") < dirtiestHtml.indexOf("Guthrie"),
+  TOP5.every((n, i) => i === 0 || dirtiestHtml.indexOf(TOP5[i - 1]) < dirtiestHtml.indexOf(n)),
   "dirtiest list is in dirty-2026 order");
-assert.ok(dirtiestHtml.includes("Not returning"), "Stevens row says Not returning");
+if (!EXP.headline.top1_returning) {
+  assert.ok(dirtiestHtml.includes("Not returning"), "#1 row says Not returning");
+}
 assert.ok(dirtiestHtml.includes("pchip d"), "dirtiest rows carry party chips");
 assert.strictEqual(
   document.getElementById("front-door").hidden, false,
@@ -929,7 +941,7 @@ assert.strictEqual(
 /* ---- FE7: first entry into Explore renders the workspace ---- */
 const statsHtml = document.getElementById("stats").innerHTML;
 assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
-assert.ok(statsHtml.includes("203") && statsHtml.includes("not dirty"), "stats mention 203 not dirty (Balanced)");
+assert.ok(statsHtml.includes(String(EXP.tiers.not_dirty_120.balanced)) && statsHtml.includes("not dirty"), "stats mention the Balanced not-dirty count");
 assert.strictEqual(
   document.querySelectorAll("#stats .stat").length, 3,
   "D7: Explore stats are 3 cards");
@@ -938,8 +950,8 @@ assert.ok(statsHtml.includes("Elaine Luria"), "D7: not-judged card names the unv
 const tbodyHtml = document.querySelector("#main-table tbody").innerHTML;
 assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
 assert.ok(
-  tbodyHtml.indexOf("Stevens") < tbodyHtml.indexOf("Boafo"),
-  "default sort is Dirty 2026 desc (Stevens before Boafo)");
+  tbodyHtml.indexOf(TOP5[0]) < tbodyHtml.indexOf(TOP5[1]),
+  "default sort is Dirty 2026 desc (#1 before #2)");
 assert.ok(
   document.getElementById("totals").innerHTML.includes("Total accepted"),
   "totals strip rendered");
@@ -982,8 +994,9 @@ assert.ok(
   leadersHtml.indexOf("dirtiest in 2026") < leadersHtml.indexOf("dirtiest, career") &&
   leadersHtml.indexOf("dirtiest, career") < leadersHtml.indexOf("total accepted (career)"),
   "leaderboards lead with dirty, total accepted after");
-assert.ok(leadersHtml.includes("$36,864,670.88"), "career dirty board shows Stevens $36.86M");
-assert.ok(leadersHtml.includes("Hoyer"), "career dirty board has Hoyer");
+assert.ok(leadersHtml.includes(EXP.career_dirty.top1_exact), "career dirty board shows the #1 career figure");
+EXP.career_dirty.top3.forEach((n) =>
+  assert.ok(leadersHtml.includes(n), "career dirty board has " + n));
 assert.ok(leadersHtml.includes("Warnock"), "leaderboard has Warnock");
 assert.ok(leadersHtml.includes("Stevens"), "UDP-benefit board has Stevens");
 assert.ok(leadersHtml.includes("Rick Scott"), "self-funding board has Rick Scott");
@@ -1007,40 +1020,47 @@ assert.ok(housePart.indexOf('class="dot clean" data-party="D"') < housePart.inde
 assert.ok(housePart.indexOf('class="dot dirty" data-party="D"') < housePart.indexOf('class="dot dirty" data-party="R"'), "waffle: Dirty D before Dirty R");
 assert.ok(housePart.indexOf('class="dot dirty" data-party="R"') < housePart.indexOf('class="dot clean" data-party="R"'), "waffle: Dirty R before Clean R");
 assert.ok(housePart.indexOf('class="dot clean" data-party="R"') < housePart.indexOf('class="dot uncalled"'), "waffle: small categories at the far right");
-assert.strictEqual(countDots(housePart, "dirty", "D"), 192, "House Dirty D 192");
-assert.strictEqual(countDots(housePart, "clean", "D"), 64, "House Clean D 64");
-assert.strictEqual(countDots(housePart, "dirty", "R"), 169, "House Dirty R 169");
-assert.strictEqual(countDots(housePart, "clean", "R"), 2, "House Clean R 2");
-assert.strictEqual(countDots(housePart, "unopposed", "D"), 2, "House Unopposed 2");
-assert.strictEqual(countDots(housePart, "unverified", "D"), 1, "House Unverified 1");
-assert.strictEqual(countDots(housePart, "uncalled", ""), 5, "House Uncalled 5");
+Object.entries(EXP.charts.house).forEach(([k, n]) => {
+  const [status, party] = k.split(" ");
+  assert.strictEqual(countDots(housePart, status, party), n, "House " + seatLabel(k) + " " + n);
+});
+assert.strictEqual(countDots(housePart, "uncalled", ""), 435 - EXP.charts.house_named, "House Uncalled");
 // Senate state tiles: 50 tiles, one per state, two seat halves each.
 assert.strictEqual((senPart.match(/<g class="tile"/g) || []).length, 50, "Senate chart has 50 state tiles");
 assert.strictEqual((senPart.match(/class="half/g) || []).length, 100, "Senate chart has 100 seat halves");
 const countHalves = (html, cls, party) =>
   (html.match(new RegExp('class="half ' + cls + '" data-party="' + party + '"', "g")) || []).length;
-assert.strictEqual(countHalves(senPart, "dirty", "D"), 40, "Senate Dirty D 40");
-assert.strictEqual(countHalves(senPart, "clean", "D"), 13, "Senate Clean D 13");
-assert.strictEqual(countHalves(senPart, "dirty", "R"), 44, "Senate Dirty R 44");
-assert.strictEqual(countHalves(senPart, "clean", "R"), 0, "Senate Clean R 0");
-assert.strictEqual(countHalves(senPart, "dirty", "I"), 1, "Senate Dirty I 1");
-assert.strictEqual(countHalves(senPart, "clean", "I"), 1, "Senate Clean I 1");
-assert.strictEqual(countHalves(senPart, "uncalled", ""), 1, "Senate Uncalled 1");
-// AK tile: half Murkowski (dirty R), half uncalled.
-const akTile = senPart.split('data-state="AK"')[1].split('data-state="')[0];
-assert.ok(akTile.includes('class="half dirty" data-party="R"'), "AK tile has Murkowski dirty R half");
-assert.ok(akTile.includes('class="half uncalled"'), "AK tile has uncalled half");
-// PA tile: both dirty, split D/R. AZ tile: same-party clean/dirty split.
-const paTile = senPart.split('data-state="PA"')[1].split('data-state="')[0];
-assert.ok(paTile.includes('class="half dirty" data-party="D"') && paTile.includes('class="half dirty" data-party="R"'), "PA tile splits dirty D / dirty R");
-const azTile = senPart.split('data-state="AZ"')[1].split('data-state="')[0];
-assert.ok(azTile.includes('class="half clean" data-party="D"') && azTile.includes('class="half dirty" data-party="D"'), "AZ tile splits clean D / dirty D");
-assert.ok(compHtml.includes("Dirty D 192"), "House legend shows Dirty D 192");
-assert.ok(compHtml.includes("Uncalled 5"), "House legend shows Uncalled 5");
-assert.ok(compHtml.includes("Dirty D 40"), "Senate legend shows Dirty D 40");
+Object.entries(EXP.charts.senate).forEach(([k, n]) => {
+  const [status, party] = k.split(" ");
+  assert.strictEqual(countHalves(senPart, status, party), n, "Senate " + seatLabel(k) + " " + n);
+});
+assert.strictEqual(countHalves(senPart, "uncalled", ""), 100 - EXP.charts.senate_named, "Senate Uncalled");
+// Every state tile shows its senators' halves as the embedded data says
+// (status from clean_2026 / unopposed_2026, party from party_120), and an
+// uncalled half for each seat with no named senator (Alaska, for now).
+const tileStatus = (p) => p.clean_2026 === true ? "clean" : p.clean_2026 === false ? "dirty"
+  : (p.unopposed_2026 === true ? "unopposed" : "unverified");
+const tileParty = (p) => ({ Democrat: "D", Republican: "R", Independent: "I" }[p.party_120] || p.party_120);
+const senatorsByState = {};
+PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate")
+  .forEach((p) => (senatorsByState[p.state] = senatorsByState[p.state] || []).push(p));
+Object.entries(senatorsByState).forEach(([st, sens]) => {
+  const tile = senPart.split('data-state="' + st + '"')[1].split('data-state="')[0];
+  const want = {};
+  sens.forEach((p) => {
+    const k = 'class="half ' + tileStatus(p) + '" data-party="' + tileParty(p) + '"';
+    want[k] = (want[k] || 0) + 1;
+  });
+  Object.entries(want).forEach(([k, n]) =>
+    assert.strictEqual(tile.split(k).length - 1, n, st + " tile shows " + n + " x " + k));
+  assert.strictEqual(tile.split('class="half uncalled"').length - 1, 2 - sens.length, st + " tile uncalled halves");
+});
+assert.ok(compHtml.includes("Dirty D " + EXP.charts.house["dirty D"]), "House legend shows the Dirty D count");
+assert.ok(compHtml.includes("Uncalled " + (435 - EXP.charts.house_named)), "House legend shows the Uncalled count");
+assert.ok(compHtml.includes("Dirty D " + EXP.charts.senate["dirty D"]), "Senate legend shows the Dirty D count");
 assert.ok(compHtml.includes("Not shown: 6 non-voting delegates"), "delegate note present");
-assert.ok(compHtml.includes("Clean D 3"), "delegate note shows Clean D 3");
-assert.ok(compHtml.includes("Dirty PPD 1"), "delegate note shows Dirty PPD 1");
+Object.entries(EXP.charts.delegates).forEach(([k, n]) =>
+  assert.ok(compHtml.includes(seatLabel(k) + " " + n), "delegate note shows " + seatLabel(k) + " " + n));
 assert.ok(compHtml.includes("visually-hidden"), "FE10: charts have a visually-hidden text alternative");
 assert.ok(compHtml.includes("House: 435 seats"), "FE10: text alternative states the House counts");
 const compDelays = [...compHtml.matchAll(/transition-delay:(\d+)ms/g)].map((m) => +m[1]);
@@ -1060,8 +1080,8 @@ assert.ok(
 
 showTab("clean");
 assert.ok(
-  document.getElementById("clean-stats").innerHTML.includes("150 of 436"),
-  "clean stats show 150 of 436 House not dirty (Balanced)");
+  document.getElementById("clean-stats").innerHTML.includes(EXP.tiers.house_not_dirty_balanced[0] + " of " + EXP.tiers.house_not_dirty_balanced[1]),
+  "clean stats show the House not-dirty count (Balanced)");
 assert.ok(
   document.querySelector("#clean-table tbody").innerHTML.includes("Constantino"),
   "clean table contains Constantino");
@@ -1086,25 +1106,27 @@ assert.strictEqual(
   "2026 tab hides when the 2028 tab is shown");
 const t28Intro = document.getElementById("targets28-intro").innerHTML;
 assert.ok(t28Intro.includes("A watchlist, not a prediction"), "2028 intro frames it as a watchlist");
-assert.ok(t28Intro.includes("133 House Democrats"), "2028 intro counts 133 House Democrats (Balanced)");
-assert.ok(t28Intro.includes("6 Democratic senators"), "2028 intro counts 6 Democratic senators (Balanced)");
+assert.ok(t28Intro.includes(T28.balanced[0] + " House Democrats"), "2028 intro counts the Balanced House targets");
+assert.ok(t28Intro.includes(T28.balanced[1] + " Democratic senators"), "2028 intro counts the Balanced Senate targets");
 const t28HouseHtml = document.querySelector("#targets28-house-table tbody").innerHTML;
-assert.ok(t28HouseHtml.includes("Boafo"), "2028 House table starts with Boafo");
+const [t28H1, t28H2] = T28.balanced_house_order;
+assert.ok(t28HouseHtml.includes(t28H1), "2028 House table starts with " + t28H1);
 assert.ok(
-  t28HouseHtml.indexOf("Boafo") < t28HouseHtml.indexOf("Bell"),
+  t28HouseHtml.indexOf(t28H1) < t28HouseHtml.indexOf(t28H2),
   "2028 House table in dirty-2026 order");
-assert.ok(t28HouseHtml.includes("$5,745,013.28"), "2028 House table shows Boafo dirty 2026");
-assert.ok(t28HouseHtml.includes("$36,864,670.88") === false, "2028 House table does not show Stevens (not in 120th)");
+assert.ok(t28HouseHtml.includes(T28.balanced_house_top_dirty_exact), "2028 House table shows the top dirty 2026 figure");
+if (!EXP.headline.top1_returning) {
+  assert.ok(t28HouseHtml.includes(TOP5[0]) === false, "2028 House table does not show the overall #1 (not in the 120th)");
+}
 const t28SenHtml = document.querySelector("#targets28-senate-table tbody").innerHTML;
-assert.ok(t28SenHtml.includes("Hassan"), "2028 Senate table has Hassan");
+const t28Sen = T28.balanced_senate_order;
+t28Sen.forEach((n) => assert.ok(t28SenHtml.includes(n), "2028 Senate table has " + n));
 assert.ok(
-  t28SenHtml.indexOf("Hassan") < t28SenHtml.indexOf("Wyden") &&
-  t28SenHtml.indexOf("Wyden") < t28SenHtml.indexOf("Schatz"),
+  t28Sen.every((n, i) => i === 0 || t28SenHtml.indexOf(t28Sen[i - 1]) < t28SenHtml.indexOf(n)),
   "2028 Senate table in dirty-2026 order");
-assert.ok(t28SenHtml.includes("Schumer"), "2028 Senate table has Schumer");
-assert.ok(t28SenHtml.includes("$407,388.00"), "2028 Senate table shows Hassan dirty 2026");
-assert.ok(t28SenHtml.includes("$2,148,341.00"), "2028 Senate table shows Hassan dirty career");
-assert.ok(t28SenHtml.includes("NH · Senate"), "2028 Senate rows show the seat");
+assert.ok(t28SenHtml.includes(T28.balanced_senate_top_dirty_exact), "2028 Senate table shows the top dirty 2026 figure");
+assert.ok(t28SenHtml.includes(T28.balanced_senate_top_career_exact), "2028 Senate table shows the top member's dirty career");
+assert.ok(t28SenHtml.includes(" · Senate"), "2028 Senate rows show the seat");
 
 /* ---- tolerance preset switching (methodology §14) ---- */
 // Default is Balanced: 133 House / 6 Senate targets. Switching the
@@ -1112,27 +1134,27 @@ assert.ok(t28SenHtml.includes("NH · Senate"), "2028 Senate rows show the seat")
 // Strict restores 192 / 13 and Lenient gives 103 / 3.
 setPreset("lenient");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("103 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[0] + " House Democrats"),
   "Lenient 2028 intro counts 103 House Democrats");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("3 Democratic senators"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[1] + " Democratic senators"),
   "Lenient 2028 intro counts 3 Democratic senators");
 setPreset("strict");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("192 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.strict[0] + " House Democrats"),
   "Strict 2028 intro counts 192 House Democrats");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("13 Democratic senators"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
   "Strict 2028 intro counts 13 Democratic senators");
 assert.ok(
-  document.getElementById("landing-story").innerHTML.replace(/<[^>]+>/g, "").includes("84 of 535"),
-  "Strict story shows 84 of 535 verified clean");
+  document.getElementById("landing-story").innerHTML.replace(/<[^>]+>/g, "").includes(EXP.clean.all_120 + " of " + EXP.tiers.incoming_total),
+  "Strict story shows the verified-clean count of the incoming members");
 setPreset("balanced");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("133 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
   "Balanced 2028 intro counts 133 House Democrats");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("6 Democratic senators"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[1] + " Democratic senators"),
   "Balanced 2028 intro counts 6 Democratic senators");
 
 /* ---- FE1a: nested lists decode lazily ----
@@ -1156,7 +1178,7 @@ closeDetail();
 const constKey = PEOPLE.find((p) => p.full_name.includes("Constantino")).person_key;
 openDetail(constKey);
 const detailHtml = document.getElementById("detail-sheet").innerHTML;
-assert.ok(detailHtml.includes("$17,000,000.00"), "Constantino detail shows $17M self-funding");
+assert.ok(detailHtml.includes(EXP.detail.constantino_self_funding_exact), "Constantino detail shows his career self-funding");
 assert.ok(detailHtml.includes("Self-funding"), "detail has self-funding section");
 assert.ok(detailHtml.includes("Cycle by cycle"), "detail has cycle tables");
 assert.ok(detailHtml.includes('class="detail-head"'), "D6/FE3: detail header shows exact figures");
@@ -1174,12 +1196,8 @@ assert.ok(
   stevensHtml.includes("UDP opposition credit by race"),
   "Stevens detail shows opposition credit by race");
 assert.ok(stevensHtml.includes("Primary"), "Stevens detail shows the phase");
-assert.ok(
-  stevensHtml.includes("$20,139,904.21"),
-  "Stevens detail shows the 2026 primary-phase credit");
-assert.ok(
-  stevensHtml.includes("$341,792.98"),
-  "Stevens detail shows the 2022 primary-phase credit");
+EXP.detail.top1_opposition_credit_exact.forEach((amt) =>
+  assert.ok(stevensHtml.includes(amt), "#1's detail shows the race-phase credit " + amt));
 assert.ok(
   stevensHtml.includes("pchip d") && stevensHtml.includes("Not returning"),
   "Stevens drill-down header has the D chip and Not returning");
@@ -1298,23 +1316,23 @@ const stevens = PEOPLE.find((p) => p.full_name.includes("Stevens"));
 const hookCountups = [...headlineHtml.matchAll(/<span class="countup" data-value="([\d.]+)" data-format="([^"]+)"[^>]*>([^<]+)<\/span>/g)];
 assert.ok(hookCountups.length === 2, "hook has two count-up spans, got " + hookCountups.length);
 assert.strictEqual(parseFloat(hookCountups[0][1]), stevens.dirty_2026, "hook count-up targets Stevens dirty 2026");
-assert.strictEqual(hookCountups[0][3], "$31.03M", "hook count-up shows $31.03M");
+assert.strictEqual(hookCountups[0][3], EXP.headline.top1_compact, "hook count-up shows #1's compact figure");
 const dirtyTop5 = PEOPLE.filter((p) => typeof p.dirty_2026 === "number")
   .sort((a, b) => b.dirty_2026 - a.dirty_2026).slice(0, 5);
 const nextFour = dirtyTop5.slice(1).reduce((s, p) => s + p.dirty_2026, 0);
 assert.strictEqual(parseFloat(hookCountups[1][1]), nextFour, "hook count-up targets the next-four total");
-assert.strictEqual(hookCountups[1][3], "$15.21M", "hook count-up shows $15.21M next-four total");
+assert.strictEqual(hookCountups[1][3], EXP.headline.next_four_compact, "hook count-up shows the next-four total");
 const storyCountups = [...storyHtml.matchAll(/<span class="countup" data-value="(\d+)" data-format="int"[^>]*>(\d+)<\/span>/g)].map((m) => m[1]);
 assert.deepStrictEqual(storyCountups, [String(notDirty120), String(incoming120.length)], "story count-ups are 203 and 535");
 // Dirty explainer: big number counts up to the career dirty total;
 // the three components sum to it exactly.
 const explainerHtml = document.getElementById("dirty-explainer").innerHTML;
 const dcTotal = PEOPLE.reduce((s, p) => s + (typeof p.dirty_career === "number" ? p.dirty_career : 0), 0);
-assert.ok(explainerHtml.includes("$1.07B"), "explainer shows $1.07B career dirty");
+assert.ok(explainerHtml.includes(EXP.career_dirty.total_compact), "explainer shows the career dirty total");
 const explainerCountup = explainerHtml.match(/<span class="countup" data-value="([\d.]+)" data-format="compact"[^>]*>([^<]+)<\/span>/);
 assert.ok(explainerCountup, "explainer has a count-up span");
 assert.strictEqual(parseFloat(explainerCountup[1]), dcTotal, "explainer count-up targets the computed career dirty total");
-assert.strictEqual(explainerCountup[2], "$1.07B", "explainer count-up shows $1.07B");
+assert.strictEqual(explainerCountup[2], EXP.career_dirty.total_compact, "explainer count-up shows the career dirty total");
 assert.ok(explainerHtml.includes("Individual contributions are <b>not</b> dirty money"), "explainer says individual contributions are not dirty");
 const dcParts = ["corporate_pac_career", "aipac_pac_direct_career", "udp_ie_total_benefit_career"]
   .reduce((s, k) => s + PEOPLE.reduce((a, p) => a + (typeof p[k] === "number" ? p[k] : 0), 0), 0);
@@ -1427,7 +1445,7 @@ assert.strictEqual(
   document.getElementById("tab-tracker").hidden, true,
   "clicking the Clean tab hides the tracker");
 assert.ok(
-  document.getElementById("clean-stats").innerHTML.includes("150 of 436"),
+  document.getElementById("clean-stats").innerHTML.includes(EXP.tiers.house_not_dirty_balanced[0] + " of " + EXP.tiers.house_not_dirty_balanced[1]),
   "Clean tab renders after a click");
 document.querySelector('.tabs button[data-tab="tracker"]').dispatchEvent("click");
 assert.strictEqual(
@@ -1570,21 +1588,21 @@ assert.ok(
 /* ---- tolerance select re-renders (targets28 tab must be showing) ---- */
 document.querySelector('.tabs button[data-tab="targets28"]').dispatchEvent("click");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("133 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
   "targets28 tab click shows the Balanced intro");
 const tolSel = document.getElementById("f-tolerance");
 tolSel.value = "strict";
 tolSel.dispatchEvent("change");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("192 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.strict[0] + " House Democrats"),
   "tolerance select change to Strict recomputes the watchlist");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("13 Democratic senators"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
   "Strict intro counts 13 senators");
 tolSel.value = "balanced";
 tolSel.dispatchEvent("change");
 assert.ok(
-  document.getElementById("targets28-intro").innerHTML.includes("133 House Democrats"),
+  document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
   "tolerance select change back to Balanced restores 133");
 document.querySelector('.tabs button[data-tab="tracker"]').dispatchEvent("click");
 

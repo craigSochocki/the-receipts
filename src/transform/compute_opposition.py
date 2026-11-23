@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -284,7 +285,9 @@ for name in ('George Latimer', 'Mike Rogers', 'Haley Stevens', 'Abdul El-Sayed')
                   f'total benefit=${person_support.get(pk,0)+credit_by_person.get(pk,0):,.2f}')
 
 # per-cycle reconciliation vs the prior UDP pull's deduped totals (S+O, all candidates)
-prior_cycle_totals = {int(k): v for k, v in CFG['verification']['udp_prior_cycle_totals'].items()}
+prior_cycle_totals = {yr: expected(f'udp_prior_cycle_totals.{yr}',
+                                   round(sum(r['amount'] for r in udp_rows if r['cycle'] == yr), 2))
+                      for yr in CYCLES}
 for yr in CYCLES:
     tot = sum(r['amount'] for r in udp_rows if r['cycle'] == yr)
     print(f'cycle {yr}: my deduped S+O total ${tot:,.2f} vs prior pull ${prior_cycle_totals[yr]:,.2f} '

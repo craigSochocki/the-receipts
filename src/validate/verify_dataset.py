@@ -91,6 +91,7 @@ import yaml
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root
 from src.common.config import load_config
+from src.common.baseline import expected as baseline_figure
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -98,11 +99,64 @@ CURRENT = CFG['cycles']['current']
 FAILURES = []
 
 
+# Career money columns whose roster-wide total is pinned in the baseline
+# (and quoted in methodology.md §6).
+METHODOLOGY_TOTAL_COLS = [
+    'individual_contribution_total_career',
+    'aipac_pac_direct_career',
+    'aipac_earmark_transmitted_career',
+    'corporate_pac_career',
+    'corporate_earmark_transmitted_career',
+    'udp_ie_support_career',
+    'udp_ie_opposing_opponents_career',
+    'udp_ie_total_benefit_career',
+    'dirty_career',
+    'cand_contrib_career',
+    'cand_loans_career',
+    'self_funding_career',
+    'loan_repayments_career',
+    'total_receipts_career',
+    'total_disbursements_career',
+    'transfers_from_auth_career',
+    'transfers_to_auth_career',
+    'cash_on_hand_career',
+    'debts_owed_by_career',
+    'party_committees_career',
+    'leadership_pacs_career',
+    'labor_pacs_career',
+    'trade_pacs_career',
+    'membership_pacs_career',
+    'cooperative_pacs_career',
+    'other_unclassified_career',
+    'other_committees_total_career',
+    'party_committees_earmark_transmitted_career',
+    'leadership_pacs_earmark_transmitted_career',
+    'labor_pacs_earmark_transmitted_career',
+    'trade_pacs_earmark_transmitted_career',
+    'membership_pacs_earmark_transmitted_career',
+    'cooperative_pacs_earmark_transmitted_career',
+    'other_unclassified_earmark_transmitted_career',
+    'all_ie_support_career',
+    'all_ie_oppose_career',
+    'all_ie_total_career',
+]
+
+
 def check(label, condition, detail=''):
     status = 'ok ' if condition else 'FAIL'
     print(f'[{status}] {label}' + (f' — {detail}' if detail and not condition else ''))
     if not condition:
         FAILURES.append(f'{label}: {detail}')
+
+
+def pin(label, key, observed):
+    """Check a data-dependent figure against the committed baseline
+    (data/source/baseline.json — see src/common/baseline.py). These are
+    the figures a new FEC filing can legitimately move; a rebaseline
+    records the new value and the baseline diff is the review."""
+    want = baseline_figure(key, observed)
+    check(f'{label} [{key}]', observed == want,
+          f'got {observed!r}, baseline {want!r}')
 
 
 def is_num(v):
@@ -219,30 +273,22 @@ def main():
     check('self-funding/topline per-cycle sums reproduce career columns (0 mismatches)',
           mism == 0, f'{mism} mismatches')
     named_sf = {
-        'anthonyconstantinonyhouse': ('Constantino', 'self_funding_career', 17000000.00),
-        'S001217': ('Rick Scott', 'self_funding_career', 89994251.12),
-        'R000618': ('Pete Ricketts', 'self_funding_career', 19442012.33),
-        'T000488': ('Shri Thanedar', 'self_funding_career', 17456074.00),
-        'M001232': ('April McClain Delaney', 'self_funding_career', 14873000.00),
-        'J000305': ('Sara Jacobs', 'self_funding_career', 11551385.89),
-        'C001123': ('Gilbert Ray Cisneros, Jr.', 'self_funding_career', 9807843.10),
-        'S001229': ('Jefferson Shreve', 'self_funding_career', 7943000.00),
+        'anthonyconstantinonyhouse': 'Constantino',
+        'S001217': 'Rick Scott',
+        'R000618': 'Pete Ricketts',
+        'T000488': 'Shri Thanedar',
+        'M001232': 'April McClain Delaney',
+        'J000305': 'Sara Jacobs',
+        'C001123': 'Gilbert Ray Cisneros, Jr.',
+        'S001229': 'Jefferson Shreve',
     }
-    mism = 0
-    for pk, (name, col, want) in named_sf.items():
-        if by_key[pk][col] != want:
-            mism += 1
-            print(f'  spot mismatch {name} {col}: {by_key[pk][col]} != {want}')
-    check('self-funding named spot cases exact', mism == 0, f'{mism} mismatches')
+    for pk, name in named_sf.items():
+        pin(f'{name} self_funding_career', f'spot.self_funding_career.{pk}',
+            by_key[pk]['self_funding_career'])
     const = by_key['anthonyconstantinonyhouse']
-    check('Constantino career receipts $17,064,951.19 / disbursements $14,765,966.71',
-          const['total_receipts_career'] == 17064951.19
-          and const['total_disbursements_career'] == 14765966.71,
-          f"got {const['total_receipts_career']} / {const['total_disbursements_career']}")
-    check('Constantino 2026 cash $2,298,984.48 / receipts $14,464,951.19',
-          const['cash_on_hand_2026'] == 2298984.48
-          and const['total_receipts_2026'] == 14464951.19,
-          f"got COH {const['cash_on_hand_2026']}")
+    for col in ('total_receipts_career', 'total_disbursements_career',
+                'cash_on_hand_2026', 'total_receipts_2026'):
+        pin(f'Constantino {col}', f'spot.constantino.{col}', const[col])
     check('debts_owed_to_career is null for every numeric row',
           all(r['debts_owed_to_career'] is None for r in numeric))
     arm = by_key.get('A000383')
@@ -277,9 +323,10 @@ def main():
     lamb = by_key['marklambazhouse']
     lamb_pc26 = [e for e in lamb['other_committees_per_cycle'] if e['cycle'] == CURRENT]
     lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
-    check('Lamb 2026 other-committee pas2-derived $96,500.00',
-          lamb_total == 96500.00 and lamb['other_committees_total_2026'] == 96500.00,
-          f'got {lamb_total}')
+    check('Lamb 2026 other-committee column equals its per-cycle pas2 sum',
+          lamb_total == lamb['other_committees_total_2026'], f'got {lamb_total}')
+    pin('Lamb 2026 other-committee pas2-derived total',
+        'spot.lamb.other_committees_total_2026', lamb_total)
     check('Lamb data_notes records the $32,650 pending reconciliation',
           'PENDING RECONCILIATION' in lamb['data_notes'] and '$32,650.00' in lamb['data_notes'])
 
@@ -297,16 +344,16 @@ def main():
           mism == 0, f'{mism} mismatches')
     aie_raw = json.load(open(ROOT / CFG['paths']['all_ie_per_cycle']))
     udp24 = aie_raw['validation']['udp_2024_exact']
-    check('all-IE UDP 2024 deduped S+O exactly $38,044,932.69',
-          udp24['computed'] == 38044932.69 and udp24['status'] == 'exact',
-          f"got {udp24['computed']} ({udp24['status']})")
-    for yr, want in CFG['verification']['all_ie_cycle_totals'].items():
-        got = aie_raw['per_cycle_summaries'][str(yr)]['roster_targeted']['total']
-        check(f'all-IE roster total {yr} == {want:,.2f}', got == want, f'got {got:,.2f}')
+    check('all-IE UDP 2024 deduped S+O reproduces the UDP pull exactly',
+          udp24['status'] == 'exact', f"got {udp24['computed']} ({udp24['status']})")
+    pin('all-IE UDP 2024 deduped S+O', 'udp_prior_cycle_totals.2024', udp24['computed'])
+    for yr in sorted(aie_raw['per_cycle_summaries'], key=int):
+        pin(f'all-IE roster total {yr}', f'all_ie_cycle_totals.{yr}',
+            aie_raw['per_cycle_summaries'][yr]['roster_targeted']['total'])
     nodir = round(sum(r['all_ie_total_career'] - r['all_ie_support_career']
                       - r['all_ie_oppose_career'] for r in numeric), 2)
-    check('all-IE row-sum gap is exactly the $21,231.43 blank-direction rows',
-          nodir == 21231.43, f'got {nodir}')
+    pin('all-IE row-sum gap (the blank-direction rows)',
+        'spot.all_ie_blank_direction_gap', nodir)
     mism = 0
     for r in numeric:
         top = r['all_ie_top_committees']
@@ -322,19 +369,16 @@ def main():
     check('all-IE top-committee lists sorted, split correctly, max 5',
           mism == 0, f'{mism} mismatches')
     elsayed = next(r for r in numeric if 'El-Sayed' in r['full_name'])
-    check('El-Sayed all-IE support $41,085,593.24 / oppose $107,400,660.67',
-          elsayed['all_ie_support_career'] == 41085593.24
-          and elsayed['all_ie_oppose_career'] == 107400660.67,
-          f"got {elsayed['all_ie_support_career']} / {elsayed['all_ie_oppose_career']}")
+    for col in ('all_ie_support_career', 'all_ie_oppose_career'):
+        pin(f'El-Sayed {col}', f'spot.elsayed.{col}', elsayed[col])
 
     # (b) roster totals match methodology.md figures
     # (None stocks — cash on hand / debts owed by for people with no
     # weball rows at all — are skipped, exactly as the config totals
     # were computed from the staged CSVs.)
-    for col, expected in CFG['verification']['methodology_totals'].items():
+    for col in METHODOLOGY_TOTAL_COLS:
         total = round(sum(r[col] for r in numeric if r[col] is not None), 2)
-        check(f'roster total {col} == {expected:,.2f}', total == expected,
-              f'got {total:,.2f}')
+        pin(f'roster total {col}', f'methodology_totals.{col}', total)
 
     # (c) rank columns recompute exactly
     rank_defs = [('rank_total_accepted', 'total_accepted_career'),
@@ -371,51 +415,45 @@ def main():
     check('dirty_career is null only for Armstrong',
           [r['person_key'] for r in records if r['dirty_career'] is None]
           == ['A000383'])
-    check('Stevens dirty_career $36,864,670.88 is the career dirty #1',
-          by_key['S001215']['dirty_career'] == 36864670.88
-          and by_key['S001215']['dirty_career']
-          == max(r['dirty_career'] for r in records if is_num(r['dirty_career'])),
-          f"got {by_key['S001215']['dirty_career']}")
+    top_dirty = max((r for r in records if is_num(r['dirty_career'])),
+                    key=lambda r: r['dirty_career'])
+    pin('career dirty #1 (person, amount)', 'spot.dirty_career_top',
+        [top_dirty['person_key'], top_dirty['dirty_career']])
     for rank_col, val_col in rank_defs:
         ranks = competition_ranks(records, val_col)
         mism = sum(1 for r in records if r[rank_col] != ranks[r['person_key']])
         check(f'{rank_col} recomputes exactly', mism == 0, f'{mism} mismatches')
 
-    # (d) clean counts
-    exp = CFG['verification']['clean_2026']
+    # (d) clean counts (baseline clean_2026.*)
     counts = {'true_total': sum(1 for r in records if r['clean_2026'] is True),
               'false_total': sum(1 for r in records if r['clean_2026'] is False),
               'null_total': sum(1 for r in records if r['clean_2026'] is None)}
     for key in ('true_total', 'false_total', 'null_total'):
-        check(f'clean_2026 {key} == {exp[key]}', counts[key] == exp[key],
-              f"got {counts[key]}")
+        pin(f'clean_2026 {key}', f'clean_2026.{key}', counts[key])
     house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
     house_clean = [r for r in house120 if r['clean_2026'] is True]
-    check('120th House clean == 70', len(house_clean) == exp['house_120th_verified_clean'],
-          f"got {len(house_clean)}")
+    pin('120th House clean', 'clean_2026.house_120th_verified_clean', len(house_clean))
     for party in ('Democrat', 'Republican'):
-        n = sum(1 for r in house_clean if r['party_120'] == party)
-        check(f"120th House clean {party} == {exp[f'house_120th_verified_clean_{party.lower()}']}",
-              n == exp[f'house_120th_verified_clean_{party.lower()}'], f'got {n}')
+        pin(f'120th House clean {party}',
+            f'clean_2026.house_120th_verified_clean_{party.lower()}',
+            sum(1 for r in house_clean if r['party_120'] == party))
     career_clean = [r for r in house120 if r['corporate_pac_career'] == 0
                     and r['aipac_pac_direct_career'] == 0 and r['udp_ie_support_career'] == 0]
-    check('career-clean 120th House == 53',
-          len(career_clean) == exp['house_120th_career_clean'], f'got {len(career_clean)}')
+    pin('career-clean 120th House', 'clean_2026.house_120th_career_clean',
+        len(career_clean))
     for party in ('Democrat', 'Republican'):
-        n = sum(1 for r in career_clean if r['party_120'] == party)
-        check(f"career-clean 120th House {party} == "
-              f"{exp[f'house_120th_career_clean_{party.lower()}']}",
-              n == exp[f'house_120th_career_clean_{party.lower()}'], f'got {n}')
+        pin(f'career-clean 120th House {party}',
+            f'clean_2026.house_120th_career_clean_{party.lower()}',
+            sum(1 for r in career_clean if r['party_120'] == party))
     career_keys = {r['person_key'] for r in career_clean}
-    not_career = sum(1 for r in house_clean if r['person_key'] not in career_keys)
-    check('2026-clean but not career-clean (120th House) == 17',
-          not_career == exp['house_120th_clean_2026_not_career_clean'], f'got {not_career}')
+    pin('2026-clean but not career-clean (120th House)',
+        'clean_2026.house_120th_clean_2026_not_career_clean',
+        sum(1 for r in house_clean if r['person_key'] not in career_keys))
 
     # (o) tiered dirty rule: flag, tiers, corp-only splits, targets.
     # The tier logic is re-derived here from the config thresholds,
     # independently of compute_2026.py (same definitions, separate code).
-    exp_t = CFG['verification']['tiered_2026']
-
+    # Counts are pinned in the baseline (tiered_2026.*).
     def corp_material(corp, total_receipts, preset):
         th = CFG['verification']['tolerance_presets'][preset]
         if corp <= th['corp_amount']:
@@ -435,26 +473,21 @@ def main():
         return 'clean'
 
     r120 = [r for r in records if r['in_120th'] == 'yes']
-    flag_120 = sum(1 for r in r120 if r['aipac_udp_flag_2026'] is True)
-    check('aipac_udp_flag_2026 120th == 231', flag_120 == exp_t['aipac_udp_flag_120th'],
-          f'got {flag_120}')
-    flag_all = sum(1 for r in records if r['aipac_udp_flag_2026'] is True)
-    check('aipac_udp_flag_2026 roster-wide == 291',
-          flag_all == exp_t['aipac_udp_flag_all'], f'got {flag_all}')
+    pin('aipac_udp_flag_2026 120th', 'tiered_2026.aipac_udp_flag_120th',
+        sum(1 for r in r120 if r['aipac_udp_flag_2026'] is True))
+    pin('aipac_udp_flag_2026 roster-wide', 'tiered_2026.aipac_udp_flag_all',
+        sum(1 for r in records if r['aipac_udp_flag_2026'] is True))
     check('aipac_udp_flag_2026 is a boolean on every row',
           all(r['aipac_udp_flag_2026'] in (True, False) for r in records))
     for preset in ('balanced', 'lenient'):
         got = Counter(r[f'tier_{preset}_2026'] for r in r120)
         for tier_name in ('clean', 'below_threshold', 'dirty'):
-            check(f'tier_{preset}_2026 {tier_name} == {exp_t[preset][tier_name]}',
-                  got.get(tier_name, 0) == exp_t[preset][tier_name],
-                  f"got {got.get(tier_name, 0)}")
-        check(f"tier_{preset}_2026 null == {exp_t[preset]['null']}",
-              got.get(None, 0) == exp_t[preset]['null'], f"got {got.get(None, 0)}")
-        not_dirty = got.get('clean', 0) + got.get('below_threshold', 0)
-        check(f'tier_{preset}_2026 not-dirty (clean + below_threshold) == '
-              f"{exp_t[preset]['not_dirty']}",
-              not_dirty == exp_t[preset]['not_dirty'], f'got {not_dirty}')
+            pin(f'tier_{preset}_2026 {tier_name}', f'tiered_2026.{preset}.{tier_name}',
+                got.get(tier_name, 0))
+        pin(f'tier_{preset}_2026 null', f'tiered_2026.{preset}.null', got.get(None, 0))
+        pin(f'tier_{preset}_2026 not-dirty (clean + below_threshold)',
+            f'tiered_2026.{preset}.not_dirty',
+            got.get('clean', 0) + got.get('below_threshold', 0))
         # Tier nulls coincide exactly with clean_2026 nulls.
         check(f'tier_{preset}_2026 is null exactly where clean_2026 is null',
               all((r[f'tier_{preset}_2026'] is None) == (r['clean_2026'] is None)
@@ -474,18 +507,15 @@ def main():
     # and how many stay dirty under each preset.
     corp_only = [r for r in r120 if r['corp_2026'] > 0
                  and r['aipac_direct_2026'] == 0 and r['udp_benefit_2026'] == 0]
-    check('corp-only members in the 120th == 211',
-          len(corp_only) == exp_t['corp_only_2026_120th'], f'got {len(corp_only)}')
-    for preset, stay_key, below_key in (
-            ('balanced', 'corp_only_staying_dirty_balanced', 'corp_only_below_balanced'),
-            ('lenient', 'corp_only_staying_dirty_lenient', 'corp_only_below_lenient')):
+    pin('corp-only members in the 120th', 'tiered_2026.corp_only_2026_120th',
+        len(corp_only))
+    for preset in ('balanced', 'lenient'):
         staying = sum(1 for r in corp_only
                       if corp_material(r['corp_2026'], r['total_receipts_2026'], preset))
-        check(f'corp-only staying dirty under {preset} == {exp_t[stay_key]}',
-              staying == exp_t[stay_key], f'got {staying}')
-        check(f'corp-only below threshold under {preset} == {exp_t[below_key]}',
-              len(corp_only) - staying == exp_t[below_key],
-              f'got {len(corp_only) - staying}')
+        pin(f'corp-only staying dirty under {preset}',
+            f'tiered_2026.corp_only_staying_dirty_{preset}', staying)
+        pin(f'corp-only below threshold under {preset}',
+            f'tiered_2026.corp_only_below_{preset}', len(corp_only) - staying)
     # 2028 primary targets under each preset: tier dirty among House
     # Democrats / Class 3 Senate Democrats in the 120th; Strict is
     # dirty_2026 > 0.
@@ -493,47 +523,28 @@ def main():
                  and r['party_120'] == 'Democrat']
     sen3_dem = [r for r in r120 if r['chamber_120'] == 'Senate'
                 and r['party_120'] == 'Democrat' and r['senate_class'] == 3]
-    check('2028 targets Strict House == 192',
-          sum(1 for r in house_dem if r['dirty_2026'] > 0)
-          == exp_t['targets_2028_strict_house'],
-          f"got {sum(1 for r in house_dem if r['dirty_2026'] > 0)}")
-    check('2028 targets Strict Senate Class 3 == 13',
-          sum(1 for r in sen3_dem if r['dirty_2026'] > 0)
-          == exp_t['targets_2028_strict_senate_class3'],
-          f"got {sum(1 for r in sen3_dem if r['dirty_2026'] > 0)}")
+    pin('2028 targets Strict House', 'tiered_2026.targets_2028_strict_house',
+        sum(1 for r in house_dem if r['dirty_2026'] > 0))
+    pin('2028 targets Strict Senate Class 3',
+        'tiered_2026.targets_2028_strict_senate_class3',
+        sum(1 for r in sen3_dem if r['dirty_2026'] > 0))
     for preset in ('balanced', 'lenient'):
-        th = sum(1 for r in house_dem if r[f'tier_{preset}_2026'] == 'dirty')
-        check(f'2028 targets {preset} House == {exp_t[f"targets_2028_{preset}_house"]}',
-              th == exp_t[f'targets_2028_{preset}_house'], f'got {th}')
-        ts = sum(1 for r in sen3_dem if r[f'tier_{preset}_2026'] == 'dirty')
-        check(f'2028 targets {preset} Senate Class 3 == '
-              f"{exp_t[f'targets_2028_{preset}_senate_class3']}",
-              ts == exp_t[f'targets_2028_{preset}_senate_class3'], f'got {ts}')
-    # Spot cases.
-    ryan = by_key['R000579']  # Patrick Ryan (NY-18)
-    check('Ryan clean on a -$15,000 AIPAC refund (corp $0, dirty -$15,000)',
-          ryan['clean_2026'] is True and ryan['corp_2026'] == 0
-          and ryan['aipac_direct_2026'] == -15000.0 and ryan['dirty_2026'] == -15000.0
-          and ryan['aipac_udp_flag_2026'] is False
-          and ryan['tier_balanced_2026'] == 'clean'
-          and ryan['tier_lenient_2026'] == 'clean',
-          f"clean={ryan['clean_2026']} corp={ryan['corp_2026']} "
-          f"aipac={ryan['aipac_direct_2026']} dirty={ryan['dirty_2026']}")
-    randall = next(r for r in records if r['full_name'] == 'Emily Randall')
-    check('Randall below_threshold under both presets (corp $68,250, AIPAC -$5,000)',
-          randall['corp_2026'] == 68250.0 and randall['aipac_direct_2026'] == -5000.0
-          and randall['tier_balanced_2026'] == 'below_threshold'
-          and randall['tier_lenient_2026'] == 'below_threshold',
-          f"corp={randall['corp_2026']} aipac={randall['aipac_direct_2026']} "
-          f"balanced={randall['tier_balanced_2026']}")
-    garcia = next(r for r in records if r['full_name'] == 'Sylvia R. Garcia')
-    check('Garcia dirty under Balanced, below_threshold under Lenient '
-          '(corp $238,500, AIPAC -$5,000)',
-          garcia['corp_2026'] == 238500.0 and garcia['aipac_direct_2026'] == -5000.0
-          and garcia['tier_balanced_2026'] == 'dirty'
-          and garcia['tier_lenient_2026'] == 'below_threshold',
-          f"balanced={garcia['tier_balanced_2026']} "
-          f"lenient={garcia['tier_lenient_2026']}")
+        pin(f'2028 targets {preset} House', f'tiered_2026.targets_2028_{preset}_house',
+            sum(1 for r in house_dem if r[f'tier_{preset}_2026'] == 'dirty'))
+        pin(f'2028 targets {preset} Senate Class 3',
+            f'tiered_2026.targets_2028_{preset}_senate_class3',
+            sum(1 for r in sen3_dem if r[f'tier_{preset}_2026'] == 'dirty'))
+    # Spot cases: the three members whose tier turns on a net-negative
+    # AIPAC component (refunds). Pinned as observed — methodology §14
+    # explains each; a change here is a finding to read, not a failure
+    # to silence.
+    spot_fields = ('clean_2026', 'corp_2026', 'aipac_direct_2026', 'dirty_2026',
+                   'aipac_udp_flag_2026', 'tier_balanced_2026', 'tier_lenient_2026')
+    for slug, name in (('ryan', 'Patrick Ryan'), ('randall', 'Emily Randall'),
+                       ('garcia', 'Sylvia R. Garcia')):
+        rec = next(r for r in records if r['full_name'] == name)
+        pin(f'{name} tier spot case', f'spot.tier.{slug}',
+            {f: rec[f] for f in spot_fields})
 
     # (e) 2026 columns, clean rule, dep_share
     opp = json.load(open(ROOT / CFG['paths']['opposition_computed']))
@@ -623,51 +634,45 @@ def main():
     check('2026 columns + clean rule + dep_share recompute exactly',
           mism == 0, f'{mism} mismatches')
 
-    # (m) clean-rule generalization spot cases.
-    const = by_key['anthonyconstantinonyhouse']
-    const_sf26 = [e for e in const['self_funding_per_cycle'] if e['cycle'] == CURRENT]
-    check('Constantino verified clean=True WITH 2026 linkage evidence',
-          const['clean_2026'] is True
-          and len(const_sf26) == 1
-          and const_sf26[0]['coverage_end_date'] == '10/14/2026'
-          and const_sf26[0]['candidate_loans'] == 14400000.00
-          and const['all_ie_support_2026'] == 459491.94
-          and const['all_ie_oppose_2026'] == 3721257.82,
-          f"clean={const['clean_2026']}")
-    luria = by_key['L000591']
-    luria_sf26 = [e for e in luria['self_funding_per_cycle'] if e['cycle'] == CURRENT]
-    check('Luria stays null — linked ID has no 2026-coverage weball row',
-          luria['clean_2026'] is None
-          and len(luria_sf26) == 1
-          and luria_sf26[0]['coverage_end_date'] == '07/15/2025'
-          and 'H6VA02198' not in luria['fec_candidate_ids']
-          and 'UNVERIFIED' in luria['data_notes'],
-          f"clean={luria['clean_2026']}")
-    check('Luria stale-ID 2026 money exists but does not verify her',
-          luria['other_committees_total_2026'] == 85610.00
-          and luria['all_ie_support_2026'] == 685786.28,
-          f"OC {luria['other_committees_total_2026']} / AIE {luria['all_ie_support_2026']}")
+    # (m) clean-rule generalization spot cases — pinned as observed
+    # (methodology §14 tells each story). Constantino: verified through
+    # 2026 linkage evidence. Luria: the linked ID has no 2026-coverage
+    # weball row, so she stays unverified (null); her stale-ID 2026
+    # money exists but does not verify her.
+    def sf26_view(rec):
+        return [{'coverage_end_date': e['coverage_end_date'],
+                 'candidate_loans': e['candidate_loans']}
+                for e in rec['self_funding_per_cycle'] if e['cycle'] == CURRENT]
 
-    # (m) unopposed exclusion spot cases.
-    for key, name, race in [('J000305', 'Jacobs', 'CA-51'),
-                            ('P000617', 'Pressley', 'MA-07'),
-                            ('R000600', 'Radewagen', 'AS-00')]:
-        p = by_key[key]
-        check(f'{name} unopposed in 2026 ({race}) — null, not clean',
-              p['clean_2026'] is None and p['unopposed_2026'] is True
-              and 'UNOPPOSED' in p['data_notes']
-              and race in p['data_notes'],
-              f"clean={p['clean_2026']} unopposed={p['unopposed_2026']}")
+    const = by_key['anthonyconstantinonyhouse']
+    pin('Constantino clean-rule spot case', 'spot.clean.constantino',
+        {'clean_2026': const['clean_2026'], 'self_funding_2026_rows': sf26_view(const),
+         'all_ie_support_2026': const['all_ie_support_2026'],
+         'all_ie_oppose_2026': const['all_ie_oppose_2026']})
+    luria = by_key['L000591']
+    pin('Luria clean-rule spot case', 'spot.clean.luria',
+        {'clean_2026': luria['clean_2026'], 'self_funding_2026_rows': sf26_view(luria),
+         'other_committees_total_2026': luria['other_committees_total_2026'],
+         'all_ie_support_2026': luria['all_ie_support_2026']})
+    check('Luria: real 2026 campaign ID H6VA02198 is still not linked in the roster',
+          'H6VA02198' not in luria['fec_candidate_ids'])
+
+    # (m) unopposed exclusion: who ran unopposed in 2026 is pinned; an
+    # unopposed member with no net dirty money is null, never clean.
+    unopposed = sorted(r['person_key'] for r in records if r['unopposed_2026'] is True)
+    pin('members unopposed in 2026', 'spot.unopposed_2026', unopposed)
+    pin('members with clean_2026 null (unverified or unopposed-and-not-dirty)',
+        'spot.clean_2026_null',
+        sorted(r['person_key'] for r in records if r['clean_2026'] is None))
+    check('an unopposed member with no net dirty money is null, not clean',
+          all(r['clean_2026'] is None for r in records
+              if r['unopposed_2026'] is True and is_num(r['dirty_2026'])
+              and r['dirty_2026'] <= 0))
     king_hinds = by_key['K000404']
     check('King-Hinds contested, not unopposed — MP race is district 01',
-          king_hinds['clean_2026'] is True
-          and king_hinds['unopposed_2026'] is False
+          king_hinds['unopposed_2026'] is False
           and 'UNOPPOSED' not in king_hinds['data_notes'],
-          f"clean={king_hinds['clean_2026']} "
           f"unopposed={king_hinds['unopposed_2026']}")
-    n_unopposed = sum(1 for r in records if r['unopposed_2026'] is True)
-    check('unopposed in 2026 == 9 (3 clean-nulls + 6 dirty)',
-          n_unopposed == 9, f'got {n_unopposed}')
 
     # (n) senate_class: re-derived from the legislators yaml, independent
     # of build_roster.py — own latest Senate term's class field where
