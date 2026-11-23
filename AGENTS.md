@@ -177,26 +177,42 @@ the-receipts/
 
 A change to data or pipeline is not done until it passes this gate:
 
-1. **Full rebuild reproduces the committed dataset byte-identically:**
+1. **Full rebuild from the pinned snapshot reproduces the committed
+   dataset byte-identically:**
 
    ```sh
+   ./fetch_snapshot.sh        # stages the snapshot named in baseline.json
    python3 src/rebuild.py
    ```
 
    It runs the pipeline in order (roster → FEC lookup → money → UDP →
    dedup → self-funding → other-committees → all-IE → opposition →
    merge → ranking → 2026 → verify), backing the current dataset up
-   to `data/snapshots/` first, and fails fast if `data/raw/` isn't
-   staged. Verified Nov 12, 2026 (after the dirty-first leaderboards +
-   composition-charts build): a full rebuild reproduces the committed
-   dataset byte-identically (CSV md5
-   `0ef36dd4519f912ae1cca4b0fce95bfb`, JSON md5
-   `6455cbda6946f2d3628a2179540b044f`).
-2. **All audits in `src/validate/verify_dataset.py` pass** (93 standing
-   audits: per-cycle sums for every column family, roster totals vs
-   methodology, all 12 rank columns, clean counts and the generalized
-   clean rule, 2026 columns, opposition, dedup, CSV↔JSON agreement, row
-   order). Exit non-zero on any mismatch.
+   to `data/snapshots/` first. It refuses to run on anything but the
+   snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
+   FEC updates its bulk files in place, so a live download is a
+   different input and can never reproduce a committed dataset.
+   Verified Nov 22, 2026 on `fec-bulk-2026-11-22`: byte-identical on
+   Python 3.11 / 3.12 / 3.13 (CSV md5
+   `09d66b6ae2ebc2cba91e4dcf06186bc6`, JSON md5
+   `db779b261343cf772a39b443d2ef648b`).
+2. **All audits in `src/validate/verify_dataset.py` pass** (per-cycle
+   sums for every column family, roster totals, all rank columns, clean
+   counts and the generalized clean rule, tiers, 2026 columns,
+   opposition, dedup, CSV↔JSON agreement, row order). Exit non-zero on
+   any mismatch. **Every data-dependent expected figure lives in
+   `data/source/baseline.json`**, never as a literal in a script or in
+   `config.yaml` (`src/common/baseline.py`; config keeps policy values
+   only — thresholds, presets, committee IDs).
+2a. **New FEC data is accepted only by a reviewed rebaseline:** publish
+   a snapshot ("FEC snapshot" workflow), `./fetch_snapshot.sh <tag>`,
+   set `data_as_of`, `python3 src/rebuild.py --rebaseline`, and review
+   `git diff data/source/baseline.json` — every figure that moved, old
+   next to new, including what the public page says (`site.*`). The
+   rebaseline still enforces cross-step agreement (two steps that
+   compute the same figure must match). A rebaseline changes public
+   figures, so it lands by pull request with Craig's go-ahead (§6),
+   never by a bot push.
 3. **If any value differs, STOP and report — never adjust a figure to
    match.** A mismatch means the code, the data, or the method is
    wrong; find which one.
@@ -247,19 +263,25 @@ Two workflows in `.github/workflows/` (see `README.md`, "Automation
 (GitHub Actions)", for the operator-facing version):
 
 - **`ci.yml`** — push + pull request to `master`. Checkout, Python 3.12,
-  `pip install -r requirements.txt`, `./download_bulk.sh`,
-  `python3 src/rebuild.py`, then **fail unless the rebuild reproduces the
-  committed dataset byte-identically** (`git diff --exit-code` on
-  `congress-money-tracker.csv` / `.json`), then `build_site.py` +
-  `verify_site.py`. No deploy step — GitHub Pages serves `docs/` on
-  `master` automatically. `permissions: contents: read`. Needs no secrets,
-  so it is safe on PRs from forks.
-- **`scheduled-refresh.yml`** — cron `0 9 * * 0` (Sunday 09:00 UTC) +
-  `workflow_dispatch` (manual refresh, e.g. right after the Dec 3
-  post-general deadline). Same pipeline, then the freshness step, then a
-  commit + push back to `master` as `github-actions[bot]`
-  (`data: refresh from FEC bulk <YYYY-MM-DD>`). `permissions:
-  contents: write`. Job timeout 180 min (freshness step 90 min).
+  `pip install -r requirements.txt`, `./fetch_snapshot.sh` (the pinned
+  snapshot, sha256-verified), `python3 src/rebuild.py`, then **fail
+  unless the rebuild reproduces the committed dataset byte-identically**
+  (`git diff --exit-code` on `congress-money-tracker.csv` / `.json`),
+  then `build_site.py`, **fail if the committed `docs/index.html` is not
+  the rebuilt page** (timestamp aside), then `verify_site.py`. No deploy
+  step — GitHub Pages serves `docs/` on `master` automatically.
+  `permissions: contents: read`. Needs no secrets, so it is safe on PRs
+  from forks.
+- **`fec-snapshot.yml`** — manual. Publishes the live FEC bulk files as
+  an immutable `fec-bulk-<date>` Release (raw files + `SHA256SUMS` +
+  `PROVENANCE.tsv`). Public FEC data; Craig approved publishing these
+  snapshots Nov 22, 2026. Does not touch the dataset.
+- **`scheduled-refresh.yml`** — **PAUSED, manual dispatch only** (Nov 22,
+  2026). It never completed a run: it rebuilt from a live download and
+  failed on the first new filing (Nov 15 and Nov 22). Do not re-enable
+  the cron as written. Its replacement automates §5 step 2a and opens a
+  pull request; it never pushes to `master`. The rules below describe
+  the paused workflow.
 
 **Commit-back rule (scheduled refresh only).** Commit and push only if
 the dataset changed OR the site changed apart from its generation
@@ -268,15 +290,10 @@ pattern `verify_site.py` strips. A timestamp-only rebuild commits
 nothing. A failed rebuild/verify commits and pushes nothing (commit step
 gated on `success()`). The bot's push triggers CI, which re-verifies.
 
-**No cache of the bulk data.** Every run re-downloads fresh with
-`./download_bulk.sh` (~315 MB). The 2026 bulk files are updated in place
-by the FEC under the same cycle-named URLs, so any cache keyed on
-something other than the files' own content could silently serve stale
-filings — and the byte-identical gate would not catch it, because it
-verifies the rebuild against the committed dataset, not the filings
-against the FEC. A content-aware cache (per-file ETag / Last-Modified)
-would be safe, but `./download_bulk.sh` has no such mechanism. Do not
-add caching to either workflow without one.
+**Pinned, not cached.** CI stages the pinned snapshot Release on every
+run and verifies every sha256, so its inputs are identified by content.
+Never point CI back at `./download_bulk.sh`: a live download is a
+different input every day.
 
 **FEC API key.** The freshness step (`pull_freshness.py --all`) runs only
 when the `FEC_API_KEY` repository secret is set; the snapshot is uploaded

@@ -4,6 +4,59 @@
 
 ## What is built
 
+- **Pinned snapshots + baseline (branch `claude/rebaseline`, PENDING
+  CRAIG'S REVIEW — not on master) — Nov 22.** Why: every CI run since
+  Nov 13 and both scheduled refreshes (Nov 15, Nov 22) failed. CI
+  rebuilt from a LIVE FEC download, the FEC updates its bulk files in
+  place, and ~60 expected figures were typed into scripts and
+  `config.yaml`, so any new filing "failed" the rebuild and a refresh
+  could never land. The Nov 12 inputs were never saved and are gone.
+  What changed: (1) FEC bulk is now pinned as immutable GitHub Releases
+  (`fec-bulk-<date>`, raw files + SHA256SUMS + PROVENANCE.tsv; first one
+  `fec-bulk-2026-11-22`, 315 MB) — "FEC snapshot" workflow +
+  `./fetch_snapshot.sh`. (2) Every data-dependent expected figure moved
+  to `data/source/baseline.json` (111 keys: roster totals, clean/tier
+  counts, named spot cases, and what the public page says);
+  `src/common/baseline.py`; `python3 src/rebuild.py --rebaseline`
+  records a new snapshot's figures and the baseline diff is the review.
+  `config.yaml` `verification` keeps policy values only. (3) The site
+  checkers compute their expectations from the embedded data
+  (`src/site/expectations.py`) instead of typed literals; the 2026
+  targets intro count is computed at build (was a typed "192").
+  (4) CI stages the pinned snapshot; the weekly cron is paused.
+  **Rebaselined to `fec-bulk-2026-11-22`:** 54 of 111 baseline figures
+  moved; 650 of 664 rows changed (`data_as_of` on all; money on some).
+  Biggest moves: corporate PAC career +$3,234,500.00
+  ($975,463,084.00), other-committee career +$6,475,381.00, all-IE 2026
+  +$469,098.24. **Two members lose Strict-clean:** Luke Bronin (D,
+  House; $5,000 corporate PAC) and Mark Kelly (D, Senate; $3,500
+  corporate PAC) — Strict clean roster-wide 98 → 96, 120th 84 → 82
+  (House 70 → 69, Senate 14 → 13). Tier moves: Adams and J. Jackson
+  below_threshold → dirty (Balanced); Garcia, Lankford, Luján, K. Mullin
+  below_threshold → dirty (Lenient). Balanced not-dirty 203 → 201,
+  Lenient 257 → 253. 2028 targets Strict 192/13 → 193/14, Balanced
+  133/6 → 135/6, Lenient 103/3 → 105/3. Dirtiest top 5 order unchanged
+  (Bell +$1,000, Guthrie +$16,500; next-four $15.21M → $15.23M).
+  Verification: rebuild byte-identical on re-run and on Python 3.11 /
+  3.12 / 3.13 (csv md5 09d66b6ae2ebc2cba91e4dcf06186bc6, json md5
+  db779b261343cf772a39b443d2ef648b); 151 dataset audits pass; site
+  verifier passes incl. the runtime smoke test; a tampered baseline
+  fails both gates (negative test). The Nov 12 baseline was seeded from
+  the old literals and the committed Nov 12 dataset, so the
+  `baseline.json` diff between the two commits is the full old → new
+  record. **Open, for Craig:** (a) coverage end dates in `config.yaml`
+  are still the Nov 12 judgments (pas2 Sep 30 / weball Oct 14 / IE Oct
+  31) — the new pas2 file has 3,188 October rows (was 991) and the IE
+  file has 1,410 November rows, so the labels need a decision;
+  (b) methodology.md prose still quotes Nov 12 figures (banner added at
+  the top; baseline.json is authoritative); (c) the one-cent all-IE
+  mismatch CI reported Nov 13 could not be reproduced (the inputs are
+  gone) — money is still summed as floats in `pull_all_ie.py`, to be
+  replaced by exact cents in the refactor; (d) `scheduled-refresh.yml`
+  needs replacing with snapshot → rebaseline → pull request;
+  (e) remaining named-person assumptions in the smoke test (Stevens as
+  the first tracker row / drill-down target).
+
 - **Static site — DONE Nov 12.** `docs/index.html` is generated from the
   canonical dataset by `src/site/build_site.py` (one command regenerates
   it; `src/site/verify_site.py` checks it). Single self-contained page, no
