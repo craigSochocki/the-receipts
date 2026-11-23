@@ -12,7 +12,7 @@ from src.common.config import load_config
 _CFG = load_config()
 PATH = _CFG['_root'] / _CFG['paths']['baseline']
 _RECORDED_THIS_RUN = _CFG['_root'] / _CFG['paths']['intermediate'] / '.rebaseline_seen.json'
-_SNAPSHOT = '_snapshot'
+_SNAPSHOT, _CANDIDATES_SNAPSHOT = '_snapshot', '_candidates_snapshot'
 
 
 def rebaselining():
@@ -47,8 +47,12 @@ def snapshot():
     return _read(PATH, {}).get(_SNAPSHOT)
 
 
-def set_snapshot(tag):
-    _write(PATH, {**_read(PATH, {}), _SNAPSHOT: tag})
+def candidates_snapshot():
+    return _read(PATH, {}).get(_CANDIDATES_SNAPSHOT)
+
+
+def set_snapshots(bulk, candidates):
+    _write(PATH, {**_read(PATH, {}), _SNAPSHOT: bulk, _CANDIDATES_SNAPSHOT: candidates})
 
 
 def _read(path, default):
