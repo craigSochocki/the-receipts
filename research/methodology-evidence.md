@@ -58,6 +58,179 @@ behind them. The exact text removed:
   # corp $3,500).
 ```
 
+## Removed from code docstrings and comments (Nov 23, 2026)
+
+The exact text removed, by file:
+
+`receipts/validate/verify_dataset.py`:
+
+```
+"""Standing audits for the Congress money tracker dataset.
+
+Usage:
+    python3 receipts/validate/verify_dataset.py [--dataset-csv PATH] [--dataset-json PATH]
+
+Checks (exit non-zero on any mismatch, printing every failure):
+  (a) per-cycle sums reproduce every career column: dbt tests on the
+      gold tables (dbt/tests/*_career_is_its_cycles.sql), run by the marts pass.
+  (b) roster totals match config verification.methodology_totals to the
+      cent (Armstrong's "unknown" money excluded from every sum).
+  (c) all twelve rank columns recompute exactly (competition ranking:
+      rank = 1 + count of strictly greater values).
+  (d) clean counts match config verification.clean_2026 (True 98 /
+      False 562 / None 4; 120th House clean 70 — 67 D, 3 R;
+      career-clean 120th House 53 — 50 D, 3 R; 2026-clean but not
+      career-clean 17). The True count is post net-negative fix: 17
+      members with dirty_2026 < 0 from refunds read clean (see (o)).
+  (e) the twenty-three 2026 columns, the clean rule, and dep_share
+      recompute exactly (including the Luria unverified case, the
+      generalized linkage rule, the unopposed_2026 flag recomputed
+      from weball26, the unopposed nulling of would-be-clean verdicts,
+      the net-negative clean rule, the AIPAC/UDP flag and both
+      tolerance tiers, and the int/float split on empty 2026 sums).
+  (f) the opposition career columns recompute from gold.opposition_credits.
+  (g) dedup audit: dbt tests (double_counts_*.sql) on the store's
+      double_counts table and gold.accepted_money_per_cycle.
+  (h) CSV and JSON agree field by field (664 rows, same person_keys,
+      same values — CSV floats compare by float value, clean_2026 by
+      True/False/empty, dep_share by float value; the per-cycle lists
+      compare by repr; all_ie_top_committees is JSON-only and skipped).
+  (i) 664 rows, unique person_keys, row order matches roster.json.
+  (j) self-funding / topline: named spot cases (Constantino
+      $17,000,000.00 exactly, Scott $89,994,251.12, …); debts owed to
+      is null everywhere; Armstrong unknown, not zero.
+  (k) other committees: Lamb's 2026 pas2 total and its residual against
+      weball (from the store), and the note that states them. The
+      corporate/AIPAC re-derivation is enforced by the other-committees step.
+  (l) all-IE: roster cycle totals (from gold) match the baseline; the
+      row-sum gap is exactly the blank-direction rows; top-committee lists
+      are sorted, split correctly, and null for Armstrong. The UDP 2024
+      reconciliation is enforced by the all-IE step.
+  (m) clean-rule generalization: Constantino verified clean=True WITH
+      2026 linkage evidence (self-funding 2026 loans $14.4M, coverage
+      10/14/2026); Luria stays null — her linked ID's 2026 weball row
+      covers only through 07/15/2025 while her real 2026 campaign
+      (H6VA02198, $8,044,063.94 receipts) is unlinked. Unopposed
+      exclusion: Pressley (MA-07), Jacobs (CA-51) and Radewagen (AS)
+      ran unopposed in 2026, so they are null, not clean; King-Hinds
+      faced a funded opponent (MP district 01, Deleon Guerrero
+      $31,476.11) and stays verified-clean; nine people ran unopposed
+      in total, six of them dirty.
+  (n) senate_class: re-derived here from the legislators yaml
+      (legislators-current.yaml, Senate-term class field) and compared
+      to the dataset for every row — None for non-senators, 1/2/3 for
+      every senator; 120th class counts C1 33 / C2 32 / C3 34; 16 Class 3
+      Democrats in the 120th; named spot cases.
+  (o) tiered dirty rule (methodology §14): the AIPAC/UDP flag
+      recomputes from aipac_direct_2026 / udp_benefit_2026 (231 in the
+      120th, 291 roster-wide); both tolerance tiers recompute from the
+      flag + the config thresholds (Balanced 84 / 119 / 328, Lenient
+      84 / 173 / 274 over the 120th, null 4); the corp-only splits
+      (211 corp-only in the 120th; 93 / 41 stay dirty); the 2028-target
+      counts under each preset (Strict 192 / 13, Balanced 133 / 6,
+      Lenient 103 / 3); spot cases Ryan (clean on a -$15,000 AIPAC
+      refund, corp $0), Randall and Garcia (below_threshold with a
+      -$5,000 AIPAC component).
+
+Caveat (methodology §13): this verifies the dataset against its own
+definitions. It cannot catch a missing dimension — e.g. the
+self-funding blind spot found Nov 12, 2026 (candidate loans and
+contributions were never pulled, so no audit here would have flagged
+their absence). A new money dimension needs a new audit, not just a
+re-run of this one.
+"""
+```
+
+`receipts/site/verify_site.py`:
+
+```
+ 3. Headline figures recomputed from the embedded data match the dataset:
+    664 rows; clean True 98 / None 4 (Luria unverified + 3 unopposed);
+    incoming House clean 70 (67 D, 3 R); incoming Senate clean 14;
+    Constantino verified clean; Luria null; King-Hinds verified clean
+    and contested; 9 ran unopposed; Armstrong "unknown" money cells;
+    top-10 total-accepted names; 192 primary targets; 53 career-clean
+    incoming House members; dirtiest top 5 in 2026 with the #1-vs-next-
+    four comparison; party/outcome derivation (535 Won / 124 Not
+    returning / 5 Uncalled, every row with a party source);
+    leaderboards lead with dirty (2026, then career) and the default
+    table sort is Dirty 2026; dirty_career recomputes and Stevens is
+    the career dirty #1; composition charts reconcile to 435 / 100
+    with per-category counts matching the dataset exactly. 2028
+    primary targets: House 192 (same rule as 2026), Senate 13 Class 3
+    Democrats led by Hassan; the tab's intro is computed at render,
+    never typed; the front-door pointer opens it via showTab.
+    Tolerance presets (methodology §14): AIPAC/UDP flag 231 in the
+    120th (291 roster-wide); Balanced tiers clean 84 / below_threshold
+    119 / dirty 328 (not-dirty 203), Lenient 84 / 173 / 274 (not-dirty
+    257); 2028 targets under presets Strict 192/13, Balanced 133/6,
+    Lenient 103/3; the front-door story defaults to Balanced not-dirty
+    with the tolerance labeled; the Explore tolerance control
+    (Strict / Balanced / Lenient) recomputes the counts, badges, and
+    the 2028 tab live.
+    Scrollytelling: 7 front-door chapters in narrative order
+    (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
+    IntersectionObserver reveals gated on html.js (no-JS shows
+    everything); prefers-reduced-motion renders everything visible;
+    count-up end values equal the computed figures (career dirty total
+    $1,070,633,247.20, components reconciling); waffle dots and senate
+    tiles stagger on reveal.
+
+```
+
+`receipts/site/verify_site.py`:
+
+```
+    data/intermediate/opposition-computed.json exactly (race-phase level),
+    including Stevens' two credited phases.
+```
+
+`receipts/site/verify_site.py`:
+
+```
+# The explainer's $1.07B must be computed at render, never typed:
+```
+
+`receipts/ingest/pull_f24.py`:
+
+```
+unfiltered sum roughly doubles the true amount (UDP vs El-Sayed 2026:
+naive $41.04M vs true $20.90M). The F24-only sum matches the deduped
+sum to within one unexplained $1,004.53 residual row (Nov 12, 2026);
+see the reconciliation in this script's output and methodology.md §16.
+```
+
+`receipts/ingest/pull_f24.py`:
+
+```
+    # Residual classification (Nov 12, 2026): a residual row filed on a
+    # regular report (filing_form F3X, e.g. the UDP $1,004.53 GOTV
+    # expenditure of Aug 3, filed Sep 19 on an M9) is EXPECTED — it
+    # predates the 24/48-hour window and was never an F24.
+```
+
+`receipts/ingest/pull_f6.py`:
+
+```
+    The filings endpoint returns an original and its amendments (El-Sayed
+    C00902668: 2044921 and its amendment 2045386); counting both overstated
+    his F6 total by $351,042.26.
+```
+
+`receipts/ingest/pull_freshness.py`:
+
+```
+and --f24-committee-sweep refuse DEMO_KEY: a full run is ~2,200-2,350
+keyed calls.
+```
+
+`receipts/ingest/pull_freshness.py`:
+
+```
+    python3 receipts/ingest/pull_freshness.py --person anthonyconstantinonyhouse \\
+        --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
+```
+
 ---
 
 # Congress money tracker — methodology

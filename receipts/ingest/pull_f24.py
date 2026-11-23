@@ -9,10 +9,9 @@ Route: GET /v1/schedules/schedule_e/?filing_form=F24&committee_id=
 &candidate_id=&cycle= — with the F24-only filter. The filter matters:
 the Schedule E endpoint DOUBLE-RETURNS — the same expenditure appears
 once under its original F3X filing and again under the F24 — so the
-unfiltered sum roughly doubles the true amount (UDP vs El-Sayed 2026:
-naive $41.04M vs true $20.90M). The F24-only sum matches the deduped
-sum to within one unexplained $1,004.53 residual row (Nov 12, 2026);
-see the reconciliation in this script's output and methodology.md §16.
+unfiltered sum roughly doubles the true amount. The F24-only sum is
+reconciled against the deduped sum in this script's output; see
+methodology.md §16.
 
 Form 5 covers only unregistered spenders; registered committees (UDP
 included) file zero F5s, so no F5 leg is needed for the roster.
@@ -129,10 +128,8 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
     deduped = dedup_rows(all_rows)
     f24_keys = {dedup_key(r) for r in f24_rows}
     residual_rows = [r for r in deduped if dedup_key(r) not in f24_keys]
-    # Residual classification (Nov 12, 2026): a residual row filed on a
-    # regular report (filing_form F3X, e.g. the UDP $1,004.53 GOTV
-    # expenditure of Aug 3, filed Sep 19 on an M9) is EXPECTED — it
-    # predates the 24/48-hour window and was never an F24. Only a
+    # A residual row filed on a regular report (filing_form F3X) is
+    # expected: it predates the 24/48-hour window and was never an F24. Only a
     # residual row whose filing_form IS F24 would be a real
     # discrepancy (the F24-only set should contain every F24 row).
     explained = [r for r in residual_rows if r.get('filing_form') != 'F24']

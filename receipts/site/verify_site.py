@@ -6,43 +6,31 @@ Checks:
  1. docs/index.html exists and contains no unreplaced template placeholders.
  2. The embedded compact payload decodes back to the dataset exactly —
     every field of every row, including nested per-cycle lists.
- 3. Headline figures recomputed from the embedded data match the dataset:
-    664 rows; clean True 98 / None 4 (Luria unverified + 3 unopposed);
-    incoming House clean 70 (67 D, 3 R); incoming Senate clean 14;
-    Constantino verified clean; Luria null; King-Hinds verified clean
-    and contested; 9 ran unopposed; Armstrong "unknown" money cells;
-    top-10 total-accepted names; 192 primary targets; 53 career-clean
-    incoming House members; dirtiest top 5 in 2026 with the #1-vs-next-
-    four comparison; party/outcome derivation (535 Won / 124 Not
-    returning / 5 Uncalled, every row with a party source);
-    leaderboards lead with dirty (2026, then career) and the default
-    table sort is Dirty 2026; dirty_career recomputes and Stevens is
-    the career dirty #1; composition charts reconcile to 435 / 100
-    with per-category counts matching the dataset exactly. 2028
-    primary targets: House 192 (same rule as 2026), Senate 13 Class 3
-    Democrats led by Hassan; the tab's intro is computed at render,
-    never typed; the front-door pointer opens it via showTab.
-    Tolerance presets (methodology §14): AIPAC/UDP flag 231 in the
-    120th (291 roster-wide); Balanced tiers clean 84 / below_threshold
-    119 / dirty 328 (not-dirty 203), Lenient 84 / 173 / 274 (not-dirty
-    257); 2028 targets under presets Strict 192/13, Balanced 133/6,
-    Lenient 103/3; the front-door story defaults to Balanced not-dirty
-    with the tolerance labeled; the Explore tolerance control
-    (Strict / Balanced / Lenient) recomputes the counts, badges, and
-    the 2028 tab live.
-    Scrollytelling: 7 front-door chapters in narrative order
+ 3. Headline figures recomputed from the embedded data match the dataset
+    and data/source/baseline.json: row count, clean counts by chamber and
+    party, the named clean-rule spot cases, unknown money cells, the top
+    total-accepted names, primary targets, career-clean members, the
+    dirtiest members of 2026, party and outcome derivation, the
+    leaderboards and default sort, dirty_career, and the composition
+    charts. 2028 primary targets: House (same rule as 2026) and Class 3
+    Senate Democrats; the tab's intro is computed at render, never typed;
+    the front-door pointer opens it via showTab. Tolerance presets
+    (methodology §14): the AIPAC/UDP flag, both presets' tiers and
+    not-dirty counts, and the 2028 targets under each preset; the
+    front-door story defaults to Balanced not-dirty with the tolerance
+    labeled; the Explore tolerance control (Strict / Balanced / Lenient)
+    recomputes the counts, badges, and the 2028 tab live.
+    Scrollytelling: the front-door chapters in narrative order
     (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
     IntersectionObserver reveals gated on html.js (no-JS shows
     everything); prefers-reduced-motion renders everything visible;
-    count-up end values equal the computed figures (career dirty total
-    $1,070,633,247.20, components reconciling); waffle dots and senate
-    tiles stagger on reveal.
+    count-up end values equal the computed figures, components
+    reconciling; waffle dots and senate tiles stagger on reveal.
  4. The page's JavaScript parses (node --check on both app scripts).
  5. docs/ serves over HTTP (200 + key strings present).
  6. The generator is deterministic apart from the generation timestamp.
  7. The embedded opposition-credit detail matches
-    data/intermediate/opposition-computed.json exactly (race-phase level),
-    including Stevens' two credited phases.
+    data/intermediate/opposition-computed.json exactly (race-phase level).
 
 Usage: python3 receipts/site/verify_site.py [--skip-serve]
 Exit non-zero on any failure.
@@ -495,7 +483,7 @@ def scrollytelling(audit, page):
         and 'What counts as dirty' in page.html
         and 'Individual contributions are <b>not</b> dirty money' in page.html,
     )
-    # The explainer's $1.07B must be computed at render, never typed:
+    # The explainer's total must be computed at render, never typed:
     # extend the literal scan the same way the dirtiest figures are
     # guarded, with a negative test proving the detector works.
     EXPLAINER_LITERALS = [

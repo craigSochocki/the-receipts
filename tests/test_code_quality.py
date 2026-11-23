@@ -28,9 +28,9 @@ COMPLEXITY_DEBT = {
     'validate/verify_dataset.py:tiered_rule': 44,
 }
 MAINTAINABILITY_DEBT = {
-    'site/verify_site.py': 7,
+    'site/verify_site.py': 6,
     'store/all_ie.py': 11,
-    'validate/verify_dataset.py': 7,
+    'validate/verify_dataset.py': 5,
 }
 
 PACKAGE = repo_root() / 'receipts'
