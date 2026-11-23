@@ -28,9 +28,10 @@ Pipeline (in order; each step runs as a module, `python3 -m <module>`):
     src.store.opposition             UDP opposition credit (runs BEFORE the
                                      merge so its sanity check reads the
                                      current dataset)
-    src.transform.merge_dataset      roster + money + opposition -> base dataset
-    src.transform.compute_ranking    total_accepted + twelve rank columns
-    src.transform.compute_2026       2026 columns, clean flags, primary-target list
+    src.transform.build_dataset      one pass, written once: merge (roster + money +
+                                     opposition), ranking (total_accepted + twelve
+                                     rank columns), 2026 (columns, clean flags,
+                                     primary-target list)
     src.validate.verify_dataset      standing audits (unless --skip-verify)
 
 The freshness layer (src/ingest/pull_freshness.py) is NOT part of this
@@ -83,9 +84,7 @@ STEPS = [
     'src.store.other_committees',
     'src.store.all_ie',
     'src.store.opposition',
-    'src.transform.merge_dataset',
-    'src.transform.compute_ranking',
-    'src.transform.compute_2026',
+    'src.transform.build_dataset',
     'src.validate.verify_dataset',
 ]
 LOOKUP_STEP = 'src.transform.fec_lookup'

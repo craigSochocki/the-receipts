@@ -34,7 +34,7 @@ python3 src/rebuild.py
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
 → `build_store` → `accepted_money` → `udp` → `self_funding` →
 `other_committees` → `all_ie` → `opposition` →
-`merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
+`build_dataset` (merge → ranking → 2026, written once) → `verify_dataset` —
 and backs the current dataset up to
 `data/snapshots/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
 It fails fast with a clear message if the FEC bulk data isn't staged,
