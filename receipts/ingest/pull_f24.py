@@ -35,71 +35,68 @@ import sys
 
 from receipts.common.fec_api import fec_api
 
+PER_PAGE = 100
+MAX_PAGES = 100
+
+
+def schedule_e_filters(committee_id, candidate_id, cycle, filing_form):
+    named = {
+        'committee_id': committee_id,
+        'candidate_id': candidate_id,
+        'cycle': cycle,
+        'filing_form': filing_form,
+    }
+    return {k: v for k, v in named.items() if v}
+
+
+def page_identity(results):
+    """A page's sub_ids, or its dedup keys when any row lacks one."""
+    sub_ids = [r.get('sub_id') for r in results]
+    if all(s is not None for s in sub_ids):
+        return tuple(sub_ids)
+    return tuple(dedup_key(r) for r in results)
+
+
+def refuse(problem, committee_id, candidate_id, cycle, filing_form, page):
+    raise SystemExit(
+        f'Schedule E sweep: {problem} '
+        f'(committee={committee_id} candidate={candidate_id} '
+        f'cycle={cycle} filing_form={filing_form} page {page}); '
+        'refusing to continue'
+    )
+
 
 def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_form=None):
-    """All Schedule E rows matching the filters, paginated.
+    """All Schedule E rows matching the filters.
 
-    Cursor pagination: the Schedule E endpoint IGNORES the `page`
-    query parameter and advertises its cursor in
-    `pagination.last_indexes` (observed live Nov 12, 2026: keys
-    `last_index` + `last_expenditure_date`). The first fetch sends no
-    cursor; each later fetch passes the previous response's
-    `last_indexes` entries as query params. A page returning fewer
-    than `per_page` rows (or zero) ends the sweep. Same-page safety
-    net: if a page's rows are identical (by sub_id, falling back to
-    the dedup key) to the previous page's, abort with a clear error
-    naming the filters — the endpoint is repeating instead of
-    advancing, and must never be looped to the page guard.
+    The endpoint ignores `page`: it pages by the cursor in
+    `pagination.last_indexes`, passed back as query params. A page
+    identical to the one before means the cursor is not advancing, and
+    the sweep stops loudly rather than loop to the page guard.
     """
-    rows = []
-    cursor = {}
-    page = 1
-    prev_page_key = None
-    while True:
-        params = {'per_page': 100}
-        params.update(cursor)
-        if committee_id:
-            params['committee_id'] = committee_id
-        if candidate_id:
-            params['candidate_id'] = candidate_id
-        if cycle:
-            params['cycle'] = cycle
-        if filing_form:
-            params['filing_form'] = filing_form
-        data = fec_api.get('/schedules/schedule_e/', params)
+    filters = schedule_e_filters(committee_id, candidate_id, cycle, filing_form)
+    where = (committee_id, candidate_id, cycle, filing_form)
+    rows, cursor, previous = [], {}, None
+    for page in range(1, MAX_PAGES + 1):
+        data = fec_api.get('/schedules/schedule_e/', {'per_page': PER_PAGE, **cursor, **filters})
         results = data.get('results', [])
         if not results:
-            break
-        sub_ids = [r.get('sub_id') for r in results]
-        page_key = (
-            tuple(sub_ids)
-            if all(s is not None for s in sub_ids)
-            else tuple(dedup_key(r) for r in results)
-        )
-        if page_key == prev_page_key:
-            raise SystemExit(
-                'Schedule E sweep: endpoint repeated the same page '
-                f'(committee={committee_id} candidate={candidate_id} '
-                f'cycle={cycle} filing_form={filing_form} page {page}); '
-                'refusing to continue'
-            )
-        prev_page_key = page_key
+            return rows
+        identity = page_identity(results)
+        if identity == previous:
+            refuse('endpoint repeated the same page', *where, page)
+        previous = identity
         rows.extend(results)
-        if len(results) < 100:
-            break
+        if len(results) < PER_PAGE:
+            return rows
         cursor = dict(data.get('pagination', {}).get('last_indexes') or {})
         if not cursor:
-            raise SystemExit(
-                'Schedule E sweep: full page returned but no '
-                'pagination.last_indexes cursor to advance with '
-                f'(committee={committee_id} candidate={candidate_id} '
-                f'cycle={cycle} filing_form={filing_form} page {page}); '
-                'refusing to continue'
+            refuse(
+                'full page returned but no pagination.last_indexes cursor to advance with',
+                *where,
+                page,
             )
-        page += 1
-        if page > 100:
-            raise SystemExit('Schedule E sweep: too many pages (over 100); refusing to continue')
-    return rows
+    raise SystemExit('Schedule E sweep: too many pages (over 100); refusing to continue')
 
 
 def dedup_key(row):
