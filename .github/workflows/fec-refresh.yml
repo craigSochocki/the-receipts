@@ -69,13 +69,13 @@ jobs:
           grep '^data_as_of:' config.yaml
 
       - name: Rebaseline
-        run: python3 src/rebuild.py --rebaseline
+        run: python3 receipts/rebuild.py --rebaseline
 
       - name: Count the figures that moved
         id: moved
         run: |
           git show HEAD:data/source/baseline.json > "$RUNNER_TEMP/baseline-before.json"
-          count=$(python3 -m src.validate.baseline_changes \
+          count=$(python3 -m receipts.validate.baseline_changes \
             "$RUNNER_TEMP/baseline-before.json" data/source/baseline.json --count)
           echo "count=$count" >> "$GITHUB_OUTPUT"
           echo "$count baseline figures moved since the pinned snapshot." >> "$GITHUB_STEP_SUMMARY"
@@ -102,7 +102,7 @@ jobs:
             echo "- Re-judge \`verification.coverage_end\` in \`config.yaml\`. The dates still say what they said for the previous snapshot."
             echo "- Check the page figures (\`site.*\`) in the table below."
             echo
-            python3 -m src.validate.baseline_changes "$RUNNER_TEMP/baseline-before.json" data/source/baseline.json
+            python3 -m receipts.validate.baseline_changes "$RUNNER_TEMP/baseline-before.json" data/source/baseline.json
           } > "$RUNNER_TEMP/body.md"
 
           if ! url=$(gh pr create --base master --head "$branch" \
