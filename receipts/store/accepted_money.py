@@ -52,7 +52,7 @@ def money_by_candidate_cycle(db, candidate_ids):
     ).fetchall():
         if candidate_id not in candidate_ids:
             continue
-        counted[candidate_id, cycle] = dict(zip(COLUMNS, map(Money, amounts)))
+        counted[candidate_id, cycle] = dict(zip(COLUMNS, map(Money, amounts), strict=True))
         # A cycle appears if anything was filed for it, even when the
         # double-count correction leaves it at zero.
         if individual_filed or any(amounts[1:]):

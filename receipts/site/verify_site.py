@@ -94,7 +94,7 @@ def pin(name, key, observed):
 
 def extract_payload(html, script_id):
     m = re.search(
-        r'<script id="%s" type="application/json">(.*?)</script>' % script_id, html, re.DOTALL
+        rf'<script id="{script_id}" type="application/json">(.*?)</script>', html, re.DOTALL
     )
     if not m:
         raise SystemExit(f'missing embedded payload: {script_id}')
@@ -113,7 +113,7 @@ def decode_row(cols, arr):
         'all_ie_top_committees',
     ]
     nested_cols = [cols['pc'], cols['upc'], cols['sf'], cols['oc'], cols['aie'], cols['tc']]
-    for j, (name, ccols) in enumerate(zip(nested_names, nested_cols)):
+    for j, (name, ccols) in enumerate(zip(nested_names, nested_cols, strict=True)):
         o[name] = [{k: e[i] for i, k in enumerate(ccols)} for e in (arr[base + j] or [])]
     return o
 
@@ -129,7 +129,7 @@ def values_equal(a, b, path=''):
         return all(values_equal(a.get(k), b.get(k), path + '.' + k) for k in keys)
     if isinstance(a, list) and isinstance(b, list):
         return len(a) == len(b) and all(
-            values_equal(x, y, f'{path}[{i}]') for i, (x, y) in enumerate(zip(a, b))
+            values_equal(x, y, f'{path}[{i}]') for i, (x, y) in enumerate(zip(a, b, strict=True))
         )
     return a == b
 
@@ -176,7 +176,7 @@ def main():
 
     decoded = [decode_row(cols, arr) for arr in raw]
     mismatches = 0
-    for i, (d_row, j_row) in enumerate(zip(decoded, dataset)):
+    for i, (d_row, j_row) in enumerate(zip(decoded, dataset, strict=True)):
         for k, v in j_row.items():
             if k == 'all_ie_top_committees' and v is None:
                 v = []

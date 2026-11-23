@@ -651,10 +651,7 @@ def merged_records():
                 )
 
         # data_notes: pas2 note + ' | ' + UDP note; dedup note appended with a space.
-        if pk in RIVET_FIX_NOTES:
-            pas2_note = RIVET_FIX_NOTES[pk]
-        else:
-            pas2_note = pas2_row['data_notes']
+        pas2_note = RIVET_FIX_NOTES.get(pk, pas2_row['data_notes'])
         parts = [p for p in (pas2_note, udp_csv[pk]['data_notes']) if p]
         note = ' | '.join(parts)
         if pk in dedup_notes:

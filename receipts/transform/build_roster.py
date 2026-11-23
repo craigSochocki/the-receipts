@@ -86,8 +86,6 @@ NICK = {
     'jess': 'jessica',
     'will': 'william',
     'gabe': 'gabriel',
-    'don': 'donald',
-    'ron': 'ronald',
     'al': 'alan',
     'herb': 'herbert',
     'lou': 'luis',
@@ -187,7 +185,7 @@ def main():
 
     # index base by (state, norm last name)
     by_state_last = collections.defaultdict(list)
-    for bg, r in rows.items():
+    for r in rows.values():
         by_state_last[(r['state'], norm(r['last_name']))].append(r)
 
     hist = read_json(f'{SRC}/historical_lookup.json')
@@ -476,7 +474,7 @@ def main():
         ('Dick Durbin', 'Senate'): 'Minority Whip',
         ('Amy Klobuchar', 'Senate'): 'Chair, Senate Democratic Steering and Policy Committee',
     }
-    for k, r in rows.items():
+    for r in rows.values():
         if r['in_119th'] != 'yes':
             continue
         for (lname, chamber), role in LEAD119.items():

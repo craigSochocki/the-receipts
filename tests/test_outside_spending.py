@@ -83,7 +83,7 @@ def test_reads_the_bulk_csv_into_named_records(tmp_path):
     folder.mkdir()
     header = ','.join(IndependentExpenditure._fields[:-1])
     row = ','.join(
-        '"%s"' % v
+        f'"{v}"'
         for v in ['H1', 'DOE, JANE', 'C1'] + [''] * 6 + ['2500'] + [''] * 10 + ['2026', '', '']
     )
     (folder / 'independent_expenditure_2026.csv').write_text(header + '\n' + row + '\n')

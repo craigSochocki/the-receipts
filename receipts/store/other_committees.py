@@ -78,7 +78,7 @@ def fill_ledger(rows):
 
 def unclassified_composition(rows, cycle=None):
     composition = {}
-    for candidate_id, row_cycle, column, kind, amount, _ in rows:
+    for _candidate, row_cycle, column, kind, amount, _earmarked in rows:
         if column == CommitteeClass.UNCLASSIFIED.value and cycle in (None, row_cycle):
             composition[kind] = composition.get(kind, 0) + amount
     return dict(sorted(composition.items()))

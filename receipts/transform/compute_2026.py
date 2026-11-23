@@ -373,11 +373,12 @@ def with_2026(records):
         r['tier_lenient_2026'] = tier_2026(r, 'lenient')
 
         # Gap note: corporate PAC money with $0 individual in 2026.
-        if r['corp_2026'] > 0 and r['individual_2026'] == 0:
-            if 'missing-committee-linkage gap' not in r['data_notes']:
-                r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(
-                    corp=f'{r["corp_2026"]:,.0f}'
-                )
+        if (
+            r['corp_2026'] > 0
+            and r['individual_2026'] == 0
+            and 'missing-committee-linkage gap' not in r['data_notes']
+        ):
+            r['data_notes'] = r['data_notes'] + BEAN_SOLIS_GAP.format(corp=f'{r["corp_2026"]:,.0f}')
 
     # ---- Assert the expected clean counts (baseline clean_2026.*) ----
     counts = {

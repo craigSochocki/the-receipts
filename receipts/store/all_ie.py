@@ -467,7 +467,7 @@ def validation(udp_totals, prior, summaries):
                 'expected': want,
                 'diff': rounded(roster_2026[field] - want),
             }
-            for field, want in zip(fields, wanted)
+            for field, want in zip(fields, wanted, strict=True)
         }
     return checked
 
@@ -508,7 +508,7 @@ def roster_career_totals(roster, per_person, totals):
             continue
         amounts = totals.of({candidate_id}, set(CYCLES))
         extra = len(person_keys) - 1
-        overcount = [o + extra * a for o, a in zip(overcount, amounts)]
+        overcount = [o + extra * a for o, a in zip(overcount, amounts, strict=True)]
         shared.append(
             {
                 'candidate_id': candidate_id,
@@ -529,7 +529,9 @@ def roster_career_totals(roster, per_person, totals):
         'duplicate_roster_entries': shared,
         'distinct_person_totals': {
             field: dollars(row_sum - over)
-            for field, row_sum, over in zip(('support', 'oppose', 'total'), row_sums, overcount)
+            for field, row_sum, over in zip(
+                ('support', 'oppose', 'total'), row_sums, overcount, strict=True
+            )
         },
     }
 

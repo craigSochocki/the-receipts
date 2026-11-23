@@ -103,7 +103,7 @@ def read_store(roster_ids):
         rows_read, malformed = db.execute(WEBALL_READS).fetchone()
     finances = {
         (candidate_id, cycle): CampaignFinances.from_weball(
-            {field: Money(cents) for field, cents in zip(FINANCIAL_FIELDS, amounts)}
+            {field: Money(cents) for field, cents in zip(FINANCIAL_FIELDS, amounts, strict=True)}
         )
         for candidate_id, cycle, _, *amounts in counted
     }

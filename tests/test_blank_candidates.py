@@ -1,4 +1,6 @@
-from receipts.domain.blank_candidates import name_key, roster_matches
+from collections import namedtuple
+
+from receipts.domain.blank_candidates import name_key, resolve, roster_matches
 
 PEOPLE = [
     {'last_name': 'Davis', 'first_name': 'Donald', 'state': 'NC', 'district_119': 1},
@@ -19,10 +21,6 @@ def test_a_name_without_a_comma_is_matched_as_a_last_name():
 def test_name_key_ignores_case_of_the_name_only():
     assert name_key('Davis, Don', 'NC', '01', 'H') == ('DAVIS, DON', 'NC', '01', 'H')
 
-
-from collections import namedtuple
-
-from receipts.domain.blank_candidates import resolve
 
 Row = namedtuple('Row', 'candidate_name state district office direction')
 WITH_IDS = [

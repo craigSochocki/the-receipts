@@ -106,7 +106,7 @@ def fetch_f6_csv(file_number):
         ) as resp:
             return resp.read().decode('utf-8', errors='replace')
     except urllib.error.HTTPError as e:
-        raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})')
+        raise SystemExit(f'docquery CSV fetch failed: HTTP {e.code} {e.reason} (url {url})') from e
 
 
 def parse_f6_csv(text):
@@ -135,7 +135,7 @@ def parse_f6_csv(text):
             continue
         if kind == 'F6N' or kind == 'F6A':
 
-            def g(i):
+            def g(i, row=row):
                 return row[i] if i < len(row) else ''
 
             header = {
@@ -154,7 +154,7 @@ def parse_f6_csv(text):
             }
         elif kind == 'F65':
 
-            def g(i):
+            def g(i, row=row):
                 return row[i] if i < len(row) else ''
 
             raw_amount = g(17).replace(',', '').strip()
