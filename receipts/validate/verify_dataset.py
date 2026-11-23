@@ -468,6 +468,11 @@ def corp_material(corp, total_receipts, preset):
     return corp / total_receipts > th.corp_share
 
 
+def flag_for(aipac_direct, udp_benefit):
+    """Any AIPAC direct dollar or UDP benefit dollar flags the member under every preset."""
+    return bool(aipac_direct > 0 or udp_benefit > 0)
+
+
 def tier_for(clean, flag, corp, total_receipts, preset):
     if clean is None:
         return None
@@ -689,10 +694,8 @@ def columns_2026(audit, dataset):
             not any(cid not in ids and receipts > 0 for cid, receipts in race_map.get(race, []))
             for race in races
         )
-        # AIPAC/UDP flag (always on): any AIPAC direct dollar or UDP
-        # benefit dollar flags the member under every preset.
-        expect['aipac_udp_flag_2026'] = bool(
-            expect['aipac_direct_2026'] > 0 or expect['udp_benefit_2026'] > 0
+        expect['aipac_udp_flag_2026'] = flag_for(
+            expect['aipac_direct_2026'], expect['udp_benefit_2026']
         )
         # Net-negative clean rule: no NET dirty money (dirty_2026 <= 0)
         # reads clean; the unopposed test is the same net test.
