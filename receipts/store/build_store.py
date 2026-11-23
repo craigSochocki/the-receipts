@@ -20,6 +20,7 @@ from receipts.common.settings import (
 )
 from receipts.domain.committee_classes import committee_class, unclassified_kind
 from receipts.domain.committee_money import is_voided_earmark, reported_once
+from receipts.domain.money import Money
 from receipts.domain.outside_spending import exclusion, latest_filings
 from receipts.domain.roster import candidate_ids
 from receipts.domain.seats import house_seat_id
@@ -277,6 +278,18 @@ def check_candidate_snapshot():
         )
 
 
+def double_count_rows(dedup_records):
+    for record in dedup_records:
+        for dropped_id in record['dropped_ids']:
+            yield {
+                'person_key': record['person_key'],
+                'cycle': record['cycle'],
+                'kept_id': record['kept_id'],
+                'dropped_id': dropped_id,
+                'amount_cents': Money.parse(record['amount']).cents,
+            }
+
+
 def batches(rows, size=250_000):
     batch = []
     for row in rows:
@@ -325,6 +338,7 @@ def main():
             'counted_summaries',
             (summary_row(key, s, counted[key]) for key, (s, _) in summaries.items()),
         )
+        insert(db, 'double_counts', double_count_rows(dedup_records))
         insert(db, 'summary_corrections', corrections)
         insert(db, 'summary_differences', differences)
         insert(db, 'committees', committee_rows(files_read))

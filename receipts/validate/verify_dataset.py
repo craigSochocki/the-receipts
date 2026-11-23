@@ -22,11 +22,9 @@ Checks (exit non-zero on any mismatch, printing every failure):
       from weball26, the unopposed nulling of would-be-clean verdicts,
       the net-negative clean rule, the AIPAC/UDP flag and both
       tolerance tiers, and the int/float split on empty 2026 sums).
-  (f) the opposition career columns recompute from
-      opposition-computed.json.
-  (g) dedup audit: the dropped per-cycle entries in dedup-applied.json
-      are '0.00' in money_per_cycle.json, and the kept entries equal
-      the recorded amounts.
+  (f) the opposition career columns recompute from gold.opposition_credits.
+  (g) dedup audit: dbt tests (double_counts_*.sql) on the store's
+      double_counts table and gold.accepted_money_per_cycle.
   (h) CSV and JSON agree field by field (664 rows, same person_keys,
       same values — CSV floats compare by float value, clean_2026 by
       True/False/empty, dep_share by float value; the per-cycle lists
@@ -35,14 +33,13 @@ Checks (exit non-zero on any mismatch, printing every failure):
   (j) self-funding / topline: named spot cases (Constantino
       $17,000,000.00 exactly, Scott $89,994,251.12, …); debts owed to
       is null everywhere; Armstrong unknown, not zero.
-  (k) other committees: the corporate/AIPAC re-derivation in
-      other_committees_diagnostics.json matches methodology to the
-      cent; Lamb 2026 pas2-derived $96,500 with the $32,650 residual
-      recorded.
-  (l) all-IE: UDP 2024 deduped S+O is exactly $38,044,932.69; roster
-      cycle totals match config all_ie_cycle_totals; the $21,231.43
-      row-sum gap is exactly the blank-direction rows; top-committee
-      lists are sorted, split correctly, and null for Armstrong.
+  (k) other committees: Lamb's 2026 pas2 total and its residual against
+      weball (from the store), and the note that states them. The
+      corporate/AIPAC re-derivation is enforced by the other-committees step.
+  (l) all-IE: roster cycle totals (from gold) match the baseline; the
+      row-sum gap is exactly the blank-direction rows; top-committee lists
+      are sorted, split correctly, and null for Armstrong. The UDP 2024
+      reconciliation is enforced by the all-IE step.
   (m) clean-rule generalization: Constantino verified clean=True WITH
       2026 linkage evidence (self-funding 2026 loans $14.4M, coverage
       10/14/2026); Luria stays null — her linked ID's 2026 weball row
@@ -80,13 +77,13 @@ re-run of this one.
 import argparse
 import sys
 from collections import Counter
-from decimal import Decimal
 
 import pandas as pd
 
 from receipts.common.baseline import expected as baseline_figure
 from receipts.common.config import load_config
 from receipts.common.files import read_json, read_yaml
+from receipts.store.read import connect
 
 CFG = load_config()
 ROOT = CFG['_root']
@@ -163,6 +160,18 @@ def competition_ranks(records, col):
 def cycle_sum(entries, field):
     vals = [e[field] for e in entries if e['cycle'] == CURRENT]
     return round(sum(vals), 2) if vals else 0
+
+
+def opposition_credit(cycle=None):
+    """Dollars of opposition credit per roster person, summed over phases (and cycles)."""
+    with connect() as db:
+        credits = db.execute(
+            'SELECT credited_to, sum(credit) FROM gold.opposition_credits '
+            "WHERE credited_to NOT LIKE '__nonroster__%' AND (? IS NULL OR cycle = ?) "
+            'GROUP BY credited_to',
+            [cycle, cycle],
+        ).fetchall()
+    return {person_key: cents / 100 for person_key, cents in credits}
 
 
 def load_weball_2026_races():
@@ -265,13 +274,6 @@ def main():
         'cooperative_pacs',
         'other_unclassified',
     ]
-    oc_diag = read_json(ROOT / CFG['paths']['other_committees_diagnostics'])
-    cc = oc_diag['cross_checks_vs_methodology']
-    check(
-        'other-committee pull re-derives corporate/AIPAC to the cent',
-        all(v['match'] for v in cc.values()),
-        f'{[k for k, v in cc.items() if not v["match"]]}',
-    )
     lamb = by_key['marklambazhouse']
     lamb_pc26 = [e for e in lamb['other_committees_per_cycle'] if e['cycle'] == CURRENT]
     lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
@@ -285,8 +287,17 @@ def main():
         'spot.lamb.other_committees_total_2026',
         lamb_total,
     )
-    lamb_v = oc_diag['lamb_validation']
-    lamb_residual = lamb_v['weball_minus_pas2_cents'] / 100
+    with connect() as db:
+        lamb_weball, *_ = db.execute(
+            'SELECT other_committee_contributions_cents FROM candidate_summaries '
+            "WHERE candidate_id = 'H6AZ05265' AND cycle = ?",
+            [CURRENT],
+        ).fetchone()
+        roster_ie_totals = db.execute(
+            'SELECT cycle, sum(all_ie_total) FROM gold.all_ie_per_candidate_cycle '
+            'WHERE is_roster GROUP BY cycle ORDER BY cycle'
+        ).fetchall()
+    lamb_residual = round(lamb_weball / 100 - lamb_total, 2)
     pin('Lamb 2026 weball-minus-pas2 residual', 'spot.lamb.weball_minus_pas2_2026', lamb_residual)
     check(
         'Lamb data_notes states the current pas2 total and residual (or no note at zero)',
@@ -300,20 +311,9 @@ def main():
     )
 
     # (l) all-IE: UDP 2024 exact; cycle totals; the blank-direction gap; top committees.
-    aie_raw = read_json(ROOT / CFG['paths']['all_ie_per_cycle'])
-    udp24 = aie_raw['validation']['udp_2024_exact']
-    check(
-        'all-IE UDP 2024 deduped S+O reproduces the UDP pull exactly',
-        udp24['status'] == 'exact',
-        f'got {udp24["computed"]} ({udp24["status"]})',
-    )
-    pin('all-IE UDP 2024 deduped S+O', 'udp_prior_cycle_totals.2024', udp24['computed'])
-    for yr in sorted(aie_raw['per_cycle_summaries'], key=int):
-        pin(
-            f'all-IE roster total {yr}',
-            f'all_ie_cycle_totals.{yr}',
-            aie_raw['per_cycle_summaries'][yr]['roster_targeted']['total'],
-        )
+    # The UDP 2024 reconciliation is enforced by the all-IE step itself.
+    for cycle, cents in roster_ie_totals:
+        pin(f'all-IE roster total {cycle}', f'all_ie_cycle_totals.{cycle}', cents / 100)
     nodir = round(
         sum(
             r['all_ie_total_career'] - r['all_ie_support_career'] - r['all_ie_oppose_career']
@@ -595,14 +595,8 @@ def main():
         pin(f'{name} tier spot case', f'spot.tier.{slug}', {f: rec[f] for f in spot_fields})
 
     # (e) 2026 columns, clean rule, dep_share
-    opp = read_json(ROOT / CFG['paths']['opposition_computed'])
     race_map, by_cid = load_weball_2026_races()
-    credit_2026 = {}
-    for race, pk, _name, amount, _detail in opp['credit_detail']:
-        if race[0] == CURRENT and not pk.startswith('__nonroster__'):
-            # Sum across phases: one person can now be credited in two phases
-            # of the same race (the race key includes ele_type).
-            credit_2026[pk] = round(credit_2026.get(pk, 0.0) + float(amount), 2)
+    credit_2026 = opposition_credit(cycle=CURRENT)
     oc_buckets_e = [
         'party_committees',
         'leadership_pacs',
@@ -872,15 +866,16 @@ def main():
     )
 
     # (f) opposition career columns
+    career_credit = opposition_credit()
     mism = 0
     for r in numeric:
-        credit = round(float(opp['credit_by_person'].get(r['person_key'], 0.0)), 2)
+        credit = career_credit.get(r['person_key'], 0.0)
         if r['udp_ie_opposing_opponents_career'] != credit:
             mism += 1
         if r['udp_ie_total_benefit_career'] != round(r['udp_ie_support_career'] + credit, 2):
             mism += 1
     check(
-        'opposition career columns recompute from opposition-computed.json',
+        'opposition career columns recompute from gold.opposition_credits',
         mism == 0,
         f'{mism} mismatches',
     )
@@ -891,35 +886,6 @@ def main():
         and arm['udp_ie_opposing_opponents_career'] is None
         and arm['udp_ie_total_benefit_career'] is None,
     )
-
-    # (g) dedup audit
-    dedup = read_json(ROOT / CFG['paths']['dedup_applied'])
-    # money_per_cycle.json is a dict keyed by person_key.
-    mpc_by_key = read_json(ROOT / CFG['paths']['money_per_cycle'])
-    mism = 0
-    total_corrected = Decimal('0')
-    for entry in dedup:
-        pk = entry['person_key']
-        per_cycle = {(e['cycle'], e['candidate_id']): e for e in mpc_by_key[pk]['per_cycle']}
-        for dropped_id in entry['dropped_ids']:
-            e = per_cycle.get((entry['cycle'], dropped_id))
-            if e is None or Decimal(e['individual']) != Decimal('0.00'):
-                mism += 1
-        kept = per_cycle.get((entry['cycle'], entry['kept_id']))
-        if kept is None or Decimal(kept['individual']) != Decimal(entry['amount']):
-            mism += 1
-        total_corrected += Decimal(entry['amount'])
-    check(
-        'dedup applied: dropped copies are 0.00, kept copies match the record',
-        mism == 0,
-        f'{mism} mismatches',
-    )
-    check(
-        'dedup total is $451,776,015.34',
-        total_corrected == Decimal('451776015.34'),
-        f'got {total_corrected}',
-    )
-    check('dedup record has 90 groups', len(dedup) == 90, f'got {len(dedup)}')
 
     # (h) CSV <-> JSON agreement
     df = pd.read_csv(ROOT / args.dataset_csv, dtype=str, keep_default_na=False)

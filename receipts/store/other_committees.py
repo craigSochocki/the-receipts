@@ -407,6 +407,8 @@ def main():
         reconciliation = [reconcile_cycle(db, c, roster_ids, ledger, dedup_records) for c in CYCLES]
         lamb = lamb_validation(db, ledger)
     checks = cross_checks(ledger)
+    if mismatched := [column for column, (got, want) in checks.items() if got != want]:
+        raise SystemExit(f'other committees re-derive {mismatched} differently from the baseline')
 
     people = [career_row(person, ledger, roster) for person in roster.people]
     cycles = {p['person_key']: per_cycle_record(p, ledger) for p in roster.people}

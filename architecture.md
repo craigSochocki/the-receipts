@@ -181,13 +181,17 @@ layout mirrors the future tables — `data/source/` (inputs),
 ## 3. Layered pipeline (bronze → silver → gold)
 - **Raw (bronze):** FEC bulk dumps and API responses, stored as received under
   `data/raw/`, immutable, dated. Never edited in place.
-- **Staging (silver):** deduped, typed, joined tables (`money_pas2_weball.csv`,
-  `money_per_cycle.json`, `opposition-computed.json`,
-  `self_funding_per_cycle.json`, `other_committees_per_cycle.json`,
-  `all_ie_per_cycle.json`, `all_ie_top_committees.json`). Each staging script
-  records its inputs, its dedup rule, and its row counts in a log.
-- **Marts (gold):** the per-person dataset (career + per-cycle). Every column
-  is produced by a script. No manual edits to the JSON/CSV, ever.
+- **Staging (silver):** the DuckDB store (`data/store/receipts.duckdb`):
+  typed FEC rows kept as filed, with every exclusion and correction as a
+  row (`summary_corrections`, `double_counts`, `excluded_because`), plus the
+  dbt views in `dbt/models/silver`. dbt tests check it before any money step runs.
+- **Gold:** each money step writes its results to the store's `gold` schema;
+  the dbt marts (`dbt/models/marts`) add the per-person totals and ranks, and
+  dbt tests check that every career column is the sum of its cycles.
+- **Published:** the per-person dataset (career + per-cycle), assembled from
+  gold. Every column is produced by a script. No manual edits to the JSON/CSV,
+  ever. `verify_dataset.py` audits it; it reads the dataset, the store and
+  the baseline, never a staging file.
 - **Freshness (overlay):** `freshness_snapshot.json`, produced by a separate
   entry point (`receipts/ingest/pull_freshness.py`) on its own cadence. It is not part
   of the rebuild pipeline and never feeds the mart.
