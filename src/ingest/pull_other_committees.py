@@ -58,6 +58,10 @@ def earmark(column):
     return f'{column}_earmark'
 
 
+TRACKED_COLUMNS = BUCKETS + [AIPAC, CORPORATE]
+LEDGER_COLUMNS = TRACKED_COLUMNS + [earmark(c) for c in TRACKED_COLUMNS] + [WINRED_COLUMN]
+
+
 def read_registry(cycle):
     registry = committees(BULK, cycle)
     by_id = {committee.committee_id: committee for committee in registry}
@@ -324,7 +328,7 @@ def main():
         roster = Roster(json.load(f))
     with open(SOURCE / 'dedup-applied.json') as f:
         dedup_records = json.load(f)
-    ledger = Ledger()
+    ledger = Ledger(LEDGER_COLUMNS)
     composition = {}
 
     diagnostics = [read_cycle(cycle, roster, ledger, composition) for cycle in CYCLES]

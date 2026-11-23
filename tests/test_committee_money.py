@@ -1,4 +1,5 @@
-from src.domain.committee_money import ReportedOnce, Source, is_voided_earmark, tracked_source
+from src.domain.committee_classes import CommitteeClass
+from src.domain.committee_money import ReportedOnce, is_voided_earmark, tracked_class
 from src.domain.money import Money
 from src.fec.committee_contributions import CommitteeContribution
 
@@ -14,9 +15,12 @@ def contribution(**overrides):
 
 def test_aipac_and_corporate_pacs_are_tracked_everything_else_is_not():
     corporate_pacs = {'C_CORP'}
-    assert tracked_source(contribution(committee_id=AIPAC), AIPAC, corporate_pacs) is Source.AIPAC
-    assert tracked_source(contribution(committee_id='C_CORP'), AIPAC, corporate_pacs) is Source.CORPORATE
-    assert tracked_source(contribution(committee_id='C_LABOR'), AIPAC, corporate_pacs) is None
+    def tracked(committee_id):
+        return tracked_class(contribution(committee_id=committee_id), AIPAC, corporate_pacs)
+
+    assert tracked(AIPAC) is CommitteeClass.AIPAC
+    assert tracked('C_CORP') is CommitteeClass.CORPORATE
+    assert tracked('C_LABOR') is None
 
 
 def test_only_a_negative_earmark_is_a_voided_earmark():
