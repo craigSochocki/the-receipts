@@ -7,26 +7,18 @@ cycle. A person with no FEC IDs is unknown (null), never zero.
 Column map, verification and the dedup decisions:
 research/self-funding-notes.md.
 """
-import csv
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from src.common.config import load_config
+from src.common.files import text_or_blank, text_or_none, write_csv, write_json
+from src.common.settings import (CAREER_CYCLES as CYCLES, CURRENT_CYCLE, DATA_AS_OF, PATHS,
+                                 load_double_count_records, load_roster)
 from src.domain.campaign_finances import FLOWS, STOCKS, CampaignFinances
 from src.domain.money import Money
 from src.domain.roster import Roster, candidate_ids
 from src.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
 from src.fec.weball import CandidateSummary, candidate_summaries
-
-CFG = load_config()
-ROOT = CFG['_root']
-INTERMEDIATE = ROOT / CFG['paths']['intermediate']
-SOURCE = ROOT / CFG['paths']['source']
-BULK = ROOT / CFG['paths']['bulk']
-CYCLES = range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2)
-CURRENT_CYCLE = CFG['cycles']['current']
 
 PER_CYCLE_FIELDS = ['candidate_contributions', 'candidate_loans', 'loan_repayments',
                     'debts_owed_by', 'debts_owed_to', 'total_receipts', 'total_disbursements',
@@ -39,7 +31,7 @@ CSV_FIELDS = (['person_key', 'full_name', 'fec_candidate_ids']
               + ['data_notes'])
 META_TEXT = {
     'source': 'staged bulk weball files data/raw/weball/weballYY.txt, cycles 1980-2026',
-    'data_as_of': CFG.get('data_as_of'),
+    'data_as_of': DATA_AS_OF,
     'column_map_1indexed': {
         'total_receipts': 6, 'transfers_from_auth': 7, 'total_disbursements': 8,
         'transfers_to_auth': 9, 'cash_on_hand_coh_cop': 11,
@@ -74,7 +66,7 @@ def read_weball(roster):
     counts = {'weball_rows_scanned': 0, 'weball_rows_matched_roster': 0,
               'weball_bad_field_count_rows': 0}
     for cycle in CYCLES:
-        summaries = candidate_summaries(BULK, cycle)
+        summaries = candidate_summaries(PATHS.bulk, cycle)
         for summary in summaries:
             if summary.candidate_id in roster:
                 counts['weball_rows_matched_roster'] += 1
@@ -86,10 +78,6 @@ def read_weball(roster):
     return amounts, coverage_end, counts
 
 
-def text(amount):
-    return None if amount is None else str(amount)
-
-
 def per_cycle_entries(person, finances, coverage_end):
     entries = []
     for cycle in CYCLES:
@@ -97,7 +85,7 @@ def per_cycle_entries(person, finances, coverage_end):
             cycle_finances = finances.get((candidate_id, cycle))
             if not cycle_finances:
                 continue
-            amounts = {field: text(getattr(cycle_finances, field, None))
+            amounts = {field: text_or_none(getattr(cycle_finances, field, None))
                        for field in PER_CYCLE_FIELDS}
             entries.append({'cycle': cycle, 'candidate_id': candidate_id, **amounts,
                             'coverage_end_date': coverage_end.get((candidate_id, cycle), '')})
@@ -144,9 +132,8 @@ def notes_for(person, finances, roster, differing):
         notes.append('no FEC candidate IDs in roster — self-funding unknown (null, not zero)')
     elif not any((cid, cycle) in finances for cid in ids for cycle in CYCLES):
         notes.append('no weball rows found')
-    shared_with = roster.others_sharing_an_id_with(person)
-    if shared_with:
-        notes.append('duplicate roster entry: FEC ID shared with ' + ', '.join(shared_with))
+    if roster.shared_id_note(person):
+        notes.append(roster.shared_id_note(person))
     for flag in differing:
         if flag['person_key'] == person['person_key']:
             notes.append(
@@ -159,15 +146,11 @@ def notes_for(person, finances, roster, differing):
 
 def csv_row(person, finances, roster, differing):
     career, current, latest_cycle = person_summary(person, finances)
-
-    def shown(amount):
-        return '' if amount is None else str(amount)
-
     return {'person_key': person['person_key'], 'full_name': person['full_name'],
             'fec_candidate_ids': ';'.join(candidate_ids(person)),
-            **{f'{field}_career': shown(career.get(field)) for field in SUMMARY_FIELDS},
+            **{f'{field}_career': text_or_blank(career.get(field)) for field in SUMMARY_FIELDS},
             'cash_on_hand_cycle': latest_cycle, 'debts_owed_by_cycle': latest_cycle,
-            **{f'{field}_2026': shown(current.get(field)) for field in SUMMARY_FIELDS},
+            **{f'{field}_2026': text_or_blank(current.get(field)) for field in SUMMARY_FIELDS},
             'data_notes': notes_for(person, finances, roster, differing)}
 
 
@@ -180,10 +163,8 @@ def describe(differing):
 
 
 def main():
-    with open(INTERMEDIATE / 'roster.json') as f:
-        roster = Roster(json.load(f))
-    with open(SOURCE / 'dedup-applied.json') as f:
-        dedup_records = json.load(f)
+    roster = Roster(load_roster())
+    dedup_records = load_double_count_records()
 
     amounts, coverage_end, counts = read_weball(roster)
     report = remove_double_counts(amounts, dedup_records,
@@ -192,10 +173,7 @@ def main():
     finances = {key: CampaignFinances.from_weball(found) for key, found in amounts.items()}
 
     rows = [csv_row(person, finances, roster, differing) for person in roster.people]
-    with open(INTERMEDIATE / 'self_funding.csv', 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
-        writer.writeheader()
-        writer.writerows(rows)
+    write_csv(PATHS.self_funding_csv, rows, CSV_FIELDS)
 
     persons = {p['person_key']: {'person_key': p['person_key'], 'full_name': p['full_name'],
                                  'fec_candidate_ids': candidate_ids(p),
@@ -207,8 +185,7 @@ def main():
                       'identical_cells_zeroed': report.cells_zeroed,
                       'differing_columns_flagged_not_corrected': differing},
             **counts}
-    with open(INTERMEDIATE / 'self_funding_per_cycle.json', 'w') as f:
-        json.dump({'meta': meta, 'persons': persons}, f, indent=1)
+    write_json(PATHS.self_funding_per_cycle, {'meta': meta, 'persons': persons})
 
     print('persons:', len(rows))
     print('dedup groups applied:', report.groups_applied,

@@ -4,7 +4,8 @@
 Inputs (all staged; see config.yaml `paths`):
 - `roster_intermediate.json` — the enriched roster (665 rows).
 - `money_per_cycle.json` + `money_pas2_weball.csv` — career money
-  (post-`apply_dedup.py`: the weball double-count is already corrected).
+  (from `src/store/accepted_money.py`: the weball double-count is already
+  corrected).
 - `money_udp.csv` + `money_udp_per_cycle.json` — UDP support (from
   `pull_udp.py`).
 - `self_funding_per_cycle.json` + `self_funding.csv` — self-funding +
@@ -18,7 +19,7 @@ Inputs (all staged; see config.yaml `paths`):
 - `opposition-computed.json` — UDP opposition credit (from
   `compute_opposition.py`).
 - `dedup-notes.json` — per-person correction notes (from
-  `apply_dedup.py`).
+  `src/store/accepted_money.py`).
 
 Outputs: `congress-money-tracker.csv` / `.json` with the base columns
 (roster fields, career money, `per_cycle` / `udp_per_cycle` /

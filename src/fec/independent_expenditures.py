@@ -1,10 +1,9 @@
 """Independent expenditures: spending for or against a candidate by an outside group."""
 import csv
 from datetime import datetime
-from decimal import Decimal, InvalidOperation
 from typing import NamedTuple
 
-from src.domain.money import ZERO, Money
+from src.domain.money import Money
 
 SUPPORT, OPPOSE = 'S', 'O'
 
@@ -53,13 +52,7 @@ class IndependentExpenditure(NamedTuple):
 
     @property
     def amount(self):
-        text = self.exp_amo.replace('$', '').replace(',', '').strip()
-        if not text:
-            return ZERO
-        try:
-            return Money(int((Decimal(text) * 100).to_integral_value()))
-        except InvalidOperation:
-            raise ValueError(f'unreadable amount {self.exp_amo!r} at row {self.position}')
+        return Money.parse(self.exp_amo)
 
     @property
     def received(self):

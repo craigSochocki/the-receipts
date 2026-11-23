@@ -32,7 +32,7 @@ python3 src/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
-→ `pull_money` → `pull_udp` → `apply_dedup` → `pull_self_funding` →
+→ `build_store` → `accepted_money` → `pull_udp` → `pull_self_funding` →
 `pull_other_committees` → `pull_all_ie` → `compute_opposition` →
 `merge_dataset` → `compute_ranking` → `compute_2026` → `verify_dataset` —
 and backs the current dataset up to
@@ -88,13 +88,15 @@ What each step does (each script documents its own rules in its header):
   `fec_lookup_results.json` (113 found, 7 found-manual, 1 not found) and
   the recorded manual notes in `data/source/manual_roster_notes.json`; writes
   `data/intermediate/roster_intermediate.json` and `data/intermediate/roster.json`.
-- `pull_money.py` — career money from weball + pas2 + cm.
+- `store/build_store.py` — the silver store (DuckDB): every FEC candidate,
+  committee and filing, with exclusions labeled rather than dropped.
+- `store/accepted_money.py` — the roster's career money, read from the
+  store with the recorded weball double-count removed
+  (`data/source/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
+  plus the Curtis 2024 extension to weball cols 6–9); also writes
+  `data/intermediate/dedup-notes.json`.
 - `pull_udp.py` — UDP independent-expenditure support; also writes the
   per-cycle breakdown `data/intermediate/money_udp_per_cycle.json`.
-- `apply_dedup.py` — applies the recorded weball double-count dedup
-  (`data/source/dedup-applied.json`: $451,776,015.34, 32 persons, 90 groups,
-  plus the Curtis 2024 extension to weball cols 6–9);
-  writes `data/intermediate/dedup-notes.json`.
 - `pull_self_funding.py` — self-funding + topline from weball
   (candidate contributions/loans, loan repayments, debts owed by,
   total receipts/disbursements, transfers, cash on hand);

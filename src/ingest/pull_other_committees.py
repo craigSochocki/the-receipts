@@ -4,21 +4,21 @@
 Reads pas2 + cm; classes are in src/domain/committee_classes.py. Each
 class gets its own columns, never blended into total_accepted. Also
 re-derives the corporate and AIPAC totals as a cross-check on
-pull_money, and reconciles against weball col 26.
+the store's accepted money, and reconciles against weball col 26.
 Evidence and findings: research/other-committees-notes.md.
 """
-import csv
-import json
 import sys
 from decimal import Decimal
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from src.common.baseline import expected
-from src.common.config import load_config
+from src.common.files import write_csv, write_json
+from src.common.settings import (AIPAC_PAC, CAREER_CYCLES as CYCLES, PATHS, WINRED,
+                                 load_double_count_records, load_roster)
 from src.domain.committee_classes import (OTHER_COMMITTEE_CLASSES, CommitteeClass,
                                           committee_class, unclassified_kind)
-from src.domain.committee_money import ReportedOnce, Tally, is_voided_earmark
+from src.domain.committee_money import Tally, is_voided_earmark, reported_once
 from src.domain.ledger import Ledger
 from src.domain.money import ZERO, Money
 from src.domain.roster import Roster, candidate_ids
@@ -26,14 +26,7 @@ from src.fec.committee_contributions import committee_contributions
 from src.fec.committees import committees
 from src.fec.weball import candidate_summaries
 
-CFG = load_config()
-ROOT = CFG['_root']
-INTERMEDIATE = ROOT / CFG['paths']['intermediate']
-SOURCE = ROOT / CFG['paths']['source']
-BULK = ROOT / CFG['paths']['bulk']
-CYCLES = range(CFG['cycles']['career_start'], CFG['cycles']['career_end'] + 1, 2)
-AIPAC_PAC = CFG['committees']['aipac_pac']
-WINRED = CFG['committees']['winred']
+BULK = PATHS.bulk
 LAMB_CANDIDATE, LAMB_CYCLE = 'H6AZ05265', 2026
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
@@ -46,11 +39,11 @@ DEDUP_FINDING = (
     'Senate IDs). It does NOT change any pas2-derived column in this '
     'script: pas2 is transaction-level, so per-ID amounts differ and '
     'there is no duplicate copy to drop — the same finding '
-    'apply_dedup.py records for AIPAC/corporate. It DOES affect the '
+    'the double-count record notes for AIPAC/corporate. It DOES affect the '
     'weball side of the reconciliation: col 26 (OTHER_POL_CMTE_CONTRIB) '
     'is duplicated under both IDs the same way, so the reconciliation '
     'zeroes the dropped IDs\' col-26 copies (guarded by the same '
-    'equality check apply_dedup.py uses) and reports raw vs corrected '
+    'equality check the weball correction uses) and reports raw vs corrected '
     'residuals separately. No correction was invented for these columns.')
 
 
@@ -71,7 +64,7 @@ def read_registry(cycle):
 def read_cycle(cycle, roster, ledger, composition):
     registry, registry_counts = read_registry(cycle)
     filed = committee_contributions(BULK, cycle)
-    reported_once = ReportedOnce()
+    filed_once = reported_once()
     matched, voided, unregistered = 0, Tally(), Tally()
     unregistered_committees = set()
 
@@ -86,12 +79,12 @@ def read_cycle(cycle, roster, ledger, composition):
             unregistered.add(ZERO)
             unregistered_committees.add(contribution.committee_id)
             continue
-        reported_once.add(contribution)
+        filed_once.add(contribution)
 
     kept = {column: ZERO for column in BUCKETS + [AIPAC, CORPORATE, WINRED_COLUMN]}
     kept_earmarks = {column: ZERO for column in kept}
     cycle_composition = {}
-    for contribution in reported_once:
+    for contribution in filed_once:
         committee = registry[contribution.committee_id]
         column = committee_class(committee, AIPAC_PAC).value
         amount = contribution.amount
@@ -117,8 +110,8 @@ def read_cycle(cycle, roster, ledger, composition):
         'pas2_matched_roster': matched,
         'cm_missing_committees': len(unregistered_committees),
         'cm_missing_rows': unregistered.rows,
-        'dedup_dropped_rows': reported_once.dropped.rows,
-        'dedup_dropped_cents': reported_once.dropped.amount.cents,
+        'dedup_dropped_rows': len(filed_once.dropped),
+        'dedup_dropped_cents': Money.total(c.amount for c in filed_once.dropped).cents,
         'void_earmark_rows': voided.rows, 'void_earmark_cents': voided.amount.cents,
         'kept_cents': {bucket: kept[bucket].cents for bucket in BUCKETS},
         'kept_earmark_cents': {bucket: kept_earmarks[bucket].cents for bucket in BUCKETS
@@ -134,7 +127,7 @@ def read_cycle(cycle, roster, ledger, composition):
 
 
 def cross_checks(ledger):
-    """Corporate and AIPAC re-derived here must match pull_money to the cent."""
+    """Corporate and AIPAC re-derived here must match the store's accepted money to the cent."""
     def baseline_cents(column, recomputed):
         recorded = expected(f'methodology_totals.{column}', recomputed.cents / 100)
         return int(Decimal(str(recorded)) * 100)
@@ -264,9 +257,8 @@ def notes_for(person, ledger, roster, other_total, winred):
             notes.append('no FEC activity found')
         elif not other_total:
             notes.append('FEC activity found; all other-committee totals zero')
-    shared_with = roster.others_sharing_an_id_with(person)
-    if shared_with:
-        notes.append('duplicate roster entry: FEC ID shared with ' + ', '.join(shared_with))
+    if roster.shared_id_note(person):
+        notes.append(roster.shared_id_note(person))
     if winred:
         notes.append(f'other_unclassified includes WinRed conduit net {winred} (see diagnostics)')
     return ' | '.join(notes)
@@ -311,23 +303,9 @@ def roster_total(roster, ledger, column):
     return Money.total(ledger.total(candidate_ids(p), CYCLES, column) for p in roster.people)
 
 
-def write_csv(name, rows):
-    with open(INTERMEDIATE / name, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0]))
-        writer.writeheader()
-        writer.writerows(rows)
-
-
-def write_json(name, content):
-    with open(INTERMEDIATE / name, 'w') as f:
-        json.dump(content, f, indent=1)
-
-
 def main():
-    with open(INTERMEDIATE / 'roster.json') as f:
-        roster = Roster(json.load(f))
-    with open(SOURCE / 'dedup-applied.json') as f:
-        dedup_records = json.load(f)
+    roster = Roster(load_roster())
+    dedup_records = load_double_count_records()
     ledger = Ledger(LEDGER_COLUMNS)
     composition = {}
 
@@ -336,10 +314,10 @@ def main():
     reconciliation = [reconcile_cycle(c, roster, ledger, dedup_records) for c in CYCLES]
 
     rows = [career_row(person, ledger, roster) for person in roster.people]
-    write_csv('other_committees.csv', rows)
-    write_json('other_committees_per_cycle.json',
+    write_csv(PATHS.other_committees_csv, rows)
+    write_json(PATHS.other_committees_per_cycle,
                {p['person_key']: per_cycle_record(p, ledger) for p in roster.people})
-    write_json('other_committees_diagnostics.json', {
+    write_json(PATHS.other_committees_diagnostics, {
         'per_cycle': diagnostics,
         'unclassified_composition_career_cents': {k: a.cents for k, a in composition.items()},
         'roster_totals_cents': {b: roster_total(roster, ledger, b).cents for b in BUCKETS},
