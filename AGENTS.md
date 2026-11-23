@@ -310,7 +310,17 @@ Secrets and variables → Actions if it ever leaks or expires. `--all` runs the 
 (§2), and a workflow change is its own commit, never bundled with a data
 or pipeline change.
 
-## 9. Human workflow (Craig in VS Code)
+## 9. Code style (Craig, Nov 22, 2026)
+
+Code should read without commentary: small functions, names that say
+what a thing is, one level of abstraction per function. Use comments
+sparingly — only for a reason the code cannot show (an FEC quirk, a
+decision and who made it). Do not narrate history or restate the code
+in comments; history belongs in commit messages and `STATUS.md`,
+definitions in `methodology.md`. Much of the existing code predates
+this rule and is being refactored toward it.
+
+## 10. Human workflow (Craig in VS Code)
 
 Craig works on this repo in VS Code on a local clone. The same rules
 apply, in human form:
