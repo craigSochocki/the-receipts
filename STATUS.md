@@ -5,7 +5,7 @@
 ## What is built
 
 - **Refactor in progress (Nov 22).** One pipeline step at a time onto
-  `src/domain/` (rules, Money in exact cents) and `src/fec/` (typed
+  `receipts/domain/` (rules, Money in exact cents) and `receipts/fec/` (typed
   readers), each step byte-identical. Done: `pull_money`,
   `pull_other_committees`, `pull_self_funding`. **Direction change (Craig, Nov 22):** stop migrating
   the old scripts one by one; build silver tables (people,
@@ -15,10 +15,10 @@
   all-IE candidate-cycle (2,228) and every baseline roster total (37)
   on `fec-bulk-2026-11-22` matches the float pipeline to the cent, so
   float drift is latent, not active; the IE reader
-  (`src/fec/independent_expenditures.py`) is exact by construction and
+  (`receipts/fec/independent_expenditures.py`) is exact by construction and
   reproduces the pipeline's per-candidate totals and exclusion counts
   exactly. The three old IE scripts are left as they are until retired. **Silver store, first gold view (Nov 22):**
-  `src/store/build_store.py` loads every FEC candidate summary,
+  `receipts/store/build_store.py` loads every FEC candidate summary,
   committee, contribution to a candidate (6.56M, each counted once,
   exclusions labeled) and independent expenditure into
   `data/store/receipts.duckdb` (~124 MB, ~90 s). Weball is kept as
@@ -61,11 +61,11 @@
   `./fetch_snapshot.sh`. (2) Every data-dependent expected figure moved
   to `data/source/baseline.json` (111 keys: roster totals, clean/tier
   counts, named spot cases, and what the public page says);
-  `src/common/baseline.py`; `python3 src/rebuild.py --rebaseline`
+  `receipts/common/baseline.py`; `python3 receipts/rebuild.py --rebaseline`
   records a new snapshot's figures and the baseline diff is the review.
   `config.yaml` `verification` keeps policy values only. (3) The site
   checkers compute their expectations from the embedded data
-  (`src/site/expectations.py`) instead of typed literals; the 2026
+  (`receipts/site/expectations.py`) instead of typed literals; the 2026
   targets intro count is computed at build (was a typed "192").
   (4) CI stages the pinned snapshot; the weekly cron is paused.
   **Rebaselined to `fec-bulk-2026-11-22`:** 54 of 111 baseline figures
@@ -100,15 +100,15 @@
   residual) and audited. **Open, for Craig:** (b) methodology.md prose still quotes Nov 12 figures (banner added at
   the top; baseline.json is authoritative); (c) DONE Nov 23: the one-cent all-IE
   mismatch CI reported Nov 13 could not be reproduced (the inputs are
-  gone); all-IE money is now summed in exact cents (`src/store/all_ie.py`),
+  gone); all-IE money is now summed in exact cents (`receipts/store/all_ie.py`),
   with every published figure unchanged on this snapshot; (d) DONE Nov 23: `scheduled-refresh.yml`
   is replaced by `fec-refresh.yml` (weekly snapshot → rebaseline → pull request);
   (e) remaining named-person assumptions in the smoke test (Stevens as
   the first tracker row / drill-down target).
 
 - **Static site — DONE Nov 12.** `docs/index.html` is generated from the
-  canonical dataset by `src/site/build_site.py` (one command regenerates
-  it; `src/site/verify_site.py` checks it). Single self-contained page, no
+  canonical dataset by `receipts/site/build_site.py` (one command regenerates
+  it; `receipts/site/verify_site.py` checks it). Single self-contained page, no
   external dependencies, dataset embedded in a compact positional encoding
   (1.6 MB for 664 rows). Content parity with the private tracker artifact
   (v6): search; filters (Congress, chamber, party, state, leadership-only,
@@ -163,7 +163,7 @@
 - **2028 primary targets — DONE Nov 12.** New full-data tab next to the 2026 tab (kept untouched as history): "the dirtiest Democrats to watch for 2028 primaries" — a watchlist from 2026-cycle dirty money, NOT a ballot prediction (retirements unknown, 2028 filings not open, 2026 partial). House: same rule as the 2026 tab (120th House Democrats, dirty_2026 > 0) — 192 rows, top five Boafo $5,745,013.28, Bell $3,446,667.69, Aguilar $1,359,750.00, Jeffries $1,259,000.00, Clark $1,166,250.00. Senate: Class 3 Democrats only, dirty_2026 > 0 — 13 rows, led by Hassan $407,388.00, Wyden $304,500.00, Schatz $279,400.00 (all thirteen corporate-PAC-only dirty in 2026). New `senate_class` dataset column (1/2/3 for senators, null otherwise), read from the Senate-term `class` field in `legislators-current.yaml` — own term where held into 2026, else the 2026 seat-holder's class (Brown 3 via Husted); render-time derivation from FEC cycles was tested and fails on all three attempts, documented in methodology §14. Audit (n) in `verify_dataset.py` re-derives it independently: 0 mismatches, 120th C1 33 / C2 32 / C3 34, 16 Class 3 Democrats (Kelly/Bennet $0 and Warnock −$3,500 corp-PAC refund are the three not on the tab). Front-door pointer in the Data chapter opens the tab by in-page navigation (onclick, no URL state — Change 2 still queued). Verifier + smoke test cover the counts, the Senate top 3, the computed intro (literal scan + negative test), and the tab order. Dataset md5s after the build: csv edaf65eb6850c498f7436c05098338c0, json 436211b328d3682c8f7104e6a2b57325 (changed only by the added `senate_class` column; every other value byte-identical).
 
 - **Tiered dirty rule + corporate PAC tolerance presets — DONE Nov 12.**
-  New dataset columns (rebuilt via `src/rebuild.py`, byte-identical on
+  New dataset columns (rebuilt via `receipts/rebuild.py`, byte-identical on
   re-run, all 140 audits passing — 107 pre-existing + 33 new): `aipac_udp_flag_2026`
   (AIPAC direct > $0 OR UDP benefit > $0 — always on, not tolerance-based;
   231 in the 120th, 291 roster-wide) and `tier_balanced_2026` /
@@ -215,7 +215,7 @@
 
 - **Automation (GitHub Actions) — DONE Nov 12; workflows in
   `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
-  on push + pull request to `master`: download bulk → `src/rebuild.py` →
+  on push + pull request to `master`: download bulk → `receipts/rebuild.py` →
   fail unless the rebuild reproduces the committed dataset byte-identically
   (`git diff --exit-code` on the CSV/JSON) → build + verify the site. No
   deploy step (Pages serves `docs/` automatically); `contents: read`; no
@@ -329,10 +329,10 @@
   rows). The $1,004.53 F24 residual reconciled (Aug 3 F3X row, pre-window).
 - **Codification — DONE Nov 12, ~10:40 AM EST.** The whole pipeline is
   scripted and one command rebuilds the dataset: `python3
-  src/rebuild.py` (build_roster → apply_fec_lookup → pull_money →
+  receipts/rebuild.py` (build_roster → apply_fec_lookup → pull_money →
   pull_udp → apply_dedup → pull_self_funding → pull_other_committees →
   pull_all_ie → compute_opposition → merge_dataset →
-  compute_ranking → compute_2026 → verify_dataset). `src/validate/verify_dataset.py`
+  compute_ranking → compute_2026 → verify_dataset). `receipts/validate/verify_dataset.py`
   runs 93 standing audits (per-cycle sums for every column family,
   roster totals vs methodology, all 12 rank columns, clean counts and
   the generalized clean rule, 2026 columns, opposition, dedup,
@@ -345,11 +345,11 @@
   self-funding blind spot below).
 - **Repo restructure — DONE Nov 12.** Staged `src/` (`common/` config
   loader, `ingest/` pulls, `transform/` roster/dedup/merge/ranking/2026,
-  `validate/` audits, `src/rebuild.py`); `data/` (`raw/` gitignored bulk,
+  `validate/` audits, `receipts/rebuild.py`); `data/` (`raw/` gitignored bulk,
   `source/` committed inputs, `intermediate/` gitignored regenerable
   staging, `snapshots/` dataset states, `evidence/` one-off API dumps);
   `research/` for notes and logs; `docs/` holds the generated static site
-  (`index.html`, from `src/site/build_site.py`);
+  (`index.html`, from `receipts/site/build_site.py`);
   dataset stays at the repo root. Full rebuild after the move reproduces
   the dataset **byte-identically** (same md5s as above), all 93 audits
   pass. Future direction (not built): data eventually lives outside the
@@ -407,7 +407,7 @@
 - Freshness F24 gap — CLOSED Nov 12, pending live confirmation on the Sunday
   Nov 15 scheduled run. A bare `pull_freshness.py --all` — the form the
   scheduled refresh runs — used to run NO F24 sweeps, because the driver's
-  `f24_targets` list (`src/ingest/pull_freshness.py:184`) was
+  `f24_targets` list (`receipts/ingest/pull_freshness.py:184`) was
   `args.f24_candidate or args.person`, empty unless `--person` /
   `--f24-candidate` was given. The driver now also runs committee-only F24
   sweeps for six config-listed spender committees on every `--all` (top 5 by
@@ -422,7 +422,7 @@
   that the snapshot artifact carries `committee_sweeps` with six entries.
 - Freshness pre-flight gate — ADDED Nov 12, pending live confirmation on
   the Sunday Nov 15 scheduled run. `pull_freshness.py --all` is now gated
-  by default (`src/ingest/pull_gate.py`): one global `/filings/` check per
+  by default (`receipts/ingest/pull_gate.py`): one global `/filings/` check per
   family (F6, F24, F3) decides who gets refreshed; state in committed
   `data/source/freshness_state.json`, seeded at the window start
   2026-10-15 for all families (the Nov 12 snapshot covered only two

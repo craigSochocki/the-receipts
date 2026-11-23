@@ -1,6 +1,6 @@
 # Self-funding and topline — weball column map, verification and dedup notes
 
-Moved verbatim from the header of `src/ingest/pull_self_funding.py` (Nov 22, 2026). The rules now live in `src/domain/campaign_finances.py` and `src/domain/weball_double_counts.py`; the figures below are as of the Nov 12, 2026 pull.
+Moved verbatim from the header of `src/ingest/pull_self_funding.py` (Nov 22, 2026). The rules now live in `receipts/domain/campaign_finances.py` and `receipts/domain/weball_double_counts.py`; the figures below are as of the Nov 12, 2026 pull.
 
 ```text
 Congress money tracker — self-funding + topline + transfers columns from FEC weball.

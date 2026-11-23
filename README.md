@@ -28,7 +28,7 @@ Or run `./init.sh` — it does the venv, the bulk download, the rebuild, and the
 One command rebuilds the committed dataset end to end:
 
 ```sh
-python3 src/rebuild.py
+python3 receipts/rebuild.py
 ```
 
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
@@ -58,7 +58,7 @@ The committed dataset is therefore tied to one **pinned snapshot**:
 - `data/source/baseline.json` holds every data-dependent figure the
   pipeline checks itself against — roster totals, clean/tier counts,
   named spot cases, and what the public page says (`site.*`). No such
-  figure is typed into a script any more (`src/common/baseline.py`).
+  figure is typed into a script any more (`receipts/common/baseline.py`).
 
 **Accepting new FEC data** is a reviewed change, never an automatic one:
 
@@ -66,13 +66,13 @@ The committed dataset is therefore tied to one **pinned snapshot**:
 # 1. run the "FEC snapshot" workflow (Actions tab) -> new fec-bulk-<date> Release
 ./fetch_snapshot.sh fec-bulk-<date>
 # 2. set data_as_of in config.yaml to that date, then
-python3 src/rebuild.py --rebaseline   # records every figure, rebuilds + verifies the site
+python3 receipts/rebuild.py --rebaseline   # records every figure, rebuilds + verifies the site
 git diff data/source/baseline.json    # 3. the review: every figure that moved, old -> new
 ```
 
 `./download_bulk.sh` still fetches the **live** FEC files (it skips
 `oppexp`, which no script reads) — that is what the snapshot workflow
-runs — but a live download is unpinned, and `src/rebuild.py` refuses to
+runs — but a live download is unpinned, and `receipts/rebuild.py` refuses to
 check it against the baseline. See `research/bulk-inventory.md` for the
 exact `curl` commands. The
 full staged set including `oppexp` is 838 MB of zips, ~5.9 GB on disk
@@ -123,7 +123,7 @@ What each step does (each script documents its own rules in its header):
   mismatch. It checks the dataset against its own definitions — it
   cannot catch a missing money dimension (see its header).
 
-Options: `python3 src/rebuild.py --with-fec-lookup` runs the live
+Options: `python3 receipts/rebuild.py --with-fec-lookup` runs the live
 OpenFEC lookup instead of the committed results (needs `FEC_API_KEY`;
 default is the committed file, so no API key is needed to rebuild).
 `--skip-verify` skips the final audit run.
@@ -131,7 +131,7 @@ default is the committed file, so no API key is needed to rebuild).
 ## Freshness — new money since bulk coverage
 
 The bulk rebuild is the canonical dataset; it only moves when the bulk
-files move. Between bulk pulls, `src/ingest/pull_freshness.py` reports late money
+files move. Between bulk pulls, `receipts/ingest/pull_freshness.py` reports late money
 (Form 6 48-Hour Notices, F24 24/48-hour independent expenditures, and the
 candidate-totals refresh) into `data/intermediate/freshness_snapshot.json` — labeled by
 source and date, **never merged into the dataset totals**. See
@@ -142,13 +142,13 @@ F24 $20,903,437.57).
 
 ```sh
 # Limited spot check (DEMO_KEY-friendly, ~9 calls):
-python3 src/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
+python3 receipts/ingest/pull_freshness.py --person anthonyconstantinonyhouse \
     --f24-committee C00799031 --f24-candidate abdulelsayedmisenate
 ```
 
 A full refresh is ~2,200–2,350 keyed API calls (recounted Nov 12, 2026; see
 `methodology.md` §16 and the driver's docstring) when run ungated
-(`--no-gate`); by default `--all` is gated (`src/ingest/pull_gate.py` — one
+(`--no-gate`); by default `--all` is gated (`receipts/ingest/pull_gate.py` — one
 global `/filings/` check per family first, legs only for people with new
 filings), so a quiet week costs a handful of calls. DEMO_KEY (~30/hr) is spot-checks
 only and the driver refuses `--all` on it. A bare `--all` also runs
@@ -164,7 +164,7 @@ skipped).
 ## Static site
 
 `docs/index.html` is the tracker page as a static site, for GitHub Pages.
-It is **generated, never hand-edited**: `src/site/build_site.py` reads
+It is **generated, never hand-edited**: `receipts/site/build_site.py` reads
 `congress-money-tracker.json` and emits the page with the dataset embedded
 in a compact positional encoding (1.6 MB for 664 rows — column list +
 array-of-arrays). Every view on the page (search, filters, sorting,
@@ -173,8 +173,8 @@ is computed from that embedded data at runtime, so the page cannot drift
 from the dataset. A data refresh regenerates the site with one command:
 
 ```sh
-python3 src/site/build_site.py     # regenerate docs/index.html
-python3 src/site/verify_site.py    # verify it against the dataset
+python3 receipts/site/build_site.py     # regenerate docs/index.html
+python3 receipts/site/verify_site.py    # verify it against the dataset
 ```
 
 `verify_site.py` decodes the embedded payload and checks it field-by-field
@@ -182,7 +182,7 @@ against the JSON (0 mismatches), recomputes the headline figures (664 rows;
 clean True 98 / False 562 / None 4 (Luria unverified + 3 unopposed); incoming House
 clean 70, Senate 14; top-10 total accepted; 192 primary targets; 53
 career-clean House), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
-returns 200, runs the Node runtime smoke test (`src/site/smoke_test.js` —
+returns 200, runs the Node runtime smoke test (`receipts/site/smoke_test.js` —
 renders the table and every tab against a DOM stub, opens a drill-down,
 exercises the CSV path), and checks the generator is deterministic apart
 from the generation timestamp. Any failure exits non-zero.
@@ -200,11 +200,11 @@ Three workflows in `.github/workflows/`:
 - **`ci.yml` — CI on push and pull request to `master`.** Checks out the
   repo, sets up Python 3.12, installs `requirements.txt`, stages the
   **pinned** snapshot (`./fetch_snapshot.sh`), runs
-  `python3 src/rebuild.py`, then **fails unless the rebuild reproduces
+  `python3 receipts/rebuild.py`, then **fails unless the rebuild reproduces
   the committed dataset byte-identically** (`git diff --exit-code` on
   `congress-money-tracker.csv` / `.json`), builds the site, **fails if
   the committed `docs/index.html` is not the rebuilt page** (timestamp
-  aside), and runs `python3 src/site/verify_site.py`. No deploy step —
+  aside), and runs `python3 receipts/site/verify_site.py`. No deploy step —
   GitHub Pages serves `docs/` on `master` automatically.
   `permissions: contents: read`. It needs no secrets, so it is safe to
   run on pull requests, including PRs from forks.
@@ -217,10 +217,10 @@ Three workflows in `.github/workflows/`:
   1. Snapshot today's FEC bulk and candidate files as Releases (through
      `fec-snapshot.yml`; a snapshot already taken today is reused).
   2. Stage both, set `data_as_of` to the snapshot date, and run
-     `python3 src/rebuild.py --rebaseline` (rebuild, audits, site).
+     `python3 receipts/rebuild.py --rebaseline` (rebuild, audits, site).
   3. If any baseline figure moved, push a `fec-refresh-<date>-r<run>`
      branch and open a pull request whose body lists every figure that
-     moved, old next to new (`src/validate/baseline_changes.py`). Then
+     moved, old next to new (`receipts/validate/baseline_changes.py`). Then
      start CI on that branch: a pull request opened by the workflow's own
      token does not trigger CI by itself.
   4. Close any older open refresh pull request as superseded.
@@ -236,7 +236,7 @@ Three workflows in `.github/workflows/`:
 
 **Pinned, not cached.** CI downloads the pinned snapshot Release on every run and verifies every sha256 — the inputs are identified by content, so there is nothing to go stale. Only the snapshot step downloads the live files.
 
-**Freshness overlay — not scheduled.** `python3 src/ingest/pull_freshness.py --all`
+**Freshness overlay — not scheduled.** `python3 receipts/ingest/pull_freshness.py --all`
 (late money from the FEC API; never merged into dataset totals) ran only in the
 retired `scheduled-refresh.yml`, which never completed a run. No workflow runs it
 now; run it by hand with the `FEC_API_KEY` key (Craig registered it at
@@ -269,15 +269,15 @@ works from any directory on any machine.
 - `data/source/` — committed true inputs: legislators yaml, dedup record,
   manual roster notes, FEC lookup results
 - `data/intermediate/` — regenerable staging files, **not committed**
-  (gitignored; `src/rebuild.py` recreates them all)
+  (gitignored; `receipts/rebuild.py` recreates them all)
 - `data/snapshots/` — dated dataset states (pre-rank, pre-opposition, …)
 - `data/evidence/` — one-off API dumps from spot checks
 - `research/` — pull logs, verification notes, source research
 - `data/raw/` — staged FEC bulk data, **not committed** (gitignored, ~6 GB,
   re-downloadable from fec.gov — see `research/bulk-inventory.md`)
 - `docs/` — the generated static site (`index.html`, from
-  `src/site/build_site.py`; never hand-edited)
-- `src/site/` — site generator (`build_site.py`), verifier
+  `receipts/site/build_site.py`; never hand-edited)
+- `receipts/site/` — site generator (`build_site.py`), verifier
   (`verify_site.py`), runtime smoke test (`smoke_test.js`)
 
 ## Ground rules

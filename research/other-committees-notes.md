@@ -1,6 +1,6 @@
 # Other-committee money — classification evidence and reconciliation notes
 
-Moved verbatim from the header of `src/ingest/pull_other_committees.py` (Nov 22, 2026), where it had grown into a research note. The rules themselves now live in `src/domain/committee_classes.py`; the figures below are as of the Nov 12, 2026 pull.
+Moved verbatim from the header of `src/ingest/pull_other_committees.py` (Nov 22, 2026), where it had grown into a research note. The rules themselves now live in `receipts/domain/committee_classes.py`; the figures below are as of the Nov 12, 2026 pull.
 
 ```text
 Congress money tracker — other-committee contributions from FEC bulk files (pas2 + cm).
