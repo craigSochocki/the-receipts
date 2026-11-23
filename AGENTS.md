@@ -91,7 +91,7 @@ the-receipts/
 │   ├── domain/                # the rules, free of file formats: Money,
 │   │                          # which committee money counts
 │   ├── fec/                   # one typed reader per FEC bulk file
-│   │                          # (weball, cm, pas2)
+│   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
 │   │                          # pull_money, pull_udp, pull_self_funding,
 │   │                          # pull_other_committees, pull_all_ie,
