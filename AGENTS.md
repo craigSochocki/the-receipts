@@ -135,6 +135,10 @@ the-receipts/
 - **FEC filings are the spine and source of truth.** OpenSecrets is a
   cross-check only, never a primary source. Every number traces to a
   filing; methodology §3–§4 names the file and columns for each family.
+- **A changed FEC file layout stops the build.** The readers in
+  `receipts/fec/` raise `LayoutChanged` when a row has the wrong number
+  of fields or a column is missing. Update the reader to the new layout;
+  never skip or blank-fill rows to get past it.
 - **Never blend columns.**
   - Earmark columns are subsets of the headline column — never added again.
   - UDP / outside spending is **excluded from `total_accepted`**. It is
