@@ -300,67 +300,102 @@ def is_career_clean(r):
     )
 
 
-def clean_method_html(dataset):
-    """The methodology clean paragraph, computed from the dataset.
+def republicans_sentence(names):
+    if not names:
+        return 'No House Republican is verified clean.'
+    n = len(names)
+    return f'The {n} clean House Republican{"s are" if n > 1 else " is"} {human_list(names)}.'
 
-    Every figure in the paragraph is computed here — never hardcoded —
-    so a data change cannot strand stale numbers in the live page.
-    Tokens are replaced in main(); verify_site.py fails the build if
-    any %%TOKEN%% survives unreplaced.
-    """
-    incoming = [r for r in dataset if r['in_120th'] == 'yes']
-    house = [r for r in incoming if r['chamber_120'] == 'House']
-    sen = [r for r in incoming if r['chamber_120'] == 'Senate']
-    h_clean = [r for r in house if r['clean_2026'] is True]
-    s_clean = [r for r in sen if r['clean_2026'] is True]
-    h_r = [r['full_name'] for r in h_clean if r['party_120'] == 'Republican']
-    if h_r:
-        n = len(h_r)
-        r_sentence = (
-            f'The {n} clean House Republican{"s are" if n > 1 else " is"} {human_list(h_r)}.'
-        )
-    else:
-        r_sentence = 'No House Republican is verified clean.'
-    unver = [r['full_name'] for r in dataset if r['clean_2026'] is None and not r['unopposed_2026']]
-    if len(unver) == 1:
-        unver_sentence = f'{unver[0]} is the one unverified member.'
-    elif unver:
-        unver_sentence = f'{len(unver)} members are unverified: {human_list(unver)}.'
-    else:
-        unver_sentence = 'No member is unverified.'
-    excluded = [r['full_name'] for r in dataset if r['unopposed_2026'] and r['clean_2026'] is None]
-    if excluded:
-        n = len(excluded)
-        unopp_sentence = (
-            f'{n} {"members ran" if n > 1 else "member ran"} unopposed in 2026 — '
-            f'no opponent with receipts over $0 — so $0 dirty money there is not '
-            f'counted as verified-clean: {human_list(excluded)}.'
-        )
-    else:
-        unopp_sentence = 'No member ran unopposed in 2026.'
-    tokens = {
+
+def unverified_sentence(names):
+    if len(names) == 1:
+        return f'{names[0]} is the one unverified member.'
+    if names:
+        return f'{len(names)} members are unverified: {human_list(names)}.'
+    return 'No member is unverified.'
+
+
+def unopposed_sentence(names):
+    if not names:
+        return 'No member ran unopposed in 2026.'
+    n = len(names)
+    return (
+        f'{n} {"members ran" if n > 1 else "member ran"} unopposed in 2026 — '
+        f'no opponent with receipts over $0 — so $0 dirty money there is not '
+        f'counted as verified-clean: {human_list(names)}.'
+    )
+
+
+def count_party(rows, party):
+    return str(sum(1 for r in rows if r['party_120'] == party))
+
+
+def clean_count_tokens(h_clean, s_clean):
+    return {
         '%%CLEAN_TOTAL_120%%': str(len(h_clean) + len(s_clean)),
         '%%HOUSE_CLEAN%%': str(len(h_clean)),
-        '%%HOUSE_CLEAN_D%%': str(sum(1 for r in h_clean if r['party_120'] == 'Democrat')),
-        '%%HOUSE_CLEAN_R%%': str(len(h_r)),
+        '%%HOUSE_CLEAN_D%%': count_party(h_clean, 'Democrat'),
+        '%%HOUSE_CLEAN_R%%': count_party(h_clean, 'Republican'),
         '%%SEN_CLEAN%%': str(len(s_clean)),
-        '%%SEN_CLEAN_D%%': str(sum(1 for r in s_clean if r['party_120'] == 'Democrat')),
-        '%%SEN_CLEAN_I%%': str(sum(1 for r in s_clean if r['party_120'] == 'Independent')),
-        '%%SEN_CLEAN_R%%': str(sum(1 for r in s_clean if r['party_120'] == 'Republican')),
-        '%%CLEAN_HOUSE_R_SENTENCE%%': r_sentence,
-        '%%UNVERIFIED_SENTENCE%%': unver_sentence,
-        '%%UNOPPOSED_SENTENCE%%': unopp_sentence,
-        '%%CAREER_CLEAN_HOUSE%%': str(sum(1 for r in house if is_career_clean(r))),
-        '%%BALANCED_NOT_DIRTY%%': str(
-            sum(1 for r in incoming if is_not_dirty(r['tier_balanced_2026']))
-        ),
-        '%%LENIENT_NOT_DIRTY%%': str(
-            sum(1 for r in incoming if is_not_dirty(r['tier_lenient_2026']))
-        ),
-        '%%FLAG_120%%': str(sum(1 for r in incoming if r['aipac_udp_flag_2026'] is True)),
+        '%%SEN_CLEAN_D%%': count_party(s_clean, 'Democrat'),
+        '%%SEN_CLEAN_I%%': count_party(s_clean, 'Independent'),
+        '%%SEN_CLEAN_R%%': count_party(s_clean, 'Republican'),
     }
+
+
+def sentence_tokens(dataset, h_clean):
+    unknown = [r for r in dataset if r['clean_2026'] is None]
+    return {
+        '%%CLEAN_HOUSE_R_SENTENCE%%': republicans_sentence(
+            [r['full_name'] for r in h_clean if r['party_120'] == 'Republican']
+        ),
+        '%%UNVERIFIED_SENTENCE%%': unverified_sentence(
+            [r['full_name'] for r in unknown if not r['unopposed_2026']]
+        ),
+        '%%UNOPPOSED_SENTENCE%%': unopposed_sentence(
+            [r['full_name'] for r in unknown if r['unopposed_2026']]
+        ),
+    }
+
+
+def count_where(rows, test):
+    return str(sum(1 for r in rows if test(r)))
+
+
+def preset_tokens(incoming, house):
+    return {
+        '%%CAREER_CLEAN_HOUSE%%': count_where(house, is_career_clean),
+        '%%BALANCED_NOT_DIRTY%%': count_where(
+            incoming, lambda r: is_not_dirty(r['tier_balanced_2026'])
+        ),
+        '%%LENIENT_NOT_DIRTY%%': count_where(
+            incoming, lambda r: is_not_dirty(r['tier_lenient_2026'])
+        ),
+        '%%FLAG_120%%': count_where(incoming, lambda r: r['aipac_udp_flag_2026'] is True),
+    }
+
+
+def method_tokens(dataset):
+    """Every figure and sentence the methodology clean paragraph shows."""
+    incoming = [r for r in dataset if r['in_120th'] == 'yes']
+    house = [r for r in incoming if r['chamber_120'] == 'House']
+    h_clean = [r for r in house if r['clean_2026'] is True]
+    s_clean = [r for r in incoming if r['chamber_120'] == 'Senate' and r['clean_2026'] is True]
+    return {
+        **clean_count_tokens(h_clean, s_clean),
+        **sentence_tokens(dataset, h_clean),
+        **preset_tokens(incoming, house),
+    }
+
+
+def clean_method_html(dataset):
+    """The methodology clean paragraph, every figure computed from the dataset.
+
+    Tokens are replaced here; verify_site.py fails the build if any %%TOKEN%%
+    survives unreplaced.
+    """
     html = template('method.html')
-    for token, value in tokens.items():
+    for token, value in method_tokens(dataset).items():
         html = html.replace(token, value)
     return html
 
