@@ -443,7 +443,7 @@
    (House every cycle, Senate by class, plus specials); the site gets a
    cycle picker, computed cycle labels and "targets for the next cycle".
    Phases: (1) no literal years in code — DONE; (2) per-cycle records
-   added beside today's columns; (3) the headline verdict rule — moves
+   added beside today's columns — DONE (JSON `cycles` + cycles CSV); (3) the headline verdict rule — moves
    public figures, needs Craig's review; (4) the site; (5) the `*_2026`
    columns and the roster's `*_119`/`*_120` fields replaced by the
    per-cycle and per-Congress records — schema change, needs Craig's
