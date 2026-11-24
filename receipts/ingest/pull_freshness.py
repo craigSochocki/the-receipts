@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 
 from receipts.common.fec_api import client
 from receipts.common.files import read_json
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.money import exact_sum
 from receipts.ingest import pull_f6, pull_f24
@@ -332,7 +333,7 @@ def write_snapshot(out, snapshot):
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, 'w') as f:
         json.dump(snapshot, f, indent=1)
-    print(f'wrote {out}')
+    log.info(f'wrote {out}')
 
 
 def sweeps_only(args, roster):
@@ -340,7 +341,7 @@ def sweeps_only(args, roster):
     snapshot = build_snapshot([], sweeps, summarize([], sweeps))
     write_snapshot(args.out, snapshot)
     s = snapshot['summary']
-    print(
+    log.info(
         f'committee F24 sweeps: {s["committee_sweeps_n"]} committee(s); '
         f'F24 IE ${s["committee_sweeps_f24_ie"]:,.2f}; '
         f'open sweep residuals: {s["committee_sweeps_open_residuals"] or "none"}'
@@ -348,7 +349,7 @@ def sweeps_only(args, roster):
 
 
 def report(s):
-    print(
+    log.info(
         f'freshness: {s["n_persons"]} person(s); '
         f'F6 candidate loans ${s["new_f6_candidate_loans"]:,.2f}, '
         f'F6 contributions ${s["new_f6_contributions"]:,.2f}, '
@@ -384,4 +385,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

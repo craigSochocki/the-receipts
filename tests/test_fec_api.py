@@ -48,11 +48,11 @@ def test_get_adds_the_key_and_pauses_first():
     assert fec.sleeps == [1.0]
 
 
-def test_retry_after_is_honoured_and_the_log_hides_the_key(capsys):
+def test_retry_after_is_honoured_and_the_log_hides_the_key(caplog):
     fec = FakeFec(http_error(429, '7'))
     fec.api().get('/filings/', {})
     assert fec.sleeps == [1.0, 7.0]
-    log = capsys.readouterr().err
+    log = caplog.text
     assert 'waiting 7s (Retry-After: 7s)' in log
     assert 'SECRET' not in log
 

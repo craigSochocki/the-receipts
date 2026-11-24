@@ -1,5 +1,6 @@
 """Every 2026 column, the clean verdict and dep_share, recomputed row by row."""
 
+from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import aipac_udp_flagged, races_and_unopposed, tier, verdict
 from receipts.transform.compute_2026 import has_2026_linkage
@@ -94,7 +95,7 @@ def columns_2026(audit, dataset):
             if r[k] != v:
                 mism += 1
                 if mism <= 5:
-                    print(f'  2026 mismatch {r["person_key"]} {k}: {r[k]!r} != {v!r}')
+                    log.info(f'  2026 mismatch {r["person_key"]} {k}: {r[k]!r} != {v!r}')
     audit.check(
         '2026 columns + clean rule + dep_share recompute exactly', mism == 0, f'{mism} mismatches'
     )

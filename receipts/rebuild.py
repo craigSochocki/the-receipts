@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 
 from receipts.common import baseline
 from receipts.common.files import read_json
+from receipts.common.log import log
+from receipts.common.log import run as run_script
 from receipts.common.settings import settings
 from receipts.site import build_site, verify_site
 from receipts.store import (
@@ -110,18 +112,18 @@ def check_snapshot(rebaseline):
             f'with --rebaseline and review the baseline diff'
         )
     if rebaseline:
-        print(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
+        log.info(f'REBASELINE: recording figures from {staged} (baseline was {pinned})')
     check_data_as_of(staged)
 
 
 def run(step):
     """Run one step; a step that exits with an error aborts the rebuild."""
-    print(f'\n=== {step.name} ===', flush=True)
+    log.info(f'\n=== {step.name} ===')
     try:
         step.run()
     except SystemExit as e:
         if e.code not in (None, 0):
-            print(e.code if isinstance(e.code, str) else '', flush=True)
+            log.info(e.code if isinstance(e.code, str) else '')
             raise SystemExit(f'{step.name} failed; rebuild aborted') from e
 
 
@@ -150,11 +152,11 @@ def backup_dataset():
     paths = settings().paths
     for src in (paths.dataset_csv, paths.dataset_json):
         if not src.exists():
-            print(f'no existing {src.name} to back up (first build)')
+            log.info(f'no existing {src.name} to back up (first build)')
             continue
         dst = settings().paths.snapshots / f'congress-money-tracker-pre-rebuild-{stamp}{src.suffix}'
         shutil.copy2(src, dst)
-        print(f'backed up {src.name} -> {dst.name}')
+        log.info(f'backed up {src.name} -> {dst.name}')
 
 
 def restore_manual_lookup_entries(snapshot_path):
@@ -173,7 +175,7 @@ def restore_manual_lookup_entries(snapshot_path):
         after[k] = v
     with open(path, 'w') as f:
         json.dump(after, f, indent=1)
-    print(f'restored {len(manual)} found-manual lookup entries: {sorted(manual)}')
+    log.info(f'restored {len(manual)} found-manual lookup entries: {sorted(manual)}')
 
 
 ROSTER_STEP, VERIFY_STEP = STEPS[0], STEPS[-1]
@@ -232,13 +234,13 @@ def main():
             run(step)
         baseline.start_rebaseline_run()
         baseline.set_snapshots(staged_snapshot(), staged_candidates_snapshot())
-        print(
+        log.info(
             f'\nbaseline recorded from {staged_snapshot()} and '
             f'{staged_candidates_snapshot()} — review '
             f'`git diff {settings().relative(settings().paths.baseline)}` before committing.'
         )
-    print('\nrebuild complete.')
+    log.info('\nrebuild complete.')
 
 
 if __name__ == '__main__':
-    main()
+    run_script(main)

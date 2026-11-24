@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
+from receipts.common.log import log, run
 from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES, CommitteeClass
 from receipts.domain.ledger import Ledger
@@ -404,7 +405,7 @@ def read_store(roster_ids, dedup_records):
 
 def check_cross_checks(checks):
     for column, (recomputed, recorded) in checks.items():
-        print(f'CHECK {column}: {"MATCH" if recomputed == recorded else "MISMATCH"}')
+        log.info(f'CHECK {column}: {"MATCH" if recomputed == recorded else "MISMATCH"}')
     if mismatched := [column for column, (got, want) in checks.items() if got != want]:
         raise SystemExit(f'other committees re-derive {mismatched} differently from the baseline')
 
@@ -467,8 +468,8 @@ def main():
     write(*committees_by_person(roster, ledger, note))
     write_diagnostics(roster, ledger, rows, diagnostics, reconciliation, lamb, checks)
     for bucket in BUCKETS:
-        print(f'TOTAL {bucket} career $:', roster_total(roster, ledger, bucket))
+        log.info(f'{f"TOTAL {bucket} career $:"} {roster_total(roster, ledger, bucket)}')
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

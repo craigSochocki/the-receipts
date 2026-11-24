@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import NamedTuple
 
 from receipts.common.baseline import expected
+from receipts.common.log import log, run
 from receipts.common.settings import load_roster, settings
 from receipts.store.all_ie_report import blank_attribution_by_cycle, file_exclusions, write_report
 from receipts.store.gold import write_gold
@@ -329,11 +330,11 @@ def main():
     write_report(spending, roster, kept, exclusions, blank_diagnostic, collisions)
     for cycle in settings().cycles.ie:
         roster_targeted = spending.summaries[cycle]['roster_targeted']
-        print(
+        log.info(
             f'{cycle} roster: S ${roster_targeted["support"]:,.2f} / '
             f'O ${roster_targeted["oppose"]:,.2f} / total ${roster_targeted["total"]:,.2f}'
         )
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

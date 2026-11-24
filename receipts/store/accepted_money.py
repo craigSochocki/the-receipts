@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Write the accepted-money gold tables from the silver store."""
 
+from receipts.common.log import run
 from receipts.common.settings import settings
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
@@ -130,4 +131,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

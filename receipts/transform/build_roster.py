@@ -5,6 +5,7 @@ import collections
 from typing import NamedTuple
 
 from receipts.common.files import read_json, read_yaml, write_json
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.names import first_names_agree, norm, slug, split_name
 
@@ -273,13 +274,11 @@ class Roster:
 
     def print_summary(self, newcomers):
         rows = list(self.rows.values())
-        print(
-            'rows:',
-            len(rows),
-            dict(collections.Counter((r['in_119th'], r['in_120th']) for r in rows)),
+        log.info(
+            f'rows: {len(rows)} {dict(collections.Counter((r["in_119th"], r["in_120th"]) for r in rows))}'
         )
-        print('new members:', [n for n in newcomers])
-        print('120th unknown:', [r['full_name'] for r in rows if r['in_120th'] == 'unknown'])
+        log.info(f'new members: {[n for n in newcomers]}')
+        log.info(f'120th unknown: {[r["full_name"] for r in rows if r["in_120th"] == "unknown"]}')
 
 
 def senate_terms_in_2026(person):
@@ -341,4 +340,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

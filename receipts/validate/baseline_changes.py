@@ -4,6 +4,7 @@
 import sys
 
 from receipts.common.files import read_json
+from receipts.common.log import run
 
 SHOWN = 120
 
@@ -45,4 +46,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

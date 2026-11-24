@@ -3,6 +3,7 @@
 import sys
 
 from receipts.common.baseline import expected as baseline_figure
+from receipts.common.log import log
 
 
 class Audit:
@@ -10,7 +11,7 @@ class Audit:
         self.failures = []
 
     def check(self, label, condition, detail=''):
-        print(
+        log.info(
             f'[{"ok " if condition else "FAIL"}] {label}'
             + (f' — {detail}' if detail and not condition else '')
         )
@@ -24,10 +25,10 @@ class Audit:
 
     def finish(self, passed):
         """Exit non-zero listing every failure, or print `passed`."""
-        print()
+        log.info('')
         if self.failures:
-            print(f'FAILED: {len(self.failures)} check(s)')
+            log.info(f'FAILED: {len(self.failures)} check(s)')
             for failure in self.failures:
-                print(f'  - {failure}')
+                log.info(f'  - {failure}')
             sys.exit(1)
-        print(passed)
+        log.info(passed)

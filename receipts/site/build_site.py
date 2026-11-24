@@ -9,6 +9,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean, is_not_dirty, is_primary_target_2026
 from receipts.store.read import connect
@@ -414,15 +415,15 @@ def main():
     settings().paths.site.mkdir(parents=True, exist_ok=True)
     out = settings().paths.site / 'index.html'
     out.write_text(html, encoding='utf-8')
-    print(f'rows: {len(rows)}')
-    print(f'dataset md5: {dataset_md5}')
-    print(f'embedded payload bytes: {len(safe_json(rows))}')
-    print(
+    log.info(f'rows: {len(rows)}')
+    log.info(f'dataset md5: {dataset_md5}')
+    log.info(f'embedded payload bytes: {len(safe_json(rows))}')
+    log.info(
         f'opposition detail: {len(opp_payload)} persons, '
         f'{sum(len(v) for v in opp_payload.values())} race-phases'
     )
-    print(f'wrote {out} ({out.stat().st_size} bytes)')
+    log.info(f'wrote {out} ({out.stat().st_size} bytes)')
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

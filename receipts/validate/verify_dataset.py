@@ -3,6 +3,7 @@
 
 import argparse
 
+from receipts.common.log import run
 from receipts.common.settings import settings
 from receipts.validate.audit import Audit
 from receipts.validate.audits.clean import clean_counts, clean_spot_cases, unopposed
@@ -56,4 +57,4 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

@@ -2,6 +2,7 @@
 """Self-funding, topline and transfer columns from weball, read from the store."""
 
 from receipts.common.files import text_or_blank, text_or_none
+from receipts.common.log import log, run
 from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.campaign_finances import FLOWS, STOCKS, CampaignFinances
 from receipts.domain.money import Money
@@ -196,8 +197,8 @@ def main():
     differing = describe(found_differing, load_double_count_records())
     rows, persons = self_funding_by_person(roster, finances, coverage_end, differing)
     write(rows, persons)
-    print(f'persons: {len(rows)}; differing columns flagged, not corrected: {len(differing)}')
+    log.info(f'persons: {len(rows)}; differing columns flagged, not corrected: {len(differing)}')
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

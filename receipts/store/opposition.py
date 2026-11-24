@@ -6,6 +6,7 @@ from collections import Counter, defaultdict
 
 from receipts.common.baseline import expected
 from receipts.common.files import write_json
+from receipts.common.log import log, run
 from receipts.common.settings import load_roster, settings
 from receipts.store.gold import write_gold
 from receipts.store.read import connect
@@ -178,7 +179,7 @@ def main():
             'aipac_schedule_e_rows': aipac_rows(),
         },
     )
-    print(
+    log.info(
         f'races credited: {len(credited)}; not credited: {len(uncredited)}; '
         f'credited to roster: ${dollars(sum(by_person.values())):,.2f}'
     )
@@ -187,4 +188,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

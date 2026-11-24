@@ -5,6 +5,7 @@ import json
 
 import pandas as pd
 
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.transform.assemble import base_records
 from receipts.transform.compute_2026 import with_2026
@@ -21,7 +22,7 @@ def write_dataset(records):
     pd.DataFrame(records, columns=list(settings().dataset.csv_columns)).to_csv(
         paths.dataset_csv, index=False
     )
-    print(f'wrote {settings().relative(paths.dataset_json)} and .csv ({len(records)} rows)')
+    log.info(f'wrote {settings().relative(paths.dataset_json)} and .csv ({len(records)} rows)')
 
 
 def main():
@@ -29,4 +30,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)
