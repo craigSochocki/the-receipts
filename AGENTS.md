@@ -92,6 +92,7 @@ the-receipts/
 ├── README.md, STATUS.md, methodology.md, architecture.md
 ├── config.yaml                # single source of truth for shared values
 ├── congress-money-tracker.csv / .json   # the dataset (stays at repo root)
+├── congress-money-tracker-cycles.csv    # its per-cycle records, one row per person per cycle
 ├── receipts/               # the Python package
 │   ├── common/                # settings, baseline, file writers
 │   ├── domain/                # the rules, free of file formats: Money,

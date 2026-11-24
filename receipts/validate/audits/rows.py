@@ -44,7 +44,7 @@ def csv_matches_json(audit, dataset):
         if crow is None:
             continue
         for k in json_keys:
-            if k == 'all_ie_top_committees':
+            if k in ('all_ie_top_committees', 'cycles'):
                 continue  # JSON-only by design; not in the CSV.
             cv, jv = crow[k], r[k]
             if k in (

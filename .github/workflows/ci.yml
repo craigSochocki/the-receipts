@@ -57,13 +57,13 @@ jobs:
         run: python3 receipts/rebuild.py
 
       - name: Show rebuilt dataset checksums
-        run: md5sum congress-money-tracker.csv congress-money-tracker.json
+        run: md5sum congress-money-tracker.csv congress-money-tracker.json congress-money-tracker-cycles.csv
 
       - name: Fail if rebuild differs from committed dataset
         # rebuild.py does NOT compare against the committed dataset, so
         # CI enforces byte-identical reproduction here. Any diff = FAIL.
         run: |
-          if ! git diff --exit-code -- congress-money-tracker.csv congress-money-tracker.json; then
+          if ! git diff --exit-code -- congress-money-tracker.csv congress-money-tracker.json congress-money-tracker-cycles.csv; then
             echo "::error::Rebuild did not reproduce the committed dataset byte-identically. See AGENTS.md §5: stop and report, never adjust a figure to match."
             exit 1
           fi

@@ -54,6 +54,7 @@ class Paths:
     site: Path
     dataset_json: Path
     dataset_csv: Path
+    dataset_cycles_csv: Path
     roster: Path
     roster_intermediate: Path
     fec_lookup_results: Path

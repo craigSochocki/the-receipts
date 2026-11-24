@@ -1,5 +1,7 @@
 """Every 2026 column, the clean verdict and dep_share, recomputed row by row."""
 
+import pandas as pd
+
 from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import aipac_udp_flagged, races_and_unopposed, tier, verdict
@@ -98,4 +100,38 @@ def columns_2026(audit, dataset):
                     log.info(f'  2026 mismatch {r["person_key"]} {k}: {r[k]!r} != {v!r}')
     audit.check(
         '2026 columns + clean rule + dep_share recompute exactly', mism == 0, f'{mism} mismatches'
+    )
+
+
+def cycle_records(audit, dataset):
+    """Per-cycle records: one per cycle with data, the current one equal to the columns."""
+    current = settings().cycles.current
+    records = [(r, c) for r in dataset.records for c in r['cycles']]
+    audit.check(
+        'every person has one record per cycle, in cycle order',
+        all([c['cycle'] for c in r['cycles']] == sorted({c['cycle'] for c in r['cycles']})
+            for r in dataset.records),
+    )  # fmt: skip
+    audit.check(
+        'the current-cycle record equals the current-cycle columns',
+        all(c[k] == r[f'{k}_{current}'] for r, c in records if c['cycle'] == current
+            for k in c if k != 'cycle'),
+    )  # fmt: skip
+    per_cycle = {}
+    for _, c in records:
+        per_cycle[str(c['cycle'])] = per_cycle.get(str(c['cycle']), 0) + 1
+    audit.pin('records per cycle', 'cycles.records_per_cycle', dict(sorted(per_cycle.items())))
+    clean = {}
+    for _, c in records:
+        clean.setdefault(str(c['cycle']), [0, 0, 0])[{True: 0, False: 1, None: 2}[c['clean']]] += 1
+    audit.pin(
+        'clean / dirty / unknown per cycle',
+        'cycles.verdicts_per_cycle',
+        dict(sorted(clean.items())),
+    )
+    rows = pd.read_csv(settings().paths.dataset_cycles_csv, keep_default_na=False, dtype=str)
+    audit.check(
+        'the cycles CSV has one row per JSON record, in order',
+        list(zip(rows['person_key'], rows['cycle'].astype(int), strict=True))
+        == [(r['person_key'], c['cycle']) for r, c in records],
     )

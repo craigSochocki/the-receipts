@@ -43,6 +43,7 @@ paths:
   site: docs
   dataset_json: congress-money-tracker.json
   dataset_csv: congress-money-tracker.csv
+  dataset_cycles_csv: congress-money-tracker-cycles.csv
   roster: data/intermediate/roster.json
   roster_intermediate: data/intermediate/roster_intermediate.json
   fec_lookup_results: data/source/fec_lookup_results.json
@@ -160,8 +161,8 @@ verification:
 # The dataset's column order (CSV) and key order (JSON). The two differ
 # in the 2026 trio (the CSV lists individual_2026 first, the JSON lists
 # corp_2026 first — both orders are the committed ones, preserved exactly
-# so a rebuild is byte-identical) and in all_ie_top_committees, which is
-# JSON-only by design (a list of committee objects; not in the CSV).
+# so a rebuild is byte-identical) and in all_ie_top_committees and cycles,
+# which are JSON-only lists; the cycles records also go to dataset_cycles_csv.
 # Every script that writes the dataset filters these lists to the columns
 # it produces.
 dataset:
@@ -360,3 +361,4 @@ dataset:
     - all_ie_support_2026
     - all_ie_oppose_2026
     - all_ie_total_2026
+    - cycles
