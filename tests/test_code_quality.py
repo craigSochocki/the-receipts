@@ -14,20 +14,8 @@ from receipts.common.settings import repo_root
 MAX_COMPLEXITY = 20  # radon grade C or better
 MIN_MAINTAINABILITY = 20  # radon grade A
 
-COMPLEXITY_DEBT = {
-    'site/build_site.py:clean_method_html': 42,
-    'site/verify_site.py:composition_charts': 26,
-    'site/verify_site.py:party_chips_and_outcomes': 38,
-    'transform/compute_2026.py:observed_counts': 24,
-    'validate/verify_dataset.py:clean_counts': 26,
-    'validate/verify_dataset.py:columns_2026': 36,
-    'validate/verify_dataset.py:senate_class': 28,
-    'validate/verify_dataset.py:tiered_rule': 44,
-}
-MAINTAINABILITY_DEBT = {
-    'site/verify_site.py': 6,
-    'validate/verify_dataset.py': 5,
-}
+COMPLEXITY_DEBT = {}
+MAINTAINABILITY_DEBT = {}
 
 PACKAGE = repo_root() / 'receipts'
 

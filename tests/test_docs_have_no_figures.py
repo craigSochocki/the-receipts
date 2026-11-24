@@ -28,7 +28,7 @@ FIGURE = re.compile(
 ALLOWED = {
     ('receipts/domain/money.py', "'2500', '1234.56', '$1,000'"),
     ('receipts/domain/money.py', "',' gives 1,234.50"),
-    ('receipts/site/verify_site.py', '($1.23M / $1,234,567.89), never a real figure'),
+    ('receipts/site/checks/navigation.py', '($1.23M / $1,234,567.89), never a real figure'),
     ('receipts/ingest/pull_f6.py', 'contributions/loans of $1,000+'),
 }
 

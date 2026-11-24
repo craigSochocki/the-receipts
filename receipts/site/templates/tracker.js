@@ -38,7 +38,7 @@ function decodeNested(p){
 
 /* ---- formatting ---- */
 function num(v){ return (typeof v==='number' && isFinite(v)) ? v : null; }
-function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmtMoney(v){
   if(v===null||v===undefined) return '—';
   if(v==='unknown') return 'unknown';
@@ -304,7 +304,7 @@ function sortRows(rows){
 function cellHtml(p, col){
   const v = getVal(p, col.k);
   switch(col.type){
-    case 'name': return '<button type="button" class="name-btn" data-key="'+p.person_key+'">'+esc(v)+'</button>';
+    case 'name': return '<button type="button" class="name-btn" data-key="'+esc(p.person_key)+'">'+esc(v)+'</button>';
     case 'party': return partyChip(p) || '—';
     case 'outcome': return outcomeLabel(p);
     case 'money': {
@@ -337,7 +337,7 @@ function renderTable(){
     });
   });
   const rows = sortRows(applyFilters());
-  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'">'+view.cols.map(c=>{
+  tbody.innerHTML = rows.map(p=>'<tr data-key="'+esc(p.person_key)+'">'+view.cols.map(c=>{
     const cls = c.type==='name' ? ' class="name"' : ((c.type==='money'||c.type==='pct'||c.type==='rank') ? ' class="num"' : '');
     return '<td'+cls+'>'+cellHtml(p,c)+'</td>';
   }).join('')+'</tr>').join('');
@@ -454,7 +454,7 @@ function renderDirtiest(){
     + preset.short
     + (state.preset==='strict' ? '.' : '; any AIPAC direct or UDP benefit dollar always counts.');
   document.getElementById('dirtiest-list').innerHTML = rows.map((p,i)=>
-    '<li style="transition-delay:'+(i*90)+'ms"><button type="button" class="dirty-row" data-key="'+p.person_key+'">'
+    '<li style="transition-delay:'+(i*90)+'ms"><button type="button" class="dirty-row" data-key="'+esc(p.person_key)+'">'
     + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
     + '<span class="pl">'+partyChip(p)+' '+esc(place(p))+' · '+outcomeLabel(p)+'</span></span>'
     + '<span class="amt">'+fmtMoney(p.dirty_2026)+'</span></button></li>').join('');
@@ -686,7 +686,7 @@ function senateTilesSVG(){
         unverified:'unverified'}[h.status])+')').join('; ');
     // Stagger the tiles on reveal, scaled so the whole stagger stays
     // under ~500ms (FE10).
-    tiles += '<g class="tile" data-state="'+st.code+'" style="transition-delay:'+(Math.round(i*480/49))+'ms">'
+    tiles += '<g class="tile" data-state="'+esc(st.code)+'" style="transition-delay:'+(Math.round(i*480/49))+'ms">'
       + tileHalfSVG(st.halves[0], x, y, TILE_W/2, TILE_H)
       + tileHalfSVG(st.halves[1], x+TILE_W/2, y, TILE_W/2, TILE_H)
       + '<rect x="'+x+'" y="'+y+'" width="'+TILE_W+'" height="'+TILE_H+'" fill="none" stroke="#6b7280" stroke-width="1"/>'
@@ -806,7 +806,7 @@ function initFinder(){
       return;
     }
     person.innerHTML = people.map(p=>
-      '<button type="button" class="btn person-btn" data-key="'+p.person_key+'">'
+      '<button type="button" class="btn person-btn" data-key="'+esc(p.person_key)+'">'
       + partyChip(p)+' '+esc(p.full_name)+' · '+outcomeLabel(p)+' '+fmtTierBadge(p)+'</button>').join(' ');
     person.querySelectorAll('button').forEach(b=>{
       b.addEventListener('click', ()=>findPerson(b.getAttribute('data-key')));
