@@ -7,6 +7,10 @@ log = logging.getLogger('receipts')
 
 
 def run(main, *args):
-    """Run a script's main with its progress messages shown."""
-    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stdout)
+    """Run a script's main with its progress messages shown, whatever dbt does to logging."""
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(message)s'))
+    log.addHandler(handler)
+    log.setLevel(logging.INFO)
+    log.propagate = False
     main(*args)
