@@ -47,7 +47,7 @@ def self_funding(audit, dataset):
 
 
 def other_committees(audit, dataset):
-    """(k) other committees: Lamb's 2026 pas2 total and its residual against weball."""
+    """(k) other committees: Lamb's current-cycle pas2 total and its residual against weball."""
     oc_buckets = [
         'party_committees',
         'leadership_pacs',
@@ -63,12 +63,12 @@ def other_committees(audit, dataset):
     ]
     lamb_total = round(sum(sum(e[b] for b in oc_buckets) for e in lamb_pc26), 2)
     audit.check(
-        'Lamb 2026 other-committee column equals its per-cycle pas2 sum',
+        'Lamb current-cycle other-committee column equals its per-cycle pas2 sum',
         lamb_total == lamb['other_committees_total_2026'],
         f'got {lamb_total}',
     )
     audit.pin(
-        'Lamb 2026 other-committee pas2-derived total',
+        'Lamb current-cycle other-committee pas2-derived total',
         'spot.lamb.other_committees_total_2026',
         lamb_total,
     )

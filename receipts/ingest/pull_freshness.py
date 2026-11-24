@@ -29,14 +29,16 @@ CADENCE_NOTE = (
 )
 
 
-def principal_committees(candidate_id, cycle=2026):
+def principal_committees(candidate_id, cycle=None):
     """Principal campaign committee IDs (designation P) for a candidate."""
+    cycle = cycle or settings().cycles.current
     data = client().get(f'/candidate/{candidate_id}/committees/', {'cycle': cycle, 'per_page': 100})
     return [c['committee_id'] for c in data.get('results', []) if c.get('designation') == 'P']
 
 
-def totals_refresh(candidate_id, cycle=2026):
+def totals_refresh(candidate_id, cycle=None):
     """One candidate's per-cycle API totals; election_full would mix cycles, so it is unused."""
+    cycle = cycle or settings().cycles.current
     data = client().get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
     rows = [r for r in data.get('results', []) if r.get('cycle') == cycle]
     if not rows:
@@ -175,7 +177,7 @@ def committee_sweeps(committees, by_candidate):
         sweep_committee_f24(
             c['committee_id'],
             c['committee_name'],
-            settings().freshness.f24_committee_sweep_cycle,
+            settings().cycles.current,
             by_candidate,
         )
         for c in committees
@@ -371,7 +373,7 @@ def main():
             '--f24-committee-sweep',
             'the six committee sweeps (~12-94+ keyed calls)',
             ' Single-committee spot check instead: '
-            'python3 receipts/ingest/pull_f24.py --committee <id> --cycle 2026.',
+            'python3 receipts/ingest/pull_f24.py --committee <id>.',
         )
         return sweeps_only(args, roster)
     if not args.all and not args.person:

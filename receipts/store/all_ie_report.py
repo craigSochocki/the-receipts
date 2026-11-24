@@ -175,14 +175,14 @@ def meta():
         'data_as_of': settings().data_as_of,
         'cycles': list(settings().cycles.ie),
         'current_cycle': settings().cycles.current,
-        'note': 'Career totals cover the staged IE cycles (2022+2024+2026) ONLY. '
+        'note': f'Career totals cover the staged IE cycles ({"+".join(map(str, settings().cycles.ie))}) ONLY. '
         'No IE files are staged for earlier cycles; these are not full-career totals. '
         'All-IE columns are separate from total_accepted and are never blended into it.',
         'filter_rules': [
             'dedup by (spe_id, tran_id): keep latest receipt_dat, tie-break highest file_num; '
             'blank tran_id never deduped against another row',
             'registered committee only: spe_id in same-cycle data/raw/cm/<cycle>/cm.txt',
-            'identified candidate only: non-blank cand_id in any staged weball file (1980-2026) '
+            f'identified candidate only: non-blank cand_id in any staged weball file ({settings().cycles.career_start}-{settings().cycles.career_end}) '
             'OR a roster FEC candidate ID; blank cand_id rows excluded from published totals',
             'support and oppose summed separately, never netted; blank sup_opp rows count in total only',
         ],

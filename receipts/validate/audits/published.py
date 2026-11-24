@@ -88,7 +88,7 @@ def opposition_credit(cycle=None):
 
 
 def load_weball_2026_races():
-    """2026 races from weball26, keyed by the filing's own race (the MP delegate files under 01)."""
+    """Current-cycle races from weball, keyed by the filing's own race (MP files under 01)."""
     race_map = {}
     by_cid = {}
     for row in candidate_summaries(settings().paths.bulk, settings().cycles.current):

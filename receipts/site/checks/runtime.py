@@ -45,18 +45,19 @@ def served_page(audit, page):
             body = resp.read().decode('utf-8')
             status = resp.status
         audit.check('local serve returns 200', status == 200, f'got {status}')
+        current = settings().cycles.current
         for needle in [
             'The Receipts',
             'receipts-data',
             'Methodology',
             'primary targets',
-            '2028 primary targets',
+            f'{current + 2} primary targets',
             'Clean money',
             'Leaderboards',
             'Data as of',
             'Find your member',
-            'took no dirty money in 2026',
-            'Dirtiest in 2026',
+            f'took no dirty money in {current}',
+            f'Dirtiest in {current}',
             'Explore the full data',
         ]:
             audit.check(f'served page contains {needle!r}', needle in body)

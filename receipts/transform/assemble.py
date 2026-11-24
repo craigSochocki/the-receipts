@@ -1,4 +1,4 @@
-"""The dataset's rows before the 2026 columns, from the store's gold tables and marts."""
+"""The dataset's rows before the cycle columns, from the store's gold tables and marts."""
 
 from collections import defaultdict
 

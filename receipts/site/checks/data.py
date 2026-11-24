@@ -22,7 +22,8 @@ def coverage_stamp(audit, page):
         all(d in page.html for d in cov_dates),
         f'looking for {cov_dates}',
     )
-    audit.check('stamp says 2026 is partial', '2026 is partial' in page.html)
+    current = settings().cycles.current
+    audit.check('stamp says the current cycle is partial', f'{current} is partial' in page.html)
 
 
 def data_round_trip(audit, page):
@@ -89,7 +90,7 @@ def opposition_detail(audit, page):
         'site.clean.null_names',
         {'unopposed': c['null_unopposed'], 'unverified': c['null_unverified']},
     )
-    audit.pin('unopposed in 2026', 'site.clean.unopposed_total', c['unopposed_total'])
+    audit.pin('unopposed in the current cycle', 'site.clean.unopposed_total', c['unopposed_total'])
     audit.pin(
         'career-clean incoming House (incl. opposition credit)',
         'site.clean.career_clean_house_120',
@@ -114,17 +115,17 @@ def opposition_detail(audit, page):
     )
     for preset in ('strict', 'balanced', 'lenient'):
         audit.pin(
-            f'2028 targets {preset} House',
+            f'next-cycle targets {preset} House',
             f'tiered_2026.targets_2028_{preset}_house',
             t28[preset][0],
         )
         audit.pin(
-            f'2028 targets {preset} Senate Class 3',
+            f'next-cycle targets {preset} Senate',
             f'tiered_2026.targets_2028_{preset}_senate_class3',
             t28[preset][1],
         )
     audit.pin(
-        '2028 watchlist order + lead figures',
+        'next-cycle watchlist order + lead figures',
         'site.targets_2028.order',
         {k: v for k, v in t28.items() if k not in ('strict', 'balanced', 'lenient')},
     )
@@ -135,9 +136,9 @@ def opposition_detail(audit, page):
         len(king_hinds) == 1 and king_hinds[0]['unopposed_2026'] is False,
     )
     audit.check(
-        '2026 primary-target intro states the computed count',
+        'primary-target intro states the computed count',
         f'{t28["targets_2026_house"]} House Democrats in the incoming 120th '
-        'took dirty money in 2026' in page.html,
+        f'took dirty money in {settings().cycles.current}' in page.html,
     )
     audit.check(
         'methodology clean paragraph is computed, not stale',

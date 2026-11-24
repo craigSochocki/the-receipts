@@ -1,9 +1,10 @@
-"""The tiered dirty rule: flag and tier counts, corp-only splits, 2028 targets, spot cases."""
+"""The tiered dirty rule: flag and tier counts, corp-only splits, next-cycle targets, spot cases."""
 
 from collections import Counter
 
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import corporate_money_material
+from receipts.domain.seats import regular_senate_class
 
 PRESETS = ('balanced', 'lenient')
 TIER_SPOT_FIELDS = (
@@ -99,32 +100,34 @@ def corp_only_split(audit, r120):
 
 
 def targets_2028(audit, r120):
-    """House Democrats and Class 3 Senate Democrats on the 2028 watchlist under each preset."""
+    """House Democrats and next-cycle Senate Democrats on the next-cycle watchlist, by preset."""
     house_dem = [r for r in r120 if r['chamber_120'] == 'House' and r['party_120'] == 'Democrat']
     sen3_dem = [
         r
         for r in r120
-        if r['chamber_120'] == 'Senate' and r['party_120'] == 'Democrat' and r['senate_class'] == 3
+        if r['chamber_120'] == 'Senate'
+        and r['party_120'] == 'Democrat'
+        and r['senate_class'] == regular_senate_class(settings().cycles.current + 2)
     ]
     audit.pin(
-        '2028 targets Strict House',
+        'next-cycle targets Strict House',
         'tiered_2026.targets_2028_strict_house',
         sum(1 for r in house_dem if r['dirty_2026'] > 0),
     )
     audit.pin(
-        '2028 targets Strict Senate Class 3',
+        'next-cycle targets Strict Senate',
         'tiered_2026.targets_2028_strict_senate_class3',
         sum(1 for r in sen3_dem if r['dirty_2026'] > 0),
     )
     for preset in PRESETS:
         column = f'tier_{preset}_2026'
         audit.pin(
-            f'2028 targets {preset} House',
+            f'next-cycle targets {preset} House',
             f'tiered_2026.targets_2028_{preset}_house',
             sum(1 for r in house_dem if r[column] == 'dirty'),
         )
         audit.pin(
-            f'2028 targets {preset} Senate Class 3',
+            f'next-cycle targets {preset} Senate',
             f'tiered_2026.targets_2028_{preset}_senate_class3',
             sum(1 for r in sen3_dem if r[column] == 'dirty'),
         )

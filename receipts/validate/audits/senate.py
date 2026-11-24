@@ -4,6 +4,7 @@ from collections import Counter
 
 from receipts.common.files import read_yaml
 from receipts.common.settings import settings
+from receipts.domain.seats import regular_senate_class
 
 # Senators whose class is pinned: continuing members of each class, special-election
 # winners, and new senators who take the class of the seat's outgoing holder.
@@ -40,10 +41,11 @@ class SeatClasses:
     def of(self, r):
         if not is_senator(r):
             return None
+        year = settings().cycles.current
         own = [
             t
             for t in self.senate_terms.get(r['person_key'], [])
-            if (t.get('end') or '') >= '2026-01-01'
+            if (t.get('end') or '') >= f'{year}-01-01'
         ]
         if own:
             return own[-1].get('class')
@@ -53,8 +55,8 @@ class SeatClasses:
             for t in e['terms']
             if t.get('type') == 'sen'
             and t.get('state') == r['state']
-            and (t.get('start') or '') <= '2026-12-31'
-            and (t.get('end') or '') >= '2026-01-01'
+            and (t.get('start') or '') <= f'{year}-12-31'
+            and (t.get('end') or '') >= f'{year}-01-01'
             and e['id'].get('bioguide') not in self.continuing
         }
         return holders.pop() if len(holders) == 1 else None
@@ -96,7 +98,12 @@ def class_counts_120th(audit, records):
     audit.pin(
         'Class 3 Democrats in the 120th',
         'senate_class.class3_democrats_120th',
-        sum(1 for r in s120 if r['party_120'] == 'Democrat' and r['senate_class'] == 3),
+        sum(
+            1
+            for r in s120
+            if r['party_120'] == 'Democrat'
+            and r['senate_class'] == regular_senate_class(settings().cycles.current + 2)
+        ),
     )
 
 

@@ -37,7 +37,7 @@ class Cycles:
 
     @property
     def ie(self) -> tuple[int, ...]:
-        """Cycles with staged independent-expenditure files (UDP first filed in 2022)."""
+        """Cycles with staged independent-expenditure files."""
         return self.udp
 
 
@@ -96,7 +96,6 @@ class SweepCommittee:
 
 @dataclass(frozen=True)
 class Freshness:
-    f24_committee_sweep_cycle: int
     f24_committee_sweep: tuple[SweepCommittee, ...]
 
 

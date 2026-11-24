@@ -34,7 +34,7 @@ def clean_counts(audit, dataset):
     )
     career_keys = {r['person_key'] for r in career_clean}
     audit.pin(
-        '2026-clean but not career-clean (120th House)',
+        'current-cycle clean but not career-clean (120th House)',
         'clean_2026.house_120th_clean_2026_not_career_clean',
         sum(1 for r in house_clean if r['person_key'] not in career_keys),
     )
@@ -73,7 +73,7 @@ def clean_spot_cases(audit, dataset):
         },
     )
     audit.check(
-        'Luria: real 2026 campaign ID H6VA02198 is still not linked in the roster',
+        'Luria: her real current-cycle campaign ID is still not linked in the roster',
         'H6VA02198' not in luria['fec_candidate_ids'],
     )
 

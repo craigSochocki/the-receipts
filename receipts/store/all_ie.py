@@ -184,7 +184,9 @@ def csv_row(person, found):
         'all_ie_oppose_2026': f'{dollars(oppose):.2f}',
         'all_ie_total_2026': f'{dollars(current_total):.2f}',
         'data_notes': (
-            '' if found['total'] else 'No all-IE spending found in 2022/2024/2026 IE files.'
+            ''
+            if found['total']
+            else f'No all-IE spending found in {"/".join(map(str, settings().cycles.ie))} IE files.'
         ),
     }
 
