@@ -246,7 +246,7 @@ class Roster:
                           f'{", ".join(new_senators[row["state"]])}.')  # fmt: skip
 
     def assign_senate_classes(self):
-        """Senate class from each senator's own term, else from the seat's 2026 holder."""
+        """Senate class from each senator's own term, else from the seat's current holder."""
         continuing = {r['person_key'] for r in self.rows.values()
                       if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'}  # fmt: skip
         for row in self.rows.values():
@@ -281,21 +281,21 @@ class Roster:
         log.info(f'120th unknown: {[r["full_name"] for r in rows if r["in_120th"] == "unknown"]}')
 
 
-def senate_terms_in_2026(person):
+def senate_terms_into(person, year):
     return [
         t
         for t in person['terms']
-        if t.get('type') == 'sen' and (t.get('end') or '') >= '2026-01-01'
+        if t.get('type') == 'sen' and (t.get('end') or '') >= f'{year}-01-01'
     ]
 
 
 def senate_class(row, legislators, continuing):
-    """The row's own Senate class into 2026, else the class of the seat's other 2026 holder."""
+    """The row's own Senate class into the current cycle, else that of the seat's other holder."""
     if 'Senate' not in (row['chamber_119'], row['chamber_120']):
         return None
-    key = row.get('_bioguide') or row['person_key']
+    key, year = row.get('_bioguide') or row['person_key'], settings().cycles.current
     own = [
-        t for p in legislators if p['id'].get('bioguide') == key for t in senate_terms_in_2026(p)
+        t for p in legislators if p['id'].get('bioguide') == key for t in senate_terms_into(p, year)
     ]
     if own:
         return own[-1].get('class')
@@ -303,8 +303,8 @@ def senate_class(row, legislators, continuing):
         t.get('class')
         for p in legislators
         if p['id'].get('bioguide') not in continuing
-        for t in senate_terms_in_2026(p)
-        if t.get('state') == row['state'] and (t.get('start') or '') <= '2026-12-31'
+        for t in senate_terms_into(p, year)
+        if t.get('state') == row['state'] and (t.get('start') or '') <= f'{year}-12-31'
     }
     return holders.pop() if len(holders) == 1 else None
 

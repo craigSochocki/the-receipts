@@ -84,7 +84,7 @@ fec_api:
     max_wait_seconds: 900.0        # longest total wait for one request (15 min)
 
 freshness:
-  # F24 committee sweeps (24/48-hour independent expenditures, cycle 2026
+  # F24 committee sweeps (24/48-hour independent expenditures, current cycle
   # only): `pull_freshness.py --all` sweeps each committee below committee-wide (every
   # candidate it targeted, roster or not) and attributes rows to roster
   # people by candidate_id. The list is chosen by hand: the biggest
@@ -93,7 +93,6 @@ freshness:
   # per_cycle_summaries.<cycle>.top_committees_roster_targeted), plus
   # UDP by design, as AIPAC-affiliated. No script reads the notes; the
   # figures behind the choice are in research/methodology-evidence.md.
-  f24_committee_sweep_cycle: 2026
   f24_committee_sweep:
     - committee_id: "C00960435"
       committee_name: "NO GOING BACK PAC INC."

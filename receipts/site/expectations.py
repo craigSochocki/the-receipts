@@ -2,7 +2,9 @@
 
 from collections import Counter
 
+from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean
+from receipts.domain.seats import regular_senate_class
 
 TERRITORIES = {'AS', 'DC', 'GU', 'MP', 'PR', 'VI'}
 PARTY_LETTERS = {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}
@@ -87,7 +89,12 @@ def targets_2028(incoming, preset):
     on_watchlist = TARGET_RULES[preset]
     democrats = [p for p in incoming if is_democrat(p) and on_watchlist(p)]
     house = [p for p in democrats if p['chamber_120'] == 'House']
-    senate = [p for p in democrats if p['chamber_120'] == 'Senate' and p['senate_class'] == 3]
+    senate = [
+        p
+        for p in democrats
+        if p['chamber_120'] == 'Senate'
+        and p['senate_class'] == regular_senate_class(settings().cycles.current + 2)
+    ]
     return sorted(house, key=by_dirty_2026), sorted(senate, key=by_dirty_2026)
 
 

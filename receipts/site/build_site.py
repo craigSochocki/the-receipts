@@ -268,10 +268,10 @@ def unverified_sentence(names):
 
 def unopposed_sentence(names):
     if not names:
-        return 'No member ran unopposed in 2026.'
+        return f'No member ran unopposed in {settings().cycles.current}.'
     n = len(names)
     return (
-        f'{n} {"members ran" if n > 1 else "member ran"} unopposed in 2026 — '
+        f'{n} {"members ran" if n > 1 else "member ran"} unopposed in {settings().cycles.current} — '
         f'no opponent with receipts over $0 — so $0 dirty money there is not '
         f'counted as verified-clean: {human_list(names)}.'
     )
@@ -388,14 +388,14 @@ def main():
         f'{fmt_cov(coverage["weball"])}; '
         'independent expenditures through '
         f'{fmt_cov(coverage["independent_expenditures"])}. '
-        f'2026 is partial. Generated {generated_at}.'
+        f'{settings().cycles.current} is partial. Generated {generated_at}.'
     )
     # Front-door freshness line: one line, from the same config dates —
     # the latest coverage end across families, never a typed date.
     fresh_line = (
         'Data through '
         f'{fmt_cov(max(coverage.values()))}'
-        ' \u2014 2026 is partial. Full coverage dates in the methodology.'
+        f' \u2014 {settings().cycles.current} is partial. Full coverage dates in the methodology.'
     )
     html = page_template()
     html = html.replace('%%METHOD_HTML%%', clean_method_html(dataset))

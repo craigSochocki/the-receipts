@@ -57,20 +57,19 @@ SITE_STEPS = [
     Step('receipts.site.verify_site', lambda: verify_site.main([])),
 ]
 
-# Bulk files the pulls read; all must exist or the rebuild fails fast.
-# The 2026 files plus the earliest-cycle files are checked as sentinels
-# for the whole staged bulk set (the pulls read every cycle 1980-2026).
-REQUIRED_BULK = [
-    'data/raw/weball/weball26.txt',
-    'data/raw/weball/weball80.txt',
-    'data/raw/pas2/2026/itpas2.txt',
-    'data/raw/pas2/1980/itpas2.txt',
-    'data/raw/cm/2026/cm.txt',
-    'data/raw/cm/1980/cm.txt',
-    'data/raw/ie/2026/independent_expenditure_2026.csv',
-    'data/raw/ie/2024/independent_expenditure_2024.csv',
-    'data/raw/ie/2022/independent_expenditure_2022.csv',
-]
+
+def required_bulk():
+    """The current and earliest cycles' files, as sentinels for the whole staged bulk set."""
+    cycles = settings().cycles
+    ends = (cycles.current, cycles.career_start)
+    return [
+        *(f'data/raw/weball/weball{year % 100:02d}.txt' for year in ends),
+        *(f'data/raw/pas2/{year}/itpas2.txt' for year in ends),
+        *(f'data/raw/cm/{year}/cm.txt' for year in ends),
+        *(f'data/raw/ie/{year}/independent_expenditure_{year}.csv' for year in cycles.ie),
+    ]
+
+
 # Roster sources build_roster.py reads.
 REQUIRED_ROSTER_SOURCES = [
     'data/source/legislators-current.yaml',
@@ -135,7 +134,7 @@ def ensure_dirs():
 
 def check_staged():
     missing = [
-        p for p in REQUIRED_BULK + REQUIRED_ROSTER_SOURCES if not (settings().root / p).exists()
+        p for p in required_bulk() + REQUIRED_ROSTER_SOURCES if not (settings().root / p).exists()
     ]
     if missing:
         raise SystemExit(

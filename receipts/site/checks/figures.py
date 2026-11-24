@@ -6,8 +6,8 @@ from receipts.site.checks.counts import HOUSE_SEATS
 from receipts.site.checks.page import num
 from receipts.site.expectations import figure_literals
 
-# Counts the browser renders; the 2026 tab's count is written at build time, so only
-# the 2028 tab is scanned for the watchlist phrases.
+# Counts the browser renders; the current-cycle targets tab's count is written at build
+# time, so only the next-cycle tab is scanned for the watchlist phrases.
 COUNT_PHRASES = (r'\d+ of \d+ incoming members', r'\d+ House \+ \d+ Senate')
 WATCHLIST_PHRASES = (r'\d+ House Democrats', r'\d+ Democratic senators')
 

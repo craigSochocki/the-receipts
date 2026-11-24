@@ -6,6 +6,7 @@ import argparse
 from receipts.common.fec_api import client
 from receipts.common.files import emit_json
 from receipts.common.log import log, run
+from receipts.common.settings import settings
 from receipts.domain.money import exact_sum
 
 PER_PAGE = 100
@@ -120,11 +121,12 @@ def main():
     ap = argparse.ArgumentParser(description='F24 (24/48-hour IE) freshness pull.')
     ap.add_argument('--committee', help='spending committee ID (e.g. C00799031 = UDP)')
     ap.add_argument('--candidate', help='target candidate ID (e.g. S6MI00418)')
-    ap.add_argument('--cycle', type=int, default=2026, help='election cycle (default 2026)')
+    ap.add_argument('--cycle', type=int, default=None, help='election cycle (default: current)')
     ap.add_argument('--out', default=None, help='write the JSON report here (default: stdout)')
     args = ap.parse_args()
     if not args.committee and not args.candidate:
         ap.error('need --committee and/or --candidate')
+    args.cycle = args.cycle or settings().cycles.current
     result = sweep(args.committee, args.candidate, args.cycle)
     emit_json(result, args.out)
     log.info(
