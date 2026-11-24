@@ -18,6 +18,8 @@ def record(key='p', ids=('H1',), in_120th='yes', **lists):
         'person_key': key,
         'fec_candidate_ids': list(ids),
         'in_120th': in_120th,
+        'chamber_120': 'House',
+        'senate_class': None,
         'data_notes': '',
         **blank,
         **lists,
@@ -146,6 +148,26 @@ def test_every_cycle_with_money_gets_its_own_record():
     assert [c['cycle'] for c in r['cycles']] == [2024, 2026]
     past = r['cycles'][0]
     assert past['dirty'] == 1.0 and past['clean'] is False
-    assert {k: v for k, v in r['cycles'][1].items() if k != 'cycle'} == {
+    assert {k: v for k, v in r['cycles'][1].items() if k not in ('cycle', 'up_for_election')} == {
         k.removesuffix('_2026'): v for k, v in r.items() if k.endswith('_2026')
     }
+
+
+def test_the_headline_verdict_is_the_current_cycle_if_up_else_the_latest_cycle_up():
+    past_dirty = money(cycle=2024, corp=1.0)
+    (off_year,) = add_cycle_records(
+        [record(per_cycle=[past_dirty, money(individual=5.0)])],
+        {}, lambda cycle: contested('H1'), filed={('H1', 2024): {2024}, ('H1', 2026): {2028}},
+    )  # fmt: skip
+    assert [c['up_for_election'] for c in off_year['cycles']] == [True, False]
+    assert (off_year['verdict_cycle'], off_year['clean']) == (2024, False)
+    (up_now,) = add_cycle_records(
+        [record(per_cycle=[past_dirty, money(individual=5.0)])],
+        {}, lambda cycle: contested('H1'), filed={('H1', 2024): {2024}, ('H1', 2026): {2026}},
+    )  # fmt: skip
+    assert (up_now['verdict_cycle'], up_now['clean']) == (2026, True)
+    (unlinked,) = add_cycle_records(
+        [record(per_cycle=[past_dirty])], {}, lambda cycle: contested('H1'),
+        filed={('H1', 2024): {2024}},
+    )  # fmt: skip
+    assert (unlinked['verdict_cycle'], unlinked['clean']) == (2026, None)

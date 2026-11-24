@@ -109,6 +109,11 @@ SCALARS = [
     'all_ie_total_2026',
     'data_notes',
     'data_as_of',
+    'verdict_cycle',
+    'clean',
+    'dirty',
+    'tier_balanced',
+    'tier_lenient',
 ]
 PC_COLS = [
     'cycle',

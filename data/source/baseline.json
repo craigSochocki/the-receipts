@@ -28,6 +28,28 @@
  "clean_2026.house_120th_verified_clean_republican": 3,
  "clean_2026.null_total": 4,
  "clean_2026.true_total": 96,
+ "cycles.headline_by_cycle": {
+  "2022": [
+   0,
+   32,
+   0
+  ],
+  "2024": [
+   0,
+   34,
+   0
+  ],
+  "2026": [
+   90,
+   503,
+   4
+  ],
+  "None": [
+   0,
+   0,
+   1
+  ]
+ },
  "cycles.records_per_cycle": {
   "1980": 6,
   "1982": 11,

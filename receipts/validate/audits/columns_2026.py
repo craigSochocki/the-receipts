@@ -5,7 +5,7 @@ import pandas as pd
 from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import aipac_udp_flagged, races_and_unopposed, tier, verdict
-from receipts.transform.compute_2026 import has_2026_linkage
+from receipts.transform.compute_2026 import HEADLINE, has_2026_linkage
 from receipts.validate.audits.published import cycle_sum, load_weball_2026_races, opposition_credit
 
 OTHER_COMMITTEE_BUCKETS = [
@@ -115,7 +115,7 @@ def cycle_records(audit, dataset):
     audit.check(
         'the current-cycle record equals the current-cycle columns',
         all(c[k] == r[f'{k}_{current}'] for r, c in records if c['cycle'] == current
-            for k in c if k != 'cycle'),
+            for k in c if k not in ('cycle', 'up_for_election')),
     )  # fmt: skip
     per_cycle = {}
     for _, c in records:
@@ -135,3 +135,29 @@ def cycle_records(audit, dataset):
         list(zip(rows['person_key'], rows['cycle'].astype(int), strict=True))
         == [(r['person_key'], c['cycle']) for r, c in records],
     )
+
+
+def headline_verdicts(audit, dataset):
+    """Each headline verdict is the current cycle's when it is used, else the latest cycle up."""
+    current = settings().cycles.current
+    wrong = 0
+    for r in dataset.records:
+        up = [c for c in r['cycles'] if c['up_for_election']]
+        now = next(c for c in r['cycles'] if c['cycle'] == current)
+        chosen = (
+            now
+            if now['up_for_election'] or r['verdict_cycle'] == current
+            else (up[-1] if up else None)
+        )
+        want = {'verdict_cycle': chosen and chosen['cycle'],
+                **{k: chosen and chosen[k] for k in HEADLINE}}  # fmt: skip
+        wrong += any(r[k] != v for k, v in want.items())
+    audit.check(
+        'headline verdicts follow the current-else-latest-up rule', wrong == 0, f'{wrong} rows'
+    )
+    by_cycle = {}
+    for r in dataset.records:
+        key = str(r['verdict_cycle'])
+        by_cycle.setdefault(key, [0, 0, 0])[{True: 0, False: 1, None: 2}[r['clean']]] += 1
+    audit.pin('headline clean / dirty / unknown by verdict cycle', 'cycles.headline_by_cycle',
+              dict(sorted(by_cycle.items())))  # fmt: skip

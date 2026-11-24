@@ -8,11 +8,12 @@ import pandas as pd
 from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.transform.assemble import base_records
-from receipts.transform.compute_2026 import cycle_fields, with_cycles
+from receipts.transform.compute_2026 import HEADLINE, cycle_fields, with_cycles
 
 
 def base_keys():
-    cycle_keys = {f'{k}_{settings().cycles.current}' for k in cycle_fields()} | {'cycles'}
+    cycle_keys = {f'{k}_{settings().cycles.current}' for k in cycle_fields()}
+    cycle_keys |= {'cycles', 'verdict_cycle', *HEADLINE}
     return [k for k in settings().dataset.json_keys if k not in cycle_keys]
 
 
