@@ -15,12 +15,10 @@ MAX_COMPLEXITY = 20  # radon grade C or better
 MIN_MAINTAINABILITY = 20  # radon grade A
 
 COMPLEXITY_DEBT = {
-    'site/verify_site.py:composition_charts': 26,
-    'site/verify_site.py:party_chips_and_outcomes': 38,
+    'site/checks/charts.py:composition_charts': 26,
+    'site/checks/charts.py:party_chips_and_outcomes': 38,
 }
-MAINTAINABILITY_DEBT = {
-    'site/verify_site.py': 6,
-}
+MAINTAINABILITY_DEBT = {}
 
 PACKAGE = repo_root() / 'receipts'
 
