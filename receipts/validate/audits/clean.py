@@ -4,40 +4,41 @@ from receipts.common.settings import settings
 from receipts.validate.audits.published import is_num
 
 
-def clean_counts(audit, dataset):
-    """(d) clean counts (baseline clean_2026.*)"""
-    counts = {
-        'true_total': sum(1 for r in dataset.records if r['clean_2026'] is True),
-        'false_total': sum(1 for r in dataset.records if r['clean_2026'] is False),
-        'null_total': sum(1 for r in dataset.records if r['clean_2026'] is None),
-    }
-    for key in ('true_total', 'false_total', 'null_total'):
-        audit.pin(f'clean_2026 {key}', f'clean_2026.{key}', counts[key])
-    house120 = [
-        r for r in dataset.records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House'
-    ]
-    house_clean = [r for r in house120 if r['clean_2026'] is True]
-    audit.pin('120th House clean', 'clean_2026.house_120th_verified_clean', len(house_clean))
+def pin_by_party(audit, label, key, members):
     for party in ('Democrat', 'Republican'):
         audit.pin(
-            f'120th House clean {party}',
-            f'clean_2026.house_120th_verified_clean_{party.lower()}',
-            sum(1 for r in house_clean if r['party_120'] == party),
+            f'{label} {party}',
+            f'{key}_{party.lower()}',
+            sum(1 for r in members if r['party_120'] == party),
         )
-    career_clean = [
-        r
-        for r in house120
-        if r['corporate_pac_career'] == 0
+
+
+def is_career_clean(r):
+    return (
+        r['corporate_pac_career'] == 0
         and r['aipac_pac_direct_career'] == 0
         and r['udp_ie_support_career'] == 0
-    ]
-    audit.pin('career-clean 120th House', 'clean_2026.house_120th_career_clean', len(career_clean))
-    for party in ('Democrat', 'Republican'):
+    )
+
+
+def clean_counts(audit, dataset):
+    """(d) clean counts (baseline clean_2026.*)"""
+    records = dataset.records
+    for key, value in (('true_total', True), ('false_total', False), ('null_total', None)):
         audit.pin(
-            f'career-clean 120th House {party}',
-            f'clean_2026.house_120th_career_clean_{party.lower()}',
-            sum(1 for r in career_clean if r['party_120'] == party),
+            f'clean_2026 {key}',
+            f'clean_2026.{key}',
+            sum(1 for r in records if r['clean_2026'] is value),
         )
+    house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
+    house_clean = [r for r in house120 if r['clean_2026'] is True]
+    audit.pin('120th House clean', 'clean_2026.house_120th_verified_clean', len(house_clean))
+    pin_by_party(audit, '120th House clean', 'clean_2026.house_120th_verified_clean', house_clean)
+    career_clean = [r for r in house120 if is_career_clean(r)]
+    audit.pin('career-clean 120th House', 'clean_2026.house_120th_career_clean', len(career_clean))
+    pin_by_party(
+        audit, 'career-clean 120th House', 'clean_2026.house_120th_career_clean', career_clean
+    )
     career_keys = {r['person_key'] for r in career_clean}
     audit.pin(
         '2026-clean but not career-clean (120th House)',
