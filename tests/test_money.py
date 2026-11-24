@@ -1,4 +1,4 @@
-from receipts.domain.money import ZERO, Money
+from receipts.domain.money import ZERO, Money, exact_sum
 
 
 def test_parses_fec_amounts_exactly():
@@ -35,3 +35,15 @@ def test_truthiness_and_sign():
 
 def test_money_formats_with_or_without_thousands_separators():
     assert (str(Money(-123456789)), f'{Money(10720783):,}') == ('-1234567.89', '107,207.83')
+
+
+def test_exact_sum_adds_json_dollars_in_cents():
+    assert exact_sum([0.1, 0.2]) == 0.3
+    assert sum([0.1, 0.2]) != 0.3
+
+
+def test_exact_sum_keeps_the_type_sum_would_give():
+    assert exact_sum([]) == 0 and isinstance(exact_sum([]), int)
+    assert isinstance(exact_sum([], 0.0), float)
+    assert exact_sum([500, 25]) == 525 and isinstance(exact_sum([500, 25]), int)
+    assert isinstance(exact_sum([500, 2.5]), float)
