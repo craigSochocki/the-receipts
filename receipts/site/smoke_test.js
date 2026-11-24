@@ -22,6 +22,9 @@ for (const list of [NodeList, HTMLCollection]) {
     list.prototype[m] = list.prototype[m] || Array.prototype[m];
   }
 }
+// Counts the page computes in the browser are reported back and pinned in baseline.json.
+const observed = {};
+const observe = (key, value) => { observed[key] = value; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // A real browser fires hashchange after the current task; wait for it.
 const setHash = (value) => new Promise((resolve) => {
@@ -34,7 +37,7 @@ const setHash = (value) => new Promise((resolve) => {
 window.smoke = {
   async main(EXP) {
 
-        assert.strictEqual(PEOPLE.length, 664, "PEOPLE.length");
+        observe("rows", PEOPLE.length);
         const TOP5 = EXP.headline.top5.map((x) => x[0]);
         const T28 = EXP.targets_2028;
         const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1);
@@ -98,7 +101,7 @@ window.smoke = {
           "explore mode shows the full-data workspace");
         /* ---- FE7: first entry into Explore renders the workspace ---- */
         const statsHtml = document.getElementById("stats").innerHTML;
-        assert.ok(statsHtml.includes("664"), "stats mention 664 people: " + statsHtml.slice(0, 120));
+        assert.ok(statsHtml.includes(String(PEOPLE.length)), "stats mention every person: " + statsHtml.slice(0, 120));
         assert.ok(statsHtml.includes(String(EXP.tiers.not_dirty_120.balanced)) && statsHtml.includes("not dirty"), "stats mention the Balanced not-dirty count");
         assert.strictEqual(
           document.querySelectorAll("#stats .stat").length, 3,
@@ -214,7 +217,7 @@ window.smoke = {
         assert.ok(compHtml.includes("Dirty D " + EXP.charts.house["dirty D"]), "House legend shows the Dirty D count");
         assert.ok(compHtml.includes("Uncalled " + (435 - EXP.charts.house_named)), "House legend shows the Uncalled count");
         assert.ok(compHtml.includes("Dirty D " + EXP.charts.senate["dirty D"]), "Senate legend shows the Dirty D count");
-        assert.ok(compHtml.includes("Not shown: 6 non-voting delegates"), "delegate note present");
+        assert.ok(compHtml.includes("Not shown: " + Object.values(EXP.charts.delegates).reduce((a, b) => a + b, 0) + " non-voting delegates"), "delegate note present");
         Object.entries(EXP.charts.delegates).forEach(([k, n]) =>
           assert.ok(compHtml.includes(seatLabel(k) + " " + n), "delegate note shows " + seatLabel(k) + " " + n));
         assert.ok(compHtml.includes("visually-hidden"), "FE10: charts have a visually-hidden text alternative");
@@ -289,27 +292,27 @@ window.smoke = {
         setPreset("lenient");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[0] + " House Democrats"),
-          "Lenient 2028 intro counts 103 House Democrats");
+          "Lenient 2028 intro counts the House Democrats");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[1] + " Democratic senators"),
-          "Lenient 2028 intro counts 3 Democratic senators");
+          "Lenient 2028 intro counts the Democratic senators");
         setPreset("strict");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.strict[0] + " House Democrats"),
-          "Strict 2028 intro counts 192 House Democrats");
+          "Strict 2028 intro counts the House Democrats");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
-          "Strict 2028 intro counts 13 Democratic senators");
+          "Strict 2028 intro counts the Democratic senators");
         assert.ok(
           document.getElementById("landing-story").innerHTML.replace(/<[^>]+>/g, "").includes(EXP.clean.all_120 + " of " + EXP.tiers.incoming_total),
           "Strict story shows the verified-clean count of the incoming members");
         setPreset("balanced");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
-          "Balanced 2028 intro counts 133 House Democrats");
+          "Balanced 2028 intro counts the House Democrats");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[1] + " Democratic senators"),
-          "Balanced 2028 intro counts 6 Democratic senators");
+          "Balanced 2028 intro counts the Democratic senators");
 
         /* ---- FE1a: nested lists decode lazily ----
            Must run before the first openDetail / CSV export below, which
@@ -388,9 +391,7 @@ window.smoke = {
         assert.ok(findStateHtml.includes("Michigan"), "finder state list has Michigan");
         assert.ok(findStateHtml.includes("American Samoa"), "finder state list has American Samoa");
         assert.strictEqual(finderSeats("MI")[0].value, "senate", "MI first seat is Senate");
-        assert.strictEqual(
-          finderSeats("MI").filter((s) => s.value !== "senate").length, 13,
-          "MI has 13 House districts");
+        observe("finder_mi_house_seats", finderSeats("MI").filter((s) => s.value !== "senate").length);
         assert.deepStrictEqual(
           finderSeats("MP").map((s) => s.label), ["At-large — Delegate"],
           "MP is a delegate seat, no Senate");
@@ -437,8 +438,8 @@ window.smoke = {
           document.getElementById("q").value, "",
           "Reset clears the search box");
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "Reset restores all 664 rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "Reset restores all all rows");
         assert.strictEqual(
           document.getElementById("filter-chips").innerHTML, "",
           "Reset clears the chips");
@@ -476,7 +477,7 @@ window.smoke = {
         assert.strictEqual(parseFloat(hookCountups[1][1]), nextFour, "hook count-up targets the next-four total");
         assert.strictEqual(hookCountups[1][3], EXP.headline.next_four_compact, "hook count-up shows the next-four total");
         const storyCountups = [...storyHtml.matchAll(/<span class="countup" data-value="(\d+)" data-format="int"[^>]*>(\d+)<\/span>/g)].map((m) => m[1]);
-        assert.deepStrictEqual(storyCountups, [String(notDirty120), String(incoming120.length)], "story count-ups are 203 and 535");
+        assert.deepStrictEqual(storyCountups, [String(notDirty120), String(incoming120.length)], "story count-ups are the not-dirty and incoming counts");
         // Dirty explainer: big number counts up to the career dirty total;
         // the three components sum to it exactly.
         const explainerHtml = document.getElementById("dirty-explainer").innerHTML;
@@ -500,7 +501,7 @@ window.smoke = {
          * set, so reset the filters first. */
         function resetFilters() {
           // Only dispatch for controls whose value actually changed: every
-          // dispatch re-renders the 664-row table, so no-op dispatches are
+          // dispatch re-renders the whole table, so no-op dispatches are
           // pure cost (findPerson only moves q and f-congress off default).
           const q = document.getElementById("q");
           if (q.value !== "") { q.value = ""; q.dispatchEvent("input"); }
@@ -516,17 +517,17 @@ window.smoke = {
         }
         resetFilters();
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "reset filters restore 664 rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "reset filters restore all rows");
         assert.ok(
-          document.getElementById("showing").textContent.includes("Showing 664 of 664"),
-          "showing line counts 664 of 664");
+          document.getElementById("showing").textContent.includes("Showing " + PEOPLE.length + " of " + PEOPLE.length),
+          "showing line counts every row");
 
         const hasClick = (el) => (el.__listeners?.click || 0) >= 1;
         const hasListener = (el, type) => (el.__listeners?.[type] || 0) >= 1;
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "querySelectorAll finds all 664 table rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "querySelectorAll finds every table row");
         assert.strictEqual(
           document.querySelectorAll(".chapter").length, 7,
           "querySelectorAll finds all 7 chapters");
@@ -700,11 +701,11 @@ window.smoke = {
         partySel.value = "all";
         partySel.dispatchEvent("change");
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "party filter reset restores 664 rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "party filter reset restores all rows");
         assert.strictEqual(
           document.getElementById("csv-btn").textContent,
-          "Download CSV — 664 rows",
+          "Download CSV — " + PEOPLE.length + " rows",
           "CSV button label follows the reset");
 
         /* ---- U7: leadership filter excludes TBD (would return everyone) ---- */
@@ -718,15 +719,15 @@ window.smoke = {
         leaderBox.dispatchEvent("change");
         assert.strictEqual(
           document.querySelectorAll("#main-table tbody tr").length, leaderCount,
-          "leadership filter returns the " + leaderCount + " 119th leaders, not all 664");
+          "leadership filter returns the " + leaderCount + " 119th leaders, not every row");
         assert.ok(
           document.getElementById("filter-chips").innerHTML.includes("Leadership (119th; 120th TBD)"),
           "leadership filter shows as a chip");
         leaderBox.checked = false;
         leaderBox.dispatchEvent("change");
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "leadership filter reset restores 664 rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "leadership filter reset restores all rows");
 
         /* ---- D8: filters in two labelled rows, tab bar scrolls ---- */
         assert.strictEqual(
@@ -749,29 +750,29 @@ window.smoke = {
           "tolerance select change to Strict recomputes the watchlist");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
-          "Strict intro counts 13 senators");
+          "Strict intro counts the senators");
         tolSel.value = "balanced";
         tolSel.dispatchEvent("change");
         assert.ok(
           document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
-          "tolerance select change back to Balanced restores 133");
+          "tolerance select change back to Balanced restores the Balanced count");
         document.querySelector('.tabs button[data-tab="tracker"]').dispatchEvent("click");
 
         /* ---- D6/FE3: compact/exact money toggle (persisted, Compact default) ---- */
         const moneySel = document.getElementById("f-money");
         assert.strictEqual(moneySel.value, "compact", "money toggle defaults to Compact");
         const dirtyCell = document.querySelector("#main-table tbody tr").children[11];
-        assert.strictEqual(dirtyCell.textContent, "$31.03M", "money shows compact by default");
+        assert.strictEqual(dirtyCell.textContent, EXP.headline.top1_compact, "money shows compact by default");
         moneySel.value = "exact";
         moneySel.dispatchEvent("change");
         assert.strictEqual(
           document.querySelector("#main-table tbody tr").children[11].textContent,
-          "$31,025,889.44", "money toggle to Exact shows dollars and cents");
+          EXP.headline.top1_exact, "money toggle to Exact shows dollars and cents");
         moneySel.value = "compact";
         moneySel.dispatchEvent("change");
         assert.strictEqual(
           document.querySelector("#main-table tbody tr").children[11].textContent,
-          "$31.03M", "money toggle back to Compact restores the short form");
+          EXP.headline.top1_compact, "money toggle back to Compact restores the short form");
 
         /* ---- finder, driven by dispatched change/click events ---- */
         const findStateSel = document.getElementById("find-state");
@@ -795,8 +796,8 @@ window.smoke = {
         closeDetail();
         resetFilters(); // findPerson left the table filtered to one person + 120th
         assert.strictEqual(
-          document.querySelectorAll("#main-table tbody tr").length, 664,
-          "reset after the finder restores 664 rows");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "reset after the finder restores all rows");
 
         /* ---- front-door buttons + hash routing ---- */
         setMode("front");
@@ -870,7 +871,7 @@ window.smoke = {
         assert.strictEqual(document.getElementById("q").value, "Adrian Boafo", "U10: View in Tracker filters to the person");
         assert.strictEqual(document.querySelectorAll("#main-table tbody tr").length, 1, "U10: filtered table has exactly the person");
         document.getElementById("filters-reset").dispatchEvent("click"); // the Reset chip runs the page's resetFilters (synchronous render)
-        assert.strictEqual(document.querySelectorAll("#main-table tbody tr").length, 664, "U10: reset restores 664 rows");
+        assert.strictEqual(document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length, "U10: reset restores all rows");
         setMode("front");
 
         /* ---- U1 leftovers: sticky tab bar + finder in Explore ---- */
@@ -912,7 +913,7 @@ window.smoke = {
           searchBox.value = "Warnock";
           searchBox.dispatchEvent("input");
           assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 664,
+            document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
             "search waits for the debounce before re-rendering");
           await sleep(250);
           assert.strictEqual(
@@ -925,38 +926,30 @@ window.smoke = {
           searchBox.dispatchEvent("input");
           await sleep(250);
           assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 664,
-            "clearing the search restores 664 rows");
+            document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+            "clearing the search restores all rows");
           assert.ok(
-            document.getElementById("showing").textContent.includes("Showing 664 of 664"),
-            "showing line counts 664 of 664 after clearing the search");
+            document.getElementById("showing").textContent.includes("Showing " + PEOPLE.length + " of " + PEOPLE.length),
+            "showing line counts every row after clearing the search");
 
           /* ---- U8: search matches state, district, party, chamber ---- */
           searchBox.value = "michigan";
           searchBox.dispatchEvent("input");
           await sleep(250);
-          assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 21,
-            "search 'michigan' finds the 21-person Michigan delegation");
+          observe("search_michigan", document.querySelectorAll("#main-table tbody tr").length);
           searchBox.value = "11";
           searchBox.dispatchEvent("input");
           await sleep(250);
-          assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 17,
-            "search '11' finds the 17 district-11 members");
+          observe("search_district_11", document.querySelectorAll("#main-table tbody tr").length);
           searchBox.value = "senate";
           searchBox.dispatchEvent("input");
           await sleep(250);
-          assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 118,
-            "search 'senate' finds the 118 senators");
+          observe("search_senate", document.querySelectorAll("#main-table tbody tr").length);
           // Relevance: a name match outranks a state match.
           searchBox.value = "mi";
           searchBox.dispatchEvent("input");
           await sleep(250);
-          assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 113,
-            "search 'mi' finds 113 rows");
+          observe("search_mi", document.querySelectorAll("#main-table tbody tr").length);
           assert.ok(
             document.querySelector("#main-table tbody tr td").textContent.includes("Mike Johnson"),
             "relevance ranks the Mike Johnson name match first for 'mi'");
@@ -973,8 +966,8 @@ window.smoke = {
           searchBox.dispatchEvent("input");
           await sleep(250);
           assert.strictEqual(
-            document.querySelectorAll("#main-table tbody tr").length, 664,
-            "clearing the search after U8 restores 664 rows");
+            document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+            "clearing the search after U8 restores all rows");
 
           /* ---- escaping: text from the filings, or typed by a visitor, never becomes markup ---- */
           const hostile = '<img src=x onerror="globalThis.__injected=1">';
@@ -994,6 +987,7 @@ window.smoke = {
             "a search holding markup renders as text in the filter chip");
           assert.strictEqual(globalThis.__injected, undefined, "no injected handler ran");
 
+        return observed;
   },
   // Viewport phases: runtime.py resizes the browser before each one.
   async narrow() {
