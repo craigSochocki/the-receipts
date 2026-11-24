@@ -16,10 +16,7 @@ MIN_MAINTAINABILITY = 20  # radon grade A
 
 COMPLEXITY_DEBT = {}
 # Scored without docstrings, so prose cannot lift a file over the line.
-MAINTAINABILITY_DEBT = {
-    'ingest/pull_freshness.py': 19,
-    'store/other_committees.py': 19,
-}
+MAINTAINABILITY_DEBT = {}
 
 PACKAGE = repo_root() / 'receipts'
 
