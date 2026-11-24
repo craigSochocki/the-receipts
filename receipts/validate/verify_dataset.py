@@ -10,6 +10,7 @@ from receipts.validate.audits.clean import clean_counts, clean_spot_cases, unopp
 from receipts.validate.audits.columns_2026 import columns_2026
 from receipts.validate.audits.money import (
     all_ie,
+    double_counts,
     opposition,
     other_committees,
     roster_totals,
@@ -27,6 +28,7 @@ SECTIONS = [
     other_committees,
     all_ie,
     roster_totals,
+    double_counts,
     ranks_and_dirty,
     clean_counts,
     tiered_rule,
