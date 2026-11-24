@@ -118,28 +118,28 @@ function openDetail(key, opts){
     + kvRow('All IE 2026 (support / oppose)', fmtMoney(p.all_ie_support_2026)+' / '+fmtMoney(p.all_ie_oppose_2026))
     + '</div>';
   h += cycle('Cycle by cycle — individual / AIPAC / corporate PAC', p.per_cycle, [
-    {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
+    ...CYCLE_ID,
     {k:'individual',label:'Individual',type:'money'},{k:'aipac_pac_direct',label:'AIPAC direct',type:'money'},
     {k:'aipac_earmark_transmitted',label:'AIPAC earmark',type:'money'},
     {k:'corporate_pac',label:'Corp PAC',type:'money'},{k:'corporate_earmark_transmitted',label:'Corp earmark',type:'money'}], 'sec-cycle-money');
   h += cycle('Cycle by cycle — self-funding & topline', p.self_funding_per_cycle, [
-    {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
+    ...CYCLE_ID,
     {k:'candidate_contributions',label:'Cand. contrib.',type:'money'},{k:'candidate_loans',label:'Cand. loans',type:'money'},
     {k:'loan_repayments',label:'Loan repay.',type:'money'},{k:'debts_owed_by',label:'Debts owed',type:'money'},
     {k:'total_receipts',label:'Receipts',type:'money'},{k:'total_disbursements',label:'Disbursements',type:'money'},
     {k:'cash_on_hand',label:'Cash on hand',type:'money'},{k:'coverage_end_date',label:'Coverage ends',type:'text'}]);
   h += cycle('Cycle by cycle — other committees', p.other_committees_per_cycle, [
-    {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
+    ...CYCLE_ID,
     {k:'party_committees',label:'Party',type:'money'},{k:'leadership_pacs',label:'Leadership',type:'money'},
     {k:'labor_pacs',label:'Labor',type:'money'},{k:'trade_pacs',label:'Trade',type:'money'},
     {k:'membership_pacs',label:'Membership',type:'money'},{k:'cooperative_pacs',label:'Cooperative',type:'money'},
     {k:'other_unclassified',label:'Other',type:'money'},{k:'winred_included',label:'WinRed incl.',type:'money'}]);
   h += cycle('Cycle by cycle — all independent expenditures (2022–2026)', p.all_ie_per_cycle, [
-    {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
+    ...CYCLE_ID,
     {k:'all_ie_support',label:'Support',type:'money'},{k:'all_ie_oppose',label:'Oppose',type:'money'},
     {k:'all_ie_total',label:'Total',type:'money'}]);
   h += cycle('Cycle by cycle — UDP support', p.udp_per_cycle, [
-    {k:'cycle',label:'Cycle',type:'text'},{k:'candidate_id',label:'Candidate ID',type:'text'},
+    ...CYCLE_ID,
     {k:'udp_ie_support',label:'UDP support',type:'money'},{k:'attribution',label:'Attribution',type:'text'}]);
   if(p.all_ie_top_committees && p.all_ie_top_committees.length){
     h += cycle('Top outside spenders on this race (career, 2022–2026)', p.all_ie_top_committees, [
@@ -265,10 +265,7 @@ function renderLeaders(){
    is always shown. Counts are computed from PEOPLE at render time
    and always labeled with the preset. */
 function renderClean(){
-  const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const nd = incoming.filter(isNotDirty);
-  const hND = nd.filter(p=>p.chamber_120==='House').length;
-  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
+  const {incoming, nd, hND, sND} = notDirtyCounts();
   const careerCleanHouse = incoming.filter(p=>p.chamber_120==='House'&&isCareerClean(p));
   const ndAll = PEOPLE.filter(isNotDirty);
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
@@ -331,7 +328,7 @@ function renderBreakdown(){
 /* ---- primary targets ---- */
 function renderTargets(){
   const rows = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&num(p.dirty_2026)>0)
-    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+    .sort(byDirty2026);
   document.querySelector('#targets-table thead').innerHTML =
     '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Individual 2026</th></tr>';
   document.querySelector('#targets-table tbody').innerHTML = rows.map((p,i)=>
@@ -351,9 +348,9 @@ function renderTargets(){
    watchlist, not a ballot prediction. */
 function renderTargets2028(){
   const house = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&tierOf(p)==='dirty')
-    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+    .sort(byDirty2026);
   const senate = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='Senate'&&p.party_120==='Democrat'&&p.senate_class===3&&tierOf(p)==='dirty')
-    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026));
+    .sort(byDirty2026);
   const preset = PRESETS[state.preset];
   document.getElementById('targets28-intro').innerHTML =
     'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028, under the '+preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
@@ -450,10 +447,7 @@ function downloadCsv(){
 const statsCache = {};
 function renderStats(){
   if(statsCache[state.preset]){ document.getElementById('stats').innerHTML = statsCache[state.preset]; return; }
-  const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const nd = incoming.filter(isNotDirty);
-  const hND = nd.filter(p=>p.chamber_120==='House').length;
-  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
+  const {incoming, nd, hND, sND} = notDirtyCounts();
   const unopp = PEOPLE.filter(p=>p.unopposed_2026===true);
   const unver = PEOPLE.filter(p=>p.clean_2026===null && p.unopposed_2026!==true);
   const word = state.preset==='strict' ? 'verified clean' : 'not dirty';

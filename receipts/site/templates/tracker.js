@@ -140,11 +140,21 @@ function isCareerClean(p){
     && num(p.udp_ie_support_career)===0 && num(p.udp_ie_opposing_opponents_career)===0;
 }
 
+const byDirty2026 = (a,b)=>num(b.dirty_2026)-num(a.dirty_2026);
+const CYCLE_ID = [{k:'cycle',label:'Cycle',type:'text'}, {k:'candidate_id',label:'Candidate ID',type:'text'}];
+/* The incoming members not dirty under the current preset, by chamber. */
+function notDirtyCounts(){
+  const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
+  const nd = incoming.filter(isNotDirty);
+  return {incoming, nd,
+    hND: nd.filter(p=>p.chamber_120==='House').length,
+    sND: nd.filter(p=>p.chamber_120==='Senate').length};
+}
+
 /* ---- column views ---- */
+const WHO = [{k:'full_name',label:'Name',type:'name'}, {k:'place',label:'State / Dist.',type:'place'}];
 const VIEWS = {
-  core:{label:'Core money',cols:[
-    {k:'full_name',label:'Name',type:'name'},
-    {k:'place',label:'State / Dist.',type:'place'},
+  core:{label:'Core money',cols:[...WHO,
     {k:'party',label:'Party',type:'party'},
     {k:'outcome',label:'Outcome',type:'outcome'},
     {k:'chamber',label:'Chamber',type:'chamber'},
@@ -156,9 +166,7 @@ const VIEWS = {
     {k:'rank_total_accepted',label:'Rank',type:'rank'},
     {k:'dirty_2026',label:'Dirty 2026',type:'money'},
     {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
-  y2026:{label:'2026 cycle',cols:[
-    {k:'full_name',label:'Name',type:'name'},
-    {k:'place',label:'State / Dist.',type:'place'},
+  y2026:{label:'2026 cycle',cols:[...WHO,
     {k:'party',label:'Party',type:'party'},
     {k:'individual_2026',label:'Individual 2026',type:'money'},
     {k:'corp_2026',label:'Corp PAC 2026',type:'money'},
@@ -168,9 +176,7 @@ const VIEWS = {
     {k:'dirty_2026',label:'Dirty 2026',type:'money'},
     {k:'dep_share_2026',label:'Dep. share 2026',type:'pct'},
     {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
-  selffund:{label:'Self-funding & topline',cols:[
-    {k:'full_name',label:'Name',type:'name'},
-    {k:'place',label:'State / Dist.',type:'place'},
+  selffund:{label:'Self-funding & topline',cols:[...WHO,
     {k:'self_funding_career',label:'Self-funding (career)',type:'money'},
     {k:'cand_loans_career',label:'Candidate loans',type:'money'},
     {k:'cand_contrib_career',label:'Candidate contrib.',type:'money'},
@@ -180,9 +186,7 @@ const VIEWS = {
     {k:'cash_on_hand_career',label:'Cash on hand',type:'money'},
     {k:'debts_owed_by_career',label:'Debts owed',type:'money'},
     {k:'rank_self_funding',label:'Rank',type:'rank'}]},
-  committees:{label:'Other committees',cols:[
-    {k:'full_name',label:'Name',type:'name'},
-    {k:'place',label:'State / Dist.',type:'place'},
+  committees:{label:'Other committees',cols:[...WHO,
     {k:'party_committees_career',label:'Party',type:'money'},
     {k:'leadership_pacs_career',label:'Leadership PACs',type:'money'},
     {k:'labor_pacs_career',label:'Labor',type:'money'},
@@ -192,9 +196,7 @@ const VIEWS = {
     {k:'other_unclassified_career',label:'Other / unclass.',type:'money'},
     {k:'other_committees_total_career',label:'Other committees total',type:'money'},
     {k:'rank_other_committees_total',label:'Rank',type:'rank'}]},
-  outside:{label:'Outside spending',cols:[
-    {k:'full_name',label:'Name',type:'name'},
-    {k:'place',label:'State / Dist.',type:'place'},
+  outside:{label:'Outside spending',cols:[...WHO,
     {k:'udp_ie_support_career',label:'UDP support',type:'money'},
     {k:'udp_ie_opposing_opponents_career',label:'UDP opp. credit',type:'money'},
     {k:'udp_ie_total_benefit_career',label:'UDP total benefit',type:'money'},
@@ -203,7 +205,8 @@ const VIEWS = {
     {k:'all_ie_total_career',label:'All IE total',type:'money'},
     {k:'rank_all_ie_total',label:'Rank',type:'rank'}]}
 };
-const SORTABLE = new Set(['individual_contribution_total_career','corporate_pac_career','aipac_pac_direct_career','total_accepted_career','rank_total_accepted','dirty_2026','individual_2026','corp_2026','aipac_direct_2026','udp_support_2026','udp_benefit_2026','dep_share_2026','self_funding_career','cand_loans_career','cand_contrib_career','loan_repayments_career','total_receipts_career','total_disbursements_career','cash_on_hand_career','debts_owed_by_career','rank_self_funding','party_committees_career','leadership_pacs_career','labor_pacs_career','trade_pacs_career','membership_pacs_career','cooperative_pacs_career','other_unclassified_career','other_committees_total_career','rank_other_committees_total','udp_ie_support_career','udp_ie_opposing_opponents_career','udp_ie_total_benefit_career','all_ie_support_career','all_ie_oppose_career','all_ie_total_career','rank_all_ie_total','full_name']);
+const SORTABLE = new Set(['full_name', ...Object.values(VIEWS).flatMap(v=>v.cols)
+  .filter(c=>['money','rank','pct'].includes(c.type)).map(c=>c.k)]);
 
 /* ---- money format: compact / exact (D6/FE3) ----
    Compact is the default ($1.23M); Exact shows dollars and cents
@@ -438,7 +441,7 @@ function renderViewBtns(){
    exceeds the next four combined). Each row opens the drill-down. */
 function renderDirtiest(){
   const rows = PEOPLE.filter(p=>num(p.dirty_2026)>0)
-    .sort((a,b)=>num(b.dirty_2026)-num(a.dirty_2026)).slice(0,5);
+    .sort(byDirty2026).slice(0,5);
   const top = rows[0];
   const next4 = rows.slice(1).reduce((s,p)=>s+num(p.dirty_2026),0);
   let h = '<b>'+esc(top.full_name)+'</b> took <b><span class="countup" data-value="'+num(top.dirty_2026)+'" data-format="compact">'+fmtCompact(top.dirty_2026)+'</span></b> in dirty money in 2026 — the most of anyone in Congress.';
@@ -470,10 +473,7 @@ function renderDirtiest(){
    (methodology §14: a count is never shown without its definition);
    the default preset is Balanced. */
 function renderCleanStory(){
-  const incoming = PEOPLE.filter(p=>p.in_120th==='yes');
-  const nd = incoming.filter(isNotDirty);
-  const hND = nd.filter(p=>p.chamber_120==='House').length;
-  const sND = nd.filter(p=>p.chamber_120==='Senate').length;
+  const {incoming, nd, hND, sND} = notDirtyCounts();
   const preset = PRESETS[state.preset];
   document.getElementById('landing-story').innerHTML =
     '<p class="big-number"><span class="countup" data-value="'+nd.length+'" data-format="int">'+nd.length+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></p>'
