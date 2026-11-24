@@ -1,10 +1,4 @@
-"""Every shared value from config.yaml, typed, read on first use.
-
-Code asks for `settings()` where it needs a value, never at import, so
-nothing reads the config until a step runs. config.yaml must match these
-classes exactly: a missing, unknown or wrongly typed key stops the run
-with its dotted name.
-"""
+"""Every config.yaml value, typed, read on first use; a bad key stops the run."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields, is_dataclass

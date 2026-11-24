@@ -1,3 +1,1 @@
-"""Static site generation (receipts/site): build_site.py emits docs/index.html
-from the canonical dataset; verify_site.py checks the generated site
-against the dataset."""
+"""The static site: build_site.py writes docs/index.html; verify_site.py checks it."""

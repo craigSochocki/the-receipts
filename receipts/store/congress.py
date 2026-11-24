@@ -117,8 +117,7 @@ def seat_rows(terms, house_districts_2026, senate_classes):
 
 
 def candidacy_rows(bulk_dir, cycles, new_map_states, senate_classes, seat_ids):
-    """Every registered candidate. A seat link the seats table does not
-    have (a filing error, such as MI-80) is left empty; the filed district stays."""
+    """Every registered candidate; a seat the seats table lacks (a filing error) stays unlinked."""
     for cycle in cycles:
         for c in candidates(bulk_dir, cycle):
             seat = seat_for(c, new_map_states, senate_classes)

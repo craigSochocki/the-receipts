@@ -174,11 +174,7 @@ def contribution_row(contribution, cycle, excluded_because):
 
 
 def contribution_rows(files_read):
-    """Every contribution to a candidate, each counted once.
-
-    Voided earmarks are set aside before duplicates are matched, as the
-    money pulls have always done.
-    """
+    """Every contribution to a candidate, each counted once; voided earmarks set aside first."""
     for cycle in settings().cycles.career:
         filed_once = reported_once()
         filed = committee_contributions(settings().paths.bulk, cycle)

@@ -27,8 +27,7 @@ def is_senator(r):
 
 
 class SeatClasses:
-    """Senate class from the legislators yaml: the person's own term serving into 2026,
-    else the class of whoever held that state's seat during 2026."""
+    """Senate class from the legislators yaml, re-derived independently of build_roster."""
 
     def __init__(self, legislators, continuing):
         self.legislators = legislators

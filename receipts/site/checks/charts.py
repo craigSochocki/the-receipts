@@ -237,10 +237,7 @@ def targets_2028_intro_computed(audit, page):
 
 
 def party_chips_and_outcomes(audit, page):
-    """party chips + outcome labels (person marks), and the 2028 targets tab.
-    The chips render in JS at runtime (asserted in the smoke test); here: the helpers exist,
-    and the derivation inputs recomputed from the embedded data cover every row.
-    """
+    """Party chips, outcome labels and the 2028 targets tab cover every row."""
     chip_helpers(audit, page)
     party_and_outcome_counts(audit, page)
     mark_spot_cases(audit, page)
@@ -285,11 +282,7 @@ def tolerance_presets(audit, page):
 
 
 def senate_tiles_on_phones(audit, page):
-    """Wave 2 (redesign): D1 Senate tiles reflow on phones
-    Below 560px the Senate tiles render 5 wide x 10 tall (320x505
-    viewBox); at desktop width they stay 10 wide (645x250). The
-    waffle geometry is untouched (D1's waffle changes were cut).
-    """
+    """Below 560px the Senate tiles reflow to 5 wide by 10 tall."""
     audit.check(
         'D1: Senate tiles reflow to 5 wide below 560px, 10 wide above',
         'TILE_COLS = 10' in page.html
@@ -301,12 +294,7 @@ def senate_tiles_on_phones(audit, page):
 
 
 def tappable_charts(audit, page):
-    """Wave 2 (redesign): U4 charts are tappable
-    Waffle dots and Senate tile halves carry the person's key,
-    and one delegated listener on the composition container opens
-    the drill-down. Uncalled seats carry no key and stay inert.
-    Per-dot keyboard focus was cut (435 dots ~ 535 tab stops).
-    """
+    """Chart dots and tiles open the drill-down; uncalled seats stay inert."""
     audit.check(
         'U4: charts are tappable via a delegated SVG listener',
         'data-key' in page.html
@@ -316,14 +304,7 @@ def tappable_charts(audit, page):
 
 
 def stagger_cap(audit, page):
-    """Wave 2 (redesign): FE10 stagger cap + text alternative
-    The waffle and tile staggers are scaled so the whole sequence
-    stays under ~500ms (was ~1.1s / ~1.5s); the dirtiest rows were
-    already 360ms. Each chart also gets a visually-hidden
-    sentence-form text alternative. The sticky-th clause is NOT
-    done here: the only concrete fix (a 70vh inner scroller) was
-    cut, and no other pure-CSS fix exists — see the wave report.
-    """
+    """Chart staggers stay under half a second, and each chart has a text alternative."""
     audit.check(
         'FE10: chart staggers capped under ~500ms',
         '480/(WAFFLE_COLS-1)' in page.html

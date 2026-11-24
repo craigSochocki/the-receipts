@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Build union roster 119th + 120th Congress.
-Sources:
- - 119th: unitedstates/congress-legislators legislators-current.yaml (fetched 2026-11-12)
- - 120th: Wikipedia '120th United States Congress' (crawled 2026-11-12 11:26 UTC),
-   transcribed to 120th_roster.json; new-members page cross-checked.
- - Returning former members: legislators-historical.yaml via historical_lookup.json
- - Facts neither source carries (special elections, uncalled seats, leadership):
-   data/source/roster_facts.yaml
-"""
+"""Build the union roster of the 119th and 120th Congress (sources: methodology.md)."""
 
 import collections
 from typing import NamedTuple
@@ -84,8 +76,7 @@ class FormerMembers:
         return self.lookup[norm(name)]
 
     def returning(self, name, state):
-        """The former member a 120th seat-holder is, if any. Guards against namesakes
-        from long ago: requires service in the same state ending in 2000 or later."""
+        """The former member a 120th seat-holder is: same state, service ending 2000 or later."""
         first, last = split_name(name)
         for key in (norm(f'{first} {last}'), norm(name)):
             if key in self.lookup:
@@ -145,8 +136,7 @@ class Roster:
         )
 
     def sitting_member(self, name, state):
-        """The 119th member a 120th seat-holder is: same state and last name, and a first
-        name that agrees (nickname-aware), so same-state namesakes stay apart."""
+        """The 119th member a 120th seat-holder is: same state and last name, agreeing first name."""
         first, last = split_name(name)
         return next(
             (
@@ -250,8 +240,7 @@ class Roster:
                 )
 
     def note_successors(self, r120):
-        """Outgoing members: who holds the seat in the 120th. House: the same state and
-        district; Senate: the state's senators who are new in the 120th."""
+        """For each outgoing member, who holds their seat in the 120th."""
         house_by_seat = {(h['state'], str(h['district'])): h for h in r120['house']}
         senators_by_state = collections.defaultdict(list)
         for s in r120['senate']:
@@ -284,13 +273,7 @@ class Roster:
                     )
 
     def assign_senate_classes(self):
-        """Senate class (1/2/3) for every senator row, from the legislators yaml: each
-        Senate term carries its class directly. A person holding a Senate seat into 2026
-        takes their own latest term's class; a new senator (no Senate term of their own)
-        takes the class of whoever held that seat during 2026 (the appointee or outgoing
-        holder, whose term carries the seat's class). Render-time derivation from FEC
-        cycles was tested and fails (every senator fundraises every cycle; special-election
-        winners break the cycle-mod-6 pattern), so it is computed here, not on the page."""
+        """Senate class from each senator's own term, else from the seat's 2026 holder."""
         senate_terms = {
             p['id'].get('bioguide'): [t for t in p['terms'] if t.get('type') == 'sen']
             for p in self.legislators

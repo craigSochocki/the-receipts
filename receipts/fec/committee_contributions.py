@@ -58,11 +58,7 @@ class CommitteeContribution(NamedTuple):
 
     @property
     def identity(self):
-        """Rows sharing this are the same contribution reported more than once.
-
-        The transaction ID alone is not enough: some filers reuse it
-        across distinct contributions.
-        """
+        """Rows sharing this are one contribution; some filers reuse transaction IDs."""
         return (
             self.committee_id,
             self.transaction_id or self.submission_id,

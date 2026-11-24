@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""UDP independent-expenditure support per roster person, read from the store.
-
-Only support rows count toward a person's total; UDP's spending against
-a person is recorded in the note, never added. Rules and the exact note
-wording: research/udp-notes.md.
-"""
+"""UDP support per roster person; spending against a person is noted, never added."""
 
 from collections import defaultdict
 

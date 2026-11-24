@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Opposition credit: UDP's spending against a backed candidate's opponents.
-
-For each race phase (cycle, office, state, district, election type), if UDP
-supported exactly one candidate, its spending opposing others in that phase
-is credited to that candidate; zero or two-plus backed candidates credit
-nothing. Spending against the backed candidate themself is never credited.
-The phase is the filing's election type because UDP's expenditure dates are
-blank on every row. AIPAC PAC files no Schedule E rows, so it has no column.
-"""
+"""UDP opposition credit; UDP's expenditure dates are blank, so the phase is the election type."""
 
 import csv
 from collections import Counter, defaultdict

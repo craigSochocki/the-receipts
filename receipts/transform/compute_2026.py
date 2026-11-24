@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""2026-cycle columns, the clean verdict and tiers, and the primary-target list.
-
-Adds the 2026 columns to the base rows from assemble.py, applies the rules in
-domain/clean_2026.py, checks the counts against data/source/baseline.json, and
-writes data/intermediate/primary-targets.md. Every column and rule, with its
-history and named cases, is defined in methodology.md §14.
-"""
+"""2026 columns, the clean verdict and tiers, and the primary-target list."""
 
 from collections import Counter
 

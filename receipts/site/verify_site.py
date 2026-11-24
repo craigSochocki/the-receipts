@@ -1,40 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the generated static site (docs/index.html) against the canonical
-dataset (congress-money-tracker.json).
-
-Checks:
- 1. docs/index.html exists and contains no unreplaced template placeholders.
- 2. The embedded compact payload decodes back to the dataset exactly —
-    every field of every row, including nested per-cycle lists.
- 3. Headline figures recomputed from the embedded data match the dataset
-    and data/source/baseline.json: row count, clean counts by chamber and
-    party, the named clean-rule spot cases, unknown money cells, the top
-    total-accepted names, primary targets, career-clean members, the
-    dirtiest members of 2026, party and outcome derivation, the
-    leaderboards and default sort, dirty_career, and the composition
-    charts. 2028 primary targets: House (same rule as 2026) and Class 3
-    Senate Democrats; the tab's intro is computed at render, never typed;
-    the front-door pointer opens it via showTab. Tolerance presets
-    (methodology §14): the AIPAC/UDP flag, both presets' tiers and
-    not-dirty counts, and the 2028 targets under each preset; the
-    front-door story defaults to Balanced not-dirty with the tolerance
-    labeled; the Explore tolerance control (Strict / Balanced / Lenient)
-    recomputes the counts, badges, and the 2028 tab live.
-    Scrollytelling: the front-door chapters in narrative order
-    (hook, dirtiest, dirty-definition, clean, chamber, finder, data);
-    IntersectionObserver reveals gated on html.js (no-JS shows
-    everything); prefers-reduced-motion renders everything visible;
-    count-up end values equal the computed figures, components
-    reconciling; waffle dots and senate tiles stagger on reveal.
- 4. The page's JavaScript parses (node --check on both app scripts).
- 5. docs/ serves over HTTP (200 + key strings present).
- 6. The generator is deterministic apart from the generation timestamp.
- 7. The embedded opposition-credit detail matches
-    data/intermediate/opposition-computed.json exactly (race-phase level).
-
-Usage: python3 receipts/site/verify_site.py [--skip-serve]
-Exit non-zero on any failure.
-"""
+"""Verify docs/index.html against the dataset and the baseline."""
 
 import hashlib
 import sys

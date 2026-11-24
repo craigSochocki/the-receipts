@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Self-funding, topline and transfer columns from weball, read from the store.
-
-Separate columns, never blended into total_accepted. Flows are summed
-across cycles; cash on hand and debts are stocks, taken from the latest
-cycle. A person with no FEC IDs is unknown (null), never zero.
-Column map, verification and the dedup decisions:
-research/self-funding-notes.md.
-"""
+"""Self-funding, topline and transfer columns from weball, read from the store."""
 
 from receipts.common.files import text_or_blank, text_or_none
 from receipts.common.settings import load_double_count_records, load_roster, settings

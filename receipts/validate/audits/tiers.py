@@ -1,6 +1,4 @@
-"""The tiered dirty rule, re-derived independently of domain/clean_2026.py.
-
-This copy is deliberate: tests/test_rule_agreement.py keeps it in step with domain/."""
+"""The tiered dirty rule, re-derived on purpose; tests/test_rule_agreement.py keeps it in step."""
 
 from collections import Counter
 

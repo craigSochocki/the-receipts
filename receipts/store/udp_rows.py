@@ -1,9 +1,4 @@
-"""UDP's independent expenditures from the store, with blank candidate IDs resolved.
-
-Shared by the UDP support pull and the opposition credit. UDP files many
-rows with a blank candidate ID; the name index is built from its own rows
-that carry one, across all cycles, a later row winning a name collision.
-"""
+"""UDP's independent expenditures from the store, with blank candidate IDs resolved."""
 
 from typing import NamedTuple
 

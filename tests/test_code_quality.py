@@ -15,7 +15,14 @@ MAX_COMPLEXITY = 20  # radon grade C or better
 MIN_MAINTAINABILITY = 20  # radon grade A
 
 COMPLEXITY_DEBT = {}
-MAINTAINABILITY_DEBT = {}
+# Scored without docstrings, so prose cannot lift a file over the line.
+MAINTAINABILITY_DEBT = {
+    'ingest/pull_freshness.py': 18,
+    'ingest/pull_gate.py': 16,
+    'site/checks/charts.py': 19,
+    'store/other_committees.py': 18,
+    'transform/build_roster.py': 15,
+}
 
 PACKAGE = repo_root() / 'receipts'
 
@@ -41,7 +48,7 @@ def complexity_scores():
 
 
 def maintainability_scores():
-    return {name: mi_visit(code, multi=True) for name, code in modules()}
+    return {name: mi_visit(code, multi=False) for name, code in modules()}
 
 
 def test_functions_stay_within_the_complexity_limit():

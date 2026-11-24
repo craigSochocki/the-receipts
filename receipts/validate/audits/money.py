@@ -6,9 +6,7 @@ from receipts.validate.audits.published import METHODOLOGY_TOTAL_COLS, oppositio
 
 
 def self_funding(audit, dataset):
-    """(j) self-funding spot cases; debts owed to is null. The per-cycle sums
-    are dbt tests on the gold tables (dbt/tests/*_career_is_its_cycles.sql).
-    """
+    """(j) self-funding spot cases; debts owed to is null."""
     named_sf = {
         'anthonyconstantinonyhouse': 'Constantino',
         'S001217': 'Rick Scott',
@@ -97,9 +95,7 @@ def other_committees(audit, dataset):
 
 
 def all_ie(audit, dataset):
-    """(l) all-IE: roster cycle totals; the blank-direction gap; top committees.
-    The UDP 2024 reconciliation is enforced by the all-IE step itself.
-    """
+    """(l) all-IE roster totals, the blank-direction gap, and top committees."""
     with connect() as db:
         roster_ie_totals = db.execute(
             'SELECT cycle, sum(all_ie_total) FROM gold.all_ie_per_candidate_cycle '
@@ -138,11 +134,7 @@ def all_ie(audit, dataset):
 
 
 def roster_totals(audit, dataset):
-    """(b) roster totals match methodology.md figures
-    (None stocks — cash on hand / debts owed by for people with no
-    weball rows at all — are skipped, exactly as the config totals
-    were computed from the staged CSVs.)
-    """
+    """Roster totals match the baseline; missing stocks (no weball rows) are skipped."""
     for col in METHODOLOGY_TOTAL_COLS:
         total = round(sum(r[col] for r in dataset.with_known_money if r[col] is not None), 2)
         audit.pin(f'roster total {col}', f'methodology_totals.{col}', total)

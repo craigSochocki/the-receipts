@@ -1,14 +1,4 @@
-"""Check what this run read from the FEC against the last recorded run, and record data changes.
-
-data/source/run_history.csv holds, for each recorded snapshot, the rows read from every
-FEC bulk file and when the FEC last changed it. Every run fails if:
-- a file lost more than run_checks.max_row_drop of its rows since the latest recorded
-  snapshot (one not newer than this one), or is missing;
-- the newest current-cycle file was more than run_checks.max_file_age_days old on the
-  snapshot date (the FEC stopped publishing, or the snapshot froze stale files).
-A rebaseline (rebuild.py --rebaseline) also records this snapshot's rows, so they land
-with the refresh pull request, which opens only when figures move.
-"""
+"""Stop a run when an FEC file lost rows or went stale since the last recorded snapshot."""
 
 import csv
 from datetime import date

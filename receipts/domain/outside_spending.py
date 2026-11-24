@@ -1,9 +1,4 @@
-"""Which independent expenditures count (methodology §4, §8).
-
-The IE files hold tens of billions in bogus filings, so the filter is
-part of the method: the spender must be a registered committee and the
-candidate an identified one.
-"""
+"""Which IEs count: the IE files hold bogus filings, so spender and candidate must be identified."""
 
 from receipts.domain.one_copy import OneCopyEach
 
