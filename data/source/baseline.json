@@ -119,6 +119,12 @@
  },
  "site.clean.senate_120": 13,
  "site.clean.unopposed_total": 9,
+ "site.composition.delegates": 6,
+ "site.composition.house_named": 430,
+ "site.composition.senate_named": 99,
+ "site.composition.senate_states_with_uncalled_seat": [
+  "AK"
+ ],
  "site.detail": {
   "top10_total_accepted": [
    "Raphael G. Warnock",
@@ -173,6 +179,11 @@
   "next_four_compact": "$15.23M",
   "exceeds_next_four": true,
   "ratio": "2.04"
+ },
+ "site.outcomes": {
+  "yes": 535,
+  "no": 124,
+  "unknown": 5
  },
  "site.targets_2028.order": {
   "balanced_house_order": [

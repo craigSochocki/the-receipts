@@ -1,9 +1,11 @@
 """The composition charts, party chips, tolerance presets and chart behavior."""
 
 import re
+from collections import Counter
 
 from receipts.site.checks.page import num
 
+HOUSE_SEATS, SENATE_SEATS, STATES = 435, 100, 50
 TERRITORIES = {'AS', 'GU', 'MP', 'PR', 'VI', 'DC'}
 OUTCOME_LABELS = {'yes': 'Won', 'unknown': 'Uncalled', 'no': 'Not returning'}
 
@@ -34,7 +36,7 @@ def composition_counts_computed(audit, page):
     literals = (
         legend(charts['house'])
         + legend(charts['senate'])
-        + [f'Uncalled {435 - charts["house_named"]}']
+        + [f'Uncalled {HOUSE_SEATS - charts["house_named"]}']
     )
     audit.check(
         'House waffle is 15 rows x 29 columns, column-major fill',
@@ -55,22 +57,28 @@ def composition_seats(audit, page):
         r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] not in TERRITORIES
     ]
     sen = [r for r in page.incoming if r['chamber_120'] == 'Senate']
+    per_state = Counter(r['state'] for r in sen)
     audit.check(
-        'House composition reconciles: 430 named voting + 5 uncalled = 435',
-        len(house_voting) == 430 and 435 - len(house_voting) == 5,
+        'House composition fits the chamber: named voting members never exceed the seats',
+        len(house_voting) <= HOUSE_SEATS,
         f'named {len(house_voting)}',
     )
+    audit.pin('House named voting members', 'site.composition.house_named', len(house_voting))
     audit.check(
-        'Senate composition reconciles: 99 named + 1 uncalled = 100',
-        len(sen) == 99 and 100 - len(sen) == 1,
+        'Senate composition fits the chamber: two seats per state at most',
+        len(sen) <= SENATE_SEATS and all(n <= 2 for n in per_state.values()),
         f'named {len(sen)}',
     )
+    audit.pin('Senate named members', 'site.composition.senate_named', len(sen))
     audit.check(
-        'Senate tiles cover 50 states: 49 with two named, Alaska with one + uncalled',
-        len({r['state'] for r in sen}) == 50
-        and len(sen) == 99
-        and sum(1 for r in sen if r['state'] == 'AK') == 1,
-        f'states {len({r["state"] for r in sen})}, named {len(sen)}',
+        'Senate tiles cover every state',
+        len(per_state) == STATES,
+        f'states {len(per_state)}',
+    )
+    audit.pin(
+        'Senate states with an uncalled seat',
+        'site.composition.senate_states_with_uncalled_seat',
+        sorted(state for state, n in per_state.items() if n < 2),
     )
     audit.check(
         'Senate tile renderer present (state tiles + dotted patterns)',
@@ -80,7 +88,7 @@ def composition_seats(audit, page):
     delegates = [
         r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] in TERRITORIES
     ]
-    audit.check('delegates not plotted: 6', len(delegates) == 6, f'got {len(delegates)}')
+    audit.pin('delegates not plotted', 'site.composition.delegates', len(delegates))
 
 
 def composition_charts(audit, page):
@@ -115,10 +123,11 @@ def party_and_outcome_counts(audit, page):
         v: sum(1 for r in page.rows if r['in_120th'] == v) for v in ('yes', 'no', 'unknown')
     }
     audit.check(
-        'outcome mapping covers all 664 (Won 535 / Not returning 124 / Uncalled 5)',
-        outcomes == {'yes': 535, 'no': 124, 'unknown': 5},
+        'outcome mapping covers every row',
+        sum(outcomes.values()) == len(page.rows),
         f'got {outcomes}',
     )
+    audit.pin('outcomes (Won / Not returning / Uncalled)', 'site.outcomes', outcomes)
 
 
 def mark_matches(page, name, party, outcome):
