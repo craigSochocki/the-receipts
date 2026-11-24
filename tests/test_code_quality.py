@@ -18,7 +18,6 @@ COMPLEXITY_DEBT = {
     'site/build_site.py:clean_method_html': 42,
     'site/verify_site.py:composition_charts': 26,
     'site/verify_site.py:party_chips_and_outcomes': 38,
-    'transform/compute_2026.py:observed_counts': 24,
 }
 MAINTAINABILITY_DEBT = {
     'site/verify_site.py': 6,

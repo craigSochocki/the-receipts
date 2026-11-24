@@ -119,12 +119,30 @@ def credits_2026():
         }
 
 
-def observed_counts(records):
-    r120 = [r for r in records if r['in_120th'] == 'yes']
-    house = [r for r in r120 if r['chamber_120'] == 'House']
+def is_career_clean(r):
+    return (
+        r['corporate_pac_career'] == 0
+        and r['aipac_pac_direct_career'] == 0
+        and r['udp_ie_support_career'] == 0
+    )
+
+
+def by_party(house_clean, career_clean):
+    found = {}
+    for party in ('Democrat', 'Republican'):
+        found[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
+            r['party_120'] == party for r in house_clean
+        )
+        found[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
+            r['party_120'] == party for r in career_clean
+        )
+    return found
+
+
+def clean_counts(records):
+    house = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
     house_clean = [r for r in house if r['clean_2026'] is True]
-    career_clean = [r for r in house if r['corporate_pac_career'] == 0
-                    and r['aipac_pac_direct_career'] == 0 and r['udp_ie_support_career'] == 0]  # fmt: skip
+    career_clean = [r for r in house if is_career_clean(r)]
     career_keys = {r['person_key'] for r in career_clean}
     found = {
         'clean_2026.true_total': sum(r['clean_2026'] is True for r in records),
@@ -132,16 +150,20 @@ def observed_counts(records):
         'clean_2026.null_total': sum(r['clean_2026'] is None for r in records),
         'clean_2026.house_120th_verified_clean': len(house_clean),
         'clean_2026.house_120th_career_clean': len(career_clean),
+        **by_party(house_clean, career_clean),
     }
-    for party in ('Democrat', 'Republican'):
-        found[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in house_clean)  # fmt: skip
-        found[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in career_clean)  # fmt: skip
     found['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
-        r['person_key'] not in career_keys for r in house_clean)  # fmt: skip
-    found['tiered_2026.aipac_udp_flag_all'] = sum(r['aipac_udp_flag_2026'] for r in records)
-    found['tiered_2026.aipac_udp_flag_120th'] = sum(r['aipac_udp_flag_2026'] for r in r120)
+        r['person_key'] not in career_keys for r in house_clean
+    )
+    return found
+
+
+def tier_counts(records):
+    r120 = [r for r in records if r['in_120th'] == 'yes']
+    found = {
+        'tiered_2026.aipac_udp_flag_all': sum(r['aipac_udp_flag_2026'] for r in records),
+        'tiered_2026.aipac_udp_flag_120th': sum(r['aipac_udp_flag_2026'] for r in r120),
+    }
     for preset in ('balanced', 'lenient'):
         tiers = Counter(r[f'tier_{preset}_2026'] for r in r120)
         for name in ('clean', 'below_threshold', 'dirty'):
@@ -151,6 +173,10 @@ def observed_counts(records):
             'below_threshold', 0
         )
     return found
+
+
+def observed_counts(records):
+    return {**clean_counts(records), **tier_counts(records)}
 
 
 def check_against_baseline(records):
