@@ -121,7 +121,7 @@ the-receipts/
 │   │                          # run_history.csv
 │   ├── intermediate/          # regenerable staging files, GITIGNORED —
 │   │                          # rebuild.py recreates them all
-│   ├── snapshots/             # dated dataset states (pre-rank, pre-opposition…)
+│   ├── snapshots/             # local dataset backups, GITIGNORED
 │   └── evidence/              # one-off API dumps from spot checks
 ├── research/                  # pull logs, verification notes, source research
 ├── dbt/                       # SQL models over the store, and their tests
@@ -145,6 +145,8 @@ the-receipts/
   change, not a rewrite of every script.
 - Before changing the dataset, back it up to `data/snapshots/` with a
   dated, descriptive name (`congress-money-tracker-pre-<change>.csv/.json`).
+  The folder is local and gitignored; git history is the record of every
+  committed version.
 - **Keep the tour current.** A change that adds, removes or renames a
   pipeline step, a rule, a path or code the tour quotes updates
   `onboarding/index.html` in the same change; `tests/test_onboarding.py`

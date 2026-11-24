@@ -7,11 +7,10 @@ data/raw/
 # fec_lookup_results.json, which is NOT regenerable without an API
 # key; it lives in data/source/ instead and stays committed.
 data/intermediate/
-# The silver store (DuckDB): rebuilt by src/store/build_store.py
+# The silver store (DuckDB): rebuilt by receipts/store/build_store.py
 data/store/
-# Rebuild backups written into data/snapshots/ (the committed
-# pre-* dataset snapshots stay tracked)
-data/snapshots/congress-money-tracker-pre-rebuild-*
+# Local dataset backups; git history holds every committed version
+data/snapshots/
 *.zip
 
 # Python bytecode

@@ -12,7 +12,7 @@
 # - Layout: code in receipts/ (common / ingest /
 #   transform / validate), staged bulk in data/raw/ (gitignored),
 #   committed inputs in data/source/, regenerable staging files in
-#   data/intermediate/ (gitignored), dataset snapshots in data/snapshots/,
+#   data/intermediate/ (gitignored), local dataset backups in data/snapshots/ (gitignored),
 #   one-off API evidence in data/evidence/, research notes in research/.
 #   The dataset itself stays at the repo root. Long term, data moves out
 #   of the repo into a database (see architecture.md); until then, every

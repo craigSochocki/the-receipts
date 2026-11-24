@@ -155,7 +155,7 @@ file paths, so pointing the pipeline at a database-backed store is a
 config change, not a rewrite of every script. Until then, the on-disk
 layout mirrors the future tables — `data/source/` (inputs),
 `data/intermediate/` (regenerable staging, gitignored),
-`data/snapshots/` (versions), `data/raw/` (immutable bulk, gitignored).
+`data/snapshots/` (local backups, gitignored), `data/raw/` (immutable bulk, gitignored).
 
 ## 3. Layered pipeline (bronze → silver → gold)
 - **Raw (bronze):** FEC bulk dumps and API responses, stored as received under
@@ -185,8 +185,9 @@ layout mirrors the future tables — `data/source/` (inputs),
 
 ## 5. Versioned snapshots
 - Before each change, back up the current JSON/CSV to `data/snapshots/` with a dated,
-  descriptive name (`congress-money-tracker-pre-<change>.csv/.json` — the
-  existing convention). Every dataset carries a `data_as_of` date, and the
+  descriptive name (`congress-money-tracker-pre-<change>.csv/.json`). The
+  backups are local and gitignored; git history is the record of every
+  committed version. Every dataset carries a `data_as_of` date, and the
   methodology is updated in the same change, never later.
 
 ## 6. Money is exact
