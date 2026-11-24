@@ -1907,7 +1907,25 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   assert.ok(
     document.getElementById("composition").innerHTML.includes('viewBox="0 0 645 250"'),
     "D1: resize back to 1024px restores the tiles to 10 wide");
-  console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work; handlers, bubbling/focus, and viewport covered.");
+  /* ---- escaping: text from the filings, or typed by a visitor, never becomes markup ---- */
+  const hostile = '<img src=x onerror="globalThis.__injected=1">';
+  const target = vm.runInThisContext("PEOPLE[0].person_key");
+  vm.runInThisContext(
+    "(p => { p.full_name = " + JSON.stringify(hostile) + "; p.data_notes = " +
+      JSON.stringify(hostile) + "; })(BY_KEY[" + JSON.stringify(target) + "])");
+  openDetail(target);
+  const sheet = document.getElementById("detail-sheet");
+  assert.strictEqual(sheet.querySelectorAll("img").length, 0,
+    "a name or data note holding markup renders as text in the detail sheet");
+  assert.ok(sheet.innerHTML.includes("&lt;img src=x"),
+    "the detail sheet shows the markup escaped");
+  searchBox.value = hostile;
+  searchBox.dispatchEvent("input");
+  await sleep(250);
+  assert.strictEqual(document.querySelectorAll("#filter-chips img").length, 0,
+    "a search holding markup renders as text in the filter chip");
+  assert.strictEqual(globalThis.__injected, undefined, "no injected handler ran");
+  console.log("Smoke test passed: 664 rows render, all tabs render, detail + CSV + landing work; handlers, bubbling/focus, viewport and escaping covered.");
 })().catch((e) => {
   console.error(e);
   process.exit(1);

@@ -222,7 +222,7 @@ function topByRank(rankKey, amountKey, n){
 function boardHtml(title, sub, entries){
   let h = '<h3>'+esc(title)+'</h3><p style="color:var(--muted);font-size:.9rem">'+esc(sub)+'</p><ol class="leader">';
   entries.forEach((e,i)=>{
-    h += '<li><button type="button" class="leader-row" data-key="'+e.key+'"><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+e.who+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></button></li>';
+    h += '<li><button type="button" class="leader-row" data-key="'+esc(e.key)+'"><span><b>'+(i+1)+'.</b> '+esc(e.name)+' <span class="who">'+e.who+'</span></span><span class="amt">'+fmtMoney(e.amount)+'</span></button></li>';
   });
   return h + '</ol>';
 }
@@ -296,7 +296,7 @@ function renderClean(){
   const tbody = document.querySelector('#clean-table tbody');
   thead.innerHTML = '<tr><th>Name</th><th>State / Dist.</th><th>Party</th><th>Chamber</th><th>Incoming 120th?</th><th>Tier 2026</th><th class="num">Corp PAC 2026</th><th class="num">Dirty 2026</th><th>Career-clean?</th></tr>';
   const rows = ndAll.slice().sort((a,b)=>a.full_name.localeCompare(b.full_name));
-  tbody.innerHTML = rows.map(p=>'<tr data-key="'+p.person_key+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td>'+fmtTierBadge(p)+'</td><td class="num">'+moneyShort(p.corp_2026)+'</td><td class="num">'+moneyShort(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
+  tbody.innerHTML = rows.map(p=>'<tr data-key="'+esc(p.person_key)+'"><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td>'+partyChip(p)+' '+esc(party(p))+'</td><td>'+esc(chamber(p))+'</td><td>'+(p.in_120th==='yes'?'Yes':'No — 119th only')+'</td><td>'+fmtTierBadge(p)+'</td><td class="num">'+moneyShort(p.corp_2026)+'</td><td class="num">'+moneyShort(p.dirty_2026)+'</td><td>'+(isCareerClean(p)?'Yes':'No')+'</td></tr>').join('');
   tbody.querySelectorAll('tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
@@ -335,7 +335,7 @@ function renderTargets(){
   document.querySelector('#targets-table thead').innerHTML =
     '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Individual 2026</th></tr>';
   document.querySelector('#targets-table tbody').innerHTML = rows.map((p,i)=>
-    '<tr data-key="'+p.person_key+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>').join('');
+    '<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>').join('');
   document.querySelectorAll('#targets-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
@@ -357,7 +357,7 @@ function renderTargets2028(){
   const preset = PRESETS[state.preset];
   document.getElementById('targets28-intro').innerHTML =
     'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028, under the '+preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
-  const rowHtml = (p,i)=>'<tr data-key="'+p.person_key+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flagBadge(p)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>';
+  const rowHtml = (p,i)=>'<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flagBadge(p)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.dirty_2026)+'</td><td class="num">'+fmtMoney(p.corp_2026)+'</td><td class="num">'+fmtMoney(p.aipac_direct_2026)+'</td><td class="num">'+fmtMoney(p.udp_benefit_2026)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.individual_2026)+'</td></tr>';
   document.querySelector('#targets28-house-table thead').innerHTML =
     '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
   document.querySelector('#targets28-house-table tbody').innerHTML = house.map(rowHtml).join('');
