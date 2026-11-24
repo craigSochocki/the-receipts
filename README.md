@@ -301,7 +301,8 @@ to the repo, so a checkout works from any directory on any machine.
   manual roster notes, FEC lookup results
 - `data/intermediate/` — regenerable staging files, **not committed**
   (gitignored; `receipts/rebuild.py` recreates them all)
-- `data/snapshots/` — dated dataset states (pre-rank, pre-opposition, …)
+- `data/snapshots/` — local dataset backups, **not committed** (git
+  history holds every committed version)
 - `data/evidence/` — one-off API dumps from spot checks
 - `research/` — pull logs, verification notes, source research
 - `data/raw/` — staged FEC bulk data, **not committed** (gitignored, ~6 GB,
