@@ -235,7 +235,7 @@ layout mirrors the future tables — `data/source/` (inputs),
   the canonical dataset by `receipts/site/build_site.py` (one command:
   `python3 receipts/site/build_site.py`; verified by
   `receipts/site/verify_site.py`, which decodes the embedded data and checks it
-  against the dataset field-by-field, plus a Node runtime smoke test
+  against the dataset field-by-field, plus a runtime smoke test in headless Chromium
   `receipts/site/smoke_test.js`). Single self-contained page, no external
   dependencies: the dataset is embedded in a compact positional encoding.
   Content parity with the private tracker artifact: search, filters, sort by every money column, totals strip + footer,
