@@ -104,14 +104,18 @@ def credits(races, person_keys):
     return by_person, nonroster, credited, uncredited
 
 
-def support_mismatches(rows, person_keys):
-    """Each roster person's UDP support, recomputed, against the committed dataset."""
+def published_support():
+    """{person_key: udp_ie_support_career} as the committed dataset states it."""
+    with open(settings().paths.dataset_csv, newline='') as f:
+        return {r['person_key']: r['udp_ie_support_career'] for r in csv.DictReader(f)}
+
+
+def support_mismatches(rows, person_keys, published):
+    """Each roster person's UDP support, recomputed, against the published figure."""
     support = defaultdict(int)
     for row in rows:
         if row.direction == 'S' and row.candidate_id in person_keys:
             support[person_keys[row.candidate_id]] += row.cents
-    with open(settings().paths.dataset_csv, newline='') as f:
-        published = {r['person_key']: r['udp_ie_support_career'] for r in csv.DictReader(f)}
     return [
         (key, float(value), dollars(support.get(key, 0)))
         for key, value in published.items()
@@ -128,6 +132,38 @@ def aipac_rows():
         ).fetchone()[0]
 
 
+def race_columns(race):
+    cycle, office, state, district, election_type = race
+    return {
+        'cycle': cycle,
+        'office': office,
+        'state': state,
+        'district': district,
+        'election_type': election_type,
+    }
+
+
+def credit_rows(credited):
+    return [
+        {**race_columns(race), 'credited_to': credited_to, 'backed_name': name, 'credit': amount}
+        for race, credited_to, name, amount, _ in credited
+    ]
+
+
+def opposed_rows(credited):
+    return [
+        {
+            **race_columns(race),
+            'credited_to': credited_to,
+            'position': position,
+            'opposed_name': opposed_name,
+            'amount': opposed_amount,
+        }
+        for race, credited_to, _, _, opposed in credited
+        for position, (opposed_name, opposed_amount) in enumerate(opposed.items())
+    ]
+
+
 def main():
     roster = load_roster()
     udp = UdpRows.from_store(roster)
@@ -135,43 +171,9 @@ def main():
         expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
     person_keys = person_of(roster)
     by_person, nonroster, credited, uncredited = credits(races_of(udp.rows), person_keys)
-    write_gold(
-        'opposition_credits',
-        [
-            {
-                'cycle': race[0],
-                'office': race[1],
-                'state': race[2],
-                'district': race[3],
-                'election_type': race[4],
-                'credited_to': credited_to,
-                'backed_name': name,
-                'credit': amount,
-            }
-            for race, credited_to, name, amount, _ in credited
-        ],
-        {'credit'},
-    )
-    write_gold(
-        'opposition_opposed',
-        [
-            {
-                'cycle': race[0],
-                'office': race[1],
-                'state': race[2],
-                'district': race[3],
-                'election_type': race[4],
-                'credited_to': credited_to,
-                'position': position,
-                'opposed_name': opposed_name,
-                'amount': opposed_amount,
-            }
-            for race, credited_to, _, _, opposed in credited
-            for position, (opposed_name, opposed_amount) in enumerate(opposed.items())
-        ],
-        {'amount'},
-    )
-    mismatches = support_mismatches(udp.rows, person_keys)
+    write_gold('opposition_credits', credit_rows(credited), {'credit'})
+    write_gold('opposition_opposed', opposed_rows(credited), {'amount'})
+    mismatches = support_mismatches(udp.rows, person_keys, published_support())
     write_json(
         settings().paths.opposition_computed,
         {
