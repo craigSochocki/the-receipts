@@ -125,7 +125,8 @@ def write(rows, per_cycle):
 
 
 def main():
-    write(*accepted_by_person(*read_store(), settings().cycles.career))
+    people, counted, filed, on_file = read_store()
+    write(*accepted_by_person(people, counted, filed, on_file, settings().cycles.career))
 
 
 if __name__ == '__main__':

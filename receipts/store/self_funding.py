@@ -113,7 +113,7 @@ def person_summary(person, finances):
     cycles_with_rows = [cycle for cycle, found in by_cycle.items() if found]
     every_cycle = [f for found in by_cycle.values() for f in found]
     latest = cycles_with_rows[-1] if cycles_with_rows else None
-    career = {**flows_and_self_funding(every_cycle), **stocks(by_cycle.get(latest, []))}
+    career = {**flows_and_self_funding(every_cycle), **stocks(by_cycle[latest] if latest else [])}
     current = {
         **flows_and_self_funding(by_cycle[settings().cycles.current]),
         **stocks(by_cycle[settings().cycles.current]),
