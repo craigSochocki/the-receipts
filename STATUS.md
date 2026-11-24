@@ -1,10 +1,10 @@
 # Congress Money Tracker — Status Snapshot
 
-**As of: Thursday, November 12, 2026, ~5:20 PM EST**
+**As of: Tuesday, November 24, 2026**
 
 ## What is built
 
-- **Refactor in progress (Nov 22).** One pipeline step at a time onto
+- **Refactor (Nov 22; code-quality pass DONE Nov 24, see "Running / next").** One pipeline step at a time onto
   `receipts/domain/` (rules, Money in exact cents) and `receipts/fec/` (typed
   readers), each step byte-identical. Done: `pull_money`,
   `pull_other_committees`, `pull_self_funding`. **Direction change (Craig, Nov 22):** stop migrating
@@ -398,7 +398,33 @@
    (roll calls, sponsorships, priorities); promises vs. reality
    (follow-through scoring, how funding shapes platforms); synthesis into
    the 2028 voter guide.
-6. **Public sharing:** the site is live and public by Craig's go-ahead
+6. **Code-quality pass — DONE Nov 24 (PRs #36–#43).** Typed lazy
+   `settings()`; one home per clean/dirty rule (`receipts/domain/`, with
+   an agreement test for the audit's copy); store/ and transform/ split
+   into pure read → compute → check → write functions; both verifiers
+   split into one module per topic (`receipts/validate/audits/`,
+   `receipts/site/checks/`), their typed-in figures moved to
+   `baseline.json`; site JS escapes every attribute; reference docs
+   figure-free (test-enforced); onboarding tour in `onboarding/` and kept
+   current by test; `rebuild.py` runs its steps in one process. Ratchets:
+   complexity and maintainability debt lists are empty, coverage floor
+   55%. Dataset byte-identical throughout (csv
+   6ada15a535ce1865b9485ff2f2b4ebbf, json f5b46dbcb954c4443c4fa9edb81797c1).
+   Open items, none blocking:
+   - Widen mypy beyond `domain/`, `fec/` and `common/settings.py`.
+   - Move `data/snapshots/` out of git (the dated dataset backups grow
+     the repo with every rebuild that is committed).
+   - Replace `print()` with logging in the pipeline steps.
+   - dbt column contracts on the marts.
+   - `receipts/validate/audits/rows.py` skips one folded roster key by
+     literal (`kristen-mcdonaldrivetmihouse`); it should come from the
+     roster's own record of folded rows.
+   - `receipts/store/models.py` closes dbt-duckdb's connections through
+     `DuckDBConnectionManager.close_all_connections()`, an adapter
+     internal; a dbt-duckdb upgrade can break it. If it does, the
+     rebuild stops at the step after dbt with a DuckDB connection error,
+     never with wrong figures.
+7. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.
 
