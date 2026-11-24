@@ -179,18 +179,6 @@ def test_principal_committees_are_designation_p(use_api):
     assert freshness.principal_committees('H6NY21157') == ['C00892737']
 
 
-def test_the_snapshot_keeps_file_numbers_not_whole_filings():
-    decision = {
-        'gated': True,
-        'families': {'F6': {'n_new_filings': 1, 'new_filings': [{'file_number': 7}]}},
-        'new_state': {'families': {}},
-    }
-    record = freshness.snapshot_gate_record(decision)
-    assert record['families']['F6'] == {'n_new_filings': 1, 'new_filing_file_numbers': [7]}
-    assert 'new_state' not in record
-    assert freshness.snapshot_gate_record(None)['reason'] == 'gate did not run'
-
-
 def test_the_summary_adds_up_the_legs():
     entries = [
         {
@@ -208,13 +196,12 @@ def test_the_summary_adds_up_the_legs():
     assert summary['open_f24_residuals'][0]['residual_unexplained'] == 1.5
     assert summary['committee_sweeps_f24_ie'] == 3.0
     assert summary['committee_sweeps_open_residuals'] == []
-    assert summary['gate_applied'] is False
 
 
 def test_the_snapshot_records_the_bulk_coverage_from_config():
     with open(repo_root() / 'config.yaml') as f:
         coverage_end = yaml.safe_load(f)['verification']['coverage_end']
-    snapshot = freshness.build_snapshot([], [], {'gate_error': None}, {})
+    snapshot = freshness.build_snapshot([], [], {})
     assert snapshot['bulk_coverage'] == {k: str(v) for k, v in coverage_end.items()}
     assert list(snapshot['bulk_coverage']) == list(coverage_end)
     assert snapshot['window_start'] == coverage_end['freshness_window_start']

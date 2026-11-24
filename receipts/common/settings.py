@@ -62,7 +62,6 @@ class Paths:
     other_committees_diagnostics: Path
     all_ie_per_cycle: Path
     freshness_snapshot: Path
-    freshness_state: Path
     dedup_applied: Path
     run_history: Path
     roster_facts: Path
@@ -96,18 +95,9 @@ class SweepCommittee:
 
 
 @dataclass(frozen=True)
-class Gate:
-    families: tuple[str, ...]
-    per_page: int
-    max_pages_per_family: int
-    committee_master_cycle: int
-
-
-@dataclass(frozen=True)
 class Freshness:
     f24_committee_sweep_cycle: int
     f24_committee_sweep: tuple[SweepCommittee, ...]
-    gate: Gate
 
 
 @dataclass(frozen=True)

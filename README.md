@@ -174,14 +174,10 @@ python3 receipts/ingest/pull_freshness.py --person <person_key> \
     --f24-committee <committee_id> --f24-candidate <person_key>
 ```
 
-A full refresh makes a call or more per roster person when run ungated
-(`--no-gate`); by default `--all` is gated (`receipts/ingest/pull_gate.py` — one
-global `/filings/` check per family first, legs only for people with new
-filings), so a quiet week costs a handful of calls. DEMO_KEY is spot-checks
+A full refresh (`--all`) makes a call or more per roster person. DEMO_KEY is spot-checks
 only and the driver refuses `--all` on it. A bare `--all` also runs
 committee-only F24 sweeps for the config-listed spender committees
-(`config.yaml`, `freshness.f24_committee_sweep`), so the scheduled run
-covers the F24 leg. Production needs a registered
+(`config.yaml`, `freshness.f24_committee_sweep`). Production needs a registered
 api.data.gov key via the `FEC_API_KEY` environment variable
 (`config.yaml` `fec_api`, default `DEMO_KEY`). A registered key is also
 set as the `FEC_API_KEY` repository secret (added by Craig).
@@ -265,7 +261,7 @@ Three workflows in `.github/workflows/`:
 retired `scheduled-refresh.yml`, which never completed a run. No workflow runs it
 now; run it by hand with the `FEC_API_KEY` key (Craig registered it at
 api.data.gov; it is also stored as a repository secret).
-A full ungated `--all` run makes more calls than a standard key allows per
+A full `--all` run makes more calls than a standard key allows per
 hour, so expect HTTP 429s, which the fetch helpers retry with backoff
 (limits in `config.yaml` `fec_api.retry`).
 See `methodology.md` §16.

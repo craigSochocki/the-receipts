@@ -12,7 +12,7 @@ from receipts.common.fec_api import client
 from receipts.common.files import read_json
 from receipts.common.settings import settings
 from receipts.domain.money import exact_sum
-from receipts.ingest import pull_f6, pull_f24, pull_gate
+from receipts.ingest import pull_f6, pull_f24
 
 
 def bulk_coverage_end():
@@ -101,20 +101,6 @@ def refresh_person(person, f24_committees):
     return entry
 
 
-def gated_entry(person, decision):
-    """Only the legs the gate found new filings for (a new F6 alone gets no totals call)."""
-    entry = new_entry(person)
-    legs = []
-    if person['person_key'] in decision['totals_person_keys']:
-        legs.append('totals')
-        entry['totals'] = totals_leg(person)
-    if person['person_key'] in decision['f6_person_keys']:
-        legs.append('f6')
-        entry['f6'] = f6_leg(person)
-    entry['gate_legs_run'] = legs
-    return entry
-
-
 DIRECTION = {'S': 'support', 'O': 'oppose'}
 
 
@@ -195,40 +181,6 @@ def committee_sweeps(committees, by_candidate):
     ]
 
 
-def snapshot_gate_record(decision):
-    """The gate decision for the snapshot, with new filings cut to their file_numbers."""
-    if not decision:
-        return {'gated': False, 'reason': 'gate did not run', 'gate_error': None}
-    record = {k: v for k, v in decision.items() if k != 'new_state'}
-    record['families'] = {
-        fam: {
-            **{k: v for k, v in r.items() if k != 'new_filings'},
-            'new_filing_file_numbers': [f.get('file_number') for f in r.get('new_filings', [])],
-        }
-        for fam, r in decision.get('families', {}).items()
-    }
-    return record
-
-
-def gate_summary_fields(gate):
-    """Gate fields for the summary. A gate that ran and failed still counts as applied."""
-    if not gate or not gate.get('gated'):
-        return {
-            'gate_applied': False,
-            'gate_calls_used': 0,
-            'gate_skipped_all': False,
-            'gate_affected_persons': 0,
-            'gate_error': (gate or {}).get('gate_error'),
-        }
-    return {
-        'gate_applied': True,
-        'gate_calls_used': gate.get('calls_used', 0),
-        'gate_skipped_all': bool(gate.get('all_skipped')),
-        'gate_affected_persons': len(gate.get('affected_person_keys') or []),
-        'gate_error': gate.get('gate_error'),
-    }
-
-
 def person_summary(entries):
     f6 = [f for e in entries for f in e['f6']]
     f24 = [(e['person_key'], s) for e in entries for s in e['f24']]
@@ -277,12 +229,8 @@ def sweep_summary(sweeps):
     }
 
 
-def summarize(entries, committee_sweeps=None, gate=None):
-    return {
-        **person_summary(entries),
-        **sweep_summary(committee_sweeps or []),
-        **gate_summary_fields(gate),
-    }
+def summarize(entries, committee_sweeps=None):
+    return {**person_summary(entries), **sweep_summary(committee_sweeps or [])}
 
 
 def parse_args():
@@ -292,13 +240,6 @@ def parse_args():
     )
     ap.add_argument(
         '--all', action='store_true', help='refresh every roster person (registered key required)'
-    )
-    ap.add_argument(
-        '--no-gate',
-        action='store_true',
-        help='force the full run, ignoring the pre-flight gate '
-        '(default with --all is gated: only legs with new '
-        'filings run — see receipts/ingest/pull_gate.py)',
     )
     ap.add_argument(
         '--f24-committee',
@@ -333,35 +274,28 @@ def refuse_demo_key(flag, workload, alternative=''):
         )
 
 
+def candidate_index(dataset):
+    return {cid: r for r in dataset for cid in (r.get('fec_candidate_ids') or [])}
+
+
+def sweep_committees():
+    return [
+        {'committee_id': c.committee_id, 'committee_name': c.committee_name}
+        for c in settings().freshness.f24_committee_sweep
+    ]
+
+
 class Roster:
     def __init__(self, dataset):
         self.people = dataset
         self.by_key = {r['person_key']: r for r in dataset}
-        self.by_candidate = pull_gate.candidate_index(dataset)
+        self.by_candidate = candidate_index(dataset)
 
     def lookup(self, person_keys):
         missing = next((pk for pk in person_keys if pk not in self.by_key), None)
         if missing is not None:
             sys.exit(f'ERROR: no roster person {missing!r}')
         return [self.by_key[pk] for pk in person_keys]
-
-
-def run_gate(dataset, by_candidate):
-    """The gate decision; a gate error means a full run, never a skip."""
-    decision = pull_gate.gate_run(dataset, by_candidate)
-    if decision['run_full']:
-        print(
-            'GATE ERROR — falling back to the FULL freshness run '
-            '(see gate_error in the snapshot); state NOT advanced.',
-            file=sys.stderr,
-            flush=True,
-        )
-    return decision
-
-
-def gated_refresh(decision, roster):
-    entries = [gated_entry(roster.by_key[pk], decision) for pk in decision['affected_person_keys']]
-    return entries, committee_sweeps(decision['f24_sweep_committees'], roster.by_candidate)
 
 
 def full_refresh(args, persons, f24_persons, roster):
@@ -376,15 +310,11 @@ def full_refresh(args, persons, f24_persons, roster):
         for p in f24_persons
         if p['person_key'] not in args.person
     ]
-    sweeps = committee_sweeps(pull_gate.sweep_committees(), roster.by_candidate) if args.all else []
+    sweeps = committee_sweeps(sweep_committees(), roster.by_candidate) if args.all else []
     return entries, sweeps
 
 
-def ungated_record(reason):
-    return {'gated': False, 'reason': reason, 'gate_error': None}
-
-
-def build_snapshot(entries, sweeps, gate_record, summary):
+def build_snapshot(entries, sweeps, summary):
     return {
         'generated_at': datetime.now(timezone.utc).isoformat(),
         'window_start': bulk_coverage_end().freshness_window_start,
@@ -393,8 +323,6 @@ def build_snapshot(entries, sweeps, gate_record, summary):
         'cadence_note': CADENCE_NOTE,
         'entries': entries,
         'committee_sweeps': sweeps,
-        'gate': gate_record,
-        'gate_error': gate_record.get('gate_error'),
         'summary': summary,
     }
 
@@ -407,25 +335,9 @@ def write_snapshot(out, snapshot):
     print(f'wrote {out}')
 
 
-def advance_gate_state(decision):
-    """Save the gate's new state after a gated run that found something."""
-    if decision['run_full'] or decision['all_skipped'] or decision.get('new_state') is None:
-        return
-    try:
-        pull_gate.save_state(decision['new_state'])
-    except Exception as e:
-        print(
-            f'WARNING: could not save freshness state: {e} — '
-            f'next run re-gates from the previous state.',
-            file=sys.stderr,
-            flush=True,
-        )
-
-
 def sweeps_only(args, roster):
-    sweeps = committee_sweeps(pull_gate.sweep_committees(), roster.by_candidate)
-    record = ungated_record('--f24-committee-sweep mode: the gate applies to --all only')
-    snapshot = build_snapshot([], sweeps, record, summarize([], sweeps))
+    sweeps = committee_sweeps(sweep_committees(), roster.by_candidate)
+    snapshot = build_snapshot([], sweeps, summarize([], sweeps))
     write_snapshot(args.out, snapshot)
     s = snapshot['summary']
     print(
@@ -435,7 +347,7 @@ def sweeps_only(args, roster):
     )
 
 
-def report(s, gated):
+def report(s):
     print(
         f'freshness: {s["n_persons"]} person(s); '
         f'F6 candidate loans ${s["new_f6_candidate_loans"]:,.2f}, '
@@ -446,13 +358,6 @@ def report(s, gated):
         f'committee F24 sweeps: {s["committee_sweeps_n"]} committee(s), '
         f'${s["committee_sweeps_f24_ie"]:,.2f}'
     )
-    if gated:
-        print(
-            f'gate: {s["gate_calls_used"]} calls; affected persons: '
-            f'{s["gate_affected_persons"]}; skipped all: '
-            f'{s["gate_skipped_all"]}; gate error: '
-            f'{s["gate_error"] or "none"}'
-        )
 
 
 def main():
@@ -468,29 +373,14 @@ def main():
             'python3 receipts/ingest/pull_f24.py --committee <id> --cycle 2026.',
         )
         return sweeps_only(args, roster)
-    gated = args.all and not args.no_gate
-    decision = run_gate(roster.people, roster.by_candidate) if gated else None
     if not args.all and not args.person:
         ap.error('need --person (repeatable) or --all')
     persons = roster.people if args.all else roster.lookup(args.person)
     f24_persons = roster.lookup(args.f24_candidate or args.person)
-    if gated and not decision['run_full']:
-        entries, sweeps = gated_refresh(decision, roster)
-    else:
-        entries, sweeps = full_refresh(args, persons, f24_persons, roster)
-    if not gated:
-        decision = ungated_record(
-            '--no-gate: full run forced'
-            if args.no_gate
-            else 'explicit --person mode: the gate applies to --all only'
-        )
-    snapshot = build_snapshot(
-        entries, sweeps, snapshot_gate_record(decision), summarize(entries, sweeps, gate=decision)
-    )
+    entries, sweeps = full_refresh(args, persons, f24_persons, roster)
+    snapshot = build_snapshot(entries, sweeps, summarize(entries, sweeps))
     write_snapshot(args.out, snapshot)
-    if gated:
-        advance_gate_state(decision)
-    report(snapshot['summary'], gated)
+    report(snapshot['summary'])
 
 
 if __name__ == '__main__':

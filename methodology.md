@@ -663,30 +663,6 @@ attributed and never dropped; rows with an indicator other than S/O are summed a
 unclassified. Raw rows are not embedded in the snapshot; the per-committee aggregates are
 the record, reproducible with `pull_f24.py --committee <id> --cycle <cycle>`.
 
-**Pre-flight gate (`receipts/ingest/pull_gate.py`).** Most per-person calls return
-nothing, so `--all` runs a gate first: one global
-`GET /v1/filings/?form_type=<F>&sort=-receipt_date` check per family — F6 gates the Form 6
-leg, F24 gates the committee sweeps, F3 gates the candidate-totals leg — paging until
-`receipt_date` falls before the family's `last_seen`, then running each leg only for the
-people (or sweep committees) with new filings. F3X is deliberately not a gate family: it
-is filed by non-candidate committees and drives no leg. State is the committed
-`data/source/freshness_state.json` (per-family `last_seen` plus the boundary day's
-`seen_file_numbers`); a skipped run leaves it unchanged, a run that finds activity
-advances it. **Safety property: a gate error is never "nothing new"** — any gate failure
-logs loudly and falls back to the full run, and state is not advanced. **Boundary-day
-rule:** the comparison is `receipt_date >= last_seen` (inclusive) with dedup by
-`file_number`, because a filing can become API-visible after the last run; this assumes
-filings become visible in `receipt_date` order with a lag shorter than the run interval.
-A family with no state starts from the freshness window start (`config.yaml`
-`verification.coverage_end.freshness_window_start`). Attribution costs no API call per
-person: committee → candidate through the staged committee master, then candidate →
-roster person through the dataset (`/filings/` rows carry `candidate_id: null`). A global
-F24 check also sees non-sweep committees; they are surfaced as `non_sweep_f24_committees`,
-never dropped silently and never added to the sweep list. `--no-gate` forces the full run.
-Known limitation: the F3 gate triggers on filing receipt, so a report not yet processed
-into the totals endpoint is not seen until a newer F3 arrives — the bulk re-pull is the
-backstop.
-
 **Negative residuals at committee scale.** At committee scale the deduped unfiltered
 total can come out BELOW the F24-only total: distinct rows sharing a dedup key
 (expenditure date / amount / payee) collapse into one, and negative-amount rows
@@ -704,7 +680,7 @@ spot-checks only — the driver refuses `--all` and `--f24-committee-sweep` on i
 Production needs a registered api.data.gov key in the `FEC_API_KEY` environment variable
 (`config.yaml` `fec_api`, default `DEMO_KEY`).
 
-**Rate limit.** A full ungated `--all` run makes more calls than a standard registered key
+**Rate limit.** A full `--all` run makes more calls than a standard registered key
 allows per hour, so it hits HTTP 429 (`OVER_RATE_LIMIT`) part-way through. The fetch
 helpers honor `Retry-After` when sent, otherwise back off exponentially up to a cap
 (`config.yaml` `fec_api.retry`). The retry only buys time within the run; it does not make
