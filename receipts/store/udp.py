@@ -93,17 +93,22 @@ def person_outputs(person, money):
     }
 
 
-def main():
-    roster = load_roster()
-    udp = UdpRows(roster)
+def support_by_person(udp, roster):
+    """(people rows, {person_key: udp_per_cycle entry}) from UDP's resolved rows."""
+    money = UdpMoney(udp.rows)
+    outputs = [person_outputs(p, money) for p in roster]
+    return [row for row, _ in outputs], {entry['person_key']: entry for _, entry in outputs}
+
+
+def check_cycle_totals(udp):
+    """UDP's support + oppose total per cycle must match the baseline."""
     for cycle in settings().cycles.ie:
         prior = expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
         if abs(dollars(udp.cycle_total(cycle)) - prior) >= 0.005:
             raise SystemExit(f'UDP S+O total for {cycle} does not reconcile with the prior pull')
-    money = UdpMoney(udp.rows)
-    outputs = [person_outputs(p, money) for p in roster]
-    people = [row for row, _ in outputs]
-    cycles = {entry['person_key']: entry for _, entry in outputs}
+
+
+def write(people, cycles):
     write_gold('udp_people', people, {'udp_ie_support_career'})
     write_gold(
         'udp_per_cycle',
@@ -113,6 +118,13 @@ def main():
         ],
         {'udp_ie_support'},
     )
+
+
+def main():
+    roster = load_roster()
+    udp = UdpRows.from_store(roster)
+    check_cycle_totals(udp)
+    write(*support_by_person(udp, roster))
     print(
         f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
         f'name-index collisions: {len(udp.collisions)}'

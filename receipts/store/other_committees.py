@@ -8,7 +8,6 @@ totals as a cross-check, and reconciles against weball col 26.
 Evidence and findings: research/other-committees-notes.md.
 """
 
-import sys
 from dataclasses import asdict
 from datetime import datetime
 from decimal import Decimal
@@ -391,10 +390,8 @@ def roster_total(roster, ledger, column):
     )
 
 
-def main():
-    roster = Roster(load_roster())
-    roster_ids = {i for p in roster.people for i in candidate_ids(p)}
-    dedup_records = load_double_count_records()
+def read_store(roster_ids, dedup_records):
+    """(rows, ledger, per-cycle diagnostics, weball reconciliation, named-case validation)."""
     with connect() as db:
         rows = money_by_class(db, roster_ids)
         ledger = fill_ledger(rows)
@@ -406,29 +403,41 @@ def main():
             for c in settings().cycles.career
         ]
         lamb = lamb_validation(db, ledger)
-    checks = cross_checks(ledger)
+    return rows, ledger, diagnostics, reconciliation, lamb
+
+
+def check_cross_checks(checks):
+    for column, (recomputed, recorded) in checks.items():
+        print(f'CHECK {column}: {"MATCH" if recomputed == recorded else "MISMATCH"}')
     if mismatched := [column for column, (got, want) in checks.items() if got != want]:
         raise SystemExit(f'other committees re-derive {mismatched} differently from the baseline')
 
-    people = [career_row(person, ledger, roster) for person in roster.people]
+
+def committees_by_person(roster, ledger, reconciliation_note_text):
+    """(people rows, {person_key: per_cycle record}) for every roster person."""
+    people = [
+        {
+            **row,
+            'reconciliation_note': (
+                reconciliation_note_text if LAMB_CANDIDATE in row['fec_candidate_ids'] else ''
+            ),
+        }
+        for row in (career_row(person, ledger, roster) for person in roster.people)
+    ]
     cycles = {p['person_key']: per_cycle_record(p, ledger) for p in roster.people}
-    note = reconciliation_note(lamb, asdict(settings().verification.coverage_end))
-    write_gold(
-        'other_committees_people',
-        [
-            {
-                **row,
-                'reconciliation_note': note if LAMB_CANDIDATE in row['fec_candidate_ids'] else '',
-            }
-            for row in people
-        ],
-        {c for c in people[0] if c.endswith('_career')},
-    )
+    return people, cycles
+
+
+def write(people, cycles):
+    write_gold('other_committees_people', people, {c for c in people[0] if c.endswith('_career')})
     write_gold(
         'other_committees_per_cycle',
         [flat_entry(r) for r in per_cycle_rows(cycles)],
         {*BUCKETS, *(f'earmark_{b}' for b in BUCKETS), 'winred_included'},
     )
+
+
+def write_diagnostics(roster, ledger, rows, diagnostics, reconciliation, lamb, checks):
     write_json(
         settings().paths.other_committees_diagnostics,
         {
@@ -449,14 +458,20 @@ def main():
         },
     )
 
+
+def main():
+    roster = Roster(load_roster())
+    roster_ids = {i for p in roster.people for i in candidate_ids(p)}
+    rows, ledger, diagnostics, reconciliation, lamb = read_store(
+        roster_ids, load_double_count_records()
+    )
+    checks = cross_checks(ledger)
+    check_cross_checks(checks)
+    note = reconciliation_note(lamb, asdict(settings().verification.coverage_end))
+    write(*committees_by_person(roster, ledger, note))
+    write_diagnostics(roster, ledger, rows, diagnostics, reconciliation, lamb, checks)
     for bucket in BUCKETS:
         print(f'TOTAL {bucket} career $:', roster_total(roster, ledger, bucket))
-    for column, (recomputed, recorded) in checks.items():
-        print(f'CHECK {column}: {"MATCH" if recomputed == recorded else "MISMATCH"}')
-    if any(recomputed != recorded for recomputed, recorded in checks.values()):
-        sys.exit(
-            'CROSS-CHECK FAILED: recomputed corporate/AIPAC totals do not match methodology totals'
-        )
 
 
 if __name__ == '__main__':

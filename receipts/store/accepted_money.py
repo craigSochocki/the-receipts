@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Write the accepted-money gold tables from the silver store."""
 
-import duckdb
-
 from receipts.common.settings import settings
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
 from receipts.store.gold import per_cycle_rows, write_gold
+from receipts.store.read import connect
 
 COLUMNS = [
     'individual',
@@ -71,22 +70,27 @@ def notes_for(person, career, roster, on_file):
     return ' | '.join(notes)
 
 
-def write():
-    with duckdb.connect(str(settings().paths.store), read_only=True) as db:
+def read_store():
+    """(people, counted money, filed (candidate, cycle)s, candidate IDs on file) from the store."""
+    with connect() as db:
         people = tracked_people(db)
         roster_ids = {i for p in people for i in p['fec_candidate_ids']}
         counted, filed = money_by_candidate_cycle(db, roster_ids)
         on_file = {
             row[0] for row in db.execute('SELECT candidate_id FROM candidates_on_file').fetchall()
         }
-    roster = Roster(people)
+    return people, counted, filed, on_file
 
+
+def accepted_by_person(people, counted, filed, on_file, cycles):
+    """(people rows, {person_key: per_cycle entry}): each person's money across IDs and cycles."""
+    roster = Roster(people)
     rows, per_cycle = [], {}
     for person in people:
         ids = person['fec_candidate_ids']
         entries = [
             (cycle, candidate_id, counted[candidate_id, cycle])
-            for cycle in settings().cycles.career
+            for cycle in cycles
             for candidate_id in ids
             if (candidate_id, cycle) in filed
         ]
@@ -112,10 +116,17 @@ def write():
                 for cycle, candidate_id, amounts in entries
             ],
         }
+    return rows, per_cycle
 
+
+def write(rows, per_cycle):
     write_gold('accepted_money_people', rows, set(CAREER.values()))
     write_gold('accepted_money_per_cycle', per_cycle_rows(per_cycle), set(COLUMNS))
 
 
+def main():
+    write(*accepted_by_person(*read_store(), settings().cycles.career))
+
+
 if __name__ == '__main__':
-    write()
+    main()

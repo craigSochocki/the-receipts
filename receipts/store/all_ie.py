@@ -12,176 +12,24 @@ from collections import defaultdict
 from typing import NamedTuple
 
 from receipts.common.baseline import expected
-from receipts.common.files import write_json
 from receipts.common.settings import load_roster, settings
-from receipts.domain.blank_candidates import name_key, roster_matches
+from receipts.store.all_ie_report import blank_attribution_by_cycle, file_exclusions, write_report
 from receipts.store.gold import write_gold
-from receipts.store.read import connect
-
-REPLACED = 'reported_again'
-UNREGISTERED, BLANK, NOT_IDENTIFIED = (
-    'unregistered_committee',
-    'blank_candidate',
-    'candidate_not_identified',
+from receipts.store.ie_rows import (
+    REPLACED,
+    Expenditure,
+    Roster,
+    by_direction,
+    dollars,
+    total,
 )
-
-BOGUS_FILINGS = [
-    (2022, 'C00800508', 'H2NY05118', 'Committee of 300 / Akhlaghy 2022'),
-    (2024, 'C00874586', 'P40007304', 'Committee of 300 / Akhlaghy 2024'),
-    (2024, 'C00785352', 'P40019226', 'Nader Akhlaghy committee 2024'),
-    (2026, 'C00946087', '', 'Warren Buffet / Bettis 2026 (blank cand)'),
-    (2026, 'C00944025', '', 'TANKING / APPLE INC DJIA / Bettis 2026 (blank cand)'),
-]
-FORM_TYPE_COLUMNS = ('form_type', 'form_tp', 'filing_form')
-
-
-class Expenditure(NamedTuple):
-    spender_id: str
-    spender_name: str
-    candidate_id: str
-    candidate_name: str
-    cycle: int
-    direction: str
-    cents: int
-    office: str
-    state: str
-    district: str
-    date: str
-    transaction_id: str
-    excluded_because: str
-
-    @property
-    def counted(self):
-        return self.excluded_because is None
-
+from receipts.store.read import connect
 
 ROWS = (
     'SELECT spender_id, spender_name, candidate_id, candidate_name, cycle, direction, '
     'amount_cents, office, office_state, office_district, expenditure_date, transaction_id, '
     'excluded_because FROM outside_spending ORDER BY cycle, file_order NULLS LAST'
 )
-
-
-def dollars(cents):
-    return cents / 100
-
-
-def total(rows):
-    return sum(x.cents for x in rows)
-
-
-def tally(rows):
-    rows = list(rows)
-    return {'rows': len(rows), 'amount': dollars(total(rows))}
-
-
-def by_direction(rows):
-    rows = list(rows)
-    return (
-        dollars(total(x for x in rows if x.direction == 'S')),
-        dollars(total(x for x in rows if x.direction == 'O')),
-        dollars(total(rows)),
-    )
-
-
-class Roster:
-    def __init__(self, people):
-        self.people = people
-        self.person_of = {}
-        for p in people:
-            for candidate_id in p.get('fec_candidate_ids') or []:
-                self.person_of.setdefault(candidate_id, p['person_key'])
-
-    @staticmethod
-    def ids(person):
-        return list(dict.fromkeys(person.get('fec_candidate_ids') or []))
-
-
-# ---------- what each cycle's file held, and why rows were left out ----------
-
-
-def near_duplicates(kept):
-    """Same committee, candidate, date, amount and direction under different transaction IDs."""
-    groups = defaultdict(set)
-    for x in kept:
-        if x.candidate_id:
-            groups[x.spender_id, x.candidate_id, x.date, x.cents, x.direction].add(x.transaction_id)
-    repeated = {key: ids for key, ids in groups.items() if len(ids) > 1}
-    return {
-        'groups': len(repeated),
-        'extra_amount_if_collapsed': dollars(
-            sum((len(ids) - 1) * key[3] for key, ids in repeated.items())
-        ),
-    }
-
-
-def file_exclusions(rows, columns):
-    kept = [x for x in rows if x.excluded_because != REPLACED]
-    included = [x for x in kept if x.counted]
-    return {
-        'raw_rows': len(rows),
-        'raw_amount': dollars(total(rows)),
-        'deduped_rows': len(kept),
-        'deduped_amount': dollars(total(kept)),
-        'dedup_removed': tally(x for x in rows if x.excluded_because == REPLACED),
-        'unregistered_committee': tally(x for x in kept if x.excluded_because == UNREGISTERED),
-        'blank_candidate': tally(x for x in kept if x.excluded_because == BLANK),
-        'candidate_not_identified': tally(x for x in kept if x.excluded_because == NOT_IDENTIFIED),
-        'included': tally(included),
-        'has_form_type_column': any(c in FORM_TYPE_COLUMNS for c in columns),
-        'near_duplicates_distinct_tran_id': near_duplicates(kept),
-        'blank_sup_opp_included': tally(x for x in included if not x.direction),
-        'negative_amount_included': tally(x for x in included if x.cents < 0),
-    }
-
-
-# ---------- blank candidate IDs: reported, never added to a total ----------
-
-
-def name_index(included):
-    index, collisions = {}, 0
-    for x in included:
-        key = name_key(x.candidate_name, x.state, x.district, x.office)
-        if key in index and index[key] != x.candidate_id:
-            collisions += 1
-        index.setdefault(key, x.candidate_id)
-    return index, collisions
-
-
-def blank_attribution(blank_rows, index, roster):
-    resolved_all = resolved_roster = fallback_roster = unresolved = 0
-    by_committee = defaultdict(int)
-    for x in blank_rows:
-        candidate_id = index.get(name_key(x.candidate_name, x.state, x.district, x.office))
-        if candidate_id:
-            resolved_all += x.cents
-            if candidate_id in roster.person_of:
-                resolved_roster += x.cents
-                by_committee[x.spender_id, x.spender_name] += x.cents
-            continue
-        matches = roster_matches(x.candidate_name, x.state, x.district, roster.people)
-        if len(matches) == 1 and len(matches[0].get('fec_candidate_ids') or []) == 1:
-            fallback_roster += x.cents
-        else:
-            unresolved += x.cents
-    return {
-        'blank_registered_rows': len(blank_rows),
-        'blank_registered_amount': dollars(total(blank_rows)),
-        'name_index_resolved_all_candidates': dollars(resolved_all),
-        'name_index_resolved_roster': dollars(resolved_roster),
-        'roster_fallback_resolved_roster': dollars(fallback_roster),
-        'unresolved': dollars(unresolved),
-        'note': 'DIAGNOSTIC ONLY — none of these amounts is added to any published total.',
-        'top_committees_behind_roster_resolved': [
-            {'committee_id': committee_id, 'committee_name': name, 'amount': dollars(cents)}
-            for (committee_id, name), cents in sorted(by_committee.items(), key=lambda kv: -kv[1])[
-                :5
-            ]
-        ],
-    }
-
-
-# ---------- totals per candidate and cycle, for every identified candidate ----------
 
 
 class CandidateTotals:
@@ -302,9 +150,6 @@ def cycle_summary(included, roster):
     }
 
 
-# ---------- the roster join ----------
-
-
 def person_totals(person, totals):
     """{support, oppose, total, by_cycle} in cents, or None for a person with no FEC IDs."""
     ids = Roster.ids(person)
@@ -380,8 +225,6 @@ def top_committees_for(person, totals):
     ]
 
 
-# ---------- checks against the baseline ----------
-
 TOP_SPENDERS_PINNED = 5
 
 
@@ -409,116 +252,6 @@ def check_current_cycle(summary):
         pin_dollars(f'{key}.total', committee['total'])
 
 
-def bogus_examples(kept):
-    examples = {}
-    for cycle, committee_id, candidate_id, label in BOGUS_FILINGS:
-        hit = [
-            x
-            for x in kept
-            if x.cycle == cycle
-            and x.spender_id == committee_id
-            and (not candidate_id or x.candidate_id == candidate_id)
-        ]
-        examples[label] = {
-            'committee_id': committee_id,
-            'candidate_id': candidate_id or '(blank)',
-            'rows_in_file_after_dedup': len(hit),
-            'amount_in_file_after_dedup': dollars(total(hit)),
-            'amount_included': dollars(total(x for x in hit if x.counted)),
-            'excluded_because': 'unregistered committee (not in same-cycle cm.txt)'
-            + ('' if candidate_id else '; candidate ID blank'),
-        }
-    return examples
-
-
-def roster_career_totals(roster, per_person, totals):
-    """Row sums count a candidate ID shared by two roster entries twice; the distinct
-    totals take that back out."""
-    sharing = defaultdict(set)
-    for p in roster.people:
-        for candidate_id in Roster.ids(p):
-            sharing[candidate_id].add(p['person_key'])
-    names = {p['person_key']: p['full_name'] for p in roster.people}
-    shared, overcount = [], [0, 0, 0]
-    for candidate_id, person_keys in sorted(sharing.items()):
-        if len(person_keys) < 2:
-            continue
-        amounts = totals.of({candidate_id}, set(settings().cycles.ie))
-        extra = len(person_keys) - 1
-        overcount = [o + extra * a for o, a in zip(overcount, amounts, strict=True)]
-        shared.append(
-            {
-                'candidate_id': candidate_id,
-                'person_keys': sorted(person_keys),
-                'full_names': sorted({names[k] for k in person_keys}),
-                'shared_id_career_total': dollars(amounts[2]),
-                'overcounted_in_row_sums': dollars(extra * amounts[2]),
-            }
-        )
-    found = [v for v in per_person.values() if v]
-    row_sums = [sum(v[field] for v in found) for field in ('support', 'oppose', 'total')]
-    return {
-        'support': dollars(row_sums[0]),
-        'oppose': dollars(row_sums[1]),
-        'total': dollars(row_sums[2]),
-        'n_persons_with_spending': sum(1 for v in found if v['total'] != 0),
-        'n_persons_unknown_no_fec_id': sum(1 for v in per_person.values() if v is None),
-        'duplicate_roster_entries': shared,
-        'distinct_person_totals': {
-            field: dollars(row_sum - over)
-            for field, row_sum, over in zip(
-                ('support', 'oppose', 'total'), row_sums, overcount, strict=True
-            )
-        },
-    }
-
-
-def meta():
-    return {
-        'script': 'receipts/store/all_ie.py',
-        'data_as_of': settings().data_as_of,
-        'cycles': list(settings().cycles.ie),
-        'current_cycle': settings().cycles.current,
-        'note': 'Career totals cover the staged IE cycles (2022+2024+2026) ONLY. '
-        'No IE files are staged for earlier cycles; these are not full-career totals. '
-        'All-IE columns are separate from total_accepted and are never blended into it.',
-        'filter_rules': [
-            'dedup by (spe_id, tran_id): keep latest receipt_dat, tie-break highest file_num; '
-            'blank tran_id never deduped against another row',
-            'registered committee only: spe_id in same-cycle data/raw/cm/<cycle>/cm.txt',
-            'identified candidate only: non-blank cand_id in any staged weball file (1980-2026) '
-            'OR a roster FEC candidate ID; blank cand_id rows excluded from published totals',
-            'support and oppose summed separately, never netted; blank sup_opp rows count in total only',
-        ],
-    }
-
-
-FORM_TYPE_FINDING = (
-    'No form-type column exists in the bulk IE files, so F24/F3X cannot be '
-    'separated by form. The bulk file carries ONE copy per expenditure (the '
-    'notice copy; pull-log-b §7 verified file_num/image_num match the F24 '
-    'filing), and (spe_id, tran_id) dedup removes any same-transaction repeat. '
-    'Proof: UDP 2024 deduped S+O reproduces the tracker total $38,044,932.69 '
-    'to the cent — a file that double-counted across form types would be ~2x. '
-    'Near-duplicate rows (same committee/candidate/date/amount/direction, '
-    'different tran_id AND different image_num = different filings) are '
-    'treated as separate expenditures and quantified per cycle in exclusions[].'
-)
-
-
-def coverage():
-    return {
-        'staged_cycles': list(settings().cycles.ie),
-        'earlier_cycles_available': 'Per the FEC independent-expenditures file description '
-        '(fetched Nov 12, 2026), historical data is available beginning with the 2010 '
-        'cycle, and the FEC bulk-data index publishes independent_expenditure_YYYY.csv '
-        'per cycle. Files for 2010/2012/2014/2016/2018/2020 exist and are NOT staged '
-        'here (each ~14-19 MB, same format) — expanding to them is a follow-up, not '
-        'done in this pull. Pre-2010 cycles have no such file.',
-        'files_not_staged': [2010, 2012, 2014, 2016, 2018, 2020],
-    }
-
-
 def read_store():
     with connect() as db:
         rows = [Expenditure(*row) for row in db.execute(ROWS).fetchall()]
@@ -528,94 +261,82 @@ def read_store():
     return rows, {cycle: (text or '').split(',') for cycle, text in columns.items()}
 
 
-def main():
-    rows, columns = read_store()
-    roster = Roster(load_roster())
-    of_cycle = {cycle: [x for x in rows if x.cycle == cycle] for cycle in settings().cycles.ie}
-    kept = [x for x in rows if x.excluded_because != REPLACED]
-    included = [x for x in kept if x.counted]
-
-    exclusions = {
-        cycle: file_exclusions(of_cycle[cycle], columns[cycle]) for cycle in settings().cycles.ie
-    }
-    udp_totals = {
-        cycle: dollars(
+def check_udp_totals(of_cycle):
+    """UDP's support + oppose total per cycle must match the UDP pull's, in the baseline."""
+    for cycle in settings().cycles.ie:
+        udp_total = dollars(
             total(
                 x
                 for x in of_cycle[cycle]
                 if x.excluded_because != REPLACED and x.spender_id == settings().committees.udp
             )
         )
-        for cycle in settings().cycles.ie
-    }
-    prior = {
-        cycle: expected(f'udp_prior_cycle_totals.{cycle}', udp_totals[cycle])
-        for cycle in settings().cycles.ie
-    }
-    for cycle in settings().cycles.ie:
-        if abs(udp_totals[cycle] - prior[cycle]) >= 0.005:
+        if abs(udp_total - expected(f'udp_prior_cycle_totals.{cycle}', udp_total)) >= 0.005:
             raise SystemExit(f'UDP S+O total for {cycle} does not reconcile with the prior pull')
 
-    blank_diagnostic, collisions = {}, 0
-    for cycle in settings().cycles.ie:
-        index, found = name_index(x for x in included if x.cycle == cycle)
-        collisions += found
-        blank_diagnostic[cycle] = blank_attribution(
-            [x for x in kept if x.cycle == cycle and x.excluded_because == BLANK], index, roster
-        )
 
+class OutsideSpending(NamedTuple):
+    totals: CandidateTotals
+    summaries: dict
+    per_person: dict
+    top: dict
+    people: list
+    by_candidate: list
+
+
+def outside_spending(included, roster):
+    """Every counted expenditure, summed per candidate, per person and per cycle."""
     totals = CandidateTotals(included)
-    summaries = {
-        cycle: cycle_summary([x for x in included if x.cycle == cycle], roster)
-        for cycle in settings().cycles.ie
-    }
-    check_current_cycle(summaries[settings().cycles.current])
     per_person = {p['person_key']: person_totals(p, totals) for p in roster.people}
+    return OutsideSpending(
+        totals=totals,
+        summaries={
+            cycle: cycle_summary([x for x in included if x.cycle == cycle], roster)
+            for cycle in settings().cycles.ie
+        },
+        per_person=per_person,
+        top={p['person_key']: top_committees_for(p, totals) for p in roster.people},
+        people=[csv_row(p, per_person[p['person_key']]) for p in roster.people],
+        by_candidate=per_candidate_entries(totals, roster),
+    )
 
-    top = {p['person_key']: top_committees_for(p, totals) for p in roster.people}
-    people = [csv_row(p, per_person[p['person_key']]) for p in roster.people]
-    by_candidate = per_candidate_entries(totals, roster)
+
+def write(spending):
+    people = spending.people
     write_gold('all_ie_people', people, {c for c in people[0] if c.startswith('all_ie_')})
     write_gold(
         'all_ie_per_candidate_cycle',
-        [{k: v for k, v in e.items() if k != 'top_committees'} for e in by_candidate],
+        [{k: v for k, v in e.items() if k != 'top_committees'} for e in spending.by_candidate],
         {'all_ie_support', 'all_ie_oppose', 'all_ie_total', 'no_direction_amount'},
     )
     write_gold(
         'all_ie_top_committees',
         [
             {'person_key': person_key, 'entry': n, **committee}
-            for person_key, committees in top.items()
+            for person_key, committees in spending.top.items()
             for n, committee in enumerate(committees or [])
         ],
         {'support', 'oppose', 'total'},
     )
-    write_json(
-        settings().paths.intermediate / 'all_ie_per_cycle.json',
-        {
-            'meta': {
-                **meta(),
-                'form_type_double_count_check': {
-                    'bulk_file_has_form_type_column': any(
-                        e['has_form_type_column'] for e in exclusions.values()
-                    ),
-                    'finding': FORM_TYPE_FINDING,
-                },
-                'coverage': coverage(),
-            },
-            'exclusions_by_cycle': {str(c): exclusions[c] for c in settings().cycles.ie},
-            'blank_attribution_diagnostic': {
-                str(c): blank_diagnostic[c] for c in settings().cycles.ie
-            },
-            'name_index_collisions': collisions,
-            'per_cycle_summaries': {str(c): summaries[c] for c in settings().cycles.ie},
-            'per_candidate_per_cycle': by_candidate,
-            'bogus_examples': bogus_examples(kept),
-            'roster_career_totals': roster_career_totals(roster, per_person, totals),
-        },
-    )
+
+
+def main():
+    rows, columns = read_store()
+    roster = Roster(load_roster())
+    of_cycle = {cycle: [x for x in rows if x.cycle == cycle] for cycle in settings().cycles.ie}
+    kept = [x for x in rows if x.excluded_because != REPLACED]
+    included = [x for x in kept if x.counted]
+    exclusions = {
+        cycle: file_exclusions(of_cycle[cycle], columns[cycle]) for cycle in settings().cycles.ie
+    }
+    check_udp_totals(of_cycle)
+    blank_diagnostic, collisions = blank_attribution_by_cycle(included, kept, roster)
+    spending = outside_spending(included, roster)
+    check_current_cycle(spending.summaries[settings().cycles.current])
+    write(spending)
+    write_report(spending, roster, kept, exclusions, blank_diagnostic, collisions)
     for cycle in settings().cycles.ie:
-        roster_targeted = summaries[cycle]['roster_targeted']
+        roster_targeted = spending.summaries[cycle]['roster_targeted']
         print(
             f'{cycle} roster: S ${roster_targeted["support"]:,.2f} / '
             f'O ${roster_targeted["oppose"]:,.2f} / total ${roster_targeted["total"]:,.2f}'
