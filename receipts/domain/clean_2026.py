@@ -60,6 +60,19 @@ def verdict(in_120th, linked, unopposed, dirty):
     return dirty <= 0, None
 
 
+CAREER_DIRTY_COLUMNS = (
+    'corporate_pac_career',
+    'aipac_pac_direct_career',
+    'udp_ie_support_career',
+    'udp_ie_opposing_opponents_career',
+)
+
+
+def is_career_clean(person):
+    """No career dirty money: corporate PAC, AIPAC direct, UDP support and opposition credit all 0."""
+    return all(person[column] == 0 for column in CAREER_DIRTY_COLUMNS)
+
+
 def is_not_dirty(tier_name):
     """Clean or below threshold under a preset: the page's "not dirty"."""
     return tier_name in NOT_DIRTY_TIERS

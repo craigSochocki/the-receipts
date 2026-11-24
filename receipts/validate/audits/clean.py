@@ -1,6 +1,7 @@
 """Clean counts, the named clean-rule spot cases, and the unopposed rule."""
 
 from receipts.common.settings import settings
+from receipts.domain.clean_2026 import is_career_clean
 from receipts.validate.audits.published import is_num
 
 
@@ -11,14 +12,6 @@ def pin_by_party(audit, label, key, members):
             f'{key}_{party.lower()}',
             sum(1 for r in members if r['party_120'] == party),
         )
-
-
-def is_career_clean(r):
-    return (
-        r['corporate_pac_career'] == 0
-        and r['aipac_pac_direct_career'] == 0
-        and r['udp_ie_support_career'] == 0
-    )
 
 
 def clean_counts(audit, dataset):

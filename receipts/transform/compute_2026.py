@@ -11,6 +11,7 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED,
     UNOPPOSED_NOTE,
     aipac_udp_flagged,
+    is_career_clean,
     is_primary_target_2026,
     race_label,
     races_and_unopposed,
@@ -111,14 +112,6 @@ def credits_2026():
             key: cents / 100
             for key, cents in db.execute(CREDITS, [settings().cycles.current]).fetchall()
         }
-
-
-def is_career_clean(r):
-    return (
-        r['corporate_pac_career'] == 0
-        and r['aipac_pac_direct_career'] == 0
-        and r['udp_ie_support_career'] == 0
-    )
 
 
 def by_party(house_clean, career_clean):

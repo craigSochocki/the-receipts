@@ -2,6 +2,8 @@
 
 from collections import Counter
 
+from receipts.domain.clean_2026 import is_career_clean
+
 TERRITORIES = {'AS', 'DC', 'GU', 'MP', 'PR', 'VI'}
 PARTY_LETTERS = {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}
 NOT_DIRTY_TIERS = ('clean', 'below_threshold')
@@ -128,16 +130,6 @@ def career_dirty(roster):
         'top3': names(ranked[:3]),
         'top1_exact': exact(ranked[0]['dirty_career']),
     }
-
-
-def is_career_clean(person):
-    dirty_sources = (
-        'corporate_pac_career',
-        'aipac_pac_direct_career',
-        'udp_ie_support_career',
-        'udp_ie_opposing_opponents_career',
-    )
-    return all(dollars(person[source]) == 0 for source in dirty_sources)
 
 
 def clean(roster):

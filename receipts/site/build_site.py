@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from receipts.common.settings import settings
-from receipts.domain.clean_2026 import is_not_dirty, is_primary_target_2026
+from receipts.domain.clean_2026 import is_career_clean, is_not_dirty, is_primary_target_2026
 from receipts.store.read import connect
 
 # ---- compact encoding: column lists (fixed order) ----
@@ -248,16 +248,6 @@ def human_list(names):
     if len(names) == 2:
         return f'{names[0]} and {names[1]}'
     return ', '.join(names[:-1]) + f', and {names[-1]}'
-
-
-def is_career_clean(r):
-    """Same four-component rule as the site's isCareerClean."""
-    return (
-        r['corporate_pac_career'] == 0
-        and r['aipac_pac_direct_career'] == 0
-        and r['udp_ie_support_career'] == 0
-        and r['udp_ie_opposing_opponents_career'] == 0
-    )
 
 
 def republicans_sentence(names):

@@ -1,8 +1,10 @@
 from receipts.domain.clean_2026 import (
+    CAREER_DIRTY_COLUMNS,
     UNLINKED,
     UNOPPOSED,
     TolerancePreset,
     aipac_udp_flagged,
+    is_career_clean,
     is_not_dirty,
     is_primary_target_2026,
     race_label,
@@ -75,3 +77,11 @@ def test_a_primary_target_is_a_120th_house_democrat_with_dirty_money():
     assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'party_120': 'Republican'})
     assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'chamber_120': 'Senate'})
     assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'in_120th': 'no'})
+
+
+def test_career_clean_needs_every_dirty_source_at_zero():
+    clean = dict.fromkeys(CAREER_DIRTY_COLUMNS, 0)
+    assert is_career_clean(clean)
+    for column in CAREER_DIRTY_COLUMNS:
+        assert not is_career_clean({**clean, column: 1})
+    assert not is_career_clean({**clean, 'corporate_pac_career': 'unknown'})
