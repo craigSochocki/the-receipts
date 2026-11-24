@@ -17,7 +17,7 @@
   float drift is latent, not active; the IE reader
   (`receipts/fec/independent_expenditures.py`) is exact by construction and
   reproduces the pipeline's per-candidate totals and exclusion counts
-  exactly. The three old IE scripts are left as they are until retired. **Silver store, first gold view (Nov 22):**
+  exactly. The three old IE scripts have since been retired (all-IE is read from the store, PR #13). **Silver store, first gold view (Nov 22):**
   `receipts/store/build_store.py` loads every FEC candidate summary,
   committee, contribution to a candidate (6.56M, each counted once,
   exclusions labeled) and independent expenditure into
@@ -213,7 +213,9 @@
   embedded dataset. Dataset byte-identical through the build (csv
   6666f009e6a5a3e84ab2ac2f76fd50bf, json d9b7e77d289641773748cfa2458ac299).
 
-- **Automation (GitHub Actions) — DONE Nov 12; workflows in
+- **Automation (GitHub Actions) — DONE Nov 12; SUPERSEDED Nov 23** (CI now
+  rebuilds from the pinned snapshot; `fec-refresh.yml` replaced
+  `scheduled-refresh.yml` — current setup in AGENTS.md §8). Original entry: workflows in
   `.github/workflows/` (committed Nov 12, 2026, `713f67f`).** `ci.yml` runs
   on push + pull request to `master`: download bulk → `receipts/rebuild.py` →
   fail unless the rebuild reproduces the committed dataset byte-identically
@@ -327,7 +329,8 @@
   −$1,261,797.03, transfers-to −$3,300.00; only Curtis's row changed).
   The $21,231.43 all-IE row-sum gap resolved exactly (blank-`sup_opp`
   rows). The $1,004.53 F24 residual reconciled (Aug 3 F3X row, pre-window).
-- **Codification — DONE Nov 12, ~10:40 AM EST.** The whole pipeline is
+- **Codification — DONE Nov 12, ~10:40 AM EST; step list SUPERSEDED** (the
+  current steps are `STEPS` in `receipts/rebuild.py`). The whole pipeline is
   scripted and one command rebuilds the dataset: `python3
   receipts/rebuild.py` (build_roster → apply_fec_lookup → pull_money →
   pull_udp → apply_dedup → pull_self_funding → pull_other_committees →
@@ -343,7 +346,8 @@
   93 audits passing. The verifier checks the dataset against its own
   definitions — it cannot catch a missing money dimension (see the
   self-funding blind spot below).
-- **Repo restructure — DONE Nov 12.** Staged `src/` (`common/` config
+- **Repo restructure — DONE Nov 12; layout SUPERSEDED** (`src/` became the
+  `receipts` package, PR #19; current layout in AGENTS.md §3). Staged `src/` (`common/` config
   loader, `ingest/` pulls, `transform/` roster/dedup/merge/ranking/2026,
   `validate/` audits, `receipts/rebuild.py`); `data/` (`raw/` gitignored bulk,
   `source/` committed inputs, `intermediate/` gitignored regenerable

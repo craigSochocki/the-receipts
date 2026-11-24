@@ -288,10 +288,15 @@ to the repo, so a checkout works from any directory on any machine.
 - `methodology.md` — definitions, sources, and every known limitation
 - `architecture.md` — design, data model, North Star, and the gaps
 - `STATUS.md` — where the build stands right now
-- `src/` — pipeline code, staged: `common/` (config loader), `ingest/`
-  (pulls from FEC bulk + API), `transform/` (roster, dedup, merge,
-  ranking, 2026 columns), `validate/` (standing audits), `rebuild.py`
-  (the one command that runs it all)
+- `receipts/` — the Python package: `common/` (settings, baseline,
+  file writers), `domain/` (the rules), `fec/` (typed FEC readers),
+  `store/` (DuckDB store and money steps), `ingest/` (FEC API pulls),
+  `transform/` (roster, FEC lookup, dataset assembly), `site/` (page
+  build and checks), `validate/` (standing audits), `rebuild.py` (the
+  one command that runs it all); full tree in AGENTS.md §3
+- `dbt/` — SQL models over the store, and their tests
+- `tests/` — unit tests (pytest)
+- `onboarding/` — the codebase tour for newcomers (private; not served)
 - `data/source/` — committed true inputs: legislators yaml, dedup record,
   manual roster notes, FEC lookup results
 - `data/intermediate/` — regenerable staging files, **not committed**
