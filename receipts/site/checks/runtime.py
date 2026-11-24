@@ -1,6 +1,5 @@
 """The page runs: its scripts parse, it serves, the smoke test passes, the build repeats."""
 
-import json
 import re
 import subprocess
 import tempfile
@@ -70,24 +69,41 @@ def served_page(audit, page):
         srv.shutdown()
 
 
-def runtime_smoke_test(audit, page):
-    """runtime smoke test (runs the page's JS against a DOM stub)"""
-    import shutil
+def run_smoke_test(page_path, expected):
+    """Run smoke_test.js inside the page in headless Chromium; raises on the first failure."""
+    from playwright.sync_api import sync_playwright
 
-    smoke = settings().root / 'receipts' / 'site' / 'smoke_test.js'
-    if shutil.which('node') is None:
-        print('SKIP runtime smoke test (node not found)')
-    else:
-        exp_path = settings().paths.intermediate / 'site_expectations.json'
-        exp_path.parent.mkdir(parents=True, exist_ok=True)
-        exp_path.write_text(json.dumps(page.expected, indent=1))
-        r = subprocess.run(
-            ['node', str(smoke), str(page.path), str(exp_path)], capture_output=True, text=True
-        )
-        print(r.stdout.strip())
-        if r.returncode != 0:
-            print(r.stderr[:2000])
-        audit.check('runtime smoke test (render, tabs, detail, CSV)', r.returncode == 0)
+    site = settings().root / 'receipts' / 'site'
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch()
+        try:
+            tab = browser.new_page(viewport={'width': 1024, 'height': 800})
+            errors = []
+            tab.on('pageerror', lambda error: errors.append(str(error)))
+            tab.add_init_script(path=site / 'smoke_prelude.js')
+            tab.goto(page_path.resolve().as_uri())
+            tab.add_script_tag(path=site / 'smoke_test.js')
+            tab.evaluate('exp => smoke.main(exp)', expected)
+            tab.set_viewport_size({'width': 500, 'height': 800})
+            tab.evaluate('smoke.narrow()')
+            tab.set_viewport_size({'width': 1024, 'height': 800})
+            tab.evaluate('smoke.wide()')
+            for reduce in (True, False):
+                tab.emulate_media(reduced_motion='reduce' if reduce else 'no-preference')
+                tab.evaluate('expected => smoke.reducedMotion(expected)', reduce)
+            if errors:
+                raise RuntimeError(f'page errors: {errors}')
+        finally:
+            browser.close()
+
+
+def runtime_smoke_test(audit, page):
+    """runtime smoke test (the page's JS runs in headless Chromium)"""
+    try:
+        run_smoke_test(page.path, page.expected)
+        audit.check('runtime smoke test (render, tabs, detail, CSV)', True)
+    except Exception as e:  # noqa: BLE001 - report as a failed check
+        audit.check('runtime smoke test (render, tabs, detail, CSV)', False, str(e)[:2000])
 
 
 def deterministic(audit, page):

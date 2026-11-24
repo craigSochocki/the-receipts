@@ -206,9 +206,9 @@ python3 receipts/site/verify_site.py    # verify it against the dataset
 against the JSON, recomputes the headline figures and checks them
 against `data/source/baseline.json` (row count, clean counts, top
 total accepted, primary targets, career-clean), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
-returns 200, runs the Node runtime smoke test (`receipts/site/smoke_test.js` —
-renders the table and every tab against a DOM stub, opens a drill-down,
-exercises the CSV path), and checks the generator is deterministic apart
+returns 200, runs the runtime smoke test (`receipts/site/smoke_test.js`, run
+inside the page in headless Chromium by Playwright — renders the table and
+every tab, opens a drill-down, exercises the CSV path), and checks the generator is deterministic apart
 from the generation timestamp. Any failure exits non-zero.
 
 To preview locally: `python3 -m http.server --directory docs 8000`, then
