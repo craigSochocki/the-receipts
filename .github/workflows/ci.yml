@@ -36,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Chromium for the site smoke test
+        run: python3 -m playwright install --with-deps chromium
+
       - name: Lint and format
         run: |
           ruff check receipts tests
@@ -76,7 +79,7 @@ jobs:
           fi
 
       - name: Verify static site
-        # Needs node (preinstalled on ubuntu-latest): node --check on the
-        # page scripts plus the runtime smoke test. Also re-runs the
+        # node --check on the page scripts (node is preinstalled), the
+        # smoke test in Chromium (installed above). Also re-runs the
         # generator and checks determinism apart from the timestamp.
         run: python3 receipts/site/verify_site.py
