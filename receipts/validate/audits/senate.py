@@ -5,18 +5,20 @@ from collections import Counter
 from receipts.common.files import read_yaml
 from receipts.common.settings import settings
 
-SPOT_CLASSES = [
-    ('Charles E. Schumer', 3),
-    ('Mark Kelly', 3),
-    ('Raphael G. Warnock', 3),
-    ('Adam B. Schiff', 1),
-    ('Andy Kim', 1),
-    ('Jon Ossoff', 2),
-    ('Sherrod Brown', 3),
-    ('Ashley Moody', 3),
-    ('Abdul El-Sayed', 2),
-    ('Peggy Flanagan', 2),
-    ('Annie Andrews', 2),
+# Senators whose class is pinned: continuing members of each class, special-election
+# winners, and new senators who take the class of the seat's outgoing holder.
+SPOT_CLASS_NAMES = [
+    'Charles E. Schumer',
+    'Mark Kelly',
+    'Raphael G. Warnock',
+    'Adam B. Schiff',
+    'Andy Kim',
+    'Jon Ossoff',
+    'Sherrod Brown',
+    'Ashley Moody',
+    'Abdul El-Sayed',
+    'Peggy Flanagan',
+    'Annie Andrews',
 ]
 
 
@@ -86,32 +88,25 @@ def classes_in_range(audit, records):
 
 def class_counts_120th(audit, records):
     s120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate']
-    cls = Counter(r['senate_class'] for r in s120)
-    audit.check(
-        '120th senator class counts: C1 33 / C2 32 / C3 34',
-        cls == {1: 33, 2: 32, 3: 34},
-        f'got {dict(cls)}',
+    counts = Counter(r['senate_class'] for r in s120)
+    audit.pin(
+        '120th senator class counts',
+        'senate_class.counts_120th',
+        {str(senate_class): counts[senate_class] for senate_class in sorted(counts)},
     )
-    c3d = [r for r in s120 if r['party_120'] == 'Democrat' and r['senate_class'] == 3]
-    audit.check(
-        'Class 3 Democrats in the 120th = 16',
-        len(c3d) == 16,
-        f'got {len(c3d)}: {[r["full_name"] for r in c3d]}',
+    audit.pin(
+        'Class 3 Democrats in the 120th',
+        'senate_class.class3_democrats_120th',
+        sum(1 for r in s120 if r['party_120'] == 'Democrat' and r['senate_class'] == 3),
     )
 
 
 def class_spot_cases(audit, records):
     by_name = {r['full_name']: r for r in records}
-    bad = [
-        (n, by_name[n]['senate_class'], want)
-        for n, want in SPOT_CLASSES
-        if by_name[n]['senate_class'] != want
-    ]
-    audit.check(
-        'senate_class spot cases (Schumer/Kelly/Warnock 3, Schiff/Kim 1, '
-        'Ossoff/Brown/Moody 3/3/3, El-Sayed/Flanagan/Andrews 2)',
-        bad == [],
-        f'got {bad}',
+    audit.pin(
+        'senate_class spot cases',
+        'spot.senate_class',
+        {name: by_name[name]['senate_class'] for name in SPOT_CLASS_NAMES},
     )
 
 

@@ -65,6 +65,13 @@
  "methodology_totals.udp_ie_opposing_opponents_career": 48421886.44,
  "methodology_totals.udp_ie_support_career": 42415003.76,
  "methodology_totals.udp_ie_total_benefit_career": 90836890.2,
+ "rows.count": 664,
+ "senate_class.class3_democrats_120th": 16,
+ "senate_class.counts_120th": {
+  "1": 33,
+  "2": 32,
+  "3": 34
+ },
  "site.career_dirty": {
   "total_compact": "$1.07B",
   "top3": [
@@ -243,6 +250,19 @@
  "spot.self_funding_career.S001229": 7943000.0,
  "spot.self_funding_career.T000488": 17456074.0,
  "spot.self_funding_career.anthonyconstantinonyhouse": 17000000.0,
+ "spot.senate_class": {
+  "Charles E. Schumer": 3,
+  "Mark Kelly": 3,
+  "Raphael G. Warnock": 3,
+  "Adam B. Schiff": 1,
+  "Andy Kim": 1,
+  "Jon Ossoff": 2,
+  "Sherrod Brown": 3,
+  "Ashley Moody": 3,
+  "Abdul El-Sayed": 2,
+  "Peggy Flanagan": 2,
+  "Annie Andrews": 2
+ },
  "spot.tier.garcia": {
   "clean_2026": false,
   "corp_2026": 253500.0,

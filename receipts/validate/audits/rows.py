@@ -8,7 +8,7 @@ from receipts.common.settings import settings
 
 def rows_and_order(audit, dataset):
     """(i) row count, uniqueness, order"""
-    audit.check('row count is 664', len(dataset.records) == 664, f'got {len(dataset.records)}')
+    audit.pin('row count', 'rows.count', len(dataset.records))
     audit.check('person_keys unique', len(dataset.by_key) == len(dataset.records))
     roster_keys = [
         r['person_key']
@@ -23,7 +23,11 @@ def rows_and_order(audit, dataset):
 def csv_matches_json(audit, dataset):
     """(h) CSV <-> JSON agreement"""
     df = pd.read_csv(dataset.csv_path, dtype=str, keep_default_na=False)
-    audit.check('CSV has 664 data rows', len(df) == 664, f'got {len(df)}')
+    audit.check(
+        'CSV has one data row per JSON record',
+        len(df) == len(dataset.records),
+        f'CSV {len(df)}, JSON {len(dataset.records)}',
+    )
     csv_by_key = {row['person_key']: row for _, row in df.iterrows()}
     audit.check('CSV person_keys match JSON', set(csv_by_key) == set(dataset.by_key))
     mism = 0
