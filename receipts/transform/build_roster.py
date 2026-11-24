@@ -152,50 +152,35 @@ class Roster:
         newcomers = []
         for seat in seats:
             row = self.sitting_member(seat.name, seat.state)
-            if row is not None:
-                row.update(
-                    chamber_120=seat.chamber,
-                    district_120=seat.district_120,
-                    party_120=seat.party_120,
-                    in_120th='yes',
-                )
-                if seat.party in PARTY_NOTES:
-                    self.note(row['person_key'], PARTY_NOTES[seat.party])
+            if row is None:
+                newcomers.append(self.add_newcomer(seat, former))
                 continue
-            first, last = split_name(seat.name)
-            joins = dict(
-                full_name=seat.name,
-                first_name=first,
-                last_name=last,
-                chamber_120=seat.chamber,
-                state=seat.state,
-                district_120=seat.district_120,
-                party_120=seat.party_120,
-                in_120th='yes',
-            )
-            past = former.returning(seat.name, seat.state)
-            if past is not None:
-                key = past['bioguide'] or slug(first, last, seat.state, seat.chamber)
-                term = past['last_term']
-                self.rows[key] = member(
-                    person_key=key,
-                    **joins,
-                    fec_candidate_ids=list(past.get('fec') or []),
-                    notes=f'Returning former member; last served {term.get("type")} {term.get("state")} ending {term.get("end")} (prior service, not 119th).',
-                    _bioguide=past.get('bioguide'),
-                    _fec_source='repo-historical',
-                )
-                newcomers.append(('returning', seat.name, seat.state))
-            else:
-                key = slug(first, last, seat.state, seat.chamber)
-                self.rows[key] = member(
-                    person_key=key,
-                    **joins,
-                    notes='New member of the 120th Congress (first term in Congress).',
-                    _fec_source='none-fec-api-pending',
-                )
-                newcomers.append(('brand-new', seat.name, seat.state))
+            row.update(chamber_120=seat.chamber, district_120=seat.district_120,
+                       party_120=seat.party_120, in_120th='yes')  # fmt: skip
+            if seat.party in PARTY_NOTES:
+                self.note(row['person_key'], PARTY_NOTES[seat.party])
         return newcomers
+
+    def add_newcomer(self, seat, former):
+        """A returning former member's row, or a brand-new member's; (kind, name, state)."""
+        first, last = split_name(seat.name)
+        fields = dict(full_name=seat.name, first_name=first, last_name=last,
+                      chamber_120=seat.chamber, state=seat.state, district_120=seat.district_120,
+                      party_120=seat.party_120, in_120th='yes')  # fmt: skip
+        new_key = slug(first, last, seat.state, seat.chamber)
+        past = former.returning(seat.name, seat.state)
+        if past is None:
+            self.rows[new_key] = member(person_key=new_key, **fields, _fec_source='none-fec-api-pending',
+                                        notes='New member of the 120th Congress (first term in Congress).')  # fmt: skip
+            return 'brand-new', seat.name, seat.state
+        key, term = past['bioguide'] or new_key, past['last_term']
+        self.rows[key] = member(
+            person_key=key, **fields, fec_candidate_ids=list(past.get('fec') or []),
+            notes=f'Returning former member; last served {term.get("type")} {term.get("state")} '
+            f'ending {term.get("end")} (prior service, not 119th).',
+            _bioguide=past.get('bioguide'), _fec_source='repo-historical',
+        )  # fmt: skip
+        return 'returning', seat.name, seat.state
 
     def apply_facts(self, facts, former):
         for fields in facts['added_members']:
@@ -241,73 +226,30 @@ class Roster:
 
     def note_successors(self, r120):
         """For each outgoing member, who holds their seat in the 120th."""
-        house_by_seat = {(h['state'], str(h['district'])): h for h in r120['house']}
-        senators_by_state = collections.defaultdict(list)
+        house = {(h['state'], str(h['district'])): h for h in r120['house']}
+        returning = {r['full_name'] for r in self.rows.values() if r['in_119th'] == 'yes'}
+        new_senators = collections.defaultdict(list)
         for s in r120['senate']:
-            senators_by_state[s['state']].append(s['name'])
+            if s['name'] not in returning:
+                new_senators[s['state']].append(s['name'])
         for key, row in self.rows.items():
-            if not (row['in_119th'] == 'yes' and row['in_120th'] == 'no'):
+            if row['in_119th'] != 'yes' or row['in_120th'] != 'no':
                 continue
-            if (
-                row['chamber_119'] == 'House'
-                and (row['state'], row['district_119']) in house_by_seat
-            ):
-                holder = house_by_seat[(row['state'], row['district_119'])]
-                self.note(
-                    key,
-                    f'Not in 120th; {row["state"]}-{row["district_119"]} in the 120th is held by {holder["name"]} ({holder["party"]}).',
-                )
-            elif row['chamber_119'] == 'Senate':
-                new_senators = [
-                    name
-                    for name in senators_by_state[row['state']]
-                    if not any(
-                        r['full_name'] == name and r['in_119th'] == 'yes'
-                        for r in self.rows.values()
-                    )
-                ]
-                if new_senators:
-                    self.note(
-                        key,
-                        f'Not in 120th; new senator(s) from {row["state"]} in the 120th: {", ".join(new_senators)}.',
-                    )
+            seat = (row['state'], row['district_119'])
+            if row['chamber_119'] == 'House' and seat in house:
+                holder = house[seat]
+                self.note(key, f'Not in 120th; {row["state"]}-{row["district_119"]} in the 120th '
+                          f'is held by {holder["name"]} ({holder["party"]}).')  # fmt: skip
+            elif row['chamber_119'] == 'Senate' and new_senators[row['state']]:
+                self.note(key, f'Not in 120th; new senator(s) from {row["state"]} in the 120th: '
+                          f'{", ".join(new_senators[row["state"]])}.')  # fmt: skip
 
     def assign_senate_classes(self):
         """Senate class from each senator's own term, else from the seat's 2026 holder."""
-        senate_terms = {
-            p['id'].get('bioguide'): [t for t in p['terms'] if t.get('type') == 'sen']
-            for p in self.legislators
-        }
-        continuing = {
-            r['person_key']
-            for r in self.rows.values()
-            if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'
-        }
-
-        def senate_class(row):
-            if row['chamber_119'] != 'Senate' and row['chamber_120'] != 'Senate':
-                return None
-            own = [
-                t
-                for t in senate_terms.get(row.get('_bioguide') or row['person_key'], [])
-                if (t.get('end') or '') >= '2026-01-01'
-            ]
-            if own:
-                return own[-1].get('class')
-            holders = {
-                t.get('class')
-                for p in self.legislators
-                for t in p['terms']
-                if t.get('type') == 'sen'
-                and t.get('state') == row['state']
-                and (t.get('start') or '') <= '2026-12-31'
-                and (t.get('end') or '') >= '2026-01-01'
-                and p['id'].get('bioguide') not in continuing
-            }
-            return holders.pop() if len(holders) == 1 else None
-
+        continuing = {r['person_key'] for r in self.rows.values()
+                      if r['in_120th'] == 'yes' and r['chamber_120'] == 'Senate'}  # fmt: skip
         for row in self.rows.values():
-            row['senate_class'] = senate_class(row)
+            row['senate_class'] = senate_class(row, self.legislators, continuing)
 
     def unmatched(self, seats):
         """120th seats with no row, and with more than one (nickname-aware)."""
@@ -331,33 +273,41 @@ class Roster:
 
     def print_summary(self, newcomers):
         rows = list(self.rows.values())
-
-        def count(in_119th, in_120th):
-            return sum(1 for r in rows if r['in_119th'] in in_119th and r['in_120th'] in in_120th)
-
-        print('total rows:', len(rows))
-        print('in 119th:', count({'yes'}, {'yes', 'no', 'unknown'}))
-        print('in 120th:', count({'yes', 'no'}, {'yes'}))
-        print('in 120th unknown:', count({'yes', 'no'}, {'unknown'}))
-        print('in both:', count({'yes'}, {'yes'}))
-        print('119th only:', count({'yes'}, {'no'}))
-        print('120th only:', count({'no'}, {'yes'}))
         print(
-            'new persons (returning/brand-new):',
-            collections.Counter(kind for kind, *_ in newcomers),
+            'rows:',
+            len(rows),
+            dict(collections.Counter((r['in_119th'], r['in_120th']) for r in rows)),
         )
-        for kind in ('brand-new', 'returning'):
-            print(f'{kind} list:')
-            for _, name, state in (n for n in newcomers if n[0] == kind):
-                print('  ', name, state)
-        print(
-            'UNKNOWN rows:',
-            [
-                (r['full_name'], r['state'], r['chamber_119'], r['district_119'])
-                for r in rows
-                if r['in_120th'] == 'unknown'
-            ],
-        )
+        print('new members:', [n for n in newcomers])
+        print('120th unknown:', [r['full_name'] for r in rows if r['in_120th'] == 'unknown'])
+
+
+def senate_terms_in_2026(person):
+    return [
+        t
+        for t in person['terms']
+        if t.get('type') == 'sen' and (t.get('end') or '') >= '2026-01-01'
+    ]
+
+
+def senate_class(row, legislators, continuing):
+    """The row's own Senate class into 2026, else the class of the seat's other 2026 holder."""
+    if 'Senate' not in (row['chamber_119'], row['chamber_120']):
+        return None
+    key = row.get('_bioguide') or row['person_key']
+    own = [
+        t for p in legislators if p['id'].get('bioguide') == key for t in senate_terms_in_2026(p)
+    ]
+    if own:
+        return own[-1].get('class')
+    holders = {
+        t.get('class')
+        for p in legislators
+        if p['id'].get('bioguide') not in continuing
+        for t in senate_terms_in_2026(p)
+        if t.get('state') == row['state'] and (t.get('start') or '') <= '2026-12-31'
+    }
+    return holders.pop() if len(holders) == 1 else None
 
 
 def build(legislators, historical_lookup, r120, facts):
