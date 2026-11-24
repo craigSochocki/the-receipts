@@ -17,8 +17,8 @@ MIN_MAINTAINABILITY = 20  # radon grade A
 COMPLEXITY_DEBT = {}
 # Scored without docstrings, so prose cannot lift a file over the line.
 MAINTAINABILITY_DEBT = {
-    'ingest/pull_freshness.py': 18,
-    'ingest/pull_gate.py': 16,
+    'ingest/pull_freshness.py': 19,
+    'ingest/pull_gate.py': 19,
     'site/checks/charts.py': 19,
     'store/other_committees.py': 18,
     'transform/build_roster.py': 15,

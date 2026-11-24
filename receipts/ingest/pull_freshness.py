@@ -1,29 +1,5 @@
 #!/usr/bin/env python3
-"""Freshness refresh driver: new money since bulk coverage, never merged into the dataset.
-
-Writes data/intermediate/freshness_snapshot.json, labeled by source and
-date (methodology.md §16, research/freshness-research.md). Legs per
-roster person, all through the FEC API:
-
-1. Totals refresh: /candidate/{id}/totals/?cycle=2026, flagged when its
-   coverage_end_date is past the bulk cutoff.
-2. Form 6 (48-Hour Notices): pull_f6.pull_committee on each principal
-   campaign committee (designation P) since the window start.
-3. 24/48-hour IE: pull_f24.sweep for --f24-committee x --f24-candidate
-   pairs. --all also sweeps the config-listed spender committees
-   committee-wide and attributes rows to roster people by candidate_id.
-
---all is gated by pull_gate.py (one /filings/ check per family; a gate
-error falls back to the full run); --no-gate forces the full run. --all
-and --f24-committee-sweep refuse DEMO_KEY: a full run makes more keyed
-calls than a demo key allows.
-
-Usage:
-    python3 receipts/ingest/pull_freshness.py --person <person_key> \\
-        --f24-committee <committee_id> --f24-candidate <person_key>
-    python3 receipts/ingest/pull_freshness.py --f24-committee-sweep
-    FEC_API_KEY=<registered key> python3 receipts/ingest/pull_freshness.py --all
-"""
+"""Freshness driver: money filed since the bulk cutoff, never merged into the dataset."""
 
 import argparse
 import json
@@ -35,6 +11,7 @@ from datetime import datetime, timezone
 from receipts.common.fec_api import client
 from receipts.common.files import read_json
 from receipts.common.settings import settings
+from receipts.domain.money import exact_sum
 from receipts.ingest import pull_f6, pull_f24, pull_gate
 
 
@@ -58,13 +35,7 @@ def principal_committees(candidate_id, cycle=2026):
 
 
 def totals_refresh(candidate_id, cycle=2026):
-    """Latest processed totals for one candidate/cycle, with coverage.
-
-    Returns the per-cycle row (cycle == requested) with its
-    coverage_end_date, plus a flag for whether it is newer than bulk.
-    election_full=true is NOT used here: it returns only the aggregate
-    row (cycle null), which conflates 2024 and 2026.
-    """
+    """One candidate's per-cycle API totals; election_full would mix cycles, so it is unused."""
     data = client().get(f'/candidate/{candidate_id}/totals/', {'cycle': cycle, 'per_page': 100})
     rows = [r for r in data.get('results', []) if r.get('cycle') == cycle]
     if not rows:
@@ -122,12 +93,8 @@ def f6_leg(person):
 def refresh_person(person, f24_committees):
     """All three legs for one roster person: the snapshot entry."""
     entry = new_entry(person)
-    for cid in candidate_ids(person):
-        entry['totals'].append(totals_refresh(cid))
-        for cmte in principal_committees(cid):
-            entry['f6'].append(
-                pull_f6.pull_committee(cmte, since=bulk_coverage_end().freshness_window_start)
-            )
+    entry['totals'] = totals_leg(person)
+    entry['f6'] = f6_leg(person)
     entry['f24'] = [
         pull_f24.sweep(cmte, cid) for cmte in f24_committees for cid in candidate_ids(person)
     ]
@@ -148,44 +115,30 @@ def gated_entry(person, decision):
     return entry
 
 
+DIRECTION = {'S': 'support', 'O': 'oppose'}
+
+
 class Tally:
     """F24 dollars by support/oppose indicator; any other indicator is unclassified."""
 
     def __init__(self):
-        self.support = self.oppose = self.unclassified = self.total = 0.0
-        self.n_rows = 0
+        self.amounts = {'support': [], 'oppose': [], 'unclassified': []}
 
     def add(self, amount, indicator):
-        if indicator == 'S':
-            self.support += amount
-        elif indicator == 'O':
-            self.oppose += amount
-        else:
-            self.unclassified += amount
-        self.total += amount
-        self.n_rows += 1
+        self.amounts[DIRECTION.get(indicator, 'unclassified')].append(amount)
 
     def rounded(self):
+        every = [a for amounts in self.amounts.values() for a in amounts]
         return {
-            'support': round(self.support, 2),
-            'oppose': round(self.oppose, 2),
-            'unclassified': round(self.unclassified, 2),
-            'total': round(self.total, 2),
-            'n_rows': self.n_rows,
+            **{k: exact_sum(amounts, 0.0) for k, amounts in self.amounts.items()},
+            'total': exact_sum(every, 0.0),
+            'n_rows': len(every),
         }
 
 
 def attribute_f24_rows(rows, by_candidate):
-    """F24 rows split to roster people by candidate_id.
-
-    Returns (attributed, non_roster, unclassified_total, unclassified_n_rows):
-    one tally per roster candidate with rows, sorted by candidate_id, and one
-    for everything off the roster (blank candidate_id included). Every row
-    lands in exactly one tally and one of support / oppose / unclassified.
-    """
-    per_candidate = {}
-    non_roster = Tally()
-    unclassified_total, unclassified_n = 0.0, 0
+    """(per roster candidate tallies sorted by ID, the off-roster tally, unclassified $ and rows)."""
+    per_candidate, non_roster, unclassified = {}, Tally(), []
     for r in rows:
         amount = float(r.get('expenditure_amount') or 0)
         indicator = r.get('support_oppose_indicator')
@@ -193,9 +146,8 @@ def attribute_f24_rows(rows, by_candidate):
         on_roster = bool(cid) and cid in by_candidate
         tally = per_candidate.setdefault(cid, Tally()) if on_roster else non_roster
         tally.add(amount, indicator)
-        if indicator not in ('S', 'O'):
-            unclassified_total += amount
-            unclassified_n += 1
+        if indicator not in DIRECTION:
+            unclassified.append(amount)
     attributed = [
         {
             'person_key': by_candidate[cid]['person_key'],
@@ -204,15 +156,11 @@ def attribute_f24_rows(rows, by_candidate):
         }
         for cid in sorted(per_candidate)
     ]
-    return attributed, non_roster.rounded(), round(unclassified_total, 2), unclassified_n
+    return attributed, non_roster.rounded(), exact_sum(unclassified, 0.0), len(unclassified)
 
 
 def sweep_committee_f24(committee_id, committee_name, cycle, by_candidate):
-    """One committee-wide F24 sweep, attributed to the roster.
-
-    Raw rows stay out of the snapshot (a sweep can run to thousands);
-    `pull_f24.py --committee <id> --cycle 2026` reproduces them.
-    """
+    """One committee-wide F24 sweep, attributed to the roster; raw rows stay out."""
     result = pull_f24.sweep(committee_id, candidate_id=None, cycle=cycle)
     rows = result.get('f24_rows') or []
     attributed, non_roster, unc_total, unc_n = attribute_f24_rows(rows, by_candidate)
@@ -222,8 +170,8 @@ def sweep_committee_f24(committee_id, committee_name, cycle, by_candidate):
         'cycle': cycle,
         'f24_n_rows': result['f24_n_rows'],
         'f24_total': result['f24_total'],
-        'support': round(sum(a['support'] for a in attributed) + non_roster['support'], 2),
-        'oppose': round(sum(a['oppose'] for a in attributed) + non_roster['oppose'], 2),
+        'support': exact_sum([*(a['support'] for a in attributed), non_roster['support']]),
+        'oppose': exact_sum([*(a['oppose'] for a in attributed), non_roster['oppose']]),
         'unclassified_total': unc_total,
         'unclassified_n_rows': unc_n,
         'latest_expenditure_date': result['latest_expenditure_date'],
@@ -286,9 +234,9 @@ def person_summary(entries):
     f24 = [(e['person_key'], s) for e in entries for s in e['f24']]
     return {
         'n_persons': len(entries),
-        'new_f6_candidate_loans': round(sum(f.get('total_candidate_loans', 0) for f in f6), 2),
-        'new_f6_contributions': round(sum(f.get('total_contributions', 0) for f in f6), 2),
-        'new_f24_ie': round(sum(s.get('f24_total', 0) for _, s in f24), 2),
+        'new_f6_candidate_loans': exact_sum(f.get('total_candidate_loans', 0) for f in f6),
+        'new_f6_contributions': exact_sum(f.get('total_contributions', 0) for f in f6),
+        'new_f24_ie': exact_sum(s.get('f24_total', 0) for _, s in f24),
         'open_f24_residuals': [
             {
                 'person_key': person_key,
@@ -308,7 +256,7 @@ def person_summary(entries):
 def sweep_summary(sweeps):
     return {
         'committee_sweeps_n': len(sweeps),
-        'committee_sweeps_f24_ie': round(sum(s.get('f24_total', 0) for s in sweeps), 2),
+        'committee_sweeps_f24_ie': exact_sum(s.get('f24_total', 0) for s in sweeps),
         'committee_sweeps_by_committee': [
             {
                 'committee_id': s.get('committee_id'),
@@ -367,13 +315,7 @@ def parse_args():
     ap.add_argument(
         '--f24-committee-sweep',
         action='store_true',
-        help='run ONLY the six config-listed committee F24 sweeps '
-        '(cycle 2026), no per-person refresh; registered key '
-        'required — DEMO_KEY is refused (six committee sweeps '
-        'are ~12-94+ keyed calls, production-scale, not a '
-        'spot check). For a DEMO_KEY test use the '
-        'single-committee CLI instead: pull_f24.py '
-        '--committee <id> --cycle 2026.',
+        help='run only the config-listed committee F24 sweeps (registered key required)',
     )
     ap.add_argument(
         '--out',

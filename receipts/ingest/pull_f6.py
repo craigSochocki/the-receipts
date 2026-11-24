@@ -1,80 +1,20 @@
 #!/usr/bin/env python3
-"""Form 6 (48-Hour Notice) freshness pull for the Congress money tracker.
-
-Form 6 is filed by candidate committees for contributions/loans of $1,000+
-received in the final 20 days before an election. It is the freshness
-layer's route to late candidate money that no totals endpoint and no bulk
-file can see yet (see research/freshness-research.md §2).
-
-Two steps, two different access routes:
-1. Discovery: GET /v1/filings/?form_type=F6&committee_id={id} — returns
-   metadata ONLY (file_number, receipt_date, …). No contributor, no
-   amount, no candidate_id (null on F6 rows). `min_date` is SILENTLY
-   IGNORED on /v1/filings/, so this pages with sort=-receipt_date and
-   filters client-side (stops when receipt_date falls before the window).
-2. Line items: GET https://docquery.fec.gov/csv/{last3}/{file_number}.csv
-   — no API key needed. The CSV carries F6N header records (candidate
-   ID, name, office/state/district, treasurer, filing date) and F65
-   line-item records (contributor type, name, address, date, amount,
-   employer, occupation). There is NO F6 bulk file.
-
-The F65 contributor-type code identifies candidate loans (`CAN`) vs
-contributions from others; the amounts are split accordingly and are
-NEVER blended into the dataset totals — this script writes a JSON
-report only. The freshness driver (receipts/ingest/pull_freshness.py) folds it
-into data/intermediate/freshness_snapshot.json.
-
-Usage:
-    python3 receipts/ingest/pull_f6.py --committee C00892737 [--since 2026-10-15]
-                             [--out data/intermediate/f6_<committee>.json]
-    python3 receipts/ingest/pull_f6.py --file-number 2044138   # fetch + parse one filing
-
-API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
-Docquery CSV fetches need no key. Sleeps >=1s between API calls.
-"""
+"""Form 6 (48-hour notice) pull: filings from the API, line items from docquery CSVs."""
 
 import argparse
 import csv
 import io
-import json
-import sys
 
-from receipts.common.fec_api import client
+from receipts.common.fec_api import client, scan_filings
+from receipts.common.files import emit_json
+from receipts.domain.money import exact_sum
 
 
 def discover_f6(committee_id, since=None):
-    """All F6 filings for a committee, newest first.
-
-    `since` is a YYYY-MM-DD date string: paging stops once receipt_date
-    falls before it (min_date is ignored server-side, so this is
-    client-side). Returns a list of filing metadata dicts.
-    """
-    filings = []
-    page = 1
-    while True:
-        data = client().get(
-            '/filings/',
-            {
-                'form_type': 'F6',
-                'committee_id': committee_id,
-                'per_page': 100,
-                'page': page,
-                'sort': '-receipt_date',
-            },
-        )
-        results = data.get('results', [])
-        if not results:
-            break
-        for r in results:
-            if since and (r.get('receipt_date') or '') < since:
-                return filings
-            filings.append(r)
-        if len(results) < 100:
-            break
-        page += 1
-        if page > 50:
-            raise SystemExit('F6 discovery: too many pages (over 50); refusing to continue')
-    return filings
+    """A committee's F6 filings received on or after `since`, newest first."""
+    return scan_filings(
+        client(), 'F6', since, per_page=100, max_pages=50, committee_id=committee_id
+    )[0]
 
 
 def fetch_f6_csv(file_number):
@@ -167,22 +107,15 @@ def parse_f6_csv(text):
 
 
 def superseded_file_numbers(filings):
-    """File numbers replaced by a later amendment in any discovered filing's chain.
-
-    The filings endpoint returns an original and its amendments; counting
-    both would overstate the committee's F6 total.
-    """
+    """File numbers a later amendment replaced; counting both would overstate the total."""
     return {fn for f in filings for fn in (f.get('amendment_chain') or [])[:-1]}
 
 
 def sum_amounts(items, from_candidate):
-    return round(
-        sum(
-            i['amount']
-            for i in items
-            if i['is_candidate'] == from_candidate and i['amount'] is not None
-        ),
-        2,
+    return exact_sum(
+        i['amount']
+        for i in items
+        if i['is_candidate'] == from_candidate and i['amount'] is not None
     )
 
 
@@ -225,8 +158,8 @@ def pull_committee(committee_id, since=None):
         'n_superseded_dropped': len(filings) - len(kept),
         'superseded_file_numbers': sorted(superseded),
         'filings': reports,
-        'total_candidate_loans': round(sum(f['candidate_loans'] for f in reports), 2),
-        'total_contributions': round(sum(f['contributions'] for f in reports), 2),
+        'total_candidate_loans': exact_sum(f['candidate_loans'] for f in reports),
+        'total_contributions': exact_sum(f['contributions'] for f in reports),
     }
 
 
@@ -246,13 +179,7 @@ def main():
         result = pull_committee(args.committee, since=args.since)
     else:
         ap.error('need --committee or --file-number')
-    if args.out:
-        with open(args.out, 'w') as f:
-            json.dump(result, f, indent=1)
-        print(f'wrote {args.out}')
-    else:
-        json.dump(result, sys.stdout, indent=1)
-        print()
+    emit_json(result, args.out)
     if isinstance(result, dict) and 'filings' in result:
         print(
             f'F6 {args.committee}: {result["n_filings"]} filing(s) since {args.since}; '

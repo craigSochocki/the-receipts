@@ -28,7 +28,6 @@ FIGURE = re.compile(
 ALLOWED = {
     ('receipts/domain/money.py', "'2500', '1234.56', '$1,000'"),
     ('receipts/domain/money.py', "',' gives 1,234.50"),
-    ('receipts/ingest/pull_f6.py', 'contributions/loans of $1,000+'),
 }
 
 

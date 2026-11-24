@@ -44,3 +44,11 @@ class Money:
 
 
 ZERO = Money(0)
+
+
+def exact_sum(amounts, start=0):
+    """Sum JSON dollar amounts in exact cents; the result's type follows sum(amounts, start)."""
+    amounts = list(amounts)
+    cents = Money.total(Money.parse(repr(a)) for a in amounts).cents
+    exact_ints = isinstance(start, int) and all(isinstance(a, int) for a in amounts)
+    return cents // 100 if exact_ints and cents % 100 == 0 else cents / 100
