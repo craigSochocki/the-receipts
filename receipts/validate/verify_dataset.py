@@ -7,7 +7,7 @@ from receipts.common.log import run
 from receipts.common.settings import settings
 from receipts.validate.audit import Audit
 from receipts.validate.audits.clean import clean_counts, clean_spot_cases, unopposed
-from receipts.validate.audits.columns_2026 import columns_2026
+from receipts.validate.audits.columns_2026 import columns_2026, cycle_records
 from receipts.validate.audits.money import (
     all_ie,
     double_counts,
@@ -33,6 +33,7 @@ SECTIONS = [
     clean_counts,
     tiered_rule,
     columns_2026,
+    cycle_records,
     clean_spot_cases,
     unopposed,
     senate_class,

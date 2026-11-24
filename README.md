@@ -280,7 +280,8 @@ to the repo, so a checkout works from any directory on any machine.
 
 ## Layout
 
-- `congress-money-tracker.csv` / `.json` — the dataset
+- `congress-money-tracker.csv` / `.json` — the dataset; `congress-money-tracker-cycles.csv`
+  — its per-cycle records, one row per person per cycle
 - `methodology.md` — definitions, sources, and every known limitation
 - `architecture.md` — design, data model, North Star, and the gaps
 - `STATUS.md` — where the build stands right now

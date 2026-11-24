@@ -8,8 +8,10 @@ figures, named cases and reconciliations that showed each rule are kept in
 money comes from is named in `baseline.json` (`_snapshot`) and stamped on every row as
 `data_as_of` (set in `config.yaml`).
 
-**Files:** `congress-money-tracker.csv` (one row per person) and `congress-money-tracker.json`
-(same data; `fec_candidate_ids` is a list; each person also carries per-cycle breakdowns).
+**Files:** `congress-money-tracker.csv` (one row per person), `congress-money-tracker.json`
+(same data; `fec_candidate_ids` is a list; each person also carries per-cycle breakdowns and
+per-cycle records, §14a) and `congress-money-tracker-cycles.csv` (the per-cycle records, one
+row per person per cycle).
 Committed inputs live in `data/source/`, the staged FEC bulk files in `data/raw/`
 (gitignored), regenerable staging files in `data/intermediate/` (gitignored), and pull logs
 and research notes in `research/`.
@@ -596,6 +598,22 @@ electability or anything else.
   moves career totals; it is never made unilaterally.
 
 ---
+
+## 14a. Per-cycle records — every cycle judged the same way
+
+Each person's `cycles` list (JSON) and `congress-money-tracker-cycles.csv` (one row per
+person per cycle, keyed by `person_key` and `cycle`) hold one record for every cycle in which
+the person has an entry in any money list (committee money, UDP support, self-funding and
+topline, other committees, all-IE), plus the current cycle for everyone. A record carries
+the same fields as the current-cycle columns of §14, without the year suffix, computed by
+the same rules from that cycle's per-cycle entries and that cycle's weball races: the money
+fields, `dirty`, `aipac_udp_flag`, `dep_share`, `unopposed`, `clean` and both tiers. The
+current cycle's record equals its columns exactly (an audit checks it). Opposition credit is
+that cycle's credit (§13). Two differences from the current-cycle columns: the
+"unverified" rule (no data for an incoming member) applies to the current cycle only, since
+an older record exists only where there is data; and a record exists for any cycle with
+money, including a year the person was not on the ballot (off-cycle fundraising), so a
+record is not by itself a judgement of that cycle's election.
 
 ## 15. Coverage end dates by column family — and the re-pull plan
 

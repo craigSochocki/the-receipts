@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""2026 columns, the clean verdict and tiers, and the primary-target list."""
+"""Per-cycle records, the current cycle's columns, verdicts and tiers, and the target list."""
 
 from collections import Counter
+from functools import cache
 
 from receipts.common.baseline import expected
 from receipts.common.settings import settings
@@ -24,94 +25,121 @@ from receipts.store.read import connect
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 CREDITS = (
-    'SELECT credited_to, SUM(credit) FROM gold.opposition_credits '
-    "WHERE cycle = ? AND credited_to NOT LIKE '__nonroster__%' GROUP BY credited_to"
+    'SELECT cycle, credited_to, SUM(credit) FROM gold.opposition_credits '
+    "WHERE credited_to NOT LIKE '__nonroster__%' GROUP BY cycle, credited_to"
 )
+MONEY_LISTS = ('per_cycle', 'udp_per_cycle', 'self_funding_per_cycle',
+               'other_committees_per_cycle', 'all_ie_per_cycle')  # fmt: skip
 
 
-def current(entries):
-    return [e for e in entries if e['cycle'] == settings().cycles.current]
+def in_cycle(entries, cycle):
+    return [e for e in entries if e['cycle'] == cycle]
 
 
-def current_sum(entries, field):
-    """The 2026 total of a per-cycle field: int 0 when there is no 2026 entry at all."""
-    found = current(entries)
+def cycle_sum(entries, field, cycle):
+    """A per-cycle field's total in `cycle`: int 0 when the cycle has no entry at all."""
+    found = in_cycle(entries, cycle)
     return round(sum(e[field] for e in found), 2) if found else 0
 
 
-def has_2026_linkage(r):
-    """2026 data in any money source: committee money, UDP, or a 2026 weball summary."""
+def has_linkage(r, cycle):
+    """Data in `cycle` in any money source: committee money, UDP, or that cycle's weball summary."""
     return (
-        bool(current(r['per_cycle']))
-        or bool(current(r['udp_per_cycle']))
+        bool(in_cycle(r['per_cycle'], cycle))
+        or bool(in_cycle(r['udp_per_cycle'], cycle))
         or any(
-            str(e.get('coverage_end_date', '')).endswith(f'/{settings().cycles.current}')
-            for e in current(r['self_funding_per_cycle'])
+            str(e.get('coverage_end_date', '')).endswith(f'/{cycle}')
+            for e in in_cycle(r['self_funding_per_cycle'], cycle)
         )
     )
 
 
-def money_2026(r, credit):
-    pc, sf, oc, ie = (r[k] for k in ('per_cycle', 'self_funding_per_cycle',
-                                     'other_committees_per_cycle', 'all_ie_per_cycle'))  # fmt: skip
+def has_2026_linkage(r):
+    return has_linkage(r, settings().cycles.current)
+
+
+def money_in(r, cycle, credit):
+    """Every money field of one cycle, from the person's per-cycle lists."""
+    pc, sf, oc, ie = (r[k] for k in MONEY_LISTS if k != 'udp_per_cycle')
     m = {
-        'individual_2026': current_sum(pc, 'individual'),
-        'corp_2026': current_sum(pc, 'corporate_pac'),
-        'aipac_direct_2026': current_sum(pc, 'aipac_pac_direct'),
-        'udp_support_2026': current_sum(r['udp_per_cycle'], 'udp_ie_support'),
-        'udp_opp_credit_2026': credit,
+        'individual': cycle_sum(pc, 'individual', cycle),
+        'corp': cycle_sum(pc, 'corporate_pac', cycle),
+        'aipac_direct': cycle_sum(pc, 'aipac_pac_direct', cycle),
+        'udp_support': cycle_sum(r['udp_per_cycle'], 'udp_ie_support', cycle),
+        'udp_opp_credit': credit,
     }
-    m['udp_benefit_2026'] = round(m['udp_support_2026'] + credit, 2)
-    m['dirty_2026'] = round(m['corp_2026'] + m['aipac_direct_2026'] + m['udp_benefit_2026'], 2)
-    m['aipac_udp_flag_2026'] = aipac_udp_flagged(m['aipac_direct_2026'], m['udp_benefit_2026'])
-    accepted = m['individual_2026'] + m['corp_2026'] + m['aipac_direct_2026']
-    dirty_accepted = m['corp_2026'] + m['aipac_direct_2026']
-    m['dep_share_2026'] = round(dirty_accepted / accepted, 4) if accepted > 0 else None
-    sf26, oc26 = current(sf), current(oc)
-    m['self_funding_2026'] = (
-        round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf26), 2)
-        if sf26 else 0
+    m['udp_benefit'] = round(m['udp_support'] + credit, 2)
+    m['dirty'] = round(m['corp'] + m['aipac_direct'] + m['udp_benefit'], 2)
+    m['aipac_udp_flag'] = aipac_udp_flagged(m['aipac_direct'], m['udp_benefit'])
+    accepted = m['individual'] + m['corp'] + m['aipac_direct']
+    m['dep_share'] = round((m['corp'] + m['aipac_direct']) / accepted, 4) if accepted > 0 else None
+    sf_cycle, oc_cycle = in_cycle(sf, cycle), in_cycle(oc, cycle)
+    m['self_funding'] = (
+        round(sum(e['candidate_contributions'] + e['candidate_loans'] for e in sf_cycle), 2)
+        if sf_cycle else 0
     )  # fmt: skip
-    for column, field in [('cand_loans_2026', 'candidate_loans'),
-                          ('cand_contrib_2026', 'candidate_contributions'),
-                          ('total_receipts_2026', 'total_receipts'),
-                          ('total_disbursements_2026', 'total_disbursements')]:  # fmt: skip
-        m[column] = current_sum(sf, field)
-    m['cash_on_hand_2026'] = round(sum(e['cash_on_hand'] for e in sf26), 2) if sf26 else None
-    m['other_committees_total_2026'] = (
-        round(sum(sum(e[b] for b in BUCKETS) for e in oc26), 2) if oc26 else 0
+    for key, field in [('cand_loans', 'candidate_loans'), ('cand_contrib', 'candidate_contributions'),
+                       ('total_receipts', 'total_receipts'),
+                       ('total_disbursements', 'total_disbursements')]:  # fmt: skip
+        m[key] = cycle_sum(sf, field, cycle)
+    m['cash_on_hand'] = round(sum(e['cash_on_hand'] for e in sf_cycle), 2) if sf_cycle else None
+    m['other_committees_total'] = (
+        round(sum(sum(e[b] for b in BUCKETS) for e in oc_cycle), 2) if oc_cycle else 0
     )
-    for column, field in [('all_ie_support_2026', 'all_ie_support'),
-                          ('all_ie_oppose_2026', 'all_ie_oppose'),
-                          ('all_ie_total_2026', 'all_ie_total')]:  # fmt: skip
-        m[column] = current_sum(ie, field)
+    for direction in ('support', 'oppose', 'total'):
+        m[f'all_ie_{direction}'] = cycle_sum(ie, f'all_ie_{direction}', cycle)
     return m
 
 
-def verdict_and_notes(r, race_map, race_of):
-    races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
-    r['unopposed_2026'] = bool(races) and len(unopposed) == len(races)
-    linked = has_2026_linkage(r)
-    r['clean_2026'], unknown_because = verdict(
-        r['in_120th'] == 'yes', linked, r['unopposed_2026'], r['dirty_2026']
-    )
-    if r['clean_2026'] is None:
+def judged(r, cycle, money, races):
+    """The cycle's unopposed flag, clean verdict and tiers, with why a verdict is unknown."""
+    race_map, race_of = races
+    in_races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
+    is_unopposed = bool(in_races) and len(unopposed) == len(in_races)
+    incoming = r['in_120th'] == 'yes' and cycle == settings().cycles.current
+    clean, unknown_because = verdict(incoming, has_linkage(r, cycle), is_unopposed, money['dirty'])
+    presets = settings().verification.tolerance_presets
+    tiers = {
+        f'tier_{p}': tier(clean, money['aipac_udp_flag'], money['corp'],
+                          money['total_receipts'], presets[p])
+        for p in ('balanced', 'lenient')
+    }  # fmt: skip
+    return {'clean': clean, 'unopposed': is_unopposed, **tiers}, unknown_because, unopposed
+
+
+def cycle_fields():
+    """The per-cycle field names, in the order of the current cycle's dataset columns."""
+    suffix = f'_{settings().cycles.current}'
+    return [k.removesuffix(suffix) for k in settings().dataset.json_keys if k.endswith(suffix)]
+
+
+def cycles_of(r):
+    """Every cycle with an entry in any money list, and always the current cycle."""
+    found = {e['cycle'] for k in MONEY_LISTS for e in r[k]}
+    return sorted(found | {settings().cycles.current})
+
+
+def cycle_record(r, cycle, credit, races):
+    money = money_in(r, cycle, credit)
+    verdict_fields, unknown_because, unopposed = judged(r, cycle, money, races)
+    fields = {**money, **verdict_fields}
+    return {'cycle': cycle, **{k: fields[k] for k in cycle_fields()}}, unknown_because, unopposed
+
+
+def add_notes(r, unknown_because, unopposed):
+    current = settings().cycles.current
+    if r[f'clean_{current}'] is None:
         note = (UNOPPOSED_NOTE.format(race=', '.join(race_label(x) for x in unopposed))
                 if unknown_because == UNOPPOSED else UNLINKED_NOTE)  # fmt: skip
         r['data_notes'] += note
-    for preset in ('balanced', 'lenient'):
-        r[f'tier_{preset}_2026'] = tier(r['clean_2026'], r['aipac_udp_flag_2026'], r['corp_2026'],
-                                        r['total_receipts_2026'], settings().verification.tolerance_presets[preset])  # fmt: skip
-    if r['corp_2026'] > 0 and r['individual_2026'] == 0:
-        r['data_notes'] += NO_INDIVIDUAL_MONEY_NOTE.format(corp=f'{r["corp_2026"]:,.0f}')
+    if r[f'corp_{current}'] > 0 and r[f'individual_{current}'] == 0:
+        r['data_notes'] += NO_INDIVIDUAL_MONEY_NOTE.format(corp=f'{r[f"corp_{current}"]:,.0f}')
 
 
-def credits_2026():
+def opposition_credits():
+    """{(cycle, person_key): dollars} of UDP opposition credit."""
     with connect() as db:
-        return {
-            key: cents / 100
-            for key, cents in db.execute(CREDITS, [settings().cycles.current]).fetchall()
-        }
+        return {(cycle, key): cents / 100 for cycle, key, cents in db.execute(CREDITS).fetchall()}
 
 
 def by_party(house_clean, career_clean):
@@ -198,18 +226,26 @@ def write_primary_targets(records):
     settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
 
 
-def add_2026_columns(records, credits, race_map, race_of):
-    """Give each record its 2026 money columns, clean verdict, tiers and data notes."""
+def add_cycle_records(records, credits, races_for):
+    """Each record's per-cycle records, and the current cycle's as its dataset columns."""
+    current = settings().cycles.current
     for r in records:
-        r.update(money_2026(r, credits.get(r['person_key'], 0.0)))
-        verdict_and_notes(r, race_map, race_of)
+        r['cycles'] = []
+        for cycle in cycles_of(r):
+            record, unknown_because, unopposed = cycle_record(
+                r, cycle, credits.get((cycle, r['person_key']), 0.0), races_for(cycle)
+            )
+            r['cycles'].append(record)
+            if cycle == current:
+                r.update({f'{k}_{current}': v for k, v in record.items() if k != 'cycle'})
+                add_notes(r, unknown_because, unopposed)
     return records
 
 
-def with_2026(records):
-    """Add the 2026 columns, clean flags and tiers; check the counts; write the target list."""
-    race_map, race_of = races_in(settings().cycles.current)
-    add_2026_columns(records, credits_2026(), race_map, race_of)
+def with_cycles(records):
+    """Add the cycle records and columns; check the counts; write the target list."""
+    races = cache(races_in)
+    add_cycle_records(records, opposition_credits(), races)
     check_against_baseline(records)
     write_primary_targets(records)
     return [{k: r[k] for k in settings().dataset.json_keys} for r in records]

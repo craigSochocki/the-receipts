@@ -1,7 +1,7 @@
 import pytest
 
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
-from receipts.transform.compute_2026 import add_2026_columns, has_2026_linkage, money_2026
+from receipts.transform.compute_2026 import add_cycle_records, has_2026_linkage, money_in
 
 RACE = ('H', 'NY', '16')
 
@@ -55,31 +55,32 @@ def unopposed(*ids):
 
 
 def test_dirty_money_is_corporate_plus_aipac_plus_udp_benefit_never_individual():
-    m = money_2026(
+    m = money_in(
         record(
             per_cycle=[money(individual=900.0, corp=100.0, aipac=10.0)],
             udp_per_cycle=[{'cycle': 2026, 'udp_ie_support': 40.0}],
         ),
-        credit=50.0,
+        2026,
+        50.0,
     )
-    assert m['udp_benefit_2026'] == 90.0
-    assert m['dirty_2026'] == 200.0
-    assert m['aipac_udp_flag_2026'] is True
-    assert m['dep_share_2026'] == round(110 / 1010, 4)
+    assert m['udp_benefit'] == 90.0
+    assert m['dirty'] == 200.0
+    assert m['aipac_udp_flag'] is True
+    assert m['dep_share'] == round(110 / 1010, 4)
 
 
 def test_a_family_with_no_2026_entry_reads_integer_zero_and_cash_on_hand_null():
-    m = money_2026(record(per_cycle=[money(cycle=2024, individual=5.0)]), credit=0.0)
-    assert m['individual_2026'] == 0 and isinstance(m['individual_2026'], int)
-    assert m['self_funding_2026'] == 0 and m['other_committees_total_2026'] == 0
-    assert m['cash_on_hand_2026'] is None
-    assert m['dep_share_2026'] is None
+    m = money_in(record(per_cycle=[money(cycle=2024, individual=5.0)]), 2026, 0.0)
+    assert m['individual'] == 0 and isinstance(m['individual'], int)
+    assert m['self_funding'] == 0 and m['other_committees_total'] == 0
+    assert m['cash_on_hand'] is None
+    assert m['dep_share'] is None
 
 
 def test_other_committee_money_sums_every_class():
     entry = {'cycle': 2026, **{c.value: 1.0 for c in OTHER_COMMITTEE_CLASSES}}
-    m = money_2026(record(other_committees_per_cycle=[entry]), credit=0.0)
-    assert m['other_committees_total_2026'] == len(OTHER_COMMITTEE_CLASSES)
+    m = money_in(record(other_committees_per_cycle=[entry]), 2026, 0.0)
+    assert m['other_committees_total'] == len(OTHER_COMMITTEE_CLASSES)
 
 
 @pytest.mark.parametrize(
@@ -98,8 +99,9 @@ def test_linkage_needs_2026_committee_money_or_a_2026_weball_report(lists, linke
 
 
 def run(*records, credits=None, races=None):
-    race_map, race_of = races or contested('H1')
-    return add_2026_columns(list(records), credits or {}, race_map, race_of)
+    found = races or contested('H1')
+    by_cycle = {(2026, key): credit for key, credit in (credits or {}).items()}
+    return add_cycle_records(list(records), by_cycle, lambda cycle: found)
 
 
 def test_a_linked_contested_member_with_no_net_dirty_money_is_clean():
@@ -137,3 +139,13 @@ def test_the_2026_opposition_credit_comes_from_the_credits_given():
 def test_corporate_money_without_individual_money_gets_a_data_gap_note():
     (r,) = run(record(per_cycle=[money(corp=3500.0)]))
     assert '2026 DATA GAP: corporate PAC $3,500 in 2026 but $0 individual' in r['data_notes']
+
+
+def test_every_cycle_with_money_gets_its_own_record():
+    (r,) = run(record(per_cycle=[money(cycle=2024, individual=5.0, corp=1.0), money()]))
+    assert [c['cycle'] for c in r['cycles']] == [2024, 2026]
+    past = r['cycles'][0]
+    assert past['dirty'] == 1.0 and past['clean'] is False
+    assert {k: v for k, v in r['cycles'][1].items() if k != 'cycle'} == {
+        k.removesuffix('_2026'): v for k, v in r.items() if k.endswith('_2026')
+    }
