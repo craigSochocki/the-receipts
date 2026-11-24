@@ -19,7 +19,6 @@ COMPLEXITY_DEBT = {
     'site/verify_site.py:composition_charts': 26,
     'site/verify_site.py:party_chips_and_outcomes': 38,
     'store/all_ie.py:main': 41,
-    'store/other_committees.py:main': 24,
     'transform/compute_2026.py:observed_counts': 24,
     'transform/fec_lookup.py:lookup': 27,
     'validate/verify_dataset.py:clean_counts': 26,
