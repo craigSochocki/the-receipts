@@ -179,18 +179,30 @@ def describe(differing, dedup_records):
     ]
 
 
+def self_funding_by_person(roster, finances, coverage_end, differing):
+    """(people rows, {person_key: per_cycle entry}) for every roster person."""
+    rows = [csv_row(person, finances, roster, differing) for person in roster.people]
+    persons = {
+        p['person_key']: {'per_cycle': per_cycle_entries(p, finances, coverage_end)}
+        for p in roster.people
+    }
+    return rows, persons
+
+
+def write(rows, persons):
+    write_gold(
+        'self_funding_people', rows, {c for c in CSV_FIELDS if c.endswith(('_career', '_2026'))}
+    )
+    write_gold('self_funding_per_cycle', per_cycle_rows(persons), set(PER_CYCLE_FIELDS))
+
+
 def main():
     roster = Roster(load_roster())
     roster_ids = {i for p in roster.people for i in candidate_ids(p)}
     finances, coverage_end, found_differing = read_store(roster_ids)
     differing = describe(found_differing, load_double_count_records())
-    rows = [csv_row(person, finances, roster, differing) for person in roster.people]
-    persons = {p['person_key']: {'per_cycle': per_cycle_entries(p, finances, coverage_end)}
-               for p in roster.people}  # fmt: skip
-    write_gold(
-        'self_funding_people', rows, {c for c in CSV_FIELDS if c.endswith(('_career', '_2026'))}
-    )
-    write_gold('self_funding_per_cycle', per_cycle_rows(persons), set(PER_CYCLE_FIELDS))
+    rows, persons = self_funding_by_person(roster, finances, coverage_end, differing)
+    write(rows, persons)
     print(f'persons: {len(rows)}; differing columns flagged, not corrected: {len(differing)}')
 
 
