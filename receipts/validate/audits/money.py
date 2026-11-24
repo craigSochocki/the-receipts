@@ -133,6 +133,18 @@ def all_ie(audit, dataset):
         audit.pin(f'El-Sayed {col}', f'spot.elsayed.{col}', elsayed[col])
 
 
+def double_counts(audit, dataset):
+    """The weball double-count record in the store: its groups and the money they hold."""
+    with connect() as db:
+        groups, cents = db.execute(
+            'SELECT count(*), sum(amount_cents) FROM (SELECT DISTINCT person_key, cycle, kept_id, '
+            'amount_cents FROM double_counts)'
+        ).fetchone()
+    audit.pin(
+        'double-count record', 'double_counts.record', {'groups': groups, 'cents': int(cents)}
+    )
+
+
 def roster_totals(audit, dataset):
     """Roster totals match the baseline; missing stocks (no weball rows) are skipped."""
     for col in METHODOLOGY_TOTAL_COLS:

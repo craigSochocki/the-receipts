@@ -28,6 +28,10 @@
  "clean_2026.house_120th_verified_clean_republican": 3,
  "clean_2026.null_total": 4,
  "clean_2026.true_total": 96,
+ "double_counts.record": {
+  "groups": 90,
+  "cents": 45177601534
+ },
  "methodology_totals.aipac_earmark_transmitted_career": 191573.0,
  "methodology_totals.aipac_pac_direct_career": 7567773.0,
  "methodology_totals.all_ie_oppose_career": 2351873836.64,

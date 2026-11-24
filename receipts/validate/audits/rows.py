@@ -6,15 +6,22 @@ from receipts.common.files import read_json
 from receipts.common.settings import settings
 
 
+def unfolded_keys(roster):
+    """Roster keys in order, without a later entry that shares an FEC ID with an earlier one."""
+    keys, seen = [], set()
+    for row in roster:
+        ids = set(row['fec_candidate_ids'] or [])
+        if not ids & seen:
+            keys.append(row['person_key'])
+        seen |= ids
+    return keys
+
+
 def rows_and_order(audit, dataset):
     """(i) row count, uniqueness, order"""
     audit.pin('row count', 'rows.count', len(dataset.records))
     audit.check('person_keys unique', len(dataset.by_key) == len(dataset.records))
-    roster_keys = [
-        r['person_key']
-        for r in read_json(settings().paths.roster)
-        if r['person_key'] != 'kristen-mcdonaldrivetmihouse'
-    ]
+    roster_keys = unfolded_keys(read_json(settings().paths.roster))
     audit.check(
         'row order matches roster.json', [r['person_key'] for r in dataset.records] == roster_keys
     )

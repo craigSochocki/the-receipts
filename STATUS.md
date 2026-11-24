@@ -424,14 +424,10 @@
    and audit had used three, the site four; no figure moved); mypy covers
    all of `receipts/`; logging replaces `print()`; enforced dbt contracts
    on the marts. Dataset byte-identical throughout.
-   Open items, none blocking:
-   - Two files (`pull_freshness`, `other_committees`) sit just under the maintainability floor (recorded as
-     debt in `tests/test_code_quality.py`).
-   - `receipts/validate/audits/rows.py` skips one folded roster key by
-     literal (`kristen-mcdonaldrivetmihouse`); it should come from the
-     roster's own record of folded rows.
-   - A dbt test's file name carries a figure
-     (`double_count_record_is_90_groups_of_451776015_34.sql`).
+   Follow-ups done the same day: the maintainability debt list is empty,
+   the row audit derives folded roster entries from shared FEC IDs, and
+   the double-count record's figures moved from a dbt test name into
+   `baseline.json`. Open items, none blocking:
    - `receipts/store/models.py` closes dbt-duckdb's connections through
      `DuckDBConnectionManager.close_all_connections()`, an adapter
      internal; a dbt-duckdb upgrade can break it. If it does, the
