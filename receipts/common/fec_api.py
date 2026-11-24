@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 from functools import cache
+from itertools import takewhile
 
 from receipts.common.settings import FecApiSettings, RetrySettings, settings
 
@@ -176,6 +177,34 @@ class FecApi:
                 )
                 self._sleep(wait)
                 waited += wait
+
+
+def receipt_day(row):
+    return (row.get('receipt_date') or '')[:10]
+
+
+def scan_filings(api, form_type, since, per_page, max_pages, committee_id=None):
+    """(/filings/ rows on or after `since`, newest day, pages); the API ignores min_date."""
+    filters = {'committee_id': committee_id} if committee_id else {}
+    rows, newest = [], None
+    for page in range(1, max_pages + 1):
+        data = api.get(
+            '/filings/',
+            {'form_type': form_type, **filters, 'per_page': per_page, 'page': page,
+             'sort': '-receipt_date'},
+        )  # fmt: skip
+        if not isinstance(data, dict) or not isinstance(data.get('results'), list):
+            keys = sorted(data) if isinstance(data, dict) else type(data).__name__
+            raise ValueError(f'{form_type}: unexpected /filings/ response (keys: {keys})')
+        results = data['results']
+        if not results:
+            return rows, newest, page
+        newest = newest or receipt_day(results[0]) or None
+        in_window = list(takewhile(lambda r: receipt_day(r) >= (since or ''), results))
+        rows.extend(in_window)
+        if len(in_window) < len(results) or len(results) < per_page:
+            return rows, newest, page
+    raise RuntimeError(f'{form_type}: over {max_pages} pages of /filings/; refusing to go on')
 
 
 def _rate_limited(label, url, reason, limit_note):

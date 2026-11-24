@@ -1,42 +1,15 @@
 #!/usr/bin/env python3
-"""FEC freshness pre-flight gate: skip legs with nothing new to find.
-
-One global ``/v1/filings/`` check per form family (``config.yaml``
-``freshness.gate.families``) decides which freshness legs
-``pull_freshness.py --all`` runs: F6 gates the Form 6 leg, F24 the six
-committee F24 sweeps, F3 the candidate-totals leg. The rules — why F3X
-is not a family, the boundary-day re-scan, the seeding, the known
-limits — are in methodology.md §16.
-
-FEC quirks the code relies on (verified live Nov 12, 2026):
-
-* ``min_date`` is silently ignored on ``/v1/filings/``, so the scan
-  pages ``sort=-receipt_date`` and stops client-side.
-* ``/filings/`` rows carry ``candidate_id: null``, so a filing reaches a
-  roster person through the bulk committee master's CAND_ID.
-* An F24 filer is the spending committee itself; it needs no map.
-
-Safety property: a gate error is never "nothing new". Any failure —
-429 exhaustion, network error, unexpected response shape, page guard,
-missing committee master — returns ``run_full=True`` with
-``gate_error`` set and no ``new_state``; the driver runs everything and
-does not advance ``data/source/freshness_state.json``.
-
-Usage:
-    python3 receipts/ingest/pull_gate.py [--families F6 F3] [--out decision.json]
-    # dry run: prints the decision JSON; the driver gates --all by default.
-"""
+"""Freshness gate: skip legs with nothing new; a gate error means a full run, never a skip."""
 
 import argparse
 import json
 import os
 import sys
 from datetime import datetime, timezone
-from itertools import takewhile
 from pathlib import Path
 
-from receipts.common.fec_api import client
-from receipts.common.files import read_json
+from receipts.common.fec_api import client, receipt_day, scan_filings
+from receipts.common.files import emit_json, read_json
 from receipts.common.settings import settings
 from receipts.fec.committees import committees
 
@@ -47,52 +20,10 @@ def gate_settings():
     return settings().freshness.gate
 
 
-def receipt_day(row):
-    """Date part (YYYY-MM-DD) of a /filings/ row's receipt_date."""
-    return (row.get('receipt_date') or '')[:10]
-
-
-def filings_page(api, form_type, page, per_page):
-    data = api.get(
-        '/filings/',
-        {'form_type': form_type, 'per_page': per_page, 'page': page, 'sort': '-receipt_date'},
-    )
-    if not isinstance(data, dict) or not isinstance(data.get('results'), list):
-        keys = sorted(data.keys()) if isinstance(data, dict) else type(data).__name__
-        raise ValueError(
-            f'gate {form_type}: unexpected /filings/ response shape '
-            f'(keys: {keys}); refusing to read it as "nothing new"'
-        )
-    return data['results']
-
-
-def scan_filings(api, form_type, since_date, per_page, max_pages):
-    """(rows received on/after since_date newest first, newest receipt day, calls used)."""
-    rows, newest = [], None
-    for page in range(1, max_pages + 1):
-        results = filings_page(api, form_type, page, per_page)
-        if not results:
-            return rows, newest, page
-        newest = newest or receipt_day(results[0]) or None
-        in_window = list(takewhile(lambda r: receipt_day(r) >= since_date, results))
-        rows.extend(in_window)
-        if len(in_window) < len(results) or len(results) < per_page:
-            return rows, newest, page
-    raise RuntimeError(
-        f'gate {form_type}: exceeded max_pages={max_pages} scanning back to {since_date}; '
-        'refusing to continue (fall back to a full run)'
-    )
-
-
 def check_family(
     form_type, since_date, seen_file_numbers=(), api=None, per_page=None, max_pages=None
 ):
-    """Global /filings/ check for one form family.
-
-    A filing is new when received after ``since_date``, or on it with a
-    file_number not in ``seen_file_numbers`` (the boundary-day re-scan).
-    Raises on any failure; the caller treats that as a gate error.
-    """
+    """One family's new filings: after `since_date`, or on it with an unseen file number."""
     if not since_date:
         raise ValueError(
             f'gate {form_type}: since_date is required (YYYY-MM-DD); '
@@ -143,11 +74,7 @@ def default_state(families=None):
 
 
 def load_state(state_path=None):
-    """The committed state file, or a fresh default when absent.
-
-    A present but unreadable or misshapen file raises ValueError: the
-    baseline is never silently reset.
-    """
+    """The committed gate state, or a fresh default; an unreadable file raises, never resets."""
     path = Path(state_path) if state_path else settings().paths.freshness_state
     if not path.exists():
         return default_state()
@@ -193,10 +120,7 @@ def advanced_family_state(family_state, since, result):
 
 
 def load_committee_map(bulk_dir=None, cycle=None):
-    """{committee_id: {candidate_id, designation}} from the staged committee master, and stats.
-
-    A missing file raises: with no attribution source, no leg may be skipped.
-    """
+    """{committee_id: {candidate_id, designation}} from the committee master; missing raises."""
     cycle = cycle or gate_settings().committee_master_cycle
     master = committees(Path(bulk_dir) if bulk_dir else settings().paths.bulk, cycle)
     if not master.path.exists():
@@ -227,11 +151,7 @@ class CommitteeMap:
 
 
 def map_filing_to_person(row, committee_map, by_candidate):
-    """(roster person_key, None) for one /filings/ row, or (None, reason).
-
-    Reasons: 'unknown_committee', 'no_candidate_id' (e.g. a PAC),
-    'candidate_not_on_roster'.
-    """
+    """(person_key, None) for a /filings/ row, or (None, why it maps to nobody)."""
     cmte = row.get('committee_id')
     entry = committee_map.get(cmte) if cmte else None
     if entry is None:
@@ -360,12 +280,7 @@ def gate_run(
     per_page=None,
     max_pages=None,
 ):
-    """The gate decision over the configured families.
-
-    ``run_full`` with ``gate_error`` set means the gate failed and the
-    driver must run everything without saving state. Otherwise
-    ``new_state`` is the state to save once the gated run completes.
-    """
+    """The gate decision; run_full with gate_error set means run everything, save no state."""
     families = list(families or gate_settings().families)
     if dataset is None and by_candidate is None:
         dataset = read_json(settings().paths.dataset_json)
@@ -453,13 +368,7 @@ def main():
     ap.add_argument('--out', default=None, help='write the decision JSON here (default: stdout)')
     args = ap.parse_args()
     decision = gate_run(families=args.families)
-    if args.out:
-        with open(args.out, 'w') as f:
-            json.dump(decision, f, indent=1)
-        print(f'wrote {args.out}')
-    else:
-        json.dump(decision, sys.stdout, indent=1)
-        print()
+    emit_json(decision, args.out)
     print(describe(decision), file=sys.stderr)
 
 

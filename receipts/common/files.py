@@ -20,6 +20,15 @@ def write_json(path, content):
         json.dump(content, f, indent=1)
 
 
+def emit_json(content, out=None):
+    """Write `content` to `out` and say so, or print it when there is no `out`."""
+    if out:
+        write_json(out, content)
+        print(f'wrote {out}')
+    else:
+        print(json.dumps(content, indent=1))
+
+
 def text_or_none(amount):
     return None if amount is None else str(amount)
 

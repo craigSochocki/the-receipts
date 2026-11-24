@@ -73,7 +73,7 @@ def test_full_pages_keep_paging_until_the_window_ends():
 
 
 def test_the_page_guard_is_an_error_not_a_skip():
-    with pytest.raises(RuntimeError, match='max_pages=2'):
+    with pytest.raises(RuntimeError, match='over 2 pages'):
         pull_gate.check_family(
             'F6', '2026-10-15', api=RecordedFilings(pages=9), per_page=5, max_pages=2
         )
@@ -84,7 +84,7 @@ def test_an_unexpected_response_is_an_error_not_a_skip():
         def get(self, path, params):
             return {'error': 'oops'}
 
-    with pytest.raises(ValueError, match='unexpected /filings/ response shape'):
+    with pytest.raises(ValueError, match='unexpected /filings/ response'):
         pull_gate.check_family('F6', '2026-10-15', api=Broken())
 
 

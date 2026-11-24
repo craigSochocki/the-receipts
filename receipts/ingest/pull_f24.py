@@ -1,38 +1,11 @@
 #!/usr/bin/env python3
-"""24/48-hour independent-expenditure freshness pull (Schedule E, F24).
-
-The freshness layer's route to independent expenditures filed in the
-last 20 days before an election, before any bulk file carries them
-(see research/freshness-research.md §3).
-
-Route: GET /v1/schedules/schedule_e/?filing_form=F24&committee_id=
-&candidate_id=&cycle= — with the F24-only filter. The filter matters:
-the Schedule E endpoint DOUBLE-RETURNS — the same expenditure appears
-once under its original F3X filing and again under the F24 — so the
-unfiltered sum roughly doubles the true amount. The F24-only sum is
-reconciled against the deduped sum in this script's output; see
-methodology.md §16.
-
-Form 5 covers only unregistered spenders; registered committees (UDP
-included) file zero F5s, so no F5 leg is needed for the roster.
-
-The output is a JSON report only — NEVER merged into the dataset
-totals; the freshness driver (receipts/ingest/pull_freshness.py) folds it into
-data/intermediate/freshness_snapshot.json.
-
-Usage:
-    python3 receipts/ingest/pull_f24.py --committee C00799031 --candidate S6MI00418 --cycle 2026
-    python3 receipts/ingest/pull_f24.py --committee C00799031 --cycle 2026   # committee-only sweep
-
-API key: FEC_API_KEY env var, else DEMO_KEY (spot checks only, ~30/hr).
-Sleeps >=1s between API calls.
-"""
+"""F24 (24/48-hour IE) pull; Schedule E double-returns rows, so only F24 rows count."""
 
 import argparse
-import json
-import sys
 
 from receipts.common.fec_api import client
+from receipts.common.files import emit_json
+from receipts.domain.money import exact_sum
 
 PER_PAGE = 100
 MAX_PAGES = 100
@@ -66,13 +39,7 @@ def refuse(problem, committee_id, candidate_id, cycle, filing_form, page):
 
 
 def fetch_schedule_e(committee_id=None, candidate_id=None, cycle=None, filing_form=None):
-    """All Schedule E rows matching the filters.
-
-    The endpoint ignores `page`: it pages by the cursor in
-    `pagination.last_indexes`, passed back as query params. A page
-    identical to the one before means the cursor is not advancing, and
-    the sweep stops loudly rather than loop to the page guard.
-    """
+    """All Schedule E rows matching the filters; the endpoint pages by cursor, not `page`."""
     filters = schedule_e_filters(committee_id, candidate_id, cycle, filing_form)
     where = (committee_id, candidate_id, cycle, filing_form)
     rows, cursor, previous = [], {}, None
@@ -111,18 +78,11 @@ def dedup_rows(rows):
 
 
 def row_sum(rows):
-    return round(sum(float(r.get('expenditure_amount') or 0) for r in rows), 2)
+    return exact_sum(float(r.get('expenditure_amount') or 0) for r in rows)
 
 
 def sweep(committee_id=None, candidate_id=None, cycle=None):
-    """F24-only sweep + the unfiltered reconciliation.
-
-    Returns a dict with: f24_rows (the trustworthy set), f24_total,
-    naive_total (unfiltered S+O rows), deduped_total (unfiltered,
-    deduped on date/amount/payee), residual = deduped − F24-only,
-    residual_rows (the deduped rows not present in the F24 set), and
-    latest_expenditure_date.
-    """
+    """F24-only rows and totals, reconciled against the deduped unfiltered rows."""
     f24_rows = fetch_schedule_e(committee_id, candidate_id, cycle, filing_form='F24')
     all_rows = fetch_schedule_e(committee_id, candidate_id, cycle)
     deduped = dedup_rows(all_rows)
@@ -144,7 +104,7 @@ def sweep(committee_id=None, candidate_id=None, cycle=None):
         'naive_total': row_sum(all_rows),
         'deduped_n_rows': len(deduped),
         'deduped_total': row_sum(deduped),
-        'residual': round(row_sum(deduped) - row_sum(f24_rows), 2),
+        'residual': exact_sum([row_sum(deduped), -row_sum(f24_rows)]),
         'residual_explained': row_sum(explained),
         'residual_unexplained': row_sum(unexplained),
         'residual_rows': residual_rows,
@@ -165,13 +125,7 @@ def main():
     if not args.committee and not args.candidate:
         ap.error('need --committee and/or --candidate')
     result = sweep(args.committee, args.candidate, args.cycle)
-    if args.out:
-        with open(args.out, 'w') as f:
-            json.dump(result, f, indent=1)
-        print(f'wrote {args.out}')
-    else:
-        json.dump(result, sys.stdout, indent=1)
-        print()
+    emit_json(result, args.out)
     print(
         f'F24 {args.committee or ""} vs {args.candidate or ""} cycle {args.cycle}: '
         f'{result["f24_n_rows"]} rows, ${result["f24_total"]:,.2f}; '
