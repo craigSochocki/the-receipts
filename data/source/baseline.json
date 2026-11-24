@@ -174,6 +174,7 @@
   ],
   "top1_key": "S001215",
   "top1_compact": "$31.03M",
+  "top1_exact": "$31,025,889.44",
   "top1_returning": false,
   "next_four_total": 15231247.67,
   "next_four_compact": "$15.23M",
@@ -185,6 +186,11 @@
   "no": 124,
   "unknown": 5
  },
+ "site.smoke.finder_mi_house_seats": 13,
+ "site.smoke.search_district_11": 17,
+ "site.smoke.search_mi": 113,
+ "site.smoke.search_michigan": 21,
+ "site.smoke.search_senate": 118,
  "site.targets_2028.order": {
   "balanced_house_order": [
    "Adrian Boafo",

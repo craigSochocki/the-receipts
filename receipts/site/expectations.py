@@ -109,6 +109,7 @@ def headline(roster):
         'top5': [[p['full_name'], p['dirty_2026']] for p in dirtiest],
         'top1_key': top['person_key'],
         'top1_compact': compact(top['dirty_2026']),
+        'top1_exact': exact(top['dirty_2026']),
         'top1_returning': top['in_120th'] == 'yes',
         'next_four_total': next_four,
         'next_four_compact': compact(next_four),

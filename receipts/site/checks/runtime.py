@@ -70,7 +70,7 @@ def served_page(audit, page):
 
 
 def run_smoke_test(page_path, expected):
-    """Run smoke_test.js inside the page in headless Chromium; raises on the first failure."""
+    """Run smoke_test.js in headless Chromium; the counts it saw, or an error at the first failure."""
     from playwright.sync_api import sync_playwright
 
     site = settings().root / 'receipts' / 'site'
@@ -83,7 +83,7 @@ def run_smoke_test(page_path, expected):
             tab.add_init_script(path=site / 'smoke_prelude.js')
             tab.goto(page_path.resolve().as_uri())
             tab.add_script_tag(path=site / 'smoke_test.js')
-            tab.evaluate('exp => smoke.main(exp)', expected)
+            observed = tab.evaluate('exp => smoke.main(exp)', expected)
             tab.set_viewport_size({'width': 500, 'height': 800})
             tab.evaluate('smoke.narrow()')
             tab.set_viewport_size({'width': 1024, 'height': 800})
@@ -93,6 +93,7 @@ def run_smoke_test(page_path, expected):
                 tab.evaluate('expected => smoke.reducedMotion(expected)', reduce)
             if errors:
                 raise RuntimeError(f'page errors: {errors}')
+            return observed
         finally:
             browser.close()
 
@@ -100,10 +101,14 @@ def run_smoke_test(page_path, expected):
 def runtime_smoke_test(audit, page):
     """runtime smoke test (the page's JS runs in headless Chromium)"""
     try:
-        run_smoke_test(page.path, page.expected)
-        audit.check('runtime smoke test (render, tabs, detail, CSV)', True)
+        observed = run_smoke_test(page.path, page.expected)
     except Exception as e:  # noqa: BLE001 - report as a failed check
         audit.check('runtime smoke test (render, tabs, detail, CSV)', False, str(e)[:2000])
+        return
+    audit.check('runtime smoke test (render, tabs, detail, CSV)', True)
+    audit.pin('rows the page decodes', 'rows.count', observed.pop('rows'))
+    for key, value in sorted(observed.items()):
+        audit.pin(f'smoke test {key}', f'site.smoke.{key}', value)
 
 
 def deterministic(audit, page):
