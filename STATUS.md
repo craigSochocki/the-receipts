@@ -435,6 +435,19 @@
      never with wrong figures.
    - The freshness gate is retired; restore `receipts/ingest/pull_gate.py`
      from git history if `--all` is ever scheduled.
+7. **Cycle-neutral tracker — IN PROGRESS (Craig, Nov 24).** 2026 is just the
+   current cycle; past cycles and 2028 must work the same way. Decisions:
+   per-cycle records for every career cycle (one per person per cycle);
+   a person's headline verdict comes from the current cycle if they are up,
+   else the most recent cycle they were up, decided by the seat schedule
+   (House every cycle, Senate by class, plus specials); the site gets a
+   cycle picker, computed cycle labels and "targets for the next cycle".
+   Phases: (1) no literal years in code — DONE; (2) per-cycle records
+   added beside today's columns; (3) the headline verdict rule — moves
+   public figures, needs Craig's review; (4) the site; (5) the `*_2026`
+   columns and the roster's `*_119`/`*_120` fields replaced by the
+   per-cycle and per-Congress records — schema change, needs Craig's
+   review; (6) methodology and tour rewritten cycle-neutral.
 7. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.
