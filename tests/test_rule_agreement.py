@@ -11,7 +11,7 @@ import pytest
 
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import aipac_udp_flagged, corporate_money_material, tier
-from receipts.validate import verify_dataset as audit
+from receipts.validate.audits import tiers as audit
 
 PRESETS = ('balanced', 'lenient')
 AMOUNTS = (-15000.0, 0, 0.01, 2500.0, 100000, 100000.01, 250000, 250000.01, 1_000_000)

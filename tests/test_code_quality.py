@@ -19,14 +19,13 @@ COMPLEXITY_DEBT = {
     'site/verify_site.py:composition_charts': 26,
     'site/verify_site.py:party_chips_and_outcomes': 38,
     'transform/compute_2026.py:observed_counts': 24,
-    'validate/verify_dataset.py:clean_counts': 26,
-    'validate/verify_dataset.py:columns_2026': 36,
-    'validate/verify_dataset.py:senate_class': 28,
-    'validate/verify_dataset.py:tiered_rule': 44,
+    'validate/audits/clean.py:clean_counts': 26,
+    'validate/audits/columns_2026.py:columns_2026': 35,
+    'validate/audits/senate.py:senate_class': 28,
+    'validate/audits/tiers.py:tiered_rule': 44,
 }
 MAINTAINABILITY_DEBT = {
     'site/verify_site.py': 6,
-    'validate/verify_dataset.py': 5,
 }
 
 PACKAGE = repo_root() / 'receipts'
