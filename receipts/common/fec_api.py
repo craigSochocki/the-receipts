@@ -2,7 +2,6 @@
 
 import json
 import os
-import sys
 import time
 import urllib.error
 import urllib.parse
@@ -13,6 +12,7 @@ from email.utils import parsedate_to_datetime
 from functools import cache
 from itertools import takewhile
 
+from receipts.common.log import log
 from receipts.common.settings import FecApiSettings, RetrySettings, settings
 
 API_BASE = 'https://api.open.fec.gov/v1'
@@ -169,11 +169,9 @@ class FecApi:
                         f'budget (already waited {waited:.0f}s)'
                     )
                     raise _rate_limited(label, url, reason, limit_note) from e
-                print(
+                log.warning(
                     f'[{label}] HTTP 429 rate-limited ({tried}): waiting {wait:.0f}s ({why}) '
-                    f'before retrying {public(url)}',
-                    file=sys.stderr,
-                    flush=True,
+                    f'before retrying {public(url)}'
                 )
                 self._sleep(wait)
                 waited += wait

@@ -4,6 +4,7 @@
 import hashlib
 import sys
 
+from receipts.common.log import run
 from receipts.common.settings import settings
 from receipts.site.checks.counts import composition, outcomes
 from receipts.site.checks.data import coverage_stamp, data_round_trip, opposition_detail
@@ -50,4 +51,4 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

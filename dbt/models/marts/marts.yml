@@ -3,16 +3,47 @@ version: 2
 models:
   - name: tracked_people
     description: The tracker's rows, in roster order, one per person.
+    config:
+      contract: {enforced: true}
     columns:
-      - name: person_key
-        data_tests: [unique, not_null]
+      - {name: person_key, data_type: varchar, data_tests: [unique, not_null]}
+      - {name: full_name, data_type: varchar}
+      - {name: roster_position, data_type: integer}
   - name: person_money
     description: Career money per tracked person in cents; NULL is unknown (no FEC candidate ID).
+    config:
+      contract: {enforced: true}
     columns:
-      - name: person_key
-        data_tests: [unique, not_null]
+      - {name: person_key, data_type: varchar, data_tests: [unique, not_null]}
+      - {name: roster_position, data_type: integer}
+      - {name: individual, data_type: bigint}
+      - {name: corporate_pac, data_type: bigint}
+      - {name: aipac_direct, data_type: bigint}
+      - {name: udp_support, data_type: bigint}
+      - {name: udp_opposing_opponents, data_type: hugeint}
+      - {name: self_funding, data_type: bigint}
+      - {name: all_ie_support, data_type: bigint}
+      - {name: all_ie_oppose, data_type: bigint}
+      - {name: all_ie_total, data_type: bigint}
+      - {name: other_committees_total, data_type: bigint}
+      - {name: total_accepted, data_type: bigint}
+      - {name: udp_total_benefit, data_type: hugeint}
+      - {name: dirty, data_type: hugeint}
   - name: person_ranks
-    description: The twelve competition ranks of the dataset.
+    description: The competition ranks of the dataset.
+    config:
+      contract: {enforced: true}
     columns:
-      - name: person_key
-        data_tests: [unique, not_null]
+      - {name: person_key, data_type: varchar, data_tests: [unique, not_null]}
+      - {name: rank_total_accepted, data_type: bigint}
+      - {name: rank_individual, data_type: bigint}
+      - {name: rank_corporate_pac, data_type: bigint}
+      - {name: rank_aipac_direct, data_type: bigint}
+      - {name: rank_udp_support, data_type: bigint}
+      - {name: rank_udp_opposing_opponents, data_type: bigint}
+      - {name: rank_udp_total_benefit, data_type: bigint}
+      - {name: rank_self_funding, data_type: bigint}
+      - {name: rank_all_ie_support, data_type: bigint}
+      - {name: rank_all_ie_oppose, data_type: bigint}
+      - {name: rank_all_ie_total, data_type: bigint}
+      - {name: rank_other_committees_total, data_type: bigint}

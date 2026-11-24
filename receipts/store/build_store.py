@@ -12,6 +12,7 @@ import pandas as pd
 import yaml
 
 from receipts.common import baseline
+from receipts.common.log import log, run
 from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.committee_classes import committee_class, unclassified_kind
 from receipts.domain.committee_money import is_voided_earmark, reported_once
@@ -335,7 +336,7 @@ def insert(db, table, rows):
         db.execute(f'INSERT INTO {table} BY NAME SELECT * FROM incoming')
         db.unregister('incoming')
         count += len(batch)
-    print(f'{table}: {count:,} rows')
+    log.info(f'{table}: {count:,} rows')
 
 
 def main():
@@ -379,4 +380,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

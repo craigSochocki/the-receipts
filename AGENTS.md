@@ -200,11 +200,8 @@ the-receipts/
   date, **never merged into dataset totals**. It is a separate entry
   point, not in `rebuild.py`'s default pipeline. Production runs need a
   registered api.data.gov key (`FEC_API_KEY`); DEMO_KEY is spot-checks
-  only and the driver refuses `--all` on it. `--all` is gated by
-  default (one global `/filings/` check per family first —
-  `receipts/ingest/pull_gate.py`, state in committed
-  `data/source/freshness_state.json`); `--no-gate` forces the full run,
-  and a gate error falls back to the full run, never to a skip.
+  only and the driver refuses `--all` on it. `--all` runs every leg for
+  every roster person.
 
 ## 5. Verification — the gate
 
@@ -342,8 +339,7 @@ different input every day. Only the snapshot step downloads live files.
 in the retired scheduled refresh, which never completed a run. No
 workflow runs it now; it is run by hand with the `FEC_API_KEY` key
 (registered by Craig at api.data.gov, also a repository secret; rotate it in Settings → Secrets and variables → Actions if
-it leaks or expires). `--all` runs the six F24 committee sweeps (gated
-per committee by `receipts/ingest/pull_gate.py`); `--no-gate` forces the full run.
+it leaks or expires). `--all` also runs the config-listed F24 committee sweeps.
 
 **Workflow files change like any other code** — one change per commit
 (§2), and a workflow change is its own commit, never bundled with a data

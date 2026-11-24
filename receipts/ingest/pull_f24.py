@@ -5,6 +5,7 @@ import argparse
 
 from receipts.common.fec_api import client
 from receipts.common.files import emit_json
+from receipts.common.log import log, run
 from receipts.domain.money import exact_sum
 
 PER_PAGE = 100
@@ -126,7 +127,7 @@ def main():
         ap.error('need --committee and/or --candidate')
     result = sweep(args.committee, args.candidate, args.cycle)
     emit_json(result, args.out)
-    print(
+    log.info(
         f'F24 {args.committee or ""} vs {args.candidate or ""} cycle {args.cycle}: '
         f'{result["f24_n_rows"]} rows, ${result["f24_total"]:,.2f}; '
         f'naive ${result["naive_total"]:,.2f} ({result["naive_n_rows"]} rows), '
@@ -139,4 +140,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

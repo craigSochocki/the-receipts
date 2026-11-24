@@ -9,6 +9,7 @@ import urllib.parse
 import urllib.request
 
 from receipts.common.files import read_json, write_json
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.names import norm
 
@@ -92,7 +93,7 @@ def lookup(person, cycle, party_codes, search=search):
 def look_up_missing(rows, cycle, party_codes, search=search, pause=time.sleep):
     """{person_key: result} for every row without an FEC ID, setting found IDs on the rows."""
     missing = [r for r in rows if not r['fec_candidate_ids']]
-    print('rows missing FEC IDs:', len(missing))
+    log.info(f'rows missing FEC IDs: {len(missing)}')
     results = {}
     for i, person in enumerate(missing):
         status, value = lookup(person, cycle, party_codes, search)
@@ -105,9 +106,11 @@ def look_up_missing(rows, cycle, party_codes, search=search, pause=time.sleep):
         if status == 'found':
             person['fec_candidate_ids'] = [value]
             person['_fec_source'] = f'fec-api-{cycle}'
-        print(f'{i + 1}/{len(missing)} {person["full_name"]} ({person["state"]}): {status} {value}')
+        log.info(
+            f'{i + 1}/{len(missing)} {person["full_name"]} ({person["state"]}): {status} {value}'
+        )
         if status == 'http_error' and value == RATE_LIMITED:
-            print('RATE LIMITED — stopping')
+            log.info('RATE LIMITED — stopping')
             break
         pause(settings().fec_api.sleep_between_requests_seconds)
     return results
@@ -121,8 +124,8 @@ def main():
     write_json(paths.fec_lookup_results, results)
     write_json(paths.roster_intermediate, rows)
     found = sum(1 for v in results.values() if v['status'] == 'found')
-    print(f'found {found} of {len(results)} attempted')
+    log.info(f'found {found} of {len(results)} attempted')
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

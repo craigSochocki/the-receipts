@@ -6,6 +6,7 @@ import sys
 from dbt.adapters.duckdb.connections import DuckDBConnectionManager
 from dbt.cli.main import dbtRunner
 
+from receipts.common.log import run
 from receipts.common.settings import settings
 
 LAYERS = {
@@ -29,4 +30,4 @@ def build(layer):
 
 
 if __name__ == '__main__':
-    build(sys.argv[1])
+    run(build, sys.argv[1])

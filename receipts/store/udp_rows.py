@@ -25,7 +25,7 @@ class UdpRow(NamedTuple):
     district: str
     election_type: str
     transaction_id: str
-    resolved_via: str = None
+    resolved_via: str | None = None
 
 
 class UdpRows:

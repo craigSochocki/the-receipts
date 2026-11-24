@@ -4,6 +4,8 @@ import json
 
 import yaml
 
+from receipts.common.log import log
+
 
 def read_json(path):
     with open(path) as f:
@@ -24,7 +26,7 @@ def emit_json(content, out=None):
     """Write `content` to `out` and say so, or print it when there is no `out`."""
     if out:
         write_json(out, content)
-        print(f'wrote {out}')
+        log.info(f'wrote {out}')
     else:
         print(json.dumps(content, indent=1))
 

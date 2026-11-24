@@ -7,6 +7,7 @@ import io
 
 from receipts.common.fec_api import client, scan_filings
 from receipts.common.files import emit_json
+from receipts.common.log import log, run
 from receipts.domain.money import exact_sum
 
 
@@ -181,7 +182,7 @@ def main():
         ap.error('need --committee or --file-number')
     emit_json(result, args.out)
     if isinstance(result, dict) and 'filings' in result:
-        print(
+        log.info(
             f'F6 {args.committee}: {result["n_filings"]} filing(s) since {args.since}; '
             f'candidate loans ${result["total_candidate_loans"]:,.2f}, '
             f'contributions ${result["total_contributions"]:,.2f}'
@@ -189,4 +190,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

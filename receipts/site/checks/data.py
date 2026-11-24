@@ -4,6 +4,7 @@ import json
 from dataclasses import asdict
 from datetime import datetime
 
+from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.site.build_site import SCALARS, build_opp_payload
 from receipts.site.checks.page import values_equal
@@ -46,7 +47,7 @@ def data_round_trip(audit, page):
             if not values_equal(d_row.get(k), v, k):
                 mismatches += 1
                 if mismatches <= 5:
-                    print(
+                    log.info(
                         f'  mismatch row {i} {j_row.get("full_name")} field {k}: '
                         f'site={d_row.get(k)!r} dataset={v!r}'
                     )

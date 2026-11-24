@@ -4,6 +4,7 @@ import csv
 from datetime import date
 
 from receipts.common import baseline
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.store.read import connect
 
@@ -67,7 +68,7 @@ def main():
         )
     if problems:
         raise SystemExit('FEC inputs look wrong:\n  ' + '\n  '.join(problems))
-    print(
+    log.info(
         f'{snapshot}: {len(current)} files read, newest {settings().cycles.current} file {age} days old'
     )
 
@@ -79,4 +80,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

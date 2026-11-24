@@ -51,7 +51,6 @@ paths:
   other_committees_diagnostics: data/intermediate/other_committees_diagnostics.json
   all_ie_per_cycle: data/intermediate/all_ie_per_cycle.json
   freshness_snapshot: data/intermediate/freshness_snapshot.json
-  freshness_state: data/source/freshness_state.json
   dedup_applied: data/source/dedup-applied.json
   run_history: data/source/run_history.csv
   roster_facts: data/source/roster_facts.yaml
@@ -86,8 +85,7 @@ fec_api:
 
 freshness:
   # F24 committee sweeps (24/48-hour independent expenditures, cycle 2026
-  # only): a bare `pull_freshness.py --all` — the form the scheduled
-  # refresh runs — sweeps each committee below committee-wide (every
+  # only): `pull_freshness.py --all` sweeps each committee below committee-wide (every
   # candidate it targeted, roster or not) and attributes rows to roster
   # people by candidate_id. The list is chosen by hand: the biggest
   # roster-targeted IE spenders of the cycle when it was set
@@ -115,21 +113,6 @@ freshness:
     - committee_id: "C00799031"
       committee_name: "UNITED DEMOCRACY PROJECT (UDP)"
       note: "included by design: AIPAC-affiliated"
-  # Pre-flight gate (receipts/ingest/pull_gate.py): one global /filings/
-  # check per family before the per-person legs of `pull_freshness.py
-  # --all`. F6 gates the Form 6 leg, F24 gates the committee
-  # sweeps above, F3 gates the candidate-totals leg. F3X is
-  # deliberately NOT a family — F3X is filed by non-candidate
-  # committees (PACs, parties) and no freshness leg is driven by
-  # F3X filings, so gating on it would gate nothing (see
-  # pull_gate.py's module docstring). max_pages_per_family bounds
-  # the backward scan: hitting it is a gate error, and a gate error
-  # falls back to the full run, never to a skip.
-  gate:
-    families: ["F6", "F24", "F3"]
-    per_page: 100
-    max_pages_per_family: 200
-    committee_master_cycle: 2026     # data/raw/cm/<cycle>/cm.txt maps committee -> candidate
 
 party_codes:
   # Roster party label -> FEC API party code (used by fec_lookup.py).

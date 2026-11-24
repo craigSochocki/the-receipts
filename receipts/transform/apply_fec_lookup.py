@@ -4,6 +4,7 @@
 import json
 
 from receipts.common.files import read_json
+from receipts.common.log import log, run
 from receipts.common.settings import settings
 
 SOURCE_BY_STATUS = {'found': 'fec-api-{cycle}', 'found-manual': 'fec-api-{cycle}-manual'}
@@ -58,10 +59,10 @@ def write(rows, public):
     paths = settings().paths
     with open(paths.roster_intermediate, 'w') as f:
         json.dump(rows, f, indent=1)
-    print(f'wrote {settings().relative(paths.roster_intermediate)} ({len(rows)} rows)')
+    log.info(f'wrote {settings().relative(paths.roster_intermediate)} ({len(rows)} rows)')
     with open(paths.roster, 'w') as f:
         json.dump(public, f, indent=1, ensure_ascii=False)
-    print(f'wrote {settings().relative(paths.roster)} ({len(public)} rows, _-fields removed)')
+    log.info(f'wrote {settings().relative(paths.roster)} ({len(public)} rows, _-fields removed)')
 
 
 def main():
@@ -71,14 +72,14 @@ def main():
     counts = apply_lookup_results(
         rows, read_json(paths.fec_lookup_results), settings().cycles.current
     )
-    print(
+    log.info(
         f'fec lookup results: {counts["found"]} found, {counts["found-manual"]} found-manual, '
         f'{counts["skipped"]} skipped (no ID)'
     )
     applied, already = apply_note_appends(rows, read_json(paths.manual_roster_notes))
-    print(f'manual note appends: {applied} applied, {already} already present')
+    log.info(f'manual note appends: {applied} applied, {already} already present')
     write(rows, public_roster(rows))
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

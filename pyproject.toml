@@ -29,8 +29,9 @@ source = ["receipts"]
 fail_under = 55
 
 [tool.mypy]
-# Typed so far; widen one package at a time.
-files = ["receipts/domain", "receipts/fec", "receipts/common/settings.py"]
+files = ["receipts"]
+# Empty dict and list literals need no annotation.
+disable_error_code = ["var-annotated"]
 python_version = "3.12"
 check_untyped_defs = true
 warn_unused_ignores = true

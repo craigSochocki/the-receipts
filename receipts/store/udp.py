@@ -4,6 +4,7 @@
 from collections import defaultdict
 
 from receipts.common.baseline import expected
+from receipts.common.log import log, run
 from receipts.common.settings import load_roster, settings
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.udp_rows import UdpRows
@@ -120,11 +121,11 @@ def main():
     udp = UdpRows.from_store(roster)
     check_cycle_totals(udp)
     write(*support_by_person(udp, roster))
-    print(
+    log.info(
         f'blank candidate IDs left unresolved: {len(udp.unresolved)}; '
         f'name-index collisions: {len(udp.collisions)}'
     )
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

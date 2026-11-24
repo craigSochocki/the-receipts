@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Write the accepted-money gold tables from the silver store."""
 
+from receipts.common.log import run
 from receipts.common.settings import settings
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
@@ -125,8 +126,9 @@ def write(rows, per_cycle):
 
 
 def main():
-    write(*accepted_by_person(*read_store(), settings().cycles.career))
+    people, counted, filed, on_file = read_store()
+    write(*accepted_by_person(people, counted, filed, on_file, settings().cycles.career))
 
 
 if __name__ == '__main__':
-    main()
+    run(main)

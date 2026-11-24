@@ -10,6 +10,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.site.build_site import main as build_main
 
@@ -26,7 +27,7 @@ def javascript_parses(audit, page):
         r = subprocess.run(['node', '--check', tmp], capture_output=True, text=True)
         if r.returncode != 0:
             node_ok = False
-            print(f'  node --check script {i} failed:\n{r.stderr[:2000]}')
+            log.info(f'  node --check script {i} failed:\n{r.stderr[:2000]}')
         Path(tmp).unlink(missing_ok=True)
     audit.check('page JavaScript parses (node --check)', node_ok)
 

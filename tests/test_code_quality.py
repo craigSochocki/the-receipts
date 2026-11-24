@@ -18,9 +18,7 @@ COMPLEXITY_DEBT = {}
 # Scored without docstrings, so prose cannot lift a file over the line.
 MAINTAINABILITY_DEBT = {
     'ingest/pull_freshness.py': 19,
-    'ingest/pull_gate.py': 19,
     'store/other_committees.py': 19,
-    'transform/build_roster.py': 15,
 }
 
 PACKAGE = repo_root() / 'receipts'
