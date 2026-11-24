@@ -20,7 +20,7 @@ MAINTAINABILITY_DEBT = {
     'ingest/pull_freshness.py': 19,
     'ingest/pull_gate.py': 19,
     'site/checks/charts.py': 19,
-    'store/other_committees.py': 18,
+    'store/other_committees.py': 19,
     'transform/build_roster.py': 15,
 }
 

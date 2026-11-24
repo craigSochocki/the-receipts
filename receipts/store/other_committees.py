@@ -185,62 +185,72 @@ def pas2_comparable(ledger, candidate_id, cycle):
     return gross, earmarked
 
 
+def comparison_row(candidate_id, raw, corrected, ledger, cycle):
+    gross, earmarked = pas2_comparable(ledger, candidate_id, cycle)
+    return {
+        'candidate_id': candidate_id,
+        'raw': raw.get(candidate_id, ZERO).cents,
+        'corrected': corrected.get(candidate_id, ZERO).cents,
+        'gross': gross.cents,
+        'earmarked': earmarked.cents,
+        'net': gross.cents - earmarked.cents,
+        'party': ledger.amount(candidate_id, cycle, PARTY).cents,
+    }
+
+
+def largest_residuals(rows, reverse):
+    ranked = sorted(
+        rows, key=lambda r: (r['corrected'] - r['net'], r['candidate_id']), reverse=reverse
+    )
+    return [
+        {
+            'candidate_id': r['candidate_id'],
+            'residual_cents': r['corrected'] - r['net'],
+            'weball_corrected_cents': r['corrected'],
+            'pas2_net_cents': r['net'],
+        }
+        for r in ranked[:5]
+    ]
+
+
 def reconcile_cycle(db, cycle, roster_ids, ledger, dedup_records):
+    """Weball col 26 against the pas2 money it covers, raw and with double counts zeroed."""
     raw = weball_other_committee_money(db, cycle, roster_ids)
     corrected, zeroed, mismatched = without_double_counted_summaries(raw, dedup_records, cycle)
-    gross_total = earmark_total = party_total = ZERO
-    residual_raw = residual_corrected = residual_net = 0
-    exact_raw = exact_corrected = exact_net = considered = 0
-    residuals = []
-    for candidate_id in set(raw) | ledger.candidates_in(cycle):
-        weball_raw = raw.get(candidate_id, ZERO).cents
-        weball_corrected = corrected.get(candidate_id, ZERO).cents
-        gross, earmarked = pas2_comparable(ledger, candidate_id, cycle)
-        gross_total += gross
-        earmark_total += earmarked
-        party_total += ledger.amount(candidate_id, cycle, PARTY)
-        net = gross.cents - earmarked.cents
-        if not (weball_raw or gross):
-            continue
-        considered += 1
-        residual_raw += weball_raw - gross.cents
-        residual_corrected += weball_corrected - gross.cents
-        residual_net += weball_corrected - net
-        exact_raw += weball_raw == gross.cents
-        exact_corrected += weball_corrected == gross.cents
-        exact_net += weball_corrected == net
-        residuals.append((weball_corrected - net, candidate_id, weball_corrected, net))
+    rows = [
+        comparison_row(c, raw, corrected, ledger, cycle)
+        for c in set(raw) | ledger.candidates_in(cycle)
+    ]
+    considered = [r for r in rows if r['raw'] or r['gross']]
 
-    def described(entries):
-        return [
-            {
-                'candidate_id': c,
-                'residual_cents': r,
-                'weball_corrected_cents': w,
-                'pas2_net_cents': p,
-            }
-            for r, c, w, p in entries[:5]
-        ]
+    def total(key):
+        return sum(r[key] for r in rows)
+
+    def residual(weball, pas2):
+        return sum(r[weball] - r[pas2] for r in considered)
+
+    def exact(weball, pas2):
+        return sum(r[weball] == r[pas2] for r in considered)
 
     return {
         'cycle': cycle,
-        'candidates_with_weball_or_pas2': considered,
+        'candidates_with_weball_or_pas2': len(considered),
         'weball_other_pol_total_cents': Money.total(raw.values()).cents,
         'weball_corrected_total_cents': Money.total(corrected.values()).cents,
-        'pas2_nonparty_gross_cents': gross_total.cents,
-        'pas2_nonparty_net_of_earmarks_cents': gross_total.cents - earmark_total.cents,
-        'pas2_earmark_transmitted_cents': earmark_total.cents,
-        'pas2_party_committees_cents': party_total.cents,
-        'residual_weball_raw_minus_pas2_gross_cents': residual_raw,
-        'residual_weball_corrected_minus_pas2_gross_cents': residual_corrected,
-        'residual_weball_corrected_minus_pas2_net_cents': residual_net,
-        'exact_matches_raw': exact_raw,
-        'exact_matches_corrected': exact_corrected,
-        'exact_matches_corrected_net': exact_net,
+        'pas2_nonparty_gross_cents': total('gross'),
+        'pas2_nonparty_net_of_earmarks_cents': total('gross') - total('earmarked'),
+        'pas2_earmark_transmitted_cents': total('earmarked'),
+        'pas2_party_committees_cents': total('party'),
+        'residual_weball_raw_minus_pas2_gross_cents': residual('raw', 'gross'),
+        'residual_weball_corrected_minus_pas2_gross_cents': residual('corrected', 'gross'),
+        'residual_weball_corrected_minus_pas2_net_cents': residual('corrected', 'net'),
+        'exact_matches_raw': exact('raw', 'gross'),
+        'exact_matches_corrected': exact('corrected', 'gross'),
+        'exact_matches_corrected_net': exact('corrected', 'net'),
         'dedup_dropped_ids_zeroed': zeroed,
         'dedup_dropped_ids_col26_mismatch': mismatched,
-        'largest_positive_residuals': described(sorted(residuals, reverse=True)),
-        'largest_negative_residuals': described(sorted(residuals)),
+        'largest_positive_residuals': largest_residuals(considered, reverse=True),
+        'largest_negative_residuals': largest_residuals(considered, reverse=False),
     }
 
 
@@ -332,15 +342,8 @@ def per_cycle_record(person, ledger):
     }
 
 
-LAMB_LABELS = [
-    ('party_committees', 'party'),
-    ('leadership_pacs', 'leadership'),
-    ('labor_pacs', 'labor'),
-    ('trade_pacs', 'trade'),
-    ('membership_pacs', 'membership'),
-    ('cooperative_pacs', 'cooperative'),
-    ('other_unclassified', 'other-unclassified'),
-]
+def note_label(bucket):
+    return bucket.removesuffix('_committees').removesuffix('_pacs').replace('_', '-')
 
 
 def reconciliation_note(validation, coverage):
@@ -356,8 +359,8 @@ def reconciliation_note(validation, coverage):
         return f'{date:%b} {date.day}'
 
     by_class = '; '.join(
-        f'{label} {usd(validation["pas2_breakdown_cents"][bucket])}'
-        for bucket, label in LAMB_LABELS
+        f'{note_label(bucket)} {usd(validation["pas2_breakdown_cents"][bucket])}'
+        for bucket in BUCKETS
         if validation['pas2_breakdown_cents'][bucket]
     )
     cycle = validation['cycle']
