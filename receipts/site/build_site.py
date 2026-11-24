@@ -24,7 +24,7 @@ Rules (see AGENTS.md):
   in the footer (dataset md5 + data_as_of are the stable identifiers).
 - Figures are never hardcoded in the template: header stats, leaderboards
   and totals are all computed from the embedded data in the browser.
-- Two modes, one page (landing-first, Nov 12, 2026): the front door is
+- Two modes, one page: the front door is
   the default — dirtiest in 2026, the clean story, the finder, one
   freshness line, one "Explore the full data" button — and #explore opens
   the full-data workspace (tabs, filters, table, methodology) with the
