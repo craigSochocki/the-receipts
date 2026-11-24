@@ -14,10 +14,7 @@ from receipts.common.settings import repo_root
 MAX_COMPLEXITY = 20  # radon grade C or better
 MIN_MAINTAINABILITY = 20  # radon grade A
 
-COMPLEXITY_DEBT = {
-    'site/checks/charts.py:composition_charts': 26,
-    'site/checks/charts.py:party_chips_and_outcomes': 38,
-}
+COMPLEXITY_DEBT = {}
 MAINTAINABILITY_DEBT = {}
 
 PACKAGE = repo_root() / 'receipts'

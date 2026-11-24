@@ -4,9 +4,15 @@ import re
 
 from receipts.site.checks.page import num
 
+TERRITORIES = {'AS', 'GU', 'MP', 'PR', 'VI', 'DC'}
+OUTCOME_LABELS = {'yes': 'Won', 'unknown': 'Uncalled', 'no': 'Not returning'}
 
-def composition_charts(audit, page):
-    """composition charts (House waffle, Senate state tiles): reconcile to 435 / 100"""
+
+def legend(counts):
+    return [f'{k.split()[0].capitalize()} {k.split()[1]} {n}' for k, n in counts.items()]
+
+
+def composition_section(audit, page):
     audit.check(
         'composition section exists on the front door',
         'id="composition"' in page.html
@@ -22,13 +28,13 @@ def composition_charts(audit, page):
         < page.html.index('id="finder"'),
     )
 
-    def _legend(counts):
-        return [f'{k.split()[0].capitalize()} {k.split()[1]} {n}' for k, n in counts.items()]
 
-    COMP_LITERALS = (
-        _legend(page.expected['charts']['house'])
-        + _legend(page.expected['charts']['senate'])
-        + [f'Uncalled {435 - page.expected["charts"]["house_named"]}']
+def composition_counts_computed(audit, page):
+    charts = page.expected['charts']
+    literals = (
+        legend(charts['house'])
+        + legend(charts['senate'])
+        + [f'Uncalled {435 - charts["house_named"]}']
     )
     audit.check(
         'House waffle is 15 rows x 29 columns, column-major fill',
@@ -39,24 +45,14 @@ def composition_charts(audit, page):
     )
     audit.check(
         'composition counts are computed, not hardcoded',
-        not any(lit in page.prose for lit in COMP_LITERALS),
+        not any(lit in page.prose for lit in literals),
         'a literal composition count survives in the built page',
     )
-    TERR = {'AS', 'GU', 'MP', 'PR', 'VI', 'DC'}
 
-    def party_letter(r):
-        p = r['party_120'] or r['party_119'] or '?'
-        return {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}.get(p, p)
 
-    def seat_status(r):
-        if r['clean_2026'] is True:
-            return 'clean'
-        if r['clean_2026'] is False:
-            return 'dirty'
-        return 'unopposed' if r['unopposed_2026'] is True else 'unverified'
-
+def composition_seats(audit, page):
     house_voting = [
-        r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] not in TERR
+        r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] not in TERRITORIES
     ]
     sen = [r for r in page.incoming if r['chamber_120'] == 'Senate']
     audit.check(
@@ -81,16 +77,20 @@ def composition_charts(audit, page):
         'senateTilesSVG' in page.html and 'dots-' in page.html and 'TILE_COLS = 10' in page.html,
         'senateTilesSVG or dotted patterns missing from the built page',
     )
-    delegates = [r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] in TERR]
+    delegates = [
+        r for r in page.incoming if r['chamber_120'] == 'House' and r['state'] in TERRITORIES
+    ]
     audit.check('delegates not plotted: 6', len(delegates) == 6, f'got {len(delegates)}')
 
 
-def party_chips_and_outcomes(audit, page):
-    """party chips + outcome labels (person marks)
-    The chips render in JS at runtime (asserted in the smoke test);
-    here: the helpers exist, and the derivation inputs recomputed
-    from the embedded data cover every row with no per-person cases.
-    """
+def composition_charts(audit, page):
+    """composition charts (House waffle, Senate state tiles): reconcile to 435 / 100"""
+    composition_section(audit, page)
+    composition_counts_computed(audit, page)
+    composition_seats(audit, page)
+
+
+def chip_helpers(audit, page):
     audit.check(
         'party chip + outcome helpers present',
         'function partyChip' in page.html
@@ -102,6 +102,9 @@ def party_chips_and_outcomes(audit, page):
         and "Republican:['R','r']" in page.html
         and "Independent:['I','o']" in page.html,
     )
+
+
+def party_and_outcome_counts(audit, page):
     no_party = [r for r in page.rows if not r['party_120'] and not r['party_119']]
     audit.check(
         'every row has a party source (party_120 else party_119)',
@@ -117,24 +120,30 @@ def party_chips_and_outcomes(audit, page):
         f'got {outcomes}',
     )
 
-    def mark_spot(name, party, outcome):
-        rows = [r for r in page.rows if name in r['full_name']]
-        return (
-            len(rows) == 1
-            and (rows[0]['party_120'] or rows[0]['party_119']) == party
-            and {'yes': 'Won', 'unknown': 'Uncalled', 'no': 'Not returning'}[rows[0]['in_120th']]
-            == outcome
-        )
 
+def mark_matches(page, name, party, outcome):
+    rows = [r for r in page.rows if name in r['full_name']]
+    return (
+        len(rows) == 1
+        and (rows[0]['party_120'] or rows[0]['party_119']) == party
+        and OUTCOME_LABELS[rows[0]['in_120th']] == outcome
+    )
+
+
+def mark_spot_cases(audit, page):
     audit.check(
         'marks spot-check: Stevens D / Not returning',
-        mark_spot('Stevens', 'Democrat', 'Not returning'),
+        mark_matches(page, 'Stevens', 'Democrat', 'Not returning'),
     )
-    audit.check('marks spot-check: El-Sayed D / Won', mark_spot('El-Sayed', 'Democrat', 'Won'))
-    audit.check('marks spot-check: Guthrie R / Won', mark_spot('Guthrie', 'Republican', 'Won'))
+    audit.check(
+        'marks spot-check: El-Sayed D / Won', mark_matches(page, 'El-Sayed', 'Democrat', 'Won')
+    )
+    audit.check(
+        'marks spot-check: Guthrie R / Won', mark_matches(page, 'Guthrie', 'Republican', 'Won')
+    )
     audit.check(
         'marks spot-check: Hernández PPD / Won (other gray chip)',
-        mark_spot('Hernández', 'PPD', 'Won'),
+        mark_matches(page, 'Hernández', 'PPD', 'Won'),
     )
     const = [r for r in page.rows if 'Constantino' in r['full_name']]
     audit.check('Constantino is a single row', len(const) == 1)
@@ -145,7 +154,10 @@ def party_chips_and_outcomes(audit, page):
         and arm[0]['individual_contribution_total_career'] == 'unknown'
         and arm[0]['total_accepted_career'] is None,
     )
-    targets28_s = [
+
+
+def targets_2028_senate_corporate_only(audit, page):
+    targets = [
         r
         for r in page.rows
         if r['in_120th'] == 'yes'
@@ -160,9 +172,12 @@ def party_chips_and_outcomes(audit, page):
             num(r['corp_2026']) == num(r['dirty_2026'])
             and num(r['aipac_direct_2026']) == 0
             and num(r['udp_benefit_2026']) == 0
-            for r in targets28_s
+            for r in targets
         ),
     )
+
+
+def targets_2028_tab(audit, page):
     audit.check(
         '2028 tab exists (both tables + intro + renderer + Class 3 filter)',
         all(
@@ -192,7 +207,10 @@ def party_chips_and_outcomes(audit, page):
         and page.html.index('id="targets28-btn"') > page.html.index('data-chapter="finder"')
         and page.html.index('id="targets28-btn"') < page.html.index('id="explore-btn"'),
     )
-    # The 2028 intro counts are rendered at runtime; none may be typed.
+
+
+def targets_2028_intro_computed(audit, page):
+    """The 2028 intro counts are rendered at runtime; none may be typed."""
     t28_html = page.html[page.html.index('id="tab-targets28"') : page.html.index('id="tab-method"')]
     audit.check(
         '2028 intro counts are computed, not hardcoded',
@@ -207,6 +225,19 @@ def party_chips_and_outcomes(audit, page):
         'negative test: injected 2028 count trips the check',
         re.search(r'\d+ House Democrats', t28_html + '999 House Democrats') is not None,
     )
+
+
+def party_chips_and_outcomes(audit, page):
+    """party chips + outcome labels (person marks), and the 2028 targets tab.
+    The chips render in JS at runtime (asserted in the smoke test); here: the helpers exist,
+    and the derivation inputs recomputed from the embedded data cover every row.
+    """
+    chip_helpers(audit, page)
+    party_and_outcome_counts(audit, page)
+    mark_spot_cases(audit, page)
+    targets_2028_senate_corporate_only(audit, page)
+    targets_2028_tab(audit, page)
+    targets_2028_intro_computed(audit, page)
 
 
 def tolerance_presets(audit, page):
