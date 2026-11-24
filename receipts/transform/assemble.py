@@ -236,9 +236,9 @@ def read_gold():
         }  # fmt: skip
 
 
-def tracked_people(tracked):
+def tracked_people(tracked, roster_rows):
     """Roster fields for each tracked person, folding in a second entry for the same person."""
-    roster = {r['person_key']: r for r in read_json(settings().paths.roster_intermediate)}
+    roster = {r['person_key']: r for r in roster_rows}
     kept = set(tracked)
     folded = defaultdict(list)
     for key, row in roster.items():
@@ -255,5 +255,5 @@ def tracked_people(tracked):
 def base_records(json_keys):
     gold = read_gold()
     dedup_notes = correction_notes(load_double_count_records())
-    people = tracked_people(gold['tracked'])
+    people = tracked_people(gold['tracked'], read_json(settings().paths.roster_intermediate))
     return [{k: r[k] for k in json_keys} for r in (record(p, gold, dedup_notes) for p in people)]

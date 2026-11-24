@@ -185,13 +185,18 @@ def write_primary_targets(records):
     settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
 
 
-def with_2026(records):
-    """Add the 2026 columns, clean flags and tiers; check the counts; write the target list."""
-    credits = credits_2026()
-    race_map, race_of = races_in(settings().cycles.current)
+def add_2026_columns(records, credits, race_map, race_of):
+    """Give each record its 2026 money columns, clean verdict, tiers and data notes."""
     for r in records:
         r.update(money_2026(r, credits.get(r['person_key'], 0.0)))
         verdict_and_notes(r, race_map, race_of)
+    return records
+
+
+def with_2026(records):
+    """Add the 2026 columns, clean flags and tiers; check the counts; write the target list."""
+    race_map, race_of = races_in(settings().cycles.current)
+    add_2026_columns(records, credits_2026(), race_map, race_of)
     check_against_baseline(records)
     write_primary_targets(records)
     return [{k: r[k] for k in settings().dataset.json_keys} for r in records]

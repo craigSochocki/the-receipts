@@ -6,31 +6,19 @@ only where the source roster already had them. The remaining IDs come from
 two recorded sources, applied here in order:
 
 1. `fec_lookup_results.json` — the OpenFEC API lookup (`fec_lookup.py`).
-   Entries with status `found` set the ID and `_fec_source` to
-   `fec-api-<current cycle>`; entries with status `found-manual` are the
-   seven IDs the API could not match on its own (name variants: legal names
-   like Margaret Flanagan / James Morris Kingston / Jacob Johnson /
-   Robert J. Harvie, DFL party labels) and were matched by hand — they set
-   `_fec_source` to `fec-api-<current cycle>-manual`. Entries with any
-   other status (`not_found`, `ambiguous`, `http_error`, `error`) leave
-   the row untouched: no ID is ever guessed.
-2. `manual_roster_notes.json` — the seven note appends recorded alongside
-   the enrichment (the `found-manual` rows' filing-name/party notes, plus
-   Alan Armstrong's "no FEC candidate ID found" note). Appended to the
-   row's `notes` field, once (re-running is a no-op: an append already
+   Status `found` sets the ID and `_fec_source` to `fec-api-<current cycle>`;
+   status `found-manual` marks an ID the API could not match on its own (a
+   legal-name variant or a party label) that was matched by hand, and sets
+   `_fec_source` to `fec-api-<current cycle>-manual`. Any other status
+   (`not_found`, `ambiguous`, `http_error`, `error`) leaves the row
+   untouched: no ID is ever guessed.
+2. `manual_roster_notes.json` — note appends recorded alongside the
+   enrichment, appended to the row's `notes` once (an append already
    present is skipped).
 
-Outputs (both `json.dump(..., indent=1)`, same as the scripts that wrote
-the committed files):
-- `roster_intermediate.json` — enriched, in place (this is the file the
-  committed roster was built from: `build_roster.py` output + these
-  enrichments, nothing else).
-- `roster.json` — the same rows minus every `_`-prefixed key (`_bioguide`,
-  `_fec_source`, `_nickname`, `_official`). This is what the store
-  and `receipts/store/opposition.py` read.
-
-Idempotent: re-running applies nothing twice (IDs are set, not appended;
-note appends already present are skipped).
+Writes `roster_intermediate.json` enriched in place, and `roster.json`: the
+same rows without the `_`-prefixed working fields, which is what the store
+reads. Re-running applies nothing twice.
 """
 
 import json
@@ -38,72 +26,82 @@ import json
 from receipts.common.files import read_json
 from receipts.common.settings import settings
 
+SOURCE_BY_STATUS = {'found': 'fec-api-{cycle}', 'found-manual': 'fec-api-{cycle}-manual'}
 
-def main():
-    """Apply the recorded FEC lookup results to the roster."""
-    paths, current = settings().paths, settings().cycles.current
-    rows = read_json(paths.roster_intermediate)
+
+def apply_lookup_results(rows, results, cycle):
+    """Set each found ID on its roster row; (found, found by hand, skipped) counts."""
     by_key = {r['person_key']: r for r in rows}
-
-    # ---------- 1. FEC lookup results ----------
-    results = read_json(paths.fec_lookup_results)
-    n_found = n_manual = n_skipped = 0
-    for pk, res in results.items():
-        row = by_key.get(pk)
+    counts = {'found': 0, 'found-manual': 0, 'skipped': 0}
+    for person_key, result in results.items():
+        row = by_key.get(person_key)
         if row is None:
-            raise SystemExit(f'fec_lookup_results.json has unknown person_key {pk}')
-        status = res['status']
-        if status == 'found':
-            row['fec_candidate_ids'] = [res['value']]
-            row['_fec_source'] = f'fec-api-{current}'
-            n_found += 1
-        elif status == 'found-manual':
-            row['fec_candidate_ids'] = [res['value']]
-            row['_fec_source'] = f'fec-api-{current}-manual'
-            n_manual += 1
-        else:
-            # not_found / ambiguous / http_error / error: no ID, leave the row.
-            n_skipped += 1
-    print(
-        f'fec lookup results: {n_found} found, {n_manual} found-manual, {n_skipped} skipped (no ID)'
-    )
-
-    # ---------- 2. Manual note appends ----------
-    notes = read_json(paths.manual_roster_notes)
-    n_notes = n_already = 0
-    for pk, append in notes.items():
-        row = by_key.get(pk)
-        if row is None:
-            raise SystemExit(f'manual_roster_notes.json has unknown person_key {pk}')
-        cur = row.get('notes') or ''
-        if cur.endswith(append):
-            n_already += 1
+            raise SystemExit(f'fec_lookup_results.json has unknown person_key {person_key}')
+        source = SOURCE_BY_STATUS.get(result['status'])
+        if source is None:
+            counts['skipped'] += 1
             continue
-        row['notes'] = cur + append
-        n_notes += 1
-    print(f'manual note appends: {n_notes} applied, {n_already} already present')
+        row['fec_candidate_ids'] = [result['value']]
+        row['_fec_source'] = source.format(cycle=cycle)
+        counts[result['status']] += 1
+    return counts
 
-    # ---------- Outputs ----------
+
+def apply_note_appends(rows, notes):
+    """Append each recorded note once; (applied, already present) counts."""
+    by_key = {r['person_key']: r for r in rows}
+    applied = already = 0
+    for person_key, append in notes.items():
+        row = by_key.get(person_key)
+        if row is None:
+            raise SystemExit(f'manual_roster_notes.json has unknown person_key {person_key}')
+        current = row.get('notes') or ''
+        if current.endswith(append):
+            already += 1
+            continue
+        row['notes'] = current + append
+        applied += 1
+    return applied, already
+
+
+def public_roster(rows):
+    """The roster the store reads: no `_` working fields, `fec_candidate_ids` last, by name.
+
+    Field order, sort and ensure_ascii=False in write() reproduce the committed
+    roster.json byte for byte.
+    """
+    public = []
+    for row in rows:
+        kept = {k: v for k, v in row.items() if not k.startswith('_')}
+        kept['fec_candidate_ids'] = kept.pop('fec_candidate_ids')
+        public.append(kept)
+    return sorted(public, key=lambda r: (r['last_name'].lower(), r['first_name'].lower()))
+
+
+def write(rows, public):
+    paths = settings().paths
     with open(paths.roster_intermediate, 'w') as f:
         json.dump(rows, f, indent=1)
     print(f'wrote {settings().relative(paths.roster_intermediate)} ({len(rows)} rows)')
-
-    # roster.json: the same rows minus every `_`-prefixed key (`_bioguide`,
-    # `_fec_source`, `_nickname`, `_official`), with `fec_candidate_ids`
-    # moved last, sorted case-insensitively by (last_name, first_name), and
-    # dumped with ensure_ascii=False (literal non-ASCII, e.g. Barragán).
-    # All four choices reproduce the committed roster.json byte-for-byte;
-    # they are load-bearing, not cosmetic — see the byte-identity check in
-    # rebuild verification.
-    stripped = []
-    for r in rows:
-        d = {k: v for k, v in r.items() if not k.startswith('_')}
-        d['fec_candidate_ids'] = d.pop('fec_candidate_ids')
-        stripped.append(d)
-    stripped.sort(key=lambda r: (r['last_name'].lower(), r['first_name'].lower()))
     with open(paths.roster, 'w') as f:
-        json.dump(stripped, f, indent=1, ensure_ascii=False)
-    print(f'wrote {settings().relative(paths.roster)} ({len(stripped)} rows, _-fields removed)')
+        json.dump(public, f, indent=1, ensure_ascii=False)
+    print(f'wrote {settings().relative(paths.roster)} ({len(public)} rows, _-fields removed)')
+
+
+def main():
+    """Apply the recorded FEC lookup results and note appends to the roster."""
+    paths = settings().paths
+    rows = read_json(paths.roster_intermediate)
+    counts = apply_lookup_results(
+        rows, read_json(paths.fec_lookup_results), settings().cycles.current
+    )
+    print(
+        f'fec lookup results: {counts["found"]} found, {counts["found-manual"]} found-manual, '
+        f'{counts["skipped"]} skipped (no ID)'
+    )
+    applied, already = apply_note_appends(rows, read_json(paths.manual_roster_notes))
+    print(f'manual note appends: {applied} applied, {already} already present')
+    write(rows, public_roster(rows))
 
 
 if __name__ == '__main__':
