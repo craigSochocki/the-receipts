@@ -30,7 +30,7 @@ def coverage_stamp(audit, page):
 def data_round_trip(audit, page):
     """The embedded rows decode to exactly the published dataset."""
     dataset = json.loads(settings().paths.dataset_json.read_text())
-    audit.check('embedded row count is 664', len(page.rows) == 664, f'got {len(page.rows)}')
+    audit.pin('embedded row count', 'rows.count', len(page.rows))
     audit.check(
         'column lists match generator',
         page.cols['scalars'] == SCALARS
