@@ -19,7 +19,7 @@ from receipts.domain.committee_money import is_voided_earmark, reported_once
 from receipts.domain.money import Money
 from receipts.domain.outside_spending import exclusion, latest_filings
 from receipts.domain.roster import candidate_ids
-from receipts.domain.seats import house_seat_id
+from receipts.domain.seats import congress_elected_in, house_seat_id
 from receipts.domain.weball_double_counts import FINANCIAL_FIELDS, remove_double_counts
 from receipts.fec.committee_contributions import committee_contributions
 from receipts.fec.committees import committees
@@ -235,35 +235,51 @@ def outside_spending_rows(roster, files_read):
         files_read.append(read_counts('ie', cycle, filed))
 
 
-def congress_rows(roster):
+def covered_elections():
+    """The elections the seats tables cover: the sitting Congress's, and the incoming one's."""
+    current = settings().cycles.current
+    return current - 2, current
+
+
+def house_maps():
+    """{election year: states that redrew their House map for it} (data/source/house_maps.yaml)."""
     with open(settings().paths.source / 'house_maps.yaml') as f:
-        new_map_states = set(yaml.safe_load(f)['new_map_for_2026'])
+        maps = yaml.safe_load(f)['new_maps']
+    return {int(year): set(states) for year, states in maps.items()}
+
+
+def congress_rows(roster):
+    new_maps, (sitting, incoming) = house_maps(), covered_elections()
     legislators = congress.read_legislators(settings().paths.source)
-    legislators_119th = [
-        p for p in legislators if any(congress.served_in_119th(t) for t in p.get('terms', []))
+    sitting_congress = congress_elected_in(sitting)
+    legislators_sitting = [
+        p
+        for p in legislators
+        if any(congress.served_in(t, sitting_congress) for t in p.get('terms', []))
     ]
-    terms = list(congress.terms_119th(legislators_119th, new_map_states)) + list(
-        congress.terms_120th(roster, new_map_states)
+    terms = list(congress.terms_sitting(legislators_sitting, new_maps, sitting)) + list(
+        congress.terms_incoming(roster, new_maps, sitting, incoming)
     )
     senate_classes = congress.senate_classes_by_state(terms)
-    house_2024 = {
+    house_sitting = {
         (t['seat_id'].split('-')[1], int(t['seat_id'].split('-')[2].split('/')[0]))
         for t in terms
-        if t['seat_id'].startswith('H-') and t['congress'] == 119
+        if t['seat_id'].startswith('H-') and t['congress'] == sitting_congress
     }
-    house_2026 = defaultdict(dict)
-    for state, district in house_2024:
-        if state in new_map_states:
-            house_2026[state][district] = house_seat_id(state, district, 2026, new_map_states)
-    seats = congress.seat_rows(terms, house_2026, senate_classes)
+    redrawn = defaultdict(dict)
+    for state, district in sorted(house_sitting):
+        if state in new_maps.get(incoming, ()):
+            redrawn[state][district] = house_seat_id(state, district, incoming, new_maps, sitting)
+    seats = congress.seat_rows(terms, redrawn, senate_classes)
     candidacies = congress.candidacy_rows(
         settings().paths.bulk,
         settings().cycles.career,
-        new_map_states,
+        new_maps,
+        (sitting, incoming),
         senate_classes,
         {seat['seat_id'] for seat in seats},
     )
-    return legislators_119th, seats, terms, candidacies
+    return legislators_sitting, seats, terms, candidacies
 
 
 def check_candidate_snapshot():

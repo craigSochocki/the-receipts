@@ -1,4 +1,4 @@
-# Which states hold their 2026 House elections on a different map than 2024.
+# Which states hold a House election on a new map, by the election year it first applies.
 # A changed map means new seats: TX-09 in the 120th is not TX-09 in the 119th.
 # Source: NCSL, "Changing the Maps: Tracking Mid-Decade Redistricting",
 # https://www.ncsl.org/redistricting-and-census/changing-the-maps-tracking-mid-decade-redistricting
@@ -7,13 +7,14 @@
 # referendum; 2022 map in effect), Virginia (2026 map overturned May 8, 2026),
 # Georgia, Indiana, South Carolina, Washington (attempts failed).
 checked: "2026-11-22"
-new_map_for_2026:
-  AL: "2023 map reinstated by the U.S. Supreme Court, Jun 2, 2026"
-  CA: "enacted Nov 4, 2025 (Proposition 50)"
-  FL: "enacted May 4, 2026; state-court litigation ongoing"
-  LA: "enacted May 29, 2026"
-  NC: "enacted Oct 22, 2025"
-  OH: "enacted Oct 31, 2025"
-  TN: "enacted May 7, 2026"
-  TX: "enacted Aug 29, 2025"
-  UT: "court-ordered map, Nov 10, 2025"
+new_maps:
+  2026:
+    AL: "2023 map reinstated by the U.S. Supreme Court, Jun 2, 2026"
+    CA: "enacted Nov 4, 2025 (Proposition 50)"
+    FL: "enacted May 4, 2026; state-court litigation ongoing"
+    LA: "enacted May 29, 2026"
+    NC: "enacted Oct 22, 2025"
+    OH: "enacted Oct 31, 2025"
+    TN: "enacted May 7, 2026"
+    TX: "enacted Aug 29, 2025"
+    UT: "court-ordered map, Nov 10, 2025"

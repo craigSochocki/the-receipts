@@ -6,15 +6,15 @@ import yaml
 
 from receipts.domain.seats import (
     DELEGATE_STATES,
-    SENATE_TERM_END,
+    congress_elected_in,
+    congress_start,
     house_seat_id,
     regular_senate_class,
     senate_seat_id,
+    senate_term_end,
 )
 from receipts.fec.candidates import candidates
 
-CONGRESS_119 = ('2025-01-03', '2027-01-03')
-CONGRESS_120 = ('2027-01-03', '2029-01-03')
 LEGISLATORS = 'congress-legislators (data/source/legislators-*.yaml)'
 ROSTER_120 = '120th roster: media calls, unofficial until certified (data/source/120th_roster.json)'
 CONGRESS_TYPES = {'rep': 'House', 'sen': 'Senate'}
@@ -30,25 +30,27 @@ def read_legislators(source_dir):
     return people
 
 
-def served_in_119th(term):
-    start, end = CONGRESS_119
+def served_in(term, congress):
+    start, end = congress_start(congress), congress_start(congress + 1)
     return term['type'] in CONGRESS_TYPES and term['start'] < end and term['end'] > start
 
 
-def terms_119th(legislators, new_map_states):
+def terms_sitting(legislators, new_maps, election):
+    """Terms of the Congress `election` seated, from the legislators files."""
+    congress = congress_elected_in(election)
     for person in legislators:
         for term in person.get('terms', []):
-            if not served_in_119th(term):
+            if not served_in(term, congress):
                 continue
             state = term['state']
             if term['type'] == 'rep':
-                seat = house_seat_id(state, term['district'], 2024, new_map_states)
+                seat = house_seat_id(state, term['district'], election, new_maps, election)
             else:
                 seat = senate_seat_id(state, term['class'])
             yield {
                 'person_key': person['id']['bioguide'],
                 'seat_id': seat,
-                'congress': 119,
+                'congress': congress,
                 'start_date': term['start'],
                 'end_date': term['end'],
                 'party': term.get('party'),
@@ -56,34 +58,38 @@ def terms_119th(legislators, new_map_states):
             }
 
 
-def terms_120th(roster, new_map_states):
+def terms_incoming(roster, new_maps, first_election, election):
+    """Terms of the Congress `election` seats, from the roster."""
+    congress = congress_elected_in(election)
     for person in roster:
         if person.get('in_120th') != 'yes':
             continue
         state = person['state']
         if person['chamber_120'] == 'House':
             seat, end = (
-                house_seat_id(state, person['district_120'] or 0, 2026, new_map_states),
-                CONGRESS_120[1],
+                house_seat_id(
+                    state, person['district_120'] or 0, election, new_maps, first_election
+                ),
+                congress_start(congress + 1),
             )
         else:
             seat, end = (
                 senate_seat_id(state, person['senate_class']),
-                SENATE_TERM_END[person['senate_class']],
+                senate_term_end(person['senate_class'], election),
             )
         yield {
             'person_key': person['person_key'],
             'seat_id': seat,
-            'congress': 120,
-            'start_date': CONGRESS_120[0],
+            'congress': congress,
+            'start_date': congress_start(congress),
             'end_date': end,
             'party': person.get('party_120'),
             'source': ROSTER_120,
         }
 
 
-def seat_rows(terms, house_districts_2026, senate_classes):
-    """Every seat a 119th or 120th term sits in, plus the 2026-map seats nobody holds yet."""
+def seat_rows(terms, redrawn_districts, senate_classes):
+    """Every seat a covered term sits in, plus the redrawn seats nobody holds yet."""
     seats = {}
 
     def add(seat_id, chamber, state, district=None, senate_class=None, map_year=None):
@@ -107,7 +113,7 @@ def seat_rows(terms, house_districts_2026, senate_classes):
             add(term['seat_id'], 'House', state, int(district), map_year=int(map_year))
         else:
             add(term['seat_id'], 'Senate', state, senate_class=int(rest))
-    for state, districts in house_districts_2026.items():
+    for state, districts in redrawn_districts.items():
         for district, seat_id in districts.items():
             add(seat_id, 'House', state, district, map_year=int(seat_id.rsplit('/', 1)[1]))
     for state, classes in senate_classes.items():
@@ -116,11 +122,11 @@ def seat_rows(terms, house_districts_2026, senate_classes):
     return list(seats.values())
 
 
-def candidacy_rows(bulk_dir, cycles, new_map_states, senate_classes, seat_ids):
+def candidacy_rows(bulk_dir, cycles, new_maps, elections, senate_classes, seat_ids):
     """Every registered candidate; a seat the seats table lacks (a filing error) stays unlinked."""
     for cycle in cycles:
         for c in candidates(bulk_dir, cycle):
-            seat = seat_for(c, new_map_states, senate_classes)
+            seat = seat_for(c, new_maps, elections, senate_classes)
             yield {
                 'candidate_id': c.candidate_id,
                 'cycle': cycle,
@@ -137,18 +143,18 @@ def candidacy_rows(bulk_dir, cycles, new_map_states, senate_classes, seat_ids):
             }
 
 
-def seat_for(candidate, new_map_states, senate_classes):
-    """The seat a 2024 or 2026 House/Senate candidacy is for, when the file says."""
+def seat_for(candidate, new_maps, elections, senate_classes):
+    """The seat a House/Senate candidacy in a covered election is for, when the file says."""
     try:
         year = int(candidate.election_year)
     except ValueError:
         return None
-    if year not in (2024, 2026):
+    if year not in elections:
         return None
     if candidate.office == 'H' and candidate.office_district.isdigit():
         # Delegates file under district 01 as well as 00.
         district = 0 if candidate.office_state in DELEGATE_STATES else candidate.office_district
-        return house_seat_id(candidate.office_state, district, year, new_map_states)
+        return house_seat_id(candidate.office_state, district, year, new_maps, elections[0])
     if candidate.office == 'S':
         regular = regular_senate_class(year)
         # A state without a seat in the regular class is holding a special
