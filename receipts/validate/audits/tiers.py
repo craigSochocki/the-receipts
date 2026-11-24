@@ -1,39 +1,9 @@
-"""The tiered dirty rule, re-derived on purpose; tests/test_rule_agreement.py keeps it in step."""
+"""The tiered dirty rule: flag and tier counts, corp-only splits, 2028 targets, spot cases."""
 
 from collections import Counter
 
 from receipts.common.settings import settings
-
-
-# The tier logic is re-derived from the config thresholds, independently of
-# compute_2026.py (same definitions, separate code).
-def corp_material(corp, total_receipts, preset):
-    th = settings().verification.tolerance_presets[preset]
-    if corp <= th.corp_amount:
-        return False
-    if (
-        not isinstance(total_receipts, (int, float))
-        or isinstance(total_receipts, bool)
-        or total_receipts <= 0
-    ):
-        return False
-    return corp / total_receipts > th.corp_share
-
-
-def flag_for(aipac_direct, udp_benefit):
-    """Any AIPAC direct dollar or UDP benefit dollar flags the member under every preset."""
-    return bool(aipac_direct > 0 or udp_benefit > 0)
-
-
-def tier_for(clean, flag, corp, total_receipts, preset):
-    if clean is None:
-        return None
-    if flag or corp_material(corp, total_receipts, preset):
-        return 'dirty'
-    if corp > 0:
-        return 'below_threshold'
-    return 'clean'
-
+from receipts.domain.clean_2026 import corporate_money_material
 
 PRESETS = ('balanced', 'lenient')
 TIER_SPOT_FIELDS = (
@@ -111,8 +81,10 @@ def corp_only_split(audit, r120):
     ]
     audit.pin('corp-only members in the 120th', 'tiered_2026.corp_only_2026_120th', len(corp_only))
     for preset in PRESETS:
+        thresholds = settings().verification.tolerance_presets[preset]
         staying = sum(
-            1 for r in corp_only if corp_material(r['corp_2026'], r['total_receipts_2026'], preset)
+            corporate_money_material(r['corp_2026'], r['total_receipts_2026'], thresholds)
+            for r in corp_only
         )
         audit.pin(
             f'corp-only staying dirty under {preset}',

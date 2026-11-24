@@ -547,8 +547,9 @@ the candidate's own weball row (office prefix + state + district). Roster distri
 differ from the FEC's (a delegate's roster district 0 vs the FEC's district 01, with stale
 dormant IDs under 00), and a roster-district lookup can read a contested member as
 unopposed. The site renders unopposed members as **Unopposed**, distinct from
-**Unverified** (a data gap, not a race fact). Career-clean is derived from career money
-columns only and is untouched by the unopposed rule.
+**Unverified** (a data gap, not a race fact). Career-clean means no career dirty money: corporate PAC,
+AIPAC PAC direct, UDP support and UDP opposition credit (career columns) are all zero. It
+is derived from those career columns only and is untouched by the unopposed rule.
 
 **2028 primary targets — the dirtiest Democrats to watch.** The site's "2028 primary
 targets" tab is a watchlist built from 2026-cycle dirty money, NOT a prediction of who

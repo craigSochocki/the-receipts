@@ -1,8 +1,9 @@
 """Every 2026 column, the clean verdict and dep_share, recomputed row by row."""
 
 from receipts.common.settings import settings
+from receipts.domain.clean_2026 import aipac_udp_flagged, races_and_unopposed, tier, verdict
+from receipts.transform.compute_2026 import has_2026_linkage
 from receipts.validate.audits.published import cycle_sum, load_weball_2026_races, opposition_credit
-from receipts.validate.audits.tiers import flag_for, tier_for
 
 OTHER_COMMITTEE_BUCKETS = [
     'party_committees',
@@ -57,44 +58,26 @@ def expected_money_2026(r, credit):
     return expect
 
 
-def has_2026_linkage(r):
-    """A tracked or UDP 2026 entry, or a 2026 self-funding entry covering calendar 2026."""
-    return (
-        bool(current_entries(r['per_cycle']))
-        or bool(current_entries(r['udp_per_cycle']))
-        or any(
-            str(e.get('coverage_end_date', '')).endswith('/2026')
-            for e in current_entries(r['self_funding_per_cycle'])
-        )
-    )
-
-
-def is_unopposed(r, race_map, by_cid):
-    """Every 2026 race the person filed in has no other candidate with receipts over $0."""
-    ids = set(r['fec_candidate_ids'] or [])
-    races = sorted({by_cid[cid] for cid in ids if cid in by_cid})
-    return bool(races) and all(
-        not any(cid not in ids and receipts > 0 for cid, receipts in race_map.get(race, []))
-        for race in races
-    )
+def is_unopposed(r, race_map, race_of):
+    races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
+    return bool(races) and len(unopposed) == len(races)
 
 
 def expected_verdict(r, money, unopposed):
     """The AIPAC/UDP flag, the net clean verdict and both tolerance tiers."""
-    flag = flag_for(money['aipac_direct_2026'], money['udp_benefit_2026'])
-    unknown = (r['in_120th'] == 'yes' and not has_2026_linkage(r)) or (
-        unopposed and money['dirty_2026'] <= 0
-    )
-    clean = None if unknown else money['dirty_2026'] <= 0
+    flag = aipac_udp_flagged(money['aipac_direct_2026'], money['udp_benefit_2026'])
+    linked = has_2026_linkage(r)
+    clean, _ = verdict(r['in_120th'] == 'yes', linked, unopposed, money['dirty_2026'])
+    presets = settings().verification.tolerance_presets
     return {
         'unopposed_2026': unopposed,
         'aipac_udp_flag_2026': flag,
         'clean_2026': clean,
         **{
-            f'tier_{preset}_2026': tier_for(
-                clean, flag, money['corp_2026'], money['total_receipts_2026'], preset
+            f'tier_{p}_2026': tier(
+                clean, flag, money['corp_2026'], money['total_receipts_2026'], presets[p]
             )
-            for preset in ('balanced', 'lenient')
+            for p in ('balanced', 'lenient')
         },
     }
 
