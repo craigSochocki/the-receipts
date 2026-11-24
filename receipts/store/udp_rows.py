@@ -34,11 +34,9 @@ class UdpRow(NamedTuple):
 
 
 class UdpRows:
-    def __init__(self, people):
-        with connect() as db:
-            filed = [
-                UdpRow(*row) for row in db.execute(ROWS, [settings().committees.udp]).fetchall()
-            ]
+    """UDP's rows as filed, with each blank candidate ID resolved where the name allows."""
+
+    def __init__(self, filed, people):
         self.index, self.collisions = self._name_index(filed)
         self.rows, self.unresolved = [], []
         for row in filed:
@@ -49,6 +47,12 @@ class UdpRows:
             self.rows.append(row._replace(candidate_id=candidate_id or '', resolved_via=via))
             if candidate_id is None:
                 self.unresolved.append(row)
+
+    @classmethod
+    def from_store(cls, people):
+        with connect() as db:
+            filed = db.execute(ROWS, [settings().committees.udp]).fetchall()
+        return cls([UdpRow(*row) for row in filed], people)
 
     @staticmethod
     def _name_index(rows):

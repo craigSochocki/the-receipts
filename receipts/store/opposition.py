@@ -130,7 +130,7 @@ def aipac_rows():
 
 def main():
     roster = load_roster()
-    udp = UdpRows(roster)
+    udp = UdpRows.from_store(roster)
     for cycle in settings().cycles.ie:
         expected(f'udp_prior_cycle_totals.{cycle}', dollars(udp.cycle_total(cycle)))
     person_keys = person_of(roster)
