@@ -85,8 +85,7 @@ class FormerMembers:
 
     def returning(self, name, state):
         """The former member a 120th seat-holder is, if any. Guards against namesakes
-        from long ago: requires recent service in the same state (admits Bean 2011,
-        Solis 2009; excludes 1800s namesakes)."""
+        from long ago: requires service in the same state ending in 2000 or later."""
         first, last = split_name(name)
         for key in (norm(f'{first} {last}'), norm(name)):
             if key in self.lookup:
@@ -147,8 +146,7 @@ class Roster:
 
     def sitting_member(self, name, state):
         """The 119th member a 120th seat-holder is: same state and last name, and a first
-        name that agrees (nickname-aware), so same-state namesakes stay apart (Johnny vs
-        Sylvia Garcia, Trever vs Troy Nehls, Stefany vs Jeanne Shaheen)."""
+        name that agrees (nickname-aware), so same-state namesakes stay apart."""
         first, last = split_name(name)
         return next(
             (
@@ -379,22 +377,29 @@ class Roster:
         )
 
 
-def main():
-    """Build the roster from the legislators file, the 120th roster and the curated facts."""
-    paths = settings().paths
-    roster = Roster(read_yaml(paths.source / 'legislators-current.yaml'))
-    former = FormerMembers(read_json(paths.source / 'historical_lookup.json'))
-    r120 = read_json(paths.source / '120th_roster.json')
-    facts = read_yaml(paths.roster_facts)
+def build(legislators, historical_lookup, r120, facts):
+    """(roster, the 120th seats, who is new) from the parsed sources and curated facts."""
+    roster = Roster(legislators)
+    former = FormerMembers(historical_lookup)
     seats = list(seats_120th(r120))
-
     newcomers = roster.seat_120th(seats, former)
     roster.apply_facts(facts, former)
     roster.mark_leadership_119(facts['leadership_119'])
     roster.note_unverified_leadership_120(facts['unverified_leadership_120'])
     roster.note_successors(r120)
     roster.assign_senate_classes()
+    return roster, seats, newcomers
 
+
+def main():
+    """Build the roster from the legislators file, the 120th roster and the curated facts."""
+    paths = settings().paths
+    roster, seats, newcomers = build(
+        read_yaml(paths.source / 'legislators-current.yaml'),
+        read_json(paths.source / 'historical_lookup.json'),
+        read_json(paths.source / '120th_roster.json'),
+        read_yaml(paths.roster_facts),
+    )
     write_json(paths.roster_intermediate, list(roster.rows.values()))
     roster.print_summary(newcomers)
     missing, duplicated = roster.unmatched(seats)
