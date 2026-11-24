@@ -414,20 +414,31 @@
    complexity and maintainability debt lists are empty, coverage floor
    55%. Dataset byte-identical throughout (csv
    6ada15a535ce1865b9485ff2f2b4ebbf, json f5b46dbcb954c4443c4fa9edb81797c1).
+   **Slimming pass — Nov 24 (PRs #46–#57).** Dataset backups out of git;
+   one-line docstrings; the site smoke test runs in headless Chromium
+   (Playwright) instead of a hand-built DOM; the site's string checks
+   cut to data, pins and typed-figure scans; freshness refactored (shared
+   `/filings/` scan, exact-cent sums) and its pre-flight gate retired;
+   audits call the domain rules (the duplicate copy and its agreement test
+   are gone); one career-clean rule with all four dirty sources (pipeline
+   and audit had used three, the site four; no figure moved); mypy covers
+   all of `receipts/`; logging replaces `print()`; enforced dbt contracts
+   on the marts. Dataset byte-identical throughout.
    Open items, none blocking:
-   - Widen mypy beyond `domain/`, `fec/` and `common/settings.py`.
-   - Move `data/snapshots/` out of git (the dated dataset backups grow
-     the repo with every rebuild that is committed).
-   - Replace `print()` with logging in the pipeline steps.
-   - dbt column contracts on the marts.
+   - Two files (`pull_freshness`, `other_committees`) sit just under the maintainability floor (recorded as
+     debt in `tests/test_code_quality.py`).
    - `receipts/validate/audits/rows.py` skips one folded roster key by
      literal (`kristen-mcdonaldrivetmihouse`); it should come from the
      roster's own record of folded rows.
+   - A dbt test's file name carries a figure
+     (`double_count_record_is_90_groups_of_451776015_34.sql`).
    - `receipts/store/models.py` closes dbt-duckdb's connections through
      `DuckDBConnectionManager.close_all_connections()`, an adapter
      internal; a dbt-duckdb upgrade can break it. If it does, the
      rebuild stops at the step after dbt with a DuckDB connection error,
      never with wrong figures.
+   - The freshness gate is retired; restore `receipts/ingest/pull_gate.py`
+     from git history if `--all` is ever scheduled.
 7. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.
