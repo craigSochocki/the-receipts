@@ -5,33 +5,9 @@ import hashlib
 import sys
 
 from receipts.common.settings import settings
-from receipts.site.checks.charts import (
-    composition_charts,
-    party_chips_and_outcomes,
-    senate_tiles_on_phones,
-    stagger_cap,
-    tappable_charts,
-    tolerance_presets,
-)
+from receipts.site.checks.counts import composition, outcomes
 from receipts.site.checks.data import coverage_stamp, data_round_trip, opposition_detail
-from receipts.site.checks.front_door import (
-    explore_stats,
-    front_door,
-    landing_story,
-    leaderboards,
-    masthead,
-    orientation,
-    scrollytelling,
-)
-from receipts.site.checks.navigation import (
-    drill_down_on_phones,
-    hash_state,
-    money_format_toggle,
-    prev_next_and_anchors,
-    skip_link,
-    sticky_tabs_and_finder,
-    tab_strip_and_filter_rows,
-)
+from receipts.site.checks.figures import no_typed_figures
 from receipts.site.checks.page import BuiltPage
 from receipts.site.checks.runtime import (
     deterministic,
@@ -39,35 +15,15 @@ from receipts.site.checks.runtime import (
     runtime_smoke_test,
     served_page,
 )
-from receipts.site.checks.style import colour_semantics, tabular_numerals
 from receipts.validate.audit import Audit
 
 SECTIONS = [
     coverage_stamp,
     data_round_trip,
     opposition_detail,
-    landing_story,
-    front_door,
-    hash_state,
-    sticky_tabs_and_finder,
-    prev_next_and_anchors,
-    scrollytelling,
-    leaderboards,
-    composition_charts,
-    party_chips_and_outcomes,
-    tolerance_presets,
-    masthead,
-    orientation,
-    colour_semantics,
-    tab_strip_and_filter_rows,
-    senate_tiles_on_phones,
-    drill_down_on_phones,
-    tabular_numerals,
-    explore_stats,
-    money_format_toggle,
-    tappable_charts,
-    stagger_cap,
-    skip_link,
+    composition,
+    outcomes,
+    no_typed_figures,
     javascript_parses,
     served_page,
     runtime_smoke_test,
