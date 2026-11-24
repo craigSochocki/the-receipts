@@ -1,68 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild the tracker dataset end to end from the staged sources.
-
-Usage:
-    python3 receipts/rebuild.py [--with-fec-lookup] [--skip-verify] [--rebaseline]
-
-Pipeline (in order; each step's main() runs in this process, and each
-module still runs alone as `python3 -m <module>`):
-    receipts.transform.build_roster       roster from legislators-current.yaml +
-                                     historical_lookup.json + 120th_roster.json
-    receipts.transform.fec_lookup         live OpenFEC lookup (ONLY with
-                                     --with-fec-lookup; default off — the
-                                     committed fec_lookup_results.json is
-                                     used instead, so a rebuild needs no
-                                     API key)
-    receipts.transform.apply_fec_lookup   enrich the roster with the lookup
-                                     results + the recorded manual notes;
-                                     writes roster.json
-    receipts.store.build_store            silver store: every FEC candidate,
-                                     committee and filing, in DuckDB
-    receipts.validate.run_history         rows and file dates vs the last recorded
-                                     snapshot; stops on a row drop or stale FEC
-                                     files (records the snapshot on --rebaseline)
-    receipts.store.models                 dbt models over the store (dbt/), and
-                                          every test on them
-    receipts.store.accepted_money         the roster's counted money, read from
-                                     the store (double counts removed)
-    receipts.store.udp                    UDP independent-expenditure support, from the store
-    receipts.store.self_funding           self-funding + topline, from the store
-                                     (with the recorded corrections to cols 6-9)
-    receipts.store.other_committees       other-committee contributions, from the store
-    receipts.store.all_ie                 all independent expenditures 2022-2026, from the store
-                                     (+ top committees per person)
-    receipts.store.opposition             UDP opposition credit (runs BEFORE the
-                                     merge so its sanity check reads the
-                                     current dataset)
-    receipts.transform.build_dataset      one pass, written once: merge (roster + money +
-                                     opposition), ranking (total_accepted + the
-                                     rank columns), 2026 (columns, clean flags,
-                                     primary-target list)
-    receipts.validate.verify_dataset      standing audits (unless --skip-verify)
-
-The freshness layer (receipts/ingest/pull_freshness.py) is NOT part of this
-pipeline: it runs on a different cadence (daily in the final 20 days
-before an election, weekly in-cycle, event-driven after deadlines)
-and writes data/intermediate/freshness_snapshot.json — new money found
-since the bulk coverage end, labeled by source and date, NEVER merged
-into the dataset totals. See methodology.md §16.
-
-Each step checks its figures against data/source/baseline.json, which is
-tied to one pinned FEC snapshot (./fetch_snapshot.sh). `--rebaseline`
-accepts a new snapshot: it records the observed figures, and the diff of
-baseline.json is the review.
-
-Prerequisites: the staged FEC bulk data in data/raw/ (see README.md).
-The script fails fast with a clear message when bulk is not staged.
-The current dataset is backed up first to
-data/snapshots/congress-money-tracker-pre-rebuild-YYYYMMDD-HHMMSS.csv/.json
-and left in place until the merge overwrites it (so the opposition sanity
-check still reads the current dataset).
-
-A live fec_lookup run overwrites fec_lookup_results.json wholesale and
-loses the recorded `found-manual` entries, so --with-fec-lookup
-snapshots them first and restores them afterwards.
-"""
+"""Rebuild the dataset end to end from the pinned FEC snapshot; the steps are STEPS."""
 
 import argparse
 import json
@@ -189,8 +126,7 @@ def run(step):
 
 
 def ensure_dirs():
-    """Create the output directories a fresh clone lacks: intermediates
-    are gitignored, so the directory itself is not in the repo."""
+    """Create the gitignored output folders a fresh clone lacks."""
     for d in (settings().paths.intermediate, settings().paths.snapshots):
         d.mkdir(parents=True, exist_ok=True)
 

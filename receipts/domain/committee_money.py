@@ -1,15 +1,11 @@
-"""Which committee contributions the tracker counts, and how.
-
-Rules: methodology.md §4. Evidence: research/methodology-evidence.md §4.
-"""
+"""Which committee contributions the tracker counts (methodology.md §4)."""
 
 from receipts.domain.money import ZERO
 from receipts.domain.one_copy import OneCopyEach
 
 
 def is_voided_earmark(contribution):
-    """A refunded conduit earmark. The original transmission is not in
-    pas2, so netting the refund would create a phantom negative."""
+    """A refunded earmark whose original is not in pas2; netting it makes a phantom negative."""
     return contribution.is_earmark and contribution.amount.is_negative
 
 

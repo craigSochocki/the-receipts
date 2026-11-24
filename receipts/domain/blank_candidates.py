@@ -1,8 +1,4 @@
-"""Finding the candidate behind an expenditure filed with a blank candidate ID.
-
-Two ways, tried in order by the IE scripts: a name index built from rows
-that do carry an ID, then the roster, matched on name, state and district.
-"""
+"""The candidate behind an expenditure filed with a blank ID: name index first, then roster."""
 
 
 def name_key(candidate_name, state, district, office):
@@ -37,11 +33,7 @@ def _represents(person, district):
 
 
 def resolve(row, index, people):
-    """(candidate ID, how it was found) for a blank-ID UDP row, or (None, None).
-
-    A support row nobody can identify still names a backed candidate in its
-    race, so it gets a name-based stand-in ID that no roster person carries.
-    """
+    """(candidate ID, how found) for a blank-ID UDP row; unidentified support gets a stand-in."""
     key = name_key(row.candidate_name, row.state, row.district, row.office)
     if key in index:
         return index[key], 'name_index'

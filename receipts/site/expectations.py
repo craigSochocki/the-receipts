@@ -1,8 +1,4 @@
-"""What the page should show, computed from the embedded dataset.
-
-verify_site.py pins these against the baseline; smoke_test.js asserts
-the rendered page matches them.
-"""
+"""What the page should show, computed from the embedded dataset."""
 
 from collections import Counter
 

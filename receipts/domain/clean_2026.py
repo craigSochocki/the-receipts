@@ -1,10 +1,4 @@
-"""Whether a member's 2026 campaign was clean, and how dirty under each tolerance preset.
-
-Methodology §14. Dirty money is corporate PAC + AIPAC PAC direct + UDP
-benefit; individual contributions never are. Clean means no NET dirty
-money in 2026, judged only where there is 2026 data to judge and the race
-was contested.
-"""
+"""Whether a member's 2026 campaign was clean, and how dirty under each preset."""
 
 from dataclasses import dataclass
 
@@ -41,10 +35,7 @@ NO_INDIVIDUAL_MONEY_NOTE = (
 
 
 def races_and_unopposed(candidate_ids, race_map, race_of):
-    """The races behind a person's 2026 candidate IDs, and those with no funded opponent.
-
-    A filed opponent with $0 receipts does not contest a race.
-    """
+    """A person's 2026 races, and those with no opponent who raised money."""
     ids = set(candidate_ids)
     races = sorted({race_of[c] for c in ids if c in race_of})
     unopposed = [
@@ -61,8 +52,7 @@ def race_label(race):
 
 
 def verdict(in_120th, linked, unopposed, dirty):
-    """(clean_2026, why it is unknown). Unknown (None) without 2026 data, or when unopposed
-    and otherwise clean; else clean exactly when net dirty money is at most zero."""
+    """(clean_2026, why unknown): None without 2026 data or when unopposed; else net dirty <= 0."""
     if in_120th and not linked:
         return None, UNLINKED
     if unopposed and dirty <= 0:
@@ -91,8 +81,7 @@ def aipac_udp_flagged(aipac_direct, udp_benefit):
 
 
 def corporate_money_material(corporate, total_receipts, preset):
-    """Corporate PAC money counts as dirty under a preset only above BOTH its dollar and its
-    share-of-receipts thresholds; with no positive receipts the share is undefined."""
+    """Corporate PAC money is dirty under a preset only above both of its thresholds."""
     if corporate <= preset.corp_amount:
         return False
     if isinstance(total_receipts, bool) or not isinstance(total_receipts, int | float):

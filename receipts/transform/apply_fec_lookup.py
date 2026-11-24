@@ -1,25 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the FEC-ID enrichment to the roster built by build_roster.py.
-
-`build_roster.py` writes `roster_intermediate.json` with FEC candidate IDs
-only where the source roster already had them. The remaining IDs come from
-two recorded sources, applied here in order:
-
-1. `fec_lookup_results.json` — the OpenFEC API lookup (`fec_lookup.py`).
-   Status `found` sets the ID and `_fec_source` to `fec-api-<current cycle>`;
-   status `found-manual` marks an ID the API could not match on its own (a
-   legal-name variant or a party label) that was matched by hand, and sets
-   `_fec_source` to `fec-api-<current cycle>-manual`. Any other status
-   (`not_found`, `ambiguous`, `http_error`, `error`) leaves the row
-   untouched: no ID is ever guessed.
-2. `manual_roster_notes.json` — note appends recorded alongside the
-   enrichment, appended to the row's `notes` once (an append already
-   present is skipped).
-
-Writes `roster_intermediate.json` enriched in place, and `roster.json`: the
-same rows without the `_`-prefixed working fields, which is what the store
-reads. Re-running applies nothing twice.
-"""
+"""Add the recorded FEC IDs and manual notes to the roster; no ID is ever guessed."""
 
 import json
 
@@ -65,11 +45,7 @@ def apply_note_appends(rows, notes):
 
 
 def public_roster(rows):
-    """The roster the store reads: no `_` working fields, `fec_candidate_ids` last, by name.
-
-    Field order, sort and ensure_ascii=False in write() reproduce the committed
-    roster.json byte for byte.
-    """
+    """The roster the store reads: no `_` working fields, `fec_candidate_ids` last, by name."""
     public = []
     for row in rows:
         kept = {k: v for k, v in row.items() if not k.startswith('_')}

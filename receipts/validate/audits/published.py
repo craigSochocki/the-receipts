@@ -88,14 +88,7 @@ def opposition_credit(cycle=None):
 
 
 def load_weball_2026_races():
-    """2026 races from the FEC all-candidates file (weball26).
-
-    Same rule as compute_2026.py, recomputed independently here:
-    race_map maps (office, state, district) to [(candidate_id, total
-    receipts)]; by_cid maps candidate_id to its race. The race comes from
-    the filing's own row, not the roster district (MP delegate race is
-    filed under district 01); the ID's H/S/P prefix is the office.
-    """
+    """2026 races from weball26, keyed by the filing's own race (the MP delegate files under 01)."""
     race_map = {}
     by_cid = {}
     for row in candidate_summaries(settings().paths.bulk, settings().cycles.current):

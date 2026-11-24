@@ -1,8 +1,4 @@
-"""The all-IE diagnostic report: what each file held, what was left out, and why.
-
-Written to data/intermediate/all_ie_per_cycle.json beside the money in
-receipts/store/all_ie.py; nothing here changes a published figure.
-"""
+"""The all-IE diagnostic report; nothing here changes a published figure."""
 
 from collections import defaultdict
 
@@ -133,8 +129,7 @@ def bogus_examples(kept):
 
 
 def roster_career_totals(roster, per_person, totals):
-    """Row sums count a candidate ID shared by two roster entries twice; the distinct
-    totals take that back out."""
+    """Roster totals with a candidate ID shared by two entries counted once."""
     sharing = defaultdict(set)
     for p in roster.people:
         for candidate_id in Roster.ids(p):

@@ -1,11 +1,4 @@
-"""Weball repeats a chamber-switcher's whole summary under both IDs.
-
-data/source/dedup-applied.json records each case. The dropped copy is
-zeroed wherever it equals the kept copy; a column that differs is
-flagged, not corrected. One recorded exception (Curtis 2024) also
-zeroes receipts, transfers and disbursements, behind exact guards.
-Evidence: research/self-funding-notes.md.
-"""
+"""Weball repeats a chamber-switcher's summary under both IDs; the dropped copy is zeroed."""
 
 from collections import defaultdict
 

@@ -17,11 +17,7 @@ def cents(text):
 
 
 def write_gold(table, rows, dollar_columns):
-    """Replace gold.<table> with `rows` (dicts, all with the same keys).
-
-    `dollar_columns` hold dollar text and are stored as cents; every other
-    column keeps its Python type (text, integer or yes/no).
-    """
+    """Replace gold.<table> with rows; dollar_columns are stored as cents."""
     columns = list(rows[0])
     stored = [{c: cents(r[c]) if c in dollar_columns else r[c] for c in columns} for r in rows]
     definition = ', '.join(f'{c} {sql_type(c, stored, dollar_columns)}' for c in columns)

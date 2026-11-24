@@ -72,10 +72,7 @@ class IndependentExpenditure(NamedTuple):
 
     @property
     def identity(self):
-        """Rows sharing this are one expenditure, filed and amended.
-
-        A blank transaction ID is never matched to another row.
-        """
+        """Rows sharing this are one expenditure, filed and amended; a blank ID never matches."""
         transaction = self.tran_id.strip()
         return (self.spe_id, transaction or f'blank:{self.position}')
 

@@ -1,8 +1,4 @@
-"""Build one layer of the dbt project (dbt/) and run every test on it.
-
-`silver`: the views over the store's tables, and the store's own tests.
-`marts`: the per-person marts over the gold tables the money steps write.
-"""
+"""Build one dbt layer (silver or marts) and run its tests."""
 
 import os
 import sys

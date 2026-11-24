@@ -1,38 +1,5 @@
 #!/usr/bin/env python3
-"""The Receipts — static site generator.
-
-Reads the canonical dataset (congress-money-tracker.json at the repo root)
-and emits the static site under docs/ for GitHub Pages. The site is a
-single self-contained index.html: the dataset is embedded in a compact
-positional encoding (column list + array-of-arrays, ~1.6 MB vs 5.5 MB
-minified JSON) and every view on the page — table, filters, leaderboards,
-clean view, breakdown, primary targets, CSV download — is computed from
-that embedded data at runtime, so the figures on the page can never drift
-from the dataset. A second, smaller payload carries the race-phase UDP
-opposition-credit detail (from the store's gold opposition tables) so a person's drill-down can show the credit split
-by primary / general / other phase.
-
-Usage:
-    python3 receipts/site/build_site.py            # regenerate docs/index.html
-    python3 receipts/site/verify_site.py           # verify the generated site
-
-Rules (see AGENTS.md):
-- Never hand-edit docs/index.html. The page lives in templates/ (page.html,
-  style.css, tracker.js, views.js, method.html); edit those or this
-  generator and re-run it.
-- The generator must be deterministic apart from the generation timestamp
-  in the footer (dataset md5 + data_as_of are the stable identifiers).
-- Figures are never hardcoded in the template: header stats, leaderboards
-  and totals are all computed from the embedded data in the browser.
-- Two modes, one page: the front door is
-  the default — dirtiest in 2026, the clean story, the finder, one
-  freshness line, one "Explore the full data" button — and #explore opens
-  the full-data workspace (tabs, filters, table, methodology) with the
-  story and finder removed from above the table. Mode, tab, filters,
-  preset, view, sort and the open drill-down all live in the URL hash
-  (Change 2, FE5): a view is shareable, and Back/forward restores it —
-  Back from a drill-down closes the sheet.
-"""
+"""Generate docs/index.html from templates/ and the dataset; never hand-edit the output."""
 
 import csv
 import hashlib
@@ -219,14 +186,7 @@ def encode_row(r):
 
 
 def build_opp_payload():
-    """Race-phase UDP opposition credit per roster person, for the drill-down.
-
-    From gold.opposition_credits and gold.opposition_opposed:
-    {person_key: [{cycle, office, state, district, phase, amount, opposed:
-    [[name, amount], ...]}, ...]}. Non-roster credits are excluded (no
-    drill-down row exists for them). Deterministic: entries sorted by race
-    key, opposed names by amount descending.
-    """
+    """Race-phase UDP opposition credit per roster person, sorted for a deterministic page."""
     race = 'cycle, office, state, district, election_type, credited_to'
     with connect() as db:
         credits = db.execute(
@@ -389,11 +349,7 @@ def method_tokens(dataset):
 
 
 def clean_method_html(dataset):
-    """The methodology clean paragraph, every figure computed from the dataset.
-
-    Tokens are replaced here; verify_site.py fails the build if any %%TOKEN%%
-    survives unreplaced.
-    """
+    """The methodology clean paragraph, every figure computed from the dataset."""
     html = template('method.html')
     for token, value in method_tokens(dataset).items():
         html = html.replace(token, value)

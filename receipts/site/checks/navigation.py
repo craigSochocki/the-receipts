@@ -99,11 +99,7 @@ def prev_next_and_anchors(audit, page):
 
 
 def tab_strip_and_filter_rows(audit, page):
-    """Wave 2 (redesign): D8 tab strip + labelled filter rows
-    The tab bar is one horizontal scroll strip (no wrapping); the
-    Tracker filters sit in two labelled rows (Filter / Show only).
-    Tabs keep the squared-top radius — never pill-shaped.
-    """
+    """The tab bar scrolls in one strip; filters sit in two labelled rows."""
     audit.check(
         'D8: tab bar is one horizontal scroll strip, tabs not pill-shaped',
         '.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto' in page.html
@@ -120,11 +116,7 @@ def tab_strip_and_filter_rows(audit, page):
 
 
 def drill_down_on_phones(audit, page):
-    """Wave 2 (redesign): D9 drill-down collapses on mobile
-    The key-value grid is one column on phones, and every cycle
-    table in the drill-down is a <details> element (first one
-    open) instead of a wall of expanded tables.
-    """
+    """On phones the drill-down is one column and each cycle table collapses."""
     audit.check(
         'D9: cycle tables are <details> (first open); kv is 1 column on mobile',
         'function cycleTable(title, rows, cols, open, id)' in page.html
@@ -134,12 +126,7 @@ def drill_down_on_phones(audit, page):
 
 
 def money_format_toggle(audit, page):
-    """Wave 2 (redesign): D6/FE3 compact/exact money toggle
-    A persisted toggle (Compact default, Exact shows dollars and
-    cents) governs the Explore data views; the drill-down header
-    always shows exact figures. The option labels use format
-    examples ($1.23M / $1,234,567.89), never a real figure.
-    """
+    """A persisted compact/exact money toggle; the labels are format examples."""
     audit.check(
         'D6/FE3: compact/exact money toggle exists, Compact default, persisted',
         'id="f-money"' in page.html
@@ -159,11 +146,7 @@ def money_format_toggle(audit, page):
 
 
 def skip_link(audit, page):
-    """U5: skip link
-    One Tab from the top of the page jumps straight to the data
-    (Explore). Hidden until focused; the slim sticky front-door
-    header stays dropped this round.
-    """
+    """One Tab from the top jumps to the data."""
     audit.check(
         'U5: skip link to the data exists, hidden until focused',
         'id="skip-link"' in page.html

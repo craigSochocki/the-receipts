@@ -1,9 +1,4 @@
-"""Seats in Congress: stable positions that races are held for and members hold.
-
-A House seat is a district under one map; when a state redraws its map
-the districts become new seats. A Senate seat is a state's seat in one
-of the three classes, one class up for election every two years.
-"""
+"""Seats in Congress: a House district under one map, or a state's Senate class."""
 
 DELEGATE_STATES = ('AS', 'DC', 'GU', 'MP', 'PR', 'VI')
 FIRST_ELECTION_COVERED = 2024

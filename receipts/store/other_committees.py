@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Contributions from every committee other than AIPAC and corporate PACs.
-
-Read from the store's committee_money_by_class view; classes are in
-receipts/domain/committee_classes.py. Each class gets its own columns, never
-blended into total_accepted. Also re-derives the corporate and AIPAC
-totals as a cross-check, and reconciles against weball col 26.
-Evidence and findings: research/other-committees-notes.md.
-"""
+"""Contributions from every committee other than AIPAC and corporate PACs."""
 
 from dataclasses import asdict
 from datetime import datetime

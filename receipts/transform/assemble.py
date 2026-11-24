@@ -1,10 +1,4 @@
-"""The dataset's rows before the 2026 columns: roster fields, money, notes and ranks.
-
-Every figure comes from the store: the gold tables the money steps write and the
-dbt marts over them (person_money, person_ranks, tracked_people). Amounts are
-cents there and dollars here. A person with no FEC candidate ID has every amount
-'unknown'. The second roster entry for one person is folded into the kept row.
-"""
+"""The dataset's rows before the 2026 columns, from the store's gold tables and marts."""
 
 from collections import defaultdict
 

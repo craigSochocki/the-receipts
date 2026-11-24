@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""FEC candidate-ID lookup for roster rows with no FEC ID yet.
-
-Uses api.open.fec.gov with the API key from the FEC_API_KEY environment
-variable (config fec_api.api_key_default as fallback). Matches on office +
-state + district + party; stops on rate limiting and leaves the rest empty
-rather than guessing.
-"""
+"""Look up missing FEC candidate IDs through the OpenFEC API; stop on rate limits, never guess."""
 
 import json
 import os

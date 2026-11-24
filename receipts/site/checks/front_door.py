@@ -9,14 +9,7 @@ from receipts.site.checks.page import num
 
 
 def landing_story(audit, page):
-    """landing story + finder (Change 1): computed, never hardcoded
-    The story headline is rendered by JavaScript from the embedded
-    dataset, so no "<N> of <M> incoming members" literal may appear in
-    the built page at all: if one does, somebody typed the figure into
-    the template and the next data change will strand it stale. The
-    prose below is the page with the JSON payloads stripped, so raw
-    data numbers cannot trip the check.
-    """
+    """The story headline is computed in the browser; no typed count may appear."""
     audit.check(
         'landing story block exists',
         'id="landing-story"' in page.html and 'id="story-clean-link"' in page.html,
@@ -182,11 +175,7 @@ def leaderboards(audit, page):
 
 
 def masthead(audit, page):
-    """Wave 2 (redesign): D2 masthead demotion
-    The masthead title used to be bigger than the hook (1.7rem vs
-    1.55rem on mobile) — the wordmark led, not the story. D2 shrinks
-    the title to ~1.15rem and lets the hook lead at 1.9rem on mobile.
-    """
+    """The hook, not the masthead title, leads on mobile."""
     audit.check(
         'D2: masthead title demoted to 1.15rem, hook leads at 1.9rem on mobile',
         'h1{font-size:1.15rem' in page.html
@@ -196,12 +185,7 @@ def masthead(audit, page):
 
 
 def orientation(audit, page):
-    """Wave 2 (redesign): D3 orientation
-    Chapter headings at 1.3rem with eyebrow kickers (one per
-    chapter with an h2), the clean count in the same .big-number
-    treatment as the dirty total, and a slim footer that lives
-    inside #front-door (the page footer stays hidden there).
-    """
+    """Chapter kickers, equal big numbers, and the front-door footer."""
     audit.check(
         'D3: chapter h2s are 1.3rem with eyebrow kickers',
         '.frontdoor h2{font-size:1.3rem' in page.html

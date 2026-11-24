@@ -1,9 +1,4 @@
-"""Expected figures that depend on the FEC data, kept in one committed file.
-
-Check mode compares against data/source/baseline.json. Rebaseline mode
-(`rebuild.py --rebaseline`) records what it observes; the diff of that
-file is the review. Policy values stay in config.yaml.
-"""
+"""Expected figures that move with FEC data, kept in data/source/baseline.json."""
 
 import json
 import os

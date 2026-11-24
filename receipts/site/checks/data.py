@@ -10,10 +10,7 @@ from receipts.site.checks.page import values_equal
 
 
 def coverage_stamp(audit, page):
-    """Visible data-as-of stamp: the coverage end dates it shows must be
-    the ones in config.yaml verification.coverage_end (formatted
-    "Sep 30, 2026" style), and it must carry the "Data as of" label.
-    """
+    """The data-as-of stamp shows config.yaml's coverage end dates."""
     cov = asdict(settings().verification.coverage_end)
     cov_dates = [
         datetime.strptime(cov[k], '%Y-%m-%d').strftime('%b %d, %Y')

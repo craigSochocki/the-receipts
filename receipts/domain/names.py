@@ -129,9 +129,7 @@ def slug(first, last, state, extra=''):
 
 
 def first_names_agree(first, *known_names):
-    """Nickname-aware agreement between a first name and any of a person's known names
-    (e.g. Bernie/Bernard, Jack/John, Rick/Eric, Andy/Garland, French/J. French Hill,
-    Lou/Luis Correa)."""
+    """Nickname-aware agreement between a first name and any of a person's known names."""
     wanted = [NICK.get(t, t) for t in norm(first).split()]
     known = set()
     for name in known_names:

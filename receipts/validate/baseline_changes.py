@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Every baseline figure a rebaseline moved, old next to new, as a Markdown table.
-
-Usage: python3 -m receipts.validate.baseline_changes OLD.json NEW.json [--count]
-"""
+"""Every baseline figure a rebaseline moved, old next to new, as a Markdown table."""
 
 import sys
 

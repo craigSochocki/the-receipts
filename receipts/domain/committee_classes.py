@@ -1,8 +1,4 @@
-"""Which kind of committee a contribution came from (methodology §4).
-
-First match wins. AIPAC and corporate PACs are counted in their own
-columns; every other committee lands in exactly one class.
-"""
+"""Which kind of committee a contribution came from; first match wins."""
 
 from enum import Enum
 

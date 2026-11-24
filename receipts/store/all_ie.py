@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""All independent expenditures, for every identified candidate, read from the store.
-
-Counted: the latest filing of each expenditure, by a registered committee,
-naming an identified candidate. Support and oppose are summed separately,
-never netted; blank-direction rows count in the total only. These columns
-are separate from total_accepted. Career means the staged IE cycles only.
-Rules, validation targets and findings: research/all-ie-notes.md.
-"""
+"""All independent expenditures by identified candidate, read from the store."""
 
 from collections import defaultdict
 from typing import NamedTuple
@@ -196,8 +189,7 @@ def csv_row(person, found):
 
 
 def top_committees_for(person, totals):
-    """The person's top five spenders, career. A committee keeps the name it used on its
-    largest (candidate, cycle) total, since names vary in case between filings."""
+    """A person's top five spenders; a committee keeps the name from its largest total."""
     ids = Roster.ids(person)
     if not ids:
         return None
