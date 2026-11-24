@@ -27,7 +27,7 @@ module still runs alone as `python3 -m <module>`):
                                      the store (double counts removed)
     receipts.store.udp                    UDP independent-expenditure support, from the store
     receipts.store.self_funding           self-funding + topline, from the store
-                                     (Curtis-corrected for cols 6-9)
+                                     (with the recorded corrections to cols 6-9)
     receipts.store.other_committees       other-committee contributions, from the store
     receipts.store.all_ie                 all independent expenditures 2022-2026, from the store
                                      (+ top committees per person)
@@ -35,7 +35,7 @@ module still runs alone as `python3 -m <module>`):
                                      merge so its sanity check reads the
                                      current dataset)
     receipts.transform.build_dataset      one pass, written once: merge (roster + money +
-                                     opposition), ranking (total_accepted + twelve
+                                     opposition), ranking (total_accepted + the
                                      rank columns), 2026 (columns, clean flags,
                                      primary-target list)
     receipts.validate.verify_dataset      standing audits (unless --skip-verify)
@@ -44,7 +44,7 @@ The freshness layer (receipts/ingest/pull_freshness.py) is NOT part of this
 pipeline: it runs on a different cadence (daily in the final 20 days
 before an election, weekly in-cycle, event-driven after deadlines)
 and writes data/intermediate/freshness_snapshot.json — new money found
-since bulk coverage (Oct 14), labeled by source and date, NEVER merged
+since the bulk coverage end, labeled by source and date, NEVER merged
 into the dataset totals. See methodology.md §16.
 
 Each step checks its figures against data/source/baseline.json, which is
@@ -60,7 +60,7 @@ and left in place until the merge overwrites it (so the opposition sanity
 check still reads the current dataset).
 
 A live fec_lookup run overwrites fec_lookup_results.json wholesale and
-loses the seven recorded `found-manual` entries, so --with-fec-lookup
+loses the recorded `found-manual` entries, so --with-fec-lookup
 snapshots them first and restores them afterwards.
 """
 
