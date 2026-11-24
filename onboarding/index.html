@@ -305,7 +305,7 @@ dl.gloss dd { margin: 0; }
   <details class="col">
     <summary>See the exact step order <code>rebuild.py</code> runs</summary>
     <div>
-<pre><span class="c"># receipts/rebuild.py, STEPS: each runs as `python3 -m &lt;module&gt;`</span>
+<pre><span class="c"># receipts/rebuild.py, STEPS: each step&#39;s main(), run in one process</span>
 receipts.transform.build_roster      <span class="c"># who is in Congress</span>
 receipts.transform.apply_fec_lookup  <span class="c"># attach FEC candidate IDs</span>
 receipts.store.build_store           <span class="c"># raw files -> silver tables</span>

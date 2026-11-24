@@ -92,11 +92,11 @@ SECTIONS = [
 ]
 
 
-def main():
+def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('--dataset-csv', default=settings().paths.dataset_csv)
     ap.add_argument('--dataset-json', default=settings().paths.dataset_json)
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
     audit = Audit()
     dataset = Published(settings().root / args.dataset_json, settings().root / args.dataset_csv)

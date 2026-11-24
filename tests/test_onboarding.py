@@ -58,7 +58,7 @@ def test_quoted_code_is_in_the_file_it_names():
 def test_the_step_list_is_the_one_rebuild_runs():
     block = next(b for b in code_blocks() if b.startswith('# receipts/rebuild.py, STEPS'))
     shown = [without_comment(line).strip() for line in block.split('\n')[1:] if line.strip()]
-    assert shown == STEPS
+    assert shown == [step.name for step in STEPS]
 
 
 def test_named_files_and_modules_exist():

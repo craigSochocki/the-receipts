@@ -110,14 +110,15 @@ SECTIONS = [
 ]
 
 
-def main():
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
     path = settings().paths.site / 'index.html'
     if not path.exists():
         raise SystemExit('FAIL docs/index.html does not exist: run build_site.py')
     audit = Audit()
     page = BuiltPage(path)
     audit.check('no unreplaced placeholders', '%%' not in page.html)
-    skipped = {served_page} if '--skip-serve' in sys.argv else set()
+    skipped = {served_page} if '--skip-serve' in argv else set()
     for section in SECTIONS:
         if section not in skipped:
             section(audit, page)

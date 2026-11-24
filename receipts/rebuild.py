@@ -4,7 +4,8 @@
 Usage:
     python3 receipts/rebuild.py [--with-fec-lookup] [--skip-verify] [--rebaseline]
 
-Pipeline (in order; each step runs as a module, `python3 -m <module>`):
+Pipeline (in order; each step's main() runs in this process, and each
+module still runs alone as `python3 -m <module>`):
     receipts.transform.build_roster       roster from legislators-current.yaml +
                                      historical_lookup.json + 120th_roster.json
     receipts.transform.fec_lookup         live OpenFEC lookup (ONLY with
@@ -67,32 +68,55 @@ import argparse
 import json
 import os
 import shutil
-import subprocess
-import sys
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from receipts.common import baseline
 from receipts.common.files import read_json
 from receipts.common.settings import settings
+from receipts.site import build_site, verify_site
+from receipts.store import (
+    accepted_money,
+    all_ie,
+    build_store,
+    models,
+    opposition,
+    other_committees,
+    self_funding,
+    udp,
+)
+from receipts.transform import apply_fec_lookup, build_dataset, build_roster, fec_lookup
+from receipts.validate import run_history, verify_dataset
 
-# Pipeline steps in order (module names; run with `python3 -m <module>`).
+
+@dataclass(frozen=True)
+class Step:
+    name: str
+    run: Callable[[], object]
+
+
 STEPS = [
-    'receipts.transform.build_roster',
-    'receipts.transform.apply_fec_lookup',
-    'receipts.store.build_store',
-    'receipts.validate.run_history',
-    'receipts.store.models silver',
-    'receipts.store.accepted_money',
-    'receipts.store.udp',
-    'receipts.store.self_funding',
-    'receipts.store.other_committees',
-    'receipts.store.all_ie',
-    'receipts.store.opposition',
-    'receipts.store.models marts',
-    'receipts.transform.build_dataset',
-    'receipts.validate.verify_dataset',
+    Step('receipts.transform.build_roster', build_roster.main),
+    Step('receipts.transform.apply_fec_lookup', apply_fec_lookup.main),
+    Step('receipts.store.build_store', build_store.main),
+    Step('receipts.validate.run_history', run_history.main),
+    Step('receipts.store.models silver', lambda: models.build('silver')),
+    Step('receipts.store.accepted_money', accepted_money.main),
+    Step('receipts.store.udp', udp.main),
+    Step('receipts.store.self_funding', self_funding.main),
+    Step('receipts.store.other_committees', other_committees.main),
+    Step('receipts.store.all_ie', all_ie.main),
+    Step('receipts.store.opposition', opposition.main),
+    Step('receipts.store.models marts', lambda: models.build('marts')),
+    Step('receipts.transform.build_dataset', build_dataset.main),
+    Step('receipts.validate.verify_dataset', lambda: verify_dataset.main([])),
 ]
-LOOKUP_STEP = 'receipts.transform.fec_lookup'
+LOOKUP_STEP = Step('receipts.transform.fec_lookup', fec_lookup.main)
+SITE_STEPS = [
+    Step('receipts.site.build_site', build_site.main),
+    Step('receipts.site.verify_site', lambda: verify_site.main([])),
+]
 
 # Bulk files the pulls read; all must exist or the rebuild fails fast.
 # The 2026 files plus the earliest-cycle files are checked as sentinels
@@ -153,12 +177,15 @@ def check_snapshot(rebaseline):
     check_data_as_of(staged)
 
 
-def run(module, *args):
-    cmd = [sys.executable, '-m', module, *args]
-    print(f'\n=== {module} ===', flush=True)
-    proc = subprocess.run(cmd, cwd=settings().root)
-    if proc.returncode != 0:
-        raise SystemExit(f'{module} failed (exit {proc.returncode}); rebuild aborted')
+def run(step):
+    """Run one step; a step that exits with an error aborts the rebuild."""
+    print(f'\n=== {step.name} ===', flush=True)
+    try:
+        step.run()
+    except SystemExit as e:
+        if e.code not in (None, 0):
+            print(e.code if isinstance(e.code, str) else '', flush=True)
+            raise SystemExit(f'{step.name} failed; rebuild aborted') from e
 
 
 def ensure_dirs():
@@ -260,13 +287,13 @@ def main():
     for step in STEPS:
         if step == VERIFY_STEP and args.skip_verify:
             continue
-        run(*step.split())
+        run(step)
         if step == ROSTER_STEP and args.with_fec_lookup:
             run_live_lookup()
     if args.rebaseline:
         # The baseline also pins what the page says, so the site is rebuilt and verified too.
-        run('receipts.site.build_site')
-        run('receipts.site.verify_site')
+        for step in SITE_STEPS:
+            run(step)
         baseline.start_rebaseline_run()
         baseline.set_snapshots(staged_snapshot(), staged_candidates_snapshot())
         print(
