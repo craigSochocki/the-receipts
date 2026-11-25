@@ -457,7 +457,19 @@
    columns and the roster's `*_119`/`*_120` fields replaced by the
    per-cycle and per-Congress records — schema change, needs Craig's
    review; (6) methodology and tour rewritten cycle-neutral.
-7. **Public sharing:** the site is live and public by Craig's go-ahead
+7. **Scrollytelling site (decided with Craig, after cycle-neutral 4b):**
+   NYT-style pinned-chart stories, in plain JS + SVG (no libraries).
+   (a) Front door: one pinned field of every incoming member as a dot;
+   text steps regroup it, verdict first: everyone in grey → clean vs
+   dirty (latest election) → lined up by dirty money, top member called
+   out → by party → by chamber → the next cycle's primary targets → find
+   your member (their dot glows and opens their story). (b) Member
+   story: a pinned cycle-by-cycle bar timeline, with steps for the
+   verdict and why → receipts by cycle, dirty share highlighted → who
+   funds them → outside spending on their races → their seat next
+   cycle; the full tables follow. Explore stays the tabbed data tool.
+   Each lands as its own PR. Roadmap: move to Scrollama + D3 later.
+8. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.
 
