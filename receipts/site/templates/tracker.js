@@ -18,9 +18,47 @@ const PEOPLE = RAW.map(a=>{
   o.other_committees_per_cycle=a[NS+3]||[];
   o.all_ie_per_cycle=a[NS+4]||[];
   o.all_ie_top_committees=a[NS+5]||[];
+  o.cycles=(a[NS+6]||[]).map(e=>mkobj(COLS.cy, e));
   return o;
 });
 const BY_KEY = {}; PEOPLE.forEach(p=>{ BY_KEY[p.person_key]=p; });
+
+/* ---- the selected cycle ----
+   Every view reads one cycle's figures through the cy_* fields, which
+   applyCycle copies from the person's record for state.cycle. 'latest'
+   is each person's headline verdict: their latest election. */
+const CURRENT_CYCLE = COLS.current_cycle;
+const IE_SPAN = COLS.ie_span;
+// A selected-cycle column: its heading names the cycle the page shows.
+const cyCol = (k, name, type)=>({k, type, get label(){ return name+' '+CY; }});
+const CYCLE_FIELDS = COLS.cy.filter(k=>k!=='cycle' && k!=='up_for_election');
+const NO_RECORD = {clean:null, tier_balanced:null, tier_lenient:null, dep_share:null,
+  cash_on_hand:null, unopposed:false, aipac_udp_flag:false};
+function cycleRecord(p, cycle){
+  if(cycle==='latest'){
+    const r = p.cycles.find(c=>c.cycle===p.verdict_cycle) || {};
+    return Object.assign({}, r, {clean:p.clean, dirty:p.dirty,
+      tier_balanced:p.tier_balanced, tier_lenient:p.tier_lenient});
+  }
+  return p.cycles.find(c=>c.cycle===cycle) || {};
+}
+const CYCLE_CHOICES = ['latest', ...COLS.picker_cycles];
+const cycleValue = v=>(v==='latest' ? v : Number(v));
+const isCycleChoice = c=>CYCLE_CHOICES.indexOf(c)>=0;
+// The selected cycle in words: CY heads columns, IN_CY reads in prose.
+let CY = '', IN_CY = '';
+function applyCycle(cycle){
+  CY = cycle==='latest' ? 'latest' : String(cycle);
+  IN_CY = cycle==='latest' ? 'in their latest election' : 'in '+cycle;
+  PEOPLE.forEach(p=>{
+    const r = cycleRecord(p, cycle);
+    CYCLE_FIELDS.forEach(k=>{
+      p['cy_'+k] = (k in r) ? r[k] : (k in NO_RECORD ? NO_RECORD[k] : 0);
+    });
+    p.cy_cycle = (r.cycle===undefined) ? null : r.cycle;
+  });
+}
+applyCycle(CURRENT_CYCLE);
 
 /* ---- lazy-decode nested lists (FE1a) ----
    Each nested list is a positional array until decoded; decodeNested
@@ -60,42 +98,42 @@ function fmtCompact(v){
 function fmtPct(v){ if(v===null||v===undefined) return '—'; return (v*100).toFixed(1)+'%'; }
 function fmtRank(v){ return (v===null||v===undefined)?'—':'#'+v; }
 /* ---- corporate PAC tolerance presets (methodology §14) ----
-   Strict is clean_2026 itself (any net dirty dollar above $0 is
+   Strict is cy_clean itself (any net dirty dollar above $0 is
    dirty); Balanced / Lenient read the stored tier columns. The
    AIPAC/UDP flag is not tolerance-based: any AIPAC direct or UDP
    benefit dollar flags the member under every preset, and a flagged
    member is dirty under every preset. The middle tier is never
-   called clean, and its dollar amount (corp_2026) is always shown.
+   called clean, and its dollar amount (cy_corp) is always shown.
    Default is Balanced. */
 const PRESETS = {
   strict:{label:'Strict',
     def:'Strict: any net dirty dollar above $0 is dirty.',
     short:'any dirty dollar counts'},
   balanced:{label:'Balanced',
-    def:'Balanced (default): corporate PAC counts as dirty only over $100,000 and over 5% of 2026 receipts; any AIPAC direct or UDP benefit dollar always counts.',
+    def:'Balanced (default): corporate PAC counts as dirty only over $100,000 and over 5% of the cycle’s receipts; any AIPAC direct or UDP benefit dollar always counts.',
     short:'corporate PAC over $100k and over 5% of receipts'},
   lenient:{label:'Lenient',
-    def:'Lenient: corporate PAC counts as dirty only over $250,000 and over 10% of 2026 receipts; any AIPAC direct or UDP benefit dollar always counts.',
+    def:'Lenient: corporate PAC counts as dirty only over $250,000 and over 10% of the cycle’s receipts; any AIPAC direct or UDP benefit dollar always counts.',
     short:'corporate PAC over $250k and over 10% of receipts'}
 };
 function tierOf(p){
   if(state.preset==='strict')
-    return p.clean_2026===true ? 'clean' : (p.clean_2026===null ? null : 'dirty');
-  return state.preset==='lenient' ? p.tier_lenient_2026 : p.tier_balanced_2026;
+    return p.cy_clean===true ? 'clean' : (p.cy_clean===null ? null : 'dirty');
+  return state.preset==='lenient' ? p.cy_tier_lenient : p.cy_tier_balanced;
 }
 function isNotDirty(p){ const t=tierOf(p); return t==='clean'||t==='below_threshold'; }
 function flagBadge(p){
-  if(p.aipac_udp_flag_2026!==true) return '';
-  return ' <span class="badge flag" title="Took AIPAC PAC direct money or UDP benefit in 2026 — flagged under every tolerance preset">AIPAC/UDP</span>';
+  if(p.cy_aipac_udp_flag!==true) return '';
+  return ' <span class="badge flag" title="Took AIPAC PAC direct money or UDP benefit '+IN_CY+' — flagged under every tolerance preset">AIPAC/UDP</span>';
 }
 function fmtTierBadge(p){
   const t = tierOf(p);
   if(t===null)
-    return p.unopposed_2026===true ? '<span class="badge unopp">Unopposed</span>'
+    return p.cy_unopposed===true ? '<span class="badge unopp">Unopposed</span>'
       : '<span class="badge unver">Unverified</span>';
   if(t==='clean') return '<span class="badge clean">Clean</span>';
   if(t==='below_threshold')
-    return '<span class="badge below">Below threshold · '+fmtMoney(p.corp_2026)+'</span>';
+    return '<span class="badge below">Below threshold · '+fmtMoney(p.cy_corp)+'</span>';
   return '<span class="badge dirty">Dirty</span>'+flagBadge(p);
 }
 
@@ -140,7 +178,7 @@ function isCareerClean(p){
     && num(p.udp_ie_support_career)===0 && num(p.udp_ie_opposing_opponents_career)===0;
 }
 
-const byDirty2026 = (a,b)=>num(b.dirty_2026)-num(a.dirty_2026);
+const byDirty = (a,b)=>num(b.cy_dirty)-num(a.cy_dirty);
 const CYCLE_ID = [{k:'cycle',label:'Cycle',type:'text'}, {k:'candidate_id',label:'Candidate ID',type:'text'}];
 /* The incoming members not dirty under the current preset, by chamber. */
 function notDirtyCounts(){
@@ -164,18 +202,18 @@ const VIEWS = {
     {k:'aipac_pac_direct_career',label:'AIPAC direct (career)',type:'money'},
     {k:'total_accepted_career',label:'Total accepted',type:'money'},
     {k:'rank_total_accepted',label:'Rank',type:'rank'},
-    {k:'dirty_2026',label:'Dirty 2026',type:'money'},
-    {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
-  y2026:{label:'2026 cycle',cols:[...WHO,
+    cyCol('cy_dirty','Dirty','money'),
+    cyCol('cy_clean','Tier','clean')]},
+  cycle:{get label(){ return CY+' cycle'; }, cols:[...WHO,
     {k:'party',label:'Party',type:'party'},
-    {k:'individual_2026',label:'Individual 2026',type:'money'},
-    {k:'corp_2026',label:'Corp PAC 2026',type:'money'},
-    {k:'aipac_direct_2026',label:'AIPAC 2026',type:'money'},
-    {k:'udp_support_2026',label:'UDP support 2026',type:'money'},
-    {k:'udp_benefit_2026',label:'UDP benefit 2026',type:'money'},
-    {k:'dirty_2026',label:'Dirty 2026',type:'money'},
-    {k:'dep_share_2026',label:'Dep. share 2026',type:'pct'},
-    {k:'clean_2026',label:'Tier 2026',type:'clean'}]},
+    cyCol('cy_individual','Individual','money'),
+    cyCol('cy_corp','Corp PAC','money'),
+    cyCol('cy_aipac_direct','AIPAC','money'),
+    cyCol('cy_udp_support','UDP support','money'),
+    cyCol('cy_udp_benefit','UDP benefit','money'),
+    cyCol('cy_dirty','Dirty','money'),
+    cyCol('cy_dep_share','Dep. share','pct'),
+    cyCol('cy_clean','Tier','clean')]},
   selffund:{label:'Self-funding & topline',cols:[...WHO,
     {k:'self_funding_career',label:'Self-funding (career)',type:'money'},
     {k:'cand_loans_career',label:'Candidate loans',type:'money'},
@@ -237,7 +275,8 @@ function moneyShort(v){
 const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core', preset:'balanced',
   moneyFmt:loadMoneyFmt(),
-  sortKey:'dirty_2026', sortDir:'desc', tab:'tracker', mode:'front', rendered:{}};
+  sortKey:'cy_dirty', sortDir:'desc', tab:'tracker', mode:'front', rendered:{},
+  cycle:CURRENT_CYCLE};
 // The drill-down's person key, when a sheet is open (FE5: it lives
 // in the URL hash, so Back closes the sheet).
 let detailKey = null;
@@ -347,7 +386,7 @@ function renderTable(){
   // totals strip + footer for the filtered set (FE2: memoised — the
   // sums depend only on which rows the filters select, not on their
   // sort order, so the filter state is the cache key)
-  const totalsKey = [state.q, state.congress, state.chamber, state.party, state.state, state.leadership, state.clean].join('|');
+  const totalsKey = [state.cycle, state.q, state.congress, state.chamber, state.party, state.state, state.leadership, state.clean].join('|');
   let totals = totalsCache[totalsKey];
   if(!totals){
     const sum = k => rows.reduce((s,p)=>s+(num(p[k])||0),0);
@@ -394,7 +433,7 @@ function renderChips(){
   if(state.party!=='all') chips.push({k:'party', label:'Party: '+state.party});
   if(state.state!=='all') chips.push({k:'state', label:'State: '+state.state});
   if(state.leadership) chips.push({k:'leadership', label:'Leadership (119th; 120th TBD)'});
-  if(state.clean) chips.push({k:'clean', label:'Not dirty in 2026 only'});
+  if(state.clean) chips.push({k:'clean', label:'Not dirty '+IN_CY+' only'});
   const el = document.getElementById('filter-chips');
   if(!chips.length){ el.innerHTML=''; return; }
   el.innerHTML = chips.map(c=>'<button type="button" class="chip" data-filter="'+c.k+'" title="Clear this filter">'+esc(c.label)+' ✕</button>').join(' ')
@@ -433,20 +472,20 @@ function renderViewBtns(){
     b.addEventListener('click', ()=>{ state.view=b.getAttribute('data-view'); renderViewBtns(); renderTable(); });
   });
 }
-/* ---- front door: dirtiest in 2026, computed from the data ----
+/* ---- front door: dirtiest in the selected cycle, computed from the data ----
    The top five and the #1-vs-next-four comparison are computed from
    PEOPLE at render time — no figure is ever typed into this template,
    so a data change cannot strand a stale number on the landing. The
    comparison line appears only if the computed comparison holds (#1
    exceeds the next four combined). Each row opens the drill-down. */
 function renderDirtiest(){
-  const rows = PEOPLE.filter(p=>num(p.dirty_2026)>0)
-    .sort(byDirty2026).slice(0,5);
+  const rows = PEOPLE.filter(p=>num(p.cy_dirty)>0)
+    .sort(byDirty).slice(0,5);
   const top = rows[0];
-  const next4 = rows.slice(1).reduce((s,p)=>s+num(p.dirty_2026),0);
-  let h = '<b>'+esc(top.full_name)+'</b> took <b><span class="countup" data-value="'+num(top.dirty_2026)+'" data-format="compact">'+fmtCompact(top.dirty_2026)+'</span></b> in dirty money in 2026 — the most of anyone in Congress.';
-  if(num(top.dirty_2026) > next4){
-    h += ' That is more than the next four combined (<span class="countup" data-value="'+next4+'" data-format="compact">'+fmtCompact(next4)+'</span>) — about '+(num(top.dirty_2026)/next4).toFixed(2)+'× as much.';
+  const next4 = rows.slice(1).reduce((s,p)=>s+num(p.cy_dirty),0);
+  let h = '<b>'+esc(top.full_name)+'</b> took <b><span class="countup" data-value="'+num(top.cy_dirty)+'" data-format="compact">'+fmtCompact(top.cy_dirty)+'</span></b> in dirty money '+IN_CY+' — the most of anyone in Congress.';
+  if(num(top.cy_dirty) > next4){
+    h += ' That is more than the next four combined (<span class="countup" data-value="'+next4+'" data-format="compact">'+fmtCompact(next4)+'</span>) — about '+(num(top.cy_dirty)/next4).toFixed(2)+'× as much.';
   }
   document.getElementById('dirtiest-headline').innerHTML = h;
   // U6: one line under the hook saying what counts as dirty, in the
@@ -460,7 +499,7 @@ function renderDirtiest(){
     '<li style="transition-delay:'+(i*90)+'ms"><button type="button" class="dirty-row" data-key="'+esc(p.person_key)+'">'
     + '<span><span class="nm">'+(i+1)+'. '+esc(p.full_name)+'</span>'
     + '<span class="pl">'+partyChip(p)+' '+esc(place(p))+' · '+outcomeLabel(p)+'</span></span>'
-    + '<span class="amt">'+fmtMoney(p.dirty_2026)+'</span></button></li>').join('');
+    + '<span class="amt">'+fmtMoney(p.cy_dirty)+'</span></button></li>').join('');
   document.querySelectorAll('#dirtiest-list .dirty-row').forEach(b=>{
     b.addEventListener('click', ()=>openDetail(b.getAttribute('data-key')));
   });
@@ -477,7 +516,7 @@ function renderCleanStory(){
   const preset = PRESETS[state.preset];
   document.getElementById('landing-story').innerHTML =
     '<p class="big-number"><span class="countup" data-value="'+nd.length+'" data-format="int">'+nd.length+'</span> of <span class="countup" data-value="'+incoming.length+'" data-format="int">'+incoming.length+'</span></p>'
-    + '<p class="big-label">took no dirty money in 2026</p>'
+    + '<p class="big-label">took no dirty money '+IN_CY+'</p>'
     + '<p>'+hND+' House + '+sND+' Senate. '
     + preset.label+' tolerance: '+preset.short+'. Any AIPAC direct or UDP benefit dollar always counts. '
     + '<button type="button" class="linklike" id="story-clean-link">See the list</button></p>';
@@ -538,9 +577,9 @@ function seatLetter(p){
   return {Democrat:'D', Republican:'R', Independent:'I'}[n] || n || '?';
 }
 function seatStatus(p){
-  if(p.clean_2026===true) return 'clean';
-  if(p.clean_2026===false) return 'dirty';
-  return p.unopposed_2026===true ? 'unopposed' : 'unverified';
+  if(p.cy_clean===true) return 'clean';
+  if(p.cy_clean===false) return 'dirty';
+  return p.cy_unopposed===true ? 'unopposed' : 'unverified';
 }
 function compositionSeats(chamber){
   // Named voting members of the incoming 120th in this chamber.
@@ -567,13 +606,14 @@ function compositionSeats(chamber){
     seats.push({party:null, letter:'', status:'uncalled', name:'Uncalled seat'});
   return {seats, total, named: named.length};
 }
+function statusLabel(status){
+  return {dirty:'took dirty money '+IN_CY, clean:'verified clean '+IN_CY,
+    unopposed:'ran unopposed — not judged', unverified:'unverified — not judged',
+    uncalled:'no named member yet'}[status];
+}
 const WAFFLE_ROWS = 15, WAFFLE_COLS = 29, WAFFLE_STEP = 12, WAFFLE_R = 5;
 function waffleDotSVG(s, x, y, col){
-  const label = {dirty:'took dirty money in 2026',
-    clean:'verified clean in 2026',
-    unopposed:'ran unopposed — not judged',
-    unverified:'unverified — not judged',
-    uncalled:'no named member yet'}[s.status];
+  const label = statusLabel(s.status);
   const title = s.status==='uncalled' ? 'Uncalled seat — no named member yet'
     : s.name+' · '+(s.party||'')+' · '+label;
   const c = dotColor(s.party);
@@ -641,11 +681,7 @@ function senateStates(){
     });
 }
 function tileHalfSVG(half, x, y, w, h){
-  const label = {dirty:'took dirty money in 2026',
-    clean:'verified clean in 2026',
-    unopposed:'ran unopposed — not judged',
-    unverified:'unverified — not judged',
-    uncalled:'no named member yet'}[half.status];
+  const label = statusLabel(half.status);
   const title = half.status==='uncalled' ? 'Uncalled seat — no named member yet'
     : half.name+' · '+(half.party||'')+' · '+label;
   let attrs;
@@ -681,9 +717,7 @@ function senateTilesSVG(){
     const x = col*(TILE_W+TILE_GAP), y = row*(TILE_H+TILE_GAP);
     const title = (STATE_NAMES[st.code]||st.code)+' — '+st.halves.map(h=>
       h.status==='uncalled' ? 'seat uncalled'
-      : h.name+' ('+h.letter+', '+({dirty:'took dirty money in 2026',
-        clean:'verified clean in 2026', unopposed:'ran unopposed',
-        unverified:'unverified'}[h.status])+')').join('; ');
+      : h.name+' ('+h.letter+', '+statusLabel(h.status)+')').join('; ');
     // Stagger the tiles on reveal, scaled so the whole stagger stays
     // under ~500ms (FE10).
     tiles += '<g class="tile" data-state="'+esc(st.code)+'" style="transition-delay:'+(Math.round(i*480/49))+'ms">'

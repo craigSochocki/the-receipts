@@ -4,19 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Receipts — Who funds Congress</title>
-<meta name="description" content="Every person in Congress and the money behind them, from FEC filings. Career totals, 2026 clean/dirty flags, self-funding, outside spending.">
+<meta name="description" content="Every person in Congress and the money behind them, from FEC filings. Career totals, clean/dirty flags by cycle, self-funding, outside spending.">
 <style>%%STYLE%%</style>
 </head>
 <body>
 <a class="skip-link" href="#explore" id="skip-link">Skip to the data</a>
 <header>
 <h1 tabindex="-1"><a href="#" id="home-link">The Receipts</a></h1>
-<p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, 2026 clean/dirty flags, self-funding, and outside spending.</p>
+<p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, clean/dirty flags by cycle, self-funding, and outside spending.</p>
 <div id="explore-head">
 <p class="stamp">%%STAMP%%</p>
 <div class="stats" id="stats"></div>
-<details class="cutoffs"><summary>2026 is partial — coverage end dates</summary><p>Committee money (corporate PAC, AIPAC, other committees) through <b>%%COV_PAS2%%</b>; individual / self-funding / topline through <b>%%COV_WEBALL%%</b>; independent expenditures through <b>%%COV_IE%%</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p></details>
+<details class="cutoffs"><summary>%%CYCLE%% is partial — coverage end dates</summary><p>Committee money (corporate PAC, AIPAC, other committees) through <b>%%COV_PAS2%%</b>; individual / self-funding / topline through <b>%%COV_WEBALL%%</b>; independent expenditures through <b>%%COV_IE%%</b>. Post-general reports are due Dec 3, 2026; year-end reports Jan 31, 2027.</p></details>
 <div class="controls" id="tolerance-controls">
+<label for="f-cycle">Cycle:</label>
+<select id="f-cycle" aria-label="Election cycle"></select>
 <label for="f-tolerance">Corporate PAC tolerance:</label>
 <select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
 <span class="tol-note" id="tolerance-note"></span>
@@ -48,7 +50,7 @@
 </div>
 <div class="controls-row"><span class="controls-label">Show only</span>
 <label><input type="checkbox" id="f-leader"> Leadership (119th; 120th TBD)</label>
-<label><input type="checkbox" id="f-clean"> Not dirty in 2026 only</label>
+<label><input type="checkbox" id="f-clean"> Not dirty <span data-cy="in">in %%CYCLE%%</span> only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
 </div>
@@ -61,7 +63,7 @@
 
 <section id="tab-leaders" hidden tabindex="-1">
 <h2 class="sec">Leaderboards</h2>
-<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, in 2026 and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
+<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, <span data-cy="in">in %%CYCLE%%</span> and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
 <div id="leaders"></div>
 </section>
 
@@ -105,11 +107,11 @@
 <p class="hook" id="dirtiest-headline"></p>
 <p class="fine" id="hook-definition"></p>
 </section>
-<section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest in 2026">
+<section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest">
 <span class="kicker">The dirtiest five</span>
-<h2>Dirtiest in 2026</h2>
+<h2>Dirtiest <span data-cy="in">in %%CYCLE%%</span></h2>
 <ol class="dirtiest" id="dirtiest-list"></ol>
-<p class="fine">Dirty money in 2026 is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. 2026 is partial; see the methodology for the coverage cutoffs.</p>
+<p class="fine">Dirty money is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. %%CYCLE%% is partial; see the methodology for the coverage cutoffs.</p>
 </section>
 <section class="chapter" data-chapter="dirty-definition" aria-label="What counts as dirty">
 <span class="kicker">The definition</span>

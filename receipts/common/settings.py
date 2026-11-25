@@ -30,10 +30,16 @@ class Cycles:
     career_end: int
     udp: tuple[int, ...]
     current: int
+    picker_start: int
 
     @property
     def career(self) -> range:
         return range(self.career_start, self.career_end + 1, 2)
+
+    @property
+    def picker(self) -> list[int]:
+        """The cycles the site's cycle picker offers, newest first."""
+        return list(range(self.current, self.picker_start - 1, -2))
 
     @property
     def ie(self) -> tuple[int, ...]:

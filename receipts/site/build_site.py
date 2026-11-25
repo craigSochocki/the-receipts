@@ -13,6 +13,7 @@ from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean, is_not_dirty, is_primary_target_2026
 from receipts.store.read import connect
+from receipts.transform.compute_2026 import cycle_fields
 
 # ---- compact encoding: column lists (fixed order) ----
 # Scalar fields, in the order they appear in each row array. Must cover
@@ -162,6 +163,12 @@ AIE_COLS = [
     'no_direction_amount',
 ]
 TC_COLS = ['committee_id', 'committee_name', 'support', 'oppose', 'total', 'rows']
+
+
+def cycle_cols():
+    return ['cycle', *cycle_fields(), 'up_for_election']
+
+
 # Nested lists sit at fixed positions after the scalars in each row array.
 NESTED = [
     'per_cycle',
@@ -170,6 +177,7 @@ NESTED = [
     'other_committees_per_cycle',
     'all_ie_per_cycle',
     'all_ie_top_committees',
+    'cycles',
 ]
 NESTED_COLS = {
     'per_cycle': PC_COLS,
@@ -182,10 +190,10 @@ NESTED_COLS = {
 
 
 def encode_row(r):
-    """One dataset row -> compact array: scalars, then six nested lists."""
+    """One dataset row -> compact array: scalars, then the nested lists."""
     out = [r.get(k) for k in SCALARS]
     for name in NESTED:
-        cols = NESTED_COLS[name]
+        cols = cycle_cols() if name == 'cycles' else NESTED_COLS[name]
         vals = r.get(name) or []
         out.append([[e.get(k) for k in cols] for e in vals])
     return out
@@ -352,6 +360,16 @@ def clean_method_html(dataset):
     return html
 
 
+def cycle_tokens():
+    cycles = settings().cycles
+    return {
+        '%%CYCLE%%': str(cycles.current),
+        '%%CAREER_START%%': str(cycles.career_start),
+        '%%CAREER_END%%': str(cycles.career_end),
+        '%%IE_SPAN%%': f'{cycles.ie[0]}–{cycles.ie[-1]}',
+    }
+
+
 def main():
     dataset = json.loads(settings().paths.dataset_json.read_text())
     if not isinstance(dataset, list):
@@ -371,6 +389,10 @@ def main():
         'oc': OC_COLS,
         'aie': AIE_COLS,
         'tc': TC_COLS,
+        'cy': cycle_cols(),
+        'current_cycle': settings().cycles.current,
+        'picker_cycles': settings().cycles.picker,
+        'ie_span': cycle_tokens()['%%IE_SPAN%%'],
         'csv': csv_cols,
     }
     dataset_md5 = hashlib.md5(settings().paths.dataset_json.read_bytes()).hexdigest()
@@ -404,6 +426,8 @@ def main():
     )
     html = page_template()
     html = html.replace('%%METHOD_HTML%%', clean_method_html(dataset))
+    for token, value in cycle_tokens().items():
+        html = html.replace(token, value)
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
     html = html.replace('%%DATA_JSON%%', safe_json(rows))
     html = html.replace('%%OPP_JSON%%', safe_json(opp_payload))

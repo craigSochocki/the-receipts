@@ -453,7 +453,7 @@
    cycle picker, computed cycle labels and "targets for the next cycle".
    Phases: (1) no literal years in code — DONE; (2) per-cycle records
    added beside today's columns — DONE (JSON `cycles` + cycles CSV); (3) the headline verdict rule — DONE as new
-   columns (`verdict_cycle`, `clean`, `dirty`, tiers); the site switches to them in (4); (4) the site; (5) the `*_2026`
+   columns (`verdict_cycle`, `clean`, `dirty`, tiers); the site switches to them in (4); (4) the site — (4a) DONE: cycle picker (Latest election + each cycle from `cycles.picker_start`), every surface reads the picked cycle, computed labels, default still the current cycle; (4b) default to Latest election and "Primary targets — <next cycle>" (any party), needs Craig's review; still typed: the two targets tabs (4b) and the filing-deadline dates in the cutoffs note; (5) the `*_2026`
    columns and the roster's `*_119`/`*_120` fields replaced by the
    per-cycle and per-Congress records — schema change, needs Craig's
    review; (6) methodology and tour rewritten cycle-neutral.
