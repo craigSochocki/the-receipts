@@ -34,9 +34,12 @@ PAC_CLASS_BY_SPONSOR = {
 }
 
 
-def committee_class(committee, aipac_committee_id):
+def committee_class(committee, aipac_committee_id, overrides=None):
+    """The class a committee's money counts as; a reviewed override beats the FEC's code."""
     if committee.committee_id == aipac_committee_id:
         return CommitteeClass.AIPAC
+    if committee.committee_id in (overrides or {}):
+        return CommitteeClass(overrides[committee.committee_id])
     if committee.is_corporate_pac:
         return CommitteeClass.CORPORATE
     if committee.committee_type in PARTY_TYPES:

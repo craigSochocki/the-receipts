@@ -61,3 +61,9 @@ def test_unclassified_committees_are_described_for_diagnostics():
     assert kind(committee_type='O') == 'super_pacs'
     assert kind(committee_type='N') == 'qn_blank_org'
     assert kind(committee_type='Z') == 'other_types'
+
+
+def test_a_reviewed_override_beats_the_fec_organization_code():
+    union = committee(committee_type='Q', organization_type='C')
+    assert committee_class(union, AIPAC, {'C1': 'labor_pacs'}) is CommitteeClass.LABOR
+    assert committee_class(union, AIPAC, {'C2': 'labor_pacs'}) is CommitteeClass.CORPORATE

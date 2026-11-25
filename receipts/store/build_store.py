@@ -156,7 +156,9 @@ def committee_rows(files_read):
                 'committee_type': c.committee_type,
                 'designation': c.designation,
                 'organization_type': c.organization_type,
-                'committee_class': committee_class(c, settings().committees.aipac_pac).value,
+                'committee_class': committee_class(
+                    c, settings().committees.aipac_pac, settings().committees.class_overrides
+                ).value,
                 'kind': unclassified_kind(c, settings().committees.winred),
             }
         files_read.append(read_counts('cm', cycle, registry))

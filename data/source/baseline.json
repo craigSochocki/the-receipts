@@ -18,30 +18,30 @@
  "all_ie_top_spenders_2026.4.total": 112153741.9,
  "all_ie_top_spenders_2026.5.committee_id": "C00836221",
  "all_ie_top_spenders_2026.5.total": 90387313.5,
- "clean_2026.false_total": 564,
- "clean_2026.house_120th_career_clean": 52,
- "clean_2026.house_120th_career_clean_democrat": 49,
+ "clean_2026.false_total": 563,
+ "clean_2026.house_120th_career_clean": 58,
+ "clean_2026.house_120th_career_clean_democrat": 55,
  "clean_2026.house_120th_career_clean_republican": 3,
- "clean_2026.house_120th_clean_2026_not_career_clean": 17,
- "clean_2026.house_120th_verified_clean": 69,
- "clean_2026.house_120th_verified_clean_democrat": 66,
+ "clean_2026.house_120th_clean_2026_not_career_clean": 13,
+ "clean_2026.house_120th_verified_clean": 70,
+ "clean_2026.house_120th_verified_clean_democrat": 67,
  "clean_2026.house_120th_verified_clean_republican": 3,
  "clean_2026.null_total": 4,
- "clean_2026.true_total": 96,
+ "clean_2026.true_total": 97,
  "cycles.headline_by_cycle": {
   "2022": [
-   0,
-   32,
+   1,
+   31,
    0
   ],
   "2024": [
-   0,
-   34,
+   2,
+   32,
    0
   ],
   "2026": [
-   90,
-   503,
+   91,
+   502,
    4
   ],
   "None": [
@@ -183,18 +183,18 @@
    0
   ],
   "2022": [
-   25,
-   440,
+   30,
+   435,
    3
   ],
   "2024": [
-   22,
-   517,
-   0
+   34,
+   504,
+   1
   ],
   "2026": [
-   96,
-   564,
+   97,
+   563,
    4
   ]
  },
@@ -213,19 +213,19 @@
  "methodology_totals.cooperative_pacs_career": 30139116.0,
  "methodology_totals.cooperative_pacs_earmark_transmitted_career": 0.0,
  "methodology_totals.corporate_earmark_transmitted_career": 26850.0,
- "methodology_totals.corporate_pac_career": 975463084.0,
+ "methodology_totals.corporate_pac_career": 973650339.0,
  "methodology_totals.debts_owed_by_career": 191691118.19,
- "methodology_totals.dirty_career": 1073867747.2,
+ "methodology_totals.dirty_career": 1072055002.2,
  "methodology_totals.individual_contribution_total_career": 8763842034.25,
- "methodology_totals.labor_pacs_career": 294244986.0,
+ "methodology_totals.labor_pacs_career": 295554986.0,
  "methodology_totals.labor_pacs_earmark_transmitted_career": 790.0,
  "methodology_totals.leadership_pacs_career": 233602505.0,
  "methodology_totals.leadership_pacs_earmark_transmitted_career": 786779.0,
  "methodology_totals.loan_repayments_career": 117267525.92,
  "methodology_totals.membership_pacs_career": 221022368.0,
  "methodology_totals.membership_pacs_earmark_transmitted_career": 2479868.0,
- "methodology_totals.other_committees_total_career": 1575211128.0,
- "methodology_totals.other_unclassified_career": 305141948.0,
+ "methodology_totals.other_committees_total_career": 1577023873.0,
+ "methodology_totals.other_unclassified_career": 305644693.0,
  "methodology_totals.other_unclassified_earmark_transmitted_career": 1633442.0,
  "methodology_totals.party_committees_career": 12461354.0,
  "methodology_totals.party_committees_earmark_transmitted_career": 18743.0,
@@ -253,22 +253,23 @@
    "Steny H. Hoyer",
    "George Latimer"
   ],
-  "top1_exact": "$36,864,670.88"
+  "top1_exact": "$36,854,643.88"
  },
  "site.charts": {
   "house": {
-   "clean D": 63,
+   "clean D": 64,
    "clean R": 2,
-   "dirty D": 193,
+   "dirty D": 192,
    "dirty R": 169,
    "unopposed D": 2,
    "unverified D": 1
   },
   "house_named": 430,
   "senate": {
-   "clean D": 8,
-   "dirty D": 45,
-   "dirty I": 2,
+   "clean D": 10,
+   "clean I": 1,
+   "dirty D": 43,
+   "dirty I": 1,
    "dirty R": 44
   },
   "senate_named": 99,
@@ -280,7 +281,7 @@
   }
  },
  "site.clean": {
-  "true_total": 90,
+  "true_total": 94,
   "null_unopposed": [
    "Aumua Amata Coleman Radewagen",
    "Ayanna Pressley",
@@ -291,12 +292,12 @@
    "Elaine Luria"
   ],
   "unopposed_total": 10,
-  "house_120": 69,
-  "house_120_democrat": 66,
+  "house_120": 70,
+  "house_120_democrat": 67,
   "house_120_republican": 3,
-  "senate_120": 8,
-  "all_120": 77,
-  "career_clean_house_120": 52
+  "senate_120": 11,
+  "all_120": 81,
+  "career_clean_house_120": 58
  },
  "site.composition.delegates": 6,
  "site.composition.house_named": 430,
@@ -390,14 +391,14 @@
  },
  "site.tiers": {
   "balanced": {
-   "clean": 77,
-   "below_threshold": 107,
+   "clean": 80,
+   "below_threshold": 104,
    "dirty": 347,
    "null": 4
   },
   "lenient": {
-   "clean": 77,
-   "below_threshold": 148,
+   "clean": 80,
+   "below_threshold": 145,
    "dirty": 306,
    "null": 4
   },
@@ -448,7 +449,7 @@
  "spot.constantino.total_receipts_career": 17064951.19,
  "spot.dirty_career_top": [
   "S001215",
-  36864670.88
+  36854643.88
  ],
  "spot.elsayed.all_ie_oppose_career": 107400660.67,
  "spot.elsayed.all_ie_support_career": 41093505.97,
@@ -522,23 +523,23 @@
   26
  ],
  "targets.strict": [
-  363,
-  34
+  362,
+  33
  ],
  "tiered_2026.aipac_udp_flag_120th": 231,
  "tiered_2026.aipac_udp_flag_all": 291,
- "tiered_2026.balanced.below_threshold": 119,
- "tiered_2026.balanced.clean": 82,
+ "tiered_2026.balanced.below_threshold": 118,
+ "tiered_2026.balanced.clean": 83,
  "tiered_2026.balanced.dirty": 330,
  "tiered_2026.balanced.not_dirty": 201,
  "tiered_2026.balanced.null": 4,
- "tiered_2026.corp_only_2026_120th": 213,
- "tiered_2026.corp_only_below_balanced": 118,
- "tiered_2026.corp_only_below_lenient": 169,
+ "tiered_2026.corp_only_2026_120th": 212,
+ "tiered_2026.corp_only_below_balanced": 117,
+ "tiered_2026.corp_only_below_lenient": 168,
  "tiered_2026.corp_only_staying_dirty_balanced": 95,
  "tiered_2026.corp_only_staying_dirty_lenient": 44,
- "tiered_2026.lenient.below_threshold": 171,
- "tiered_2026.lenient.clean": 82,
+ "tiered_2026.lenient.below_threshold": 170,
+ "tiered_2026.lenient.clean": 83,
  "tiered_2026.lenient.dirty": 278,
  "tiered_2026.lenient.not_dirty": 253,
  "tiered_2026.lenient.null": 4,

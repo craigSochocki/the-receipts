@@ -60,7 +60,7 @@ and research notes in `research/`.
 | `individual_contribution_total_career` | **Career total of individual contributions** (itemized + unitemized), summed across the person's candidate IDs and all cycles. Source: `TTL_INDIV_CONTRIB` (col 18) of the FEC all-candidates file (`weball`). **De-duplicated (§8 item 15):** where weball repeats the identical `TTL_INDIV_CONTRIB` under two of a person's candidate IDs in the same cycle, it is counted **once** per (person, cycle). Same-cycle amounts that *differ* across IDs are different money and are summed in full. |
 | `aipac_pac_direct_career` | **Headline AIPAC column — total Schedule B disbursements from the AIPAC PAC (committee ID in `config.yaml`) to the person's campaign(s).** The sum of *all* `24K`/`24P` pas2 rows from that committee: the PAC's own money **plus** earmarked individual checks transmitted through it. See the AIPAC decision below. |
 | `aipac_earmark_transmitted_career` | **Breakout (subset of the headline):** the part of `aipac_pac_direct_career` that is individual donors' earmarked money transmitted through the PAC as a conduit (pas2 rows whose memo text names a donor, e.g. `EARMARK OF <donor>. TRANSMITTED BY CHECK/EFT`). **PAC own-money = headline − this column.** |
-| `corporate_pac_career` | Career total of direct contributions from **corporate-connected PACs**. A committee is corporate if, in the same cycle's committee-master file, `CMTE_TP IN ('Q','N')` **and** `ORG_TP IN ('C','W')`. Trade associations (`T`), labor (`L`), membership orgs (`M`, including the AIPAC PAC), cooperatives (`V`) and hybrid PACs (`CMTE_TP` V/W) are excluded. A blank `ORG_TP` is unclassified, never corporate. |
+| `corporate_pac_career` | Career total of direct contributions from **corporate-connected PACs**. A committee is corporate if, in the same cycle's committee-master file, `CMTE_TP IN ('Q','N')` **and** `ORG_TP IN ('C','W')`. Trade associations (`T`), labor (`L`), membership orgs (`M`, including the AIPAC PAC), cooperatives (`V`) and hybrid PACs (`CMTE_TP` V/W) are excluded. A blank `ORG_TP` is unclassified, never corporate. A reviewed override in `config.yaml` `committees.class_overrides` beats the filed code (§4). |
 | `corporate_earmark_transmitted_career` | Breakout (subset of `corporate_pac_career`): earmarked transmissions through corporate PACs, on the AIPAC earmark definition. Corporate own-money = corporate − this column. |
 | `udp_ie_support_career` | **United Democracy Project (UDP; committee ID in `config.yaml`) independent expenditures SUPPORTING the person's race.** Money UDP spent *about* the race (ads, mail, phones), legally uncoordinated with the campaign. **It is not money given to the campaign and must never be described as a contribution.** Support only (see below). |
 | `cand_contrib_career`, `cand_loans_career` | **Self-funding, career.** Candidate contributions (`CAND_CONTRIB`, weball col 12) and candidate loans (`CAND_LOANS`, col 13), summed across the person's candidate IDs and cycles. |
@@ -122,7 +122,7 @@ spot-checks and the freshness overlay only; OpenSecrets is a cross-check only (�
 |---|---|---|
 | Individual contributions | `weball/weballYY.txt`, every career cycle | `TTL_INDIV_CONTRIB`, col 18, per (candidate, cycle), then across the person's candidate IDs — **exact-equal copies under two IDs in the same cycle counted once** (§8 item 15). Amounts summed as integer cents. |
 | AIPAC PAC direct + earmarks | `pas2/<cycle>/itpas2.txt`, the PAC's active cycles | Rows from the AIPAC PAC with `TRANSACTION_TP IN ('24K','24P')`. Earmark rows: memo text containing `EARMARK` or starting `ERMK:`. |
-| Corporate PAC | `pas2/<cycle>/itpas2.txt` joined to `cm/<cycle>/cm.txt`, every career cycle | pas2 `24K`/`24P` rows whose contributing committee satisfies `CMTE_TP IN ('Q','N')` and `ORG_TP IN ('C','W')` in the **same-cycle** committee master. |
+| Corporate PAC | `pas2/<cycle>/itpas2.txt` joined to `cm/<cycle>/cm.txt`, every career cycle | pas2 `24K`/`24P` rows whose contributing committee satisfies `CMTE_TP IN ('Q','N')` and `ORG_TP IN ('C','W')` in the **same-cycle** committee master, unless a reviewed override (§4) classes it otherwise. |
 | UDP independent expenditures | `ie/<cycle>/independent_expenditure_<cycle>.csv`, staged IE cycles | UDP rows with `sup_opp = 'S'`, summed by `cand_id` after dedup by `tran_id` (keep latest `receipt_dat`, tie-break highest `file_num`). See §4. |
 | Self-funding + topline | `weball/weballYY.txt`, every career cycle | Weball cols (1-indexed): 6 `TTL_RECEIPTS`, 7 `TRANS_FROM_AUTH`, 8 `TTL_DISB`, 9 `TRANS_TO_AUTH`, 11 `COH_COP`, 12 `CAND_CONTRIB`, 13 `CAND_LOANS`, 15+16 loan repayments, 17 `DEBTS_OWED_BY`, 28 `CVG_END_DT`. Career flows are sums; cash on hand and debts owed by are the latest cycle's value (stocks). No weball column carries debts owed *to* the committee. The §8 item 15 correction also zeroes a dropped copy's cols 6–9 where they are a strict subset of the kept copy. |
 | Other-committee contributions | `pas2/<cycle>/itpas2.txt` joined to the same-cycle `cm/<cycle>/cm.txt`, every career cycle | pas2 `24K`/`24P` rows whose contributing committee is NOT corporate and NOT the AIPAC PAC, classified by `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as in §2. The step re-derives the corporate and AIPAC totals and must match them to the cent. Diagnostics in `data/intermediate/other_committees_diagnostics.json`. |
@@ -183,10 +183,15 @@ The points that matter for interpreting the numbers:
   support in that cycle, so nothing is counted twice. Blank-ID support for a non-roster
   candidate is excluded; blank-ID oppose rows are never counted as support. This is a
   disclosed judgment call (§8 item 7).
-- **Committee classification follows the filed codes.** A committee is classified by its
-  `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as filed in the same-cycle committee master; a code
-  that looks wrong for the committee is not overridden. Reclassifying one is a
-  methodology decision, not a data fix.
+- **Committee classification follows the filed codes, except reviewed overrides.** A
+  committee is classified by its `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as filed in the
+  same-cycle committee master. The one exception is `config.yaml`
+  `committees.class_overrides`: committee IDs whose class was set by a reviewed
+  methodology decision, with the evidence in `research/corporate-classification.md`. An
+  override applies in every cycle and beats every rule but the AIPAC PAC's. A conduit that
+  forwards individuals' earmarked contributions is overridden to `other_unclassified`,
+  never corporate: the money comes from individuals. Adding an override is a methodology
+  decision, never a data fix.
 - **Self-funding / topline (`receipts/store/self_funding.py`).** Reads the weball files and
   emits one row per (candidate, cycle) with the flow columns, the two stock columns and
   `coverage_end_date` (col 28). Career stocks take the latest cycle's value; a person with

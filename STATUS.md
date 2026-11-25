@@ -435,19 +435,15 @@
      never with wrong figures.
    - The freshness gate is retired; restore `receipts/ingest/pull_gate.py`
      from git history if `--all` is ever scheduled.
-7. **Corporate-PAC classification — OPEN, decided "not now" (Craig, Nov 25).** The
-   corporate rule trusts the FEC's self-reported organization code, which is noisy both
-   ways: NEA's union PAC is coded corporate in 2024 only; Democracy Engine, a conduit
-   forwarding individuals' earmarks, is coded corporate every cycle; some associations,
-   clubs and cooperatives are coded corporate, and some law and accounting firms are not.
-   A reviewed list of the 69 committees holding 90% of the affected money, with proposed
-   classes and what adopting them would move (four incoming members' 2026 verdicts flip),
-   is in `research/corporate-classification.md`. Published figures still use the FEC
-   codes as filed. Since the site opened on the latest election (Nov 25), the miscoding
-   shows on the front page: Sanders is Strict-dirty only on $2,000 net from the NEA Fund
-   (2024), Warren's 2024 corporate money is $5,000 NEA of $7,500, and Warnock's 2022 is
-   $176,783 Democracy Engine of $202,983 (both Below threshold under Balanced). Craig chose
-   to ship the latest-election view first and fix the classification in a follow-up.
+7. **Corporate-PAC classification — PARTLY DONE (Craig, Nov 25).** The corporate rule
+   trusts the FEC's self-reported organization code, which is noisy both ways. Two reviewed
+   overrides now apply (`config.yaml` `committees.class_overrides`): NEA's union PAC → labor
+   (coded corporate in 2024 only) and Democracy Engine, a conduit for individuals' earmarks →
+   other_unclassified. They moved $1,812,745 out of career corporate PAC ($1,310,000 to labor,
+   $502,745 to unclassified); Sanders, Fetterman and Brooks became clean on their latest
+   election, Schiff Strict-clean, and Brooks's 2026 verdict flipped clean. The rest of the
+   reviewed list of 69 committees (associations, clubs and cooperatives coded corporate; some
+   law and accounting firms not) is in `research/corporate-classification.md` and not adopted.
 7. **Cycle-neutral tracker — IN PROGRESS (Craig, Nov 24).** 2026 is just the
    current cycle; past cycles and 2028 must work the same way. Decisions:
    per-cycle records for every career cycle (one per person per cycle);

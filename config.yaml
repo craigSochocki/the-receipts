@@ -24,6 +24,11 @@ committees:
   aipac_pac: "C00797670"  # AIPAC PAC
   udp: "C00799031"        # United Democracy Project (AIPAC-affiliated super PAC)
   winred: "C00694323"     # WinRed, a conduit filing as a hybrid PAC
+  # Committees whose FEC organization code is overridden after review
+  # (research/corporate-classification.md); the class wins in every cycle.
+  class_overrides:
+    C00003251: labor_pacs          # NEA Fund, a teachers' union PAC
+    C00468314: other_unclassified  # Democracy Engine, a conduit for individuals' earmarks
 
 cycles:
   career_start: 1980       # first FEC cycle in the career money pull
