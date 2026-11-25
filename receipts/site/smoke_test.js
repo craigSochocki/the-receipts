@@ -473,6 +473,12 @@ window.smoke = {
           "the House step seats every incoming House member in the arc");
         assert.ok(document.querySelector("#dotfield .arc-count").textContent === String(incomingHouse.length),
           "the arc is labelled with the House count");
+        setStoryStep("districts");
+        assert.ok(document.querySelector("#dotfield .districts").classList.contains("shown"), "the districts step shows the district map");
+        assert.strictEqual(document.querySelectorAll("#dotfield .districts path[data-key]").length,
+          incomingHouse.filter((p) => !["AS", "GU", "MP", "PR", "VI"].includes(p.state)).length,
+          "every incoming House member outside the territories has a district on the map");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length, 0, "the map step hides the dots");
         setStoryStep("senate");
         assert.ok(document.querySelector("#dotfield .states").classList.contains("shown"), "the Senate step shows the state map");
         assert.strictEqual(document.querySelectorAll("#dotfield .states path").length, 51, "the map draws 50 states and DC");

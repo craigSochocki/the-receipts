@@ -447,6 +447,9 @@ def main():
     html = html.replace(
         '%%US_STATES_JSON%%', settings().paths.us_states_geometry.read_text().strip()
     )
+    html = html.replace(
+        '%%US_DISTRICTS_JSON%%', settings().paths.us_districts_geometry.read_text().strip()
+    )
     html = html.replace('%%DATASET_MD5%%', dataset_md5)
     html = html.replace('%%DATA_AS_OF%%', ', '.join(data_as_of))
     html = html.replace('%%STAMP%%', stamp)

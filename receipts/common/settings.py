@@ -72,6 +72,7 @@ class Paths:
     fec_lookup_results: Path
     pro_israel_pacs: Path
     us_states_geometry: Path
+    us_districts_geometry: Path
     baseline: Path
     manual_roster_notes: Path
     other_committees_diagnostics: Path
