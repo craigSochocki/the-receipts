@@ -68,7 +68,7 @@ class BuiltPage:
         # The page without its JSON payloads, so raw data numbers cannot trip
         # the checks for typed-in figures.
         self.prose = re.sub(
-            r'<script id="(receipts-cols|receipts-data|opp-data)" '
+            r'<script id="(receipts-cols|receipts-data|opp-data|us-states)" '
             r'type="application/json">.*?</script>',
             '',
             self.html,

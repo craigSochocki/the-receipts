@@ -467,6 +467,18 @@ window.smoke = {
           "the party step labels its groups");
         assert.strictEqual(document.querySelectorAll("#dotfield circle.dot-dirty").length, EXP.tiers.balanced.dirty,
           "the party step colors every dirty member");
+        const incomingHouse = PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "House");
+        setStoryStep("house");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length, incomingHouse.length,
+          "the House step seats every incoming House member in the arc");
+        assert.ok(document.querySelector("#dotfield .arc-count").textContent === String(incomingHouse.length),
+          "the arc is labelled with the House count");
+        setStoryStep("senate");
+        assert.ok(document.querySelector("#dotfield .states").classList.contains("shown"), "the Senate step shows the state map");
+        assert.strictEqual(document.querySelectorAll("#dotfield .states path").length, 51, "the map draws 50 states and DC");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length,
+          PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate").length,
+          "the Senate step puts every incoming senator on their state");
         setStoryStep("targets");
         assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-faded)").length,
           TGT.balanced[0] + TGT.balanced[1], "the targets step lights exactly the primary targets");

@@ -121,6 +121,7 @@ the-receipts/
 │   ├── source/                # committed TRUE inputs: legislators yaml,
 │   │                          # dedup-applied.json, manual_roster_notes.json,
 │   │                          # fec_lookup_results.json, baseline.json,
+│   │                          # pro_israel_pacs.csv, us_states_albers.json,
 │   │                          # run_history.csv
 │   ├── intermediate/          # regenerable staging files, GITIGNORED —
 │   │                          # rebuild.py recreates them all

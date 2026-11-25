@@ -444,6 +444,9 @@ def main():
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
     html = html.replace('%%DATA_JSON%%', safe_json(rows))
     html = html.replace('%%OPP_JSON%%', safe_json(opp_payload))
+    html = html.replace(
+        '%%US_STATES_JSON%%', settings().paths.us_states_geometry.read_text().strip()
+    )
     html = html.replace('%%DATASET_MD5%%', dataset_md5)
     html = html.replace('%%DATA_AS_OF%%', ', '.join(data_as_of))
     html = html.replace('%%STAMP%%', stamp)

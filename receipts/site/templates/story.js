@@ -7,7 +7,10 @@
    field holds the clean-vs-dirty layout. */
 const STORY_W = 600, STORY_H = 400, DOT_R = 6, DOT_GAP = 15;
 const STATUS_ORDER = {dirty:0, below_threshold:1, clean:2, unjudged:3};
-const STORY_STEPS = ['all', 'status', 'ranked', 'party', 'chamber', 'targets', 'find'];
+const STORY_STEPS = ['all', 'status', 'ranked', 'party', 'house', 'senate', 'targets', 'find'];
+const US_STATES = JSON.parse(document.getElementById('us-states').textContent);
+// The outlines' Albers frame (975 x 610), fitted into the story's field.
+const MAP_SCALE = Math.min(STORY_W/975, STORY_H/610), MAP_X = (STORY_W-975*MAP_SCALE)/2, MAP_Y = (STORY_H-610*MAP_SCALE)/2;
 let storyStep = 'all', storyPick = null;
 
 function storyStatus(p){ return tierOf(p) || 'unjudged'; }
@@ -55,16 +58,68 @@ function partyGroups(people){
     .map(label=>({label, people: people.filter(p=>name(p)===label)}))
     .filter(g=>g.people.length);
 }
-function chamberGroups(people){
-  return [{label:'House', people: people.filter(p=>p.chamber_120==='House')},
-          {label:'Senate', people: people.filter(p=>p.chamber_120==='Senate')}];
+const PARTY_SIDE = {Democrat:0, Republican:2};
+function partySide(p){ return PARTY_SIDE[party(p)] ?? 1; }
+/* A parliament arc: seats on concentric rows, filled left to right with
+   Democrats, others, then Republicans, each party's dirty seats first. */
+function hemicycle(people, cx, cy, inner, outer, rows){
+  const radii = Array.from({length: rows}, (_, i)=>inner+(outer-inner)*i/(rows-1));
+  const total = radii.reduce((s, r)=>s+r, 0);
+  const counts = radii.map(r=>Math.floor(people.length*r/total));
+  counts[rows-1] += people.length - counts.reduce((s, c)=>s+c, 0);
+  const seats = [];
+  radii.forEach((r, i)=>{
+    for(let j=0; j<counts[i]; j++){
+      const a = Math.PI*(1 - j/Math.max(1, counts[i]-1));
+      seats.push({x: cx+r*Math.cos(a), y: cy-r*Math.sin(a), a});
+    }
+  });
+  seats.sort((s, t)=>t.a-s.a || s.y-t.y);
+  const order = people.slice().sort((a, b)=>partySide(a)-partySide(b) || byStatus(a, b));
+  const at = {};
+  order.forEach((p, i)=>{ at[p.person_key] = seats[i]; });
+  return at;
+}
+function houseMembers(people){ return people.filter(p=>p.chamber_120==='House'); }
+function senators(people){ return people.filter(p=>p.chamber_120==='Senate'); }
+/* Each senator's dot on their state, the pair side by side. */
+function senateMap(people){
+  const at = {}, byState = {};
+  senators(people).forEach(p=>{ (byState[p.state] = byState[p.state] || []).push(p); });
+  Object.entries(byState).forEach(([st, pair])=>{
+    const c = US_STATES[st];
+    pair.sort((a, b)=>partySide(a)-partySide(b)).forEach((p, i)=>{
+      at[p.person_key] = {x: MAP_X+c.cx*MAP_SCALE+(i-(pair.length-1)/2)*11, y: MAP_Y+c.cy*MAP_SCALE};
+    });
+  });
+  people.filter(p=>!at[p.person_key]).forEach(p=>{ at[p.person_key] = {x: STORY_W/2, y: STORY_H/2, hidden: true}; });
+  return at;
+}
+/* A state's shade: its senators' parties (both D, both R, split, other). */
+function stateShade(st, people){
+  const sides = senators(people).filter(p=>p.state===st).map(partySide);
+  if(!sides.length) return 'state-none';
+  if(sides.every(s=>s===0)) return 'state-d';
+  if(sides.every(s=>s===2)) return 'state-r';
+  return sides.includes(0) && sides.includes(2) ? 'state-split' : 'state-other';
+}
+function mapLayer(people){
+  return '<g class="states" transform="translate('+MAP_X+','+MAP_Y+') scale('+MAP_SCALE+')">'
+    + Object.entries(US_STATES).map(([st, s])=>'<path class="'+stateShade(st, people)+'" d="'+s.d+'"><title>'+esc(STATE_NAMES[st]||st)+'</title></path>').join('')
+    + '</g>';
+}
+function houseArc(people){
+  const house = houseMembers(people), at = hemicycle(house, STORY_W/2, STORY_H-30, 110, 290, 12);
+  people.filter(p=>!at[p.person_key]).forEach(p=>{ at[p.person_key] = {x: STORY_W/2, y: STORY_H-30, hidden: true}; });
+  return at;
 }
 
 function storyLayout(step, people){
   if(step==='all') return {at: centredGrid(people, 27)};
   if(step==='ranked') return {at: rankCurve(people), r: 4};
   if(step==='party'){ const groups = partyGroups(people); return {at: groupedGrids(groups, 15), groups}; }
-  if(step==='chamber'){ const groups = chamberGroups(people); return {at: groupedGrids(groups, 18), groups}; }
+  if(step==='house') return {at: houseArc(people), r: 5.5, center: houseMembers(people).length};
+  if(step==='senate') return {at: senateMap(people), r: 5};
   return {at: centredGrid(people.slice().sort(byStatus), 27)};
 }
 
@@ -81,18 +136,20 @@ function drawStory(){
   if(!svg) return;
   const people = incomingMembers();
   if(!svg.childNodes.length || svg.querySelectorAll('circle').length!==people.length){
-    svg.innerHTML = '<g class="dots">'+people.map(p=>'<circle r="'+DOT_R+'" data-key="'+esc(p.person_key)+'"><title>'+esc(p.full_name)+'</title></circle>').join('')+'</g><g class="labels"></g>';
+    svg.innerHTML = mapLayer(people)+'<g class="dots">'+people.map(p=>'<circle r="'+DOT_R+'" data-key="'+esc(p.person_key)+'"><title>'+esc(p.full_name)+'</title></circle>').join('')+'</g><g class="labels"></g>';
   }
   const layout = storyLayout(storyStep, people);
+  svg.querySelector('.states').classList.toggle('shown', storyStep==='senate');
   svg.querySelectorAll('circle').forEach(c=>{
     const p = BY_KEY[c.getAttribute('data-key')], pos = layout.at[p.person_key];
     c.style.transform = 'translate('+pos.x+'px,'+pos.y+'px)';
     c.setAttribute('r', layout.r || DOT_R);
-    c.setAttribute('class', dotClass(p, storyStep));
+    c.setAttribute('class', dotClass(p, storyStep)+(pos.hidden ? ' dot-hidden' : ''));
   });
   svg.querySelector('.labels').innerHTML = (layout.groups||[]).map(g=>
     '<text x="'+g.x+'" y="40" text-anchor="middle">'+esc(g.label)+'</text>').join('')
-    + (storyStep==='ranked' ? rankLabel(people) : '');
+    + (storyStep==='ranked' ? rankLabel(people) : '')
+    + (layout.center ? '<text class="arc-count" x="'+STORY_W/2+'" y="'+(STORY_H-34)+'" text-anchor="middle">'+layout.center+'</text>' : '');
 }
 function rankLabel(people){
   const top = people.slice().sort((a, b)=>num(b.cy_dirty)-num(a.cy_dirty))[0];
@@ -112,7 +169,8 @@ function storyTexts(){
     status: '<b>'+countWhere(people, dirty)+'</b> of them took dirty money '+esc(IN_CY)+' — corporate PAC, AIPAC PAC direct or UDP benefit. <b>'+countWhere(people, notDirty)+'</b> '+word+'. The rest were not judged (unopposed or unlinked). '+esc(preset.label)+' tolerance: '+esc(preset.short)+'.',
     ranked: 'Lined up by how much: <b>'+esc(top.full_name)+'</b> took <b>'+esc(fmtCompact(top.cy_dirty))+'</b> '+esc(IN_CY)+', the most of anyone arriving in the 120th.',
     party: 'By party, dirty: '+groupLine(partyGroups(people))+'.',
-    chamber: 'By chamber, dirty: '+groupLine(chamberGroups(people))+'.',
+    house: 'The House, seat by seat: '+groupLine(partyGroups(houseMembers(people)))+' took dirty money.',
+    senate: 'The Senate, state by state: '+groupLine(partyGroups(senators(people)))+' took dirty money. Each state is shaded by its senators’ parties; each dot is one senator.',
     targets: '<b>'+targets.length+'</b> hold seats on the ballot in '+NEXT_CYCLE+' and took dirty money — the primary targets. <button type="button" class="linklike" data-story-go="targets">See the list</button>',
     find: 'Which one is yours? <button type="button" class="linklike" data-story-go="finder">Find your member</button> and their dot lights up.',
   };
