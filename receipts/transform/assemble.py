@@ -51,7 +51,11 @@ OTHER_COMMITTEES = (
     + [f'{b}_earmark_transmitted_career' for b in BUCKETS]
 )
 ALL_IE = ['all_ie_support_career', 'all_ie_oppose_career', 'all_ie_total_career']
-PRO_ISRAEL = ['pro_israel_pac_career', 'pro_israel_ie_support_career']
+PRO_ISRAEL = [
+    'pro_israel_pac_career',
+    'pro_israel_ie_support_career',
+    'pro_israel_opp_credit_career',
+]
 MONEY = (
     ACCEPTED + ['udp_ie_support_career'] + list(SELF_FUNDING) + ['debts_owed_to_career']
     + OTHER_COMMITTEES + ALL_IE + PRO_ISRAEL
@@ -139,7 +143,8 @@ def all_ie_entries(by_candidate, ids):
 def pro_israel_entries(entries):
     return [
         {'cycle': e['cycle'], 'pro_israel_pac': dollars(e['pro_israel_pac']),
-         'pro_israel_ie_support': dollars(e['pro_israel_ie_support'])}
+         'pro_israel_ie_support': dollars(e['pro_israel_ie_support']),
+         'pro_israel_opp_credit': dollars(e['pro_israel_opp_credit'])}
         for e in entries
     ]  # fmt: skip
 

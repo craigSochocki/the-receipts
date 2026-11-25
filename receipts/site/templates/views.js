@@ -85,7 +85,7 @@ function openDetail(key, opts){
     + kvRow('Cash on hand (latest cycle)', fmtMoney(p.cash_on_hand_career))
     + kvRow('Debts owed (latest cycle)', fmtMoney(p.debts_owed_by_career))
     + kvRow('Other committees total', fmtMoney(p.other_committees_total_career)+' ('+fmtRank(p.rank_other_committees_total)+')')
-    + kvRow('Pro-Israel PACs: direct (career) / supporting IE ('+IE_SPAN+')', fmtMoney(p.pro_israel_pac_career)+' / '+fmtMoney(p.pro_israel_ie_support_career))
+    + kvRow('Pro-Israel PACs: direct (career) / supporting IE / opposition credit ('+IE_SPAN+')', fmtMoney(p.pro_israel_pac_career)+' / '+fmtMoney(p.pro_israel_ie_support_career)+' / '+fmtMoney(p.pro_israel_opp_credit_career))
     + kvRow('All IE support / oppose / total ('+IE_SPAN+')', fmtMoney(p.all_ie_support_career)+' / '+fmtMoney(p.all_ie_oppose_career)+' / <b>'+fmtMoney(p.all_ie_total_career)+'</b> ('+fmtRank(p.rank_all_ie_total)+')')
     + '</div>';
   const oppRows = OPP[p.person_key];

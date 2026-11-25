@@ -21,7 +21,7 @@ compare directly with Track AIPAC's.
 
 ## What the tracker covers
 
-Direct contributions and supporting IEs from listed committees, from the pinned bulk
+Direct contributions, supporting IEs and opposition credit (the UDP race rule) from listed committees, from the pinned bulk
 files. Not covered: conduit (bundled) checks and the donor-network layer — see
 methodology §8 item 22.
 

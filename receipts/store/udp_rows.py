@@ -44,9 +44,10 @@ class UdpRows:
                 self.unresolved.append(row)
 
     @classmethod
-    def from_store(cls, people):
+    def from_store(cls, people, spender_id=None):
+        """One spender's rows (UDP's unless another is named), blank IDs resolved."""
         with connect() as db:
-            filed = db.execute(ROWS, [settings().committees.udp]).fetchall()
+            filed = db.execute(ROWS, [spender_id or settings().committees.udp]).fetchall()
         return cls([UdpRow(*row) for row in filed], people)
 
     @staticmethod

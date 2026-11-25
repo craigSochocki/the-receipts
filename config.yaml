@@ -277,6 +277,7 @@ dataset:
     - tier_lenient
     - pro_israel_pac_career
     - pro_israel_ie_support_career
+    - pro_israel_opp_credit_career
     - pro_israel_per_cycle
   json_keys:
     - person_key
@@ -384,4 +385,5 @@ dataset:
     - tier_lenient
     - pro_israel_pac_career
     - pro_israel_ie_support_career
+    - pro_israel_opp_credit_career
     - pro_israel_per_cycle

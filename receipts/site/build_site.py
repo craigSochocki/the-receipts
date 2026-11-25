@@ -75,6 +75,7 @@ SCALARS = [
     'all_ie_total_career',
     'pro_israel_pac_career',
     'pro_israel_ie_support_career',
+    'pro_israel_opp_credit_career',
     'total_accepted_career',
     'rank_total_accepted',
     'rank_individual',
@@ -167,7 +168,7 @@ AIE_COLS = [
     'no_direction_amount',
 ]
 TC_COLS = ['committee_id', 'committee_name', 'support', 'oppose', 'total', 'rows']
-PI_COLS = ['cycle', 'pro_israel_pac', 'pro_israel_ie_support']
+PI_COLS = ['cycle', 'pro_israel_pac', 'pro_israel_ie_support', 'pro_israel_opp_credit']
 
 
 def cycle_cols():
