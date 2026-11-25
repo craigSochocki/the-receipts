@@ -605,17 +605,39 @@ window.smoke = {
           "clicking the Tracker tab shows it again");
 
         /* ---- view buttons switch column sets ---- */
-        document.querySelector('#viewbtns button[data-view="y2026"]').dispatchEvent("click");
+        document.querySelector('#viewbtns button[data-view="cycle"]').dispatchEvent("click");
         assert.ok(
-          document.querySelector("#main-table thead").innerHTML.includes("Individual 2026"),
-          "view button switches to the 2026 columns");
+          document.querySelector("#main-table thead").innerHTML.includes("Individual " + CURRENT_CYCLE),
+          "view button switches to the cycle columns");
         assert.strictEqual(
-          document.querySelector('#viewbtns button[data-view="y2026"]').getAttribute("aria-pressed"), "true",
+          document.querySelector('#viewbtns button[data-view="cycle"]').getAttribute("aria-pressed"), "true",
           "active view button is aria-pressed");
         document.querySelector('#viewbtns button[data-view="core"]').dispatchEvent("click");
         assert.ok(
           document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
           "view button switches back to the core columns");
+
+        /* ---- the cycle picker re-reads every surface from the picked cycle ---- */
+        const picker = document.getElementById("f-cycle");
+        const pickCycle = (value) => { picker.value = String(value); picker.dispatchEvent("change"); };
+        const pastCycle = CURRENT_CYCLE - 2;
+        pickCycle(pastCycle);
+        assert.ok(document.querySelector("#main-table thead").innerHTML.includes("Dirty " + pastCycle),
+          "picker relabels the cycle columns");
+        assert.ok(PEOPLE.every((p) => {
+          const r = p.cycles.find((c) => c.cycle === pastCycle);
+          return r ? p.cy_dirty === r.dirty : p.cy_dirty === 0;
+        }), "every person reads the picked cycle's record");
+        const pastTop = BY_KEY[document.querySelector("#main-table tbody tr").getAttribute("data-key")];
+        assert.strictEqual(pastTop.cy_dirty, Math.max(...PEOPLE.map((p) => p.cy_dirty || 0)),
+          "the table re-sorts by the picked cycle's dirty money");
+        assert.ok(currentHash().includes("cycle=" + pastCycle), "the picked cycle lands in the URL");
+        pickCycle("latest");
+        assert.ok(PEOPLE.every((p) => p.cy_dirty === p.dirty && p.cy_clean === p.clean),
+          "Latest election reads the headline verdict");
+        pickCycle(CURRENT_CYCLE);
+        assert.ok(document.querySelector("#main-table thead").innerHTML.includes("Dirty " + CURRENT_CYCLE),
+          "picker switches back to the current cycle");
 
         /* ---- clicking a table row opens the detail sheet ----
          * The first click lands on a cell, so it only reaches the row's
@@ -653,7 +675,7 @@ window.smoke = {
           "Escape closes the sheet");
 
         /* ---- sort headers re-sort ---- */
-        const sortTh = () => document.querySelector('#main-table thead th[data-sort="dirty_2026"]');
+        const sortTh = () => document.querySelector('#main-table thead th[data-sort="cy_dirty"]');
         const firstRowName = () => document.querySelector("#main-table tbody tr").children[0].textContent;
         assert.ok(firstRowName().includes("Stevens"), "default first row is Stevens");
         sortTh().dispatchEvent("click"); // toggles to ascending
@@ -669,7 +691,7 @@ window.smoke = {
         const nameBtn = document.querySelector("#main-table tbody tr .name-btn");
         assert.ok(nameBtn, "name cells are buttons");
         assert.strictEqual(
-          document.querySelector('#main-table thead th[data-sort="dirty_2026"]').getAttribute("aria-sort"),
+          document.querySelector('#main-table thead th[data-sort="cy_dirty"]').getAttribute("aria-sort"),
           "descending",
           "sorted column announces descending");
         nameBtn.focus();
@@ -862,8 +884,8 @@ window.smoke = {
         assert.ok(location.hash.includes("detail="), "U10: prev/next keeps the detail in the hash");
         assert.strictEqual(document.getElementById("detail-prev").disabled, false, "U10: prev enabled after stepping forward");
         // Anchor nav: the 2026 section takes focus.
-        document.querySelector('[data-anchor="sec-2026"]').dispatchEvent("click");
-        assert.strictEqual(document.activeElement && document.activeElement.id, "sec-2026", "U10: anchor moves focus to the 2026 section");
+        document.querySelector('[data-anchor="sec-cycle"]').dispatchEvent("click");
+        assert.strictEqual(document.activeElement && document.activeElement.id, "sec-cycle", "U10: anchor moves focus to the 2026 section");
         // View in Tracker: sheet closes, Tracker tab shows only this person.
         document.getElementById("detail-tracker").dispatchEvent("click");
         assert.strictEqual(document.getElementById("detail").classList.contains("open"), false, "U10: View in Tracker closes the sheet");

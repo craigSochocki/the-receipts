@@ -30,6 +30,7 @@ cycles:
   career_end: 2026         # last FEC cycle in the career money pull
   udp: [2022, 2024, 2026]  # cycles with UDP independent-expenditure data (UDP first filed Jan 2022)
   current: 2026            # current / most recent cycle, used for diagnostics and FEC lookups
+  picker_start: 2016       # oldest cycle the site's cycle picker offers
 
 paths:
   raw: data/raw

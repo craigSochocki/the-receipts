@@ -43,8 +43,6 @@ def data_round_trip(audit, page):
     mismatches = 0
     for i, (d_row, j_row) in enumerate(zip(page.rows, dataset, strict=True)):
         for k, v in j_row.items():
-            if k == 'cycles':
-                continue  # not embedded in the page yet
             if k == 'all_ie_top_committees' and v is None:
                 v = []
             if not values_equal(d_row.get(k), v, k):

@@ -56,8 +56,8 @@ def served_page(audit, page):
             'Leaderboards',
             'Data as of',
             'Find your member',
-            f'took no dirty money in {current}',
-            f'Dirtiest in {current}',
+            'took no dirty money',
+            'Dirtiest',
             'Explore the full data',
         ]:
             audit.check(f'served page contains {needle!r}', needle in body)
