@@ -122,6 +122,7 @@ the-receipts/
 │   │                          # dedup-applied.json, manual_roster_notes.json,
 │   │                          # fec_lookup_results.json, baseline.json,
 │   │                          # pro_israel_pacs.csv, us_states_albers.json,
+│   │                          # us_districts_albers.json,
 │   │                          # run_history.csv
 │   ├── intermediate/          # regenerable staging files, GITIGNORED —
 │   │                          # rebuild.py recreates them all
