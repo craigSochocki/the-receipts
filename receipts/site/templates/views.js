@@ -325,53 +325,53 @@ function renderBreakdown(){
     rows.map(rowHtml).join('') + '<tr><td><b>All</b></td><td><b>120th</b></td><td class="num"><b>'+tot.n+'</b></td><td class="num"><b>'+moneyShort(tot.ind)+'</b></td><td class="num"><b>'+moneyShort(tot.corp)+'</b></td><td class="num"><b>'+moneyShort(tot.aipac)+'</b></td><td class="num"><b>'+moneyShort(tot.tot)+'</b></td><td class="num"><b>'+moneyShort(tot.udp)+'</b></td><td class="num"><b>'+moneyShort(tot.self)+'</b></td><td class="num"><b>'+moneyShort(tot.ie)+'</b></td><td class="num"><b>'+tot.clean+'</b></td></tr>';
 }
 
-/* ---- primary targets ---- */
-function renderTargets(){
-  const rows = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&num(p.cy_dirty)>0)
-    .sort(byDirty);
-  document.querySelector('#targets-table thead').innerHTML =
-    '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Individual 2026</th></tr>';
-  document.querySelector('#targets-table tbody').innerHTML = rows.map((p,i)=>
-    '<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.cy_dirty)+'</td><td class="num">'+fmtMoney(p.cy_corp)+'</td><td class="num">'+fmtMoney(p.cy_aipac_direct)+'</td><td class="num">'+fmtMoney(p.cy_udp_benefit)+'</td><td class="num">'+fmtMoney(p.cy_individual)+'</td></tr>').join('');
-  document.querySelectorAll('#targets-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
+/* ---- primary targets for the next cycle ----
+   Incoming members of any party whose seat is up next cycle (every
+   House seat; Senate seats of that cycle's class) and who took dirty
+   money in their latest election under the preset. The rule is
+   receipts/domain/targets.py; it ignores the cycle picker. Counts are
+   computed at render, never typed: a watchlist, not a prediction. */
+const NEXT_CYCLE = COLS.next_cycle;
+function seatUpNext(p){
+  return p.chamber_120==='House' || (p.chamber_120==='Senate' && p.senate_class===COLS.next_senate_class);
 }
-
-/* ---- 2028 primary targets: same rule, seats up in 2028 ----
-   House: every seat is up, so the 2026 pool carries over. Senate:
-   Class 3 Democrats only (senate_class 3, from the dataset — the
-   legislators yaml's Senate-term class field; see methodology §14).
-   Under a tolerance preset the target rule is tier dirty (flagged
-   OR corporate-PAC-material under that preset) instead of
-   cy_dirty > 0 — Strict 192 / 13, Balanced 133 / 6, Lenient
-   103 / 3. The intro is computed at render, never typed: counts
-   change with the data and the preset, and the framing is a
-   watchlist, not a ballot prediction. */
-function renderTargets2028(){
-  const house = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='House'&&p.party_120==='Democrat'&&tierOf(p)==='dirty')
-    .sort(byDirty);
-  const senate = PEOPLE.filter(p=>p.in_120th==='yes'&&p.chamber_120==='Senate'&&p.party_120==='Democrat'&&p.senate_class===3&&tierOf(p)==='dirty')
-    .sort(byDirty);
+function dirtyUnderPreset(r){
+  if(state.preset==='strict') return num(r.dirty)>0;
+  return (state.preset==='lenient' ? r.tier_lenient : r.tier_balanced)==='dirty';
+}
+function primaryTargets(){
+  const latest = p=>cycleRecord(p, 'latest');
+  return PEOPLE.filter(p=>p.in_120th==='yes' && seatUpNext(p) && p.verdict_cycle!==null && dirtyUnderPreset(latest(p)))
+    .sort((a,b)=>num(latest(b).dirty)-num(latest(a).dirty));
+}
+function renderTargets(){
+  const rows = primaryTargets();
   const preset = PRESETS[state.preset];
-  document.getElementById('targets28-intro').innerHTML =
-    'A watchlist, not a prediction. '+house.length+' House Democrats and '+senate.length+' Democratic senators in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit) and hold seats up in 2028, under the '+preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown, 2028 filings are not open, and 2026 is partial (see the cutoffs above). The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
-  const rowHtml = (p,i)=>'<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flagBadge(p)+'</td><td>'+esc(place(p))+'</td><td class="num">'+fmtMoney(p.cy_dirty)+'</td><td class="num">'+fmtMoney(p.cy_corp)+'</td><td class="num">'+fmtMoney(p.cy_aipac_direct)+'</td><td class="num">'+fmtMoney(p.cy_udp_benefit)+'</td><td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(p.cy_individual)+'</td></tr>';
-  document.querySelector('#targets28-house-table thead').innerHTML =
-    '<tr><th>#</th><th>Name</th><th>District</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
-  document.querySelector('#targets28-house-table tbody').innerHTML = house.map(rowHtml).join('');
-  document.querySelector('#targets28-senate-table thead').innerHTML =
-    '<tr><th>#</th><th>Name</th><th>Seat</th><th class="num">Dirty 2026</th><th class="num">Corp PAC 2026</th><th class="num">AIPAC 2026</th><th class="num">UDP benefit 2026</th><th class="num">Dirty career</th><th class="num">Individual 2026</th></tr>';
-  document.querySelector('#targets28-senate-table tbody').innerHTML = senate.map(rowHtml).join('');
-  document.querySelectorAll('#targets28-house-table tbody tr, #targets28-senate-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
+  const house = rows.filter(p=>p.chamber_120==='House').length;
+  document.getElementById('targets-intro').innerHTML =
+    'A watchlist, not a prediction. '+rows.length+' incoming members whose seat is up in '+NEXT_CYCLE
+    +' took dirty money in their latest election ('+house+' House + '+(rows.length-house)+' Senate), any party, under the '
+    +preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown and '
+    +NEXT_CYCLE+' filings are barely open. The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
+  document.querySelector('#targets-table thead').innerHTML =
+    '<tr><th>#</th><th>Name</th><th>Party</th><th>Seat</th><th class="num">Election</th><th class="num">Dirty</th><th class="num">Corp PAC</th><th class="num">AIPAC</th><th class="num">UDP benefit</th><th class="num">Dirty career</th><th class="num">Individual</th></tr>';
+  document.querySelector('#targets-table tbody').innerHTML = rows.map((p,i)=>{
+    const r = cycleRecord(p, 'latest');
+    const flag = r.aipac_udp_flag===true ? ' <span class="badge flag" title="AIPAC PAC direct money or UDP benefit in their latest election">AIPAC/UDP</span>' : '';
+    return '<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flag+'</td><td>'+esc(party(p))+'</td><td>'+esc(place(p))+'</td><td class="num">'+r.cycle+'</td>'
+      + ['dirty','corp','aipac_direct','udp_benefit'].map(k=>'<td class="num">'+fmtMoney(r[k])+'</td>').join('')
+      + '<td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(r.individual)+'</td></tr>';
+  }).join('');
+  document.querySelectorAll('#targets-table tbody tr').forEach(tr=>tr.addEventListener('click', ()=>openDetail(tr.getAttribute('data-key'))));
 }
 
 /* ---- tolerance preset switching ----
    Recomputes every preset-dependent surface live: header stats, the
    table badges, the front-door story, and the clean / breakdown /
-   2028-targets tabs (re-rendered on next show if not current). The
-   leaderboards and the 2026 targets tab are Strict history and do
-   not move with the preset. */
+   targets tabs (re-rendered on next show if not current). The
+   leaderboards are Strict and do not move with the preset. */
 const TAB_RENDER = {leaders:renderLeaders, clean:renderClean, breakdown:renderBreakdown,
-  targets:renderTargets, targets28:renderTargets2028};
+  targets:renderTargets};
 // Re-render the shown tab now; the others re-render when next shown.
 function refreshTabs(tabs){
   tabs.forEach(t=>{
@@ -384,18 +384,21 @@ function setPreset(preset){
   state.preset = preset;
   document.getElementById('tolerance-note').textContent = PRESETS[preset].def;
   renderStats(); renderTable(); renderCleanStory(); renderDirtiest();
-  refreshTabs(['clean','breakdown','targets28']);
+  refreshTabs(['clean','breakdown','targets']);
 }
 
 /* ---- cycle switching: every board, chart and table reads the
    selected cycle's record through the cy_ fields. ---- */
+function labelCycle(){
+  document.querySelectorAll('[data-cy]').forEach(el=>{
+    el.textContent = el.getAttribute('data-cy')==='in' ? IN_CY : CY;
+  });
+}
 function setCycle(cycle){
   if(!isCycleChoice(cycle)) return;
   state.cycle = cycle;
   applyCycle(cycle);
-  document.querySelectorAll('[data-cy]').forEach(el=>{
-    el.textContent = el.getAttribute('data-cy')==='in' ? IN_CY : CY;
-  });
+  labelCycle();
   renderViewBtns(); renderStats(); renderTable(); renderCleanStory();
   renderDirtiest(); renderDirtyExplainer(); renderComposition();
   refreshTabs(Object.keys(TAB_RENDER));
@@ -513,7 +516,7 @@ function hashFromState(){
   if(state.clean) parts.push('clean=1');
   if(state.view!=='core') parts.push('view='+state.view);
   if(state.preset!=='balanced') parts.push('preset='+state.preset);
-  if(state.cycle!==CURRENT_CYCLE) parts.push('cycle='+state.cycle);
+  if(state.cycle!=='latest') parts.push('cycle='+state.cycle);
   if(state.sortKey!=='cy_dirty') parts.push('sort='+encodeURIComponent(state.sortKey));
   if(state.sortDir!=='desc') parts.push('dir='+state.sortDir);
   if(detailKey) parts.push('detail='+encodeURIComponent(detailKey));
@@ -537,7 +540,7 @@ function syncHash(replace){ writeHash(hashFromState(), !!replace); }
 function parseHash(){
   const out = {mode:'front', tab:'tracker', q:'', congress:'all', chamber:'all',
     party:'all', state:'all', leadership:false, clean:false, view:'core',
-    preset:'balanced', cycle:CURRENT_CYCLE, sortKey:'cy_dirty', sortDir:'desc', detail:null};
+    preset:'balanced', cycle:'latest', sortKey:'cy_dirty', sortDir:'desc', detail:null};
   let h = currentHash().replace(/^#/,'');
   if(!h) return out;
   out.mode = modeFromHash();
@@ -556,7 +559,7 @@ function parseHash(){
     const eq = pair.indexOf('=');
     const k = eq<0 ? pair : pair.slice(0,eq);
     const v = eq<0 ? '' : safeDecode(pair.slice(eq+1));
-    if(k==='tab' && ['tracker','leaders','clean','breakdown','targets','targets28','method'].indexOf(v)>=0) out.tab = v;
+    if(k==='tab' && ['tracker','leaders','clean','breakdown','targets','method'].indexOf(v)>=0) out.tab = v;
     else if(k==='q') out.q = v;
     else if(k==='congress' && ['119','120','both','all'].indexOf(v)>=0) out.congress = v;
     else if(k==='chamber' && ['House','Senate','all'].indexOf(v)>=0) out.chamber = v;
@@ -744,7 +747,7 @@ function showTab(name, opts){
   if(state.mode!=='explore') setMode('explore');
   state.tab = name;
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.getAttribute('data-tab')===name)));
-  ['tracker','leaders','clean','breakdown','targets','targets28','method'].forEach(t=>{
+  ['tracker','leaders','clean','breakdown','targets','method'].forEach(t=>{
     document.getElementById('tab-'+t).hidden = (t!==name);
   });
   if(!state.rendered[name] && TAB_RENDER[name]){
@@ -807,7 +810,7 @@ function init(){
     setMode('explore');
   });
   document.getElementById('explore-btn').addEventListener('click', ()=>setMode('explore'));
-  document.getElementById('targets28-btn').addEventListener('click', ()=>showTab('targets28'));
+  document.getElementById('targets-btn').addEventListener('click', ()=>showTab('targets'));
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
     window.addEventListener('hashchange', ()=>applyHash());
   }

@@ -45,13 +45,11 @@ def served_page(audit, page):
             body = resp.read().decode('utf-8')
             status = resp.status
         audit.check('local serve returns 200', status == 200, f'got {status}')
-        current = settings().cycles.current
         for needle in [
             'The Receipts',
             'receipts-data',
             'Methodology',
-            'primary targets',
-            f'{current + 2} primary targets',
+            f'Primary targets — {settings().cycles.next}',
             'Clean money',
             'Leaderboards',
             'Data as of',

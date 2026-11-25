@@ -78,16 +78,6 @@ def is_not_dirty(tier_name):
     return tier_name in NOT_DIRTY_TIERS
 
 
-def is_primary_target_2026(person):
-    """A House Democrat in the incoming 120th who took any net dirty money in 2026."""
-    return (
-        person['in_120th'] == 'yes'
-        and person['chamber_120'] == 'House'
-        and person['party_120'] == 'Democrat'
-        and person['dirty_2026'] > 0
-    )
-
-
 def aipac_udp_flagged(aipac_direct, udp_benefit):
     """Any AIPAC PAC direct or UDP benefit dollar in 2026 makes a member dirty under every preset."""
     return aipac_direct > 0 or udp_benefit > 0

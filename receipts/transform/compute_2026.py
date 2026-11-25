@@ -13,7 +13,6 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED_NOTE,
     aipac_udp_flagged,
     is_career_clean,
-    is_primary_target_2026,
     race_label,
     races_and_unopposed,
     tier,
@@ -21,6 +20,7 @@ from receipts.domain.clean_2026 import (
 )
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.seats import regular_senate_class
+from receipts.domain.targets import latest_record, primary_targets
 from receipts.store.races import races_in
 from receipts.store.read import connect
 
@@ -248,28 +248,41 @@ def check_against_baseline(records):
 
 
 def write_primary_targets(records):
-    targets = sorted(filter(is_primary_target_2026, records), key=lambda r: -r['dirty_2026'])
+    """The next cycle's primary targets under the default (Balanced) preset."""
+    cycle = settings().cycles.next
+    targets = primary_targets(records, 'balanced', cycle)
     lines = [
-        '# Primary targets — House Democrats in the 120th Congress, by dirty money in 2026',
+        f'# Primary targets — {cycle}: incoming members, any party, by dirty money',
         '',
         f'Generated from the tracker dataset (data as of {settings().data_as_of}). '
-        f'{len(targets)} House Democrats in the incoming 120th took dirty money in 2026 '
-        f'(corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources '
-        f'other than individual contributors; individual contributions are not dirty money.',
+        f'{len(targets)} incoming members whose seat is up in {cycle} took dirty money in '
+        f'their latest election under the Balanced preset (corporate PAC + AIPAC direct + '
+        f'UDP benefit). Individual contributions are not dirty money.',
         '',
         "A public-facing version of this list needs Craig's explicit go-ahead.",
         '',
-        '| # | Name | District | Dirty 2026 | Corp PAC 2026 | AIPAC 2026 | UDP benefit 2026 | Individual 2026 |',
-        '|---|------|----------|-----------:|--------------:|-----------:|-----------------:|---------------:|',
+        '| # | Name | Party | Seat | Election | Dirty | Corp PAC | AIPAC | UDP benefit | Individual |',
+        '|---|------|-------|------|---------:|------:|---------:|------:|------------:|-----------:|',
     ]
-    lines += [
-        f'| {i} | {r["full_name"]} | {r["state"]}-{r["district_120"]} | '
-        f'${r["dirty_2026"]:,.2f} | ${r["corp_2026"]:,.2f} | '
-        f'${r["aipac_direct_2026"]:,.2f} | ${r["udp_benefit_2026"]:,.2f} | '
-        f'${r["individual_2026"]:,.2f} |'
-        for i, r in enumerate(targets, 1)
-    ]
+    for i, r in enumerate(targets, 1):
+        record = latest_record(r)
+        lines.append(
+            f'| {i} | {r["full_name"]} | {r["party_120"]} | {seat_label(r)} | {record["cycle"]} | '
+            + ' | '.join(
+                f'${record[k]:,.2f}'
+                for k in ('dirty', 'corp', 'aipac_direct', 'udp_benefit', 'individual')
+            )
+            + ' |'
+        )
     settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
+
+
+def seat_label(r):
+    return (
+        f'{r["state"]}-{r["district_120"]}'
+        if r['chamber_120'] == 'House'
+        else f'{r["state"]} Senate'
+    )
 
 
 def add_cycle_records(records, credits, races_for, filed=None):

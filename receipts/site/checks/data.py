@@ -6,6 +6,7 @@ from datetime import datetime
 
 from receipts.common.log import log
 from receipts.common.settings import settings
+from receipts.domain.targets import DIRTY_UNDER
 from receipts.site.build_site import SCALARS, build_opp_payload
 from receipts.site.checks.page import values_equal
 
@@ -67,67 +68,18 @@ def opposition_detail(audit, page):
         values_equal(page.opposition, opp_expected, 'opp'),
         f'{len(page.opposition)} persons, {sum(len(v) for v in page.opposition.values())} race-phases',
     )
-    # Dataset-level counts use the same baseline keys as verify_dataset.py,
-    # so the site and the dataset cannot disagree.
-    for section in ('headline', 'career_dirty', 'charts', 'detail'):
+    for section in ('headline', 'career_dirty', 'charts', 'detail', 'clean', 'tiers'):
         audit.pin(f'site figures: {section}', f'site.{section}', page.expected[section])
-    c, t, t28 = page.expected['clean'], page.expected['tiers'], page.expected['targets_2028']
-    audit.pin('clean True', 'clean_2026.true_total', c['true_total'])
-    audit.pin('incoming House clean', 'clean_2026.house_120th_verified_clean', c['house_120'])
-    audit.pin(
-        'incoming House clean D',
-        'clean_2026.house_120th_verified_clean_democrat',
-        c['house_120_democrat'],
-    )
-    audit.pin(
-        'incoming House clean R',
-        'clean_2026.house_120th_verified_clean_republican',
-        c['house_120_republican'],
-    )
-    audit.pin('incoming Senate clean', 'site.clean.senate_120', c['senate_120'])
-    audit.pin(
-        'clean None: unopposed / unverified names',
-        'site.clean.null_names',
-        {'unopposed': c['null_unopposed'], 'unverified': c['null_unverified']},
-    )
-    audit.pin('unopposed in the current cycle', 'site.clean.unopposed_total', c['unopposed_total'])
-    audit.pin(
-        'career-clean incoming House (incl. opposition credit)',
-        'site.clean.career_clean_house_120',
-        c['career_clean_house_120'],
-    )
-    audit.pin('AIPAC/UDP flag in the 120th', 'tiered_2026.aipac_udp_flag_120th', t['flag_120'])
-    audit.pin('AIPAC/UDP flag roster-wide', 'tiered_2026.aipac_udp_flag_all', t['flag_all'])
-    for preset in ('balanced', 'lenient'):
-        for tier_name, n in t[preset].items():
-            audit.pin(
-                f'{preset} tier {tier_name} in the 120th', f'tiered_2026.{preset}.{tier_name}', n
-            )
+    # The dataset audit pins the same target keys, so the site and the dataset cannot disagree.
+    targets = page.expected['targets']
+    for preset in DIRTY_UNDER:
         audit.pin(
-            f'not-dirty in the 120th under {preset}',
-            f'tiered_2026.{preset}.not_dirty',
-            t['not_dirty_120'][preset],
+            f'next-cycle targets {preset} (House, Senate)', f'targets.{preset}', targets[preset]
         )
     audit.pin(
-        'House not dirty under Balanced (of incoming House incl. delegates)',
-        'site.tiers.house_not_dirty_balanced',
-        t['house_not_dirty_balanced'],
-    )
-    for preset in ('strict', 'balanced', 'lenient'):
-        audit.pin(
-            f'next-cycle targets {preset} House',
-            f'tiered_2026.targets_2028_{preset}_house',
-            t28[preset][0],
-        )
-        audit.pin(
-            f'next-cycle targets {preset} Senate',
-            f'tiered_2026.targets_2028_{preset}_senate_class3',
-            t28[preset][1],
-        )
-    audit.pin(
-        'next-cycle watchlist order + lead figures',
-        'site.targets_2028.order',
-        {k: v for k, v in t28.items() if k not in ('strict', 'balanced', 'lenient')},
+        'next-cycle targets: order and lead figures',
+        'site.targets',
+        {k: v for k, v in targets.items() if k not in DIRTY_UNDER},
     )
 
     king_hinds = [r for r in page.rows if 'King-Hinds' in r['full_name']]
@@ -135,11 +87,7 @@ def opposition_detail(audit, page):
         'King-Hinds contested, not unopposed (MP district 01)',
         len(king_hinds) == 1 and king_hinds[0]['unopposed_2026'] is False,
     )
-    audit.check(
-        'primary-target intro states the computed count',
-        f'{t28["targets_2026_house"]} House Democrats in the incoming 120th '
-        f'took dirty money in {settings().cycles.current}' in page.html,
-    )
+    c = page.expected['clean']
     audit.check(
         'methodology clean paragraph is computed, not stale',
         f'{c["all_120"]} verified clean in the incoming 120th' in page.html

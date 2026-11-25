@@ -32,8 +32,7 @@
 <button role="tab" aria-selected="false" data-tab="leaders">Leaderboards</button>
 <button role="tab" aria-selected="false" data-tab="clean">Clean money</button>
 <button role="tab" aria-selected="false" data-tab="breakdown">Party breakdown</button>
-<button role="tab" aria-selected="false" data-tab="targets">2026 primary targets</button>
-<button role="tab" aria-selected="false" data-tab="targets28">2028 primary targets</button>
+<button role="tab" aria-selected="false" data-tab="targets">Primary targets — %%NEXT_CYCLE%%</button>
 <button role="tab" aria-selected="false" data-tab="method">Methodology</button>
 </nav>
 <main id="main">
@@ -50,7 +49,7 @@
 </div>
 <div class="controls-row"><span class="controls-label">Show only</span>
 <label><input type="checkbox" id="f-leader"> Leadership (119th; 120th TBD)</label>
-<label><input type="checkbox" id="f-clean"> Not dirty <span data-cy="in">in %%CYCLE%%</span> only</label>
+<label><input type="checkbox" id="f-clean"> Not dirty <span data-cy="in">in their latest election</span> only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
 </div>
@@ -63,7 +62,7 @@
 
 <section id="tab-leaders" hidden tabindex="-1">
 <h2 class="sec">Leaderboards</h2>
-<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, <span data-cy="in">in %%CYCLE%%</span> and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
+<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, <span data-cy="in">in their latest election</span> and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
 <div id="leaders"></div>
 </section>
 
@@ -81,19 +80,9 @@
 </section>
 
 <section id="tab-targets" hidden tabindex="-1">
-<h2 class="sec">2026 primary targets — House Democrats, by dirty money in 2026</h2>
-<p style="color:var(--muted)">%%TARGETS_2026_HOUSE%% House Democrats in the incoming 120th took dirty money in 2026 (corporate PAC + AIPAC direct + UDP benefit). Dirty money is money from sources other than individual contributors; individual contributions are not dirty money. 2026 figures are partial (see cutoffs above).</p>
+<h2 class="sec">Primary targets — %%NEXT_CYCLE%%</h2>
+<p style="color:var(--muted)" id="targets-intro"></p>
 <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
-</section>
-
-<section id="tab-targets28" hidden tabindex="-1">
-<h2 class="sec">2028 primary targets — the dirtiest Democrats to watch</h2>
-<p style="color:var(--muted)" id="targets28-intro"></p>
-<h3>House — every seat is up in 2028</h3>
-<div class="tablewrap"><table id="targets28-house-table"><thead></thead><tbody></tbody></table></div>
-<h3>Senate — Class 3 seats, next up in 2028</h3>
-<p style="color:var(--muted)">Class comes from the Senate-term class field in the legislators data — the same derivation that puts every 120th senator in Class 1, 2, or 3. See Methodology §14.</p>
-<div class="tablewrap"><table id="targets28-senate-table"><thead></thead><tbody></tbody></table></div>
 </section>
 
 <section id="tab-method" class="method" hidden tabindex="-1">
@@ -109,7 +98,7 @@
 </section>
 <section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest">
 <span class="kicker">The dirtiest five</span>
-<h2>Dirtiest <span data-cy="in">in %%CYCLE%%</span></h2>
+<h2>Dirtiest <span data-cy="in">in their latest election</span></h2>
 <ol class="dirtiest" id="dirtiest-list"></ol>
 <p class="fine">Dirty money is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. %%CYCLE%% is partial; see the methodology for the coverage cutoffs.</p>
 </section>
@@ -140,7 +129,7 @@
 </section>
 <section class="chapter" data-chapter="data" aria-label="The data">
 <p class="fresh" id="fresh-line">%%FRESH_LINE%%</p>
-<p>Looking ahead to 2028: the dirtiest Democrats to watch for 2028 primaries. <button class="btn" id="targets28-btn" type="button">2028 primary targets</button></p>
+<p>Looking ahead to %%NEXT_CYCLE%%: incoming members of any party whose seat is on the ballot and who took dirty money. <button class="btn" id="targets-btn" type="button">Primary targets — %%NEXT_CYCLE%%</button></p>
 <p><button class="btn" id="explore-btn" type="button">Explore the full data</button></p>
 </section>
 <p class="frontfoot">Source: FEC bulk filings · Dataset md5: <code>%%DATASET_MD5%%</code> · Full methodology in Explore.</p>

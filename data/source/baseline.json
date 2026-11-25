@@ -266,10 +266,9 @@
   },
   "house_named": 430,
   "senate": {
-   "clean D": 12,
-   "clean I": 1,
-   "dirty D": 41,
-   "dirty I": 1,
+   "clean D": 8,
+   "dirty D": 45,
+   "dirty I": 2,
    "dirty R": 44
   },
   "senate_named": 99,
@@ -280,19 +279,25 @@
    "unopposed R": 1
   }
  },
- "site.clean.career_clean_house_120": 52,
- "site.clean.null_names": {
-  "unopposed": [
+ "site.clean": {
+  "true_total": 90,
+  "null_unopposed": [
    "Aumua Amata Coleman Radewagen",
    "Ayanna Pressley",
    "Sara Jacobs"
   ],
-  "unverified": [
+  "null_unverified": [
+   "Alan Armstrong",
    "Elaine Luria"
-  ]
+  ],
+  "unopposed_total": 10,
+  "house_120": 69,
+  "house_120_democrat": 66,
+  "house_120_republican": 3,
+  "senate_120": 8,
+  "all_120": 77,
+  "career_clean_house_120": 52
  },
- "site.clean.senate_120": 13,
- "site.clean.unopposed_total": 9,
  "site.composition.delegates": 6,
  "site.composition.house_named": 430,
  "site.composition.senate_named": 99,
@@ -365,33 +370,49 @@
  "site.smoke.search_mi": 113,
  "site.smoke.search_michigan": 21,
  "site.smoke.search_senate": 118,
- "site.targets_2028.order": {
-  "balanced_house_order": [
+ "site.targets": {
+  "balanced_top3": [
    "Adrian Boafo",
+   "Ed Gallrein",
    "Wesley Bell"
   ],
-  "balanced_house_top_dirty_exact": "$5,745,013.28",
-  "balanced_senate_order": [
-   "Margaret Wood Hassan",
-   "Ron Wyden",
-   "Brian Schatz",
-   "Catherine Cortez Masto",
-   "Patty Murray",
-   "Charles E. Schumer"
+  "balanced_top_dirty_exact": "$5,745,013.28",
+  "balanced_house_top": [
+   "Adrian Boafo"
   ],
-  "balanced_senate_top_dirty_exact": "$411,888.00",
-  "balanced_senate_top_career_exact": "$2,152,841.00",
-  "strict_senate_top3": [
-   "Margaret Wood Hassan",
-   "Ron Wyden",
-   "Brian Schatz"
+  "balanced_senate_top": [
+   "Tim Scott"
   ],
-  "targets_2026_house": 193
+  "balanced_parties": {
+   "D": 147,
+   "R": 164
+  }
  },
- "site.tiers.house_not_dirty_balanced": [
-  148,
-  436
- ],
+ "site.tiers": {
+  "balanced": {
+   "clean": 77,
+   "below_threshold": 107,
+   "dirty": 347,
+   "null": 4
+  },
+  "lenient": {
+   "clean": 77,
+   "below_threshold": 148,
+   "dirty": 306,
+   "null": 4
+  },
+  "not_dirty_120": {
+   "balanced": 184,
+   "lenient": 225
+  },
+  "house_not_dirty_balanced": [
+   148,
+   436
+  ],
+  "flag_120": 270,
+  "flag_all": 330,
+  "incoming_total": 535
+ },
  "spot.all_ie_blank_direction_gap": 21231.43,
  "spot.clean.constantino": {
   "clean_2026": true,
@@ -492,6 +513,18 @@
   "Q000023",
   "R000600"
  ],
+ "targets.balanced": [
+  284,
+  27
+ ],
+ "targets.lenient": [
+  251,
+  26
+ ],
+ "targets.strict": [
+  363,
+  34
+ ],
  "tiered_2026.aipac_udp_flag_120th": 231,
  "tiered_2026.aipac_udp_flag_all": 291,
  "tiered_2026.balanced.below_threshold": 119,
@@ -509,12 +542,6 @@
  "tiered_2026.lenient.dirty": 278,
  "tiered_2026.lenient.not_dirty": 253,
  "tiered_2026.lenient.null": 4,
- "tiered_2026.targets_2028_balanced_house": 135,
- "tiered_2026.targets_2028_balanced_senate_class3": 6,
- "tiered_2026.targets_2028_lenient_house": 105,
- "tiered_2026.targets_2028_lenient_senate_class3": 3,
- "tiered_2026.targets_2028_strict_house": 193,
- "tiered_2026.targets_2028_strict_senate_class3": 14,
  "udp_prior_cycle_totals.2022": 26107515.77,
  "udp_prior_cycle_totals.2024": 38044932.69,
  "udp_prior_cycle_totals.2026": 54322881.51

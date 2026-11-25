@@ -6,7 +6,6 @@ from receipts.domain.clean_2026 import (
     aipac_udp_flagged,
     is_career_clean,
     is_not_dirty,
-    is_primary_target_2026,
     race_label,
     races_and_unopposed,
     tier,
@@ -68,15 +67,6 @@ def test_not_dirty_means_clean_or_below_threshold():
         False,
         False,
     ]
-
-
-def test_a_primary_target_is_a_120th_house_democrat_with_dirty_money():
-    person = {'in_120th': 'yes', 'chamber_120': 'House', 'party_120': 'Democrat'}
-    assert is_primary_target_2026({**person, 'dirty_2026': 0.01})
-    assert not is_primary_target_2026({**person, 'dirty_2026': -1000.0})
-    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'party_120': 'Republican'})
-    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'chamber_120': 'Senate'})
-    assert not is_primary_target_2026({**person, 'dirty_2026': 5.0, 'in_120th': 'no'})
 
 
 def test_career_clean_needs_every_dirty_source_at_zero():
