@@ -35,10 +35,24 @@ const cyCol = (k, name, type)=>({k, type, get label(){ return name+' '+CY; }});
 const CYCLE_FIELDS = COLS.cy.filter(k=>k!=='cycle' && k!=='up_for_election');
 const NO_RECORD = {clean:null, tier_balanced:null, tier_lenient:null, dep_share:null,
   cash_on_hand:null, unopposed:false, aipac_udp_flag:false};
+// The latest election's cycle and every cycle since, as one record
+// (receipts/domain/term.py is the rule; this mirrors it).
+const NOT_SUMMED = new Set(['cycle','clean','unopposed','aipac_udp_flag','tier_balanced',
+  'tier_lenient','dep_share','cash_on_hand','up_for_election']);
+const round2 = x=>Math.round(x*100)/100;
+function termRecord(p){
+  const since = p.cycles.filter(c=>c.cycle>=p.verdict_cycle).sort((a,b)=>a.cycle-b.cycle);
+  if(p.verdict_cycle===null || !since.length) return {};
+  const t = {cycle:p.verdict_cycle, unopposed:since[0].unopposed, cash_on_hand:since[since.length-1].cash_on_hand};
+  Object.keys(since[0]).forEach(k=>{ if(!NOT_SUMMED.has(k)) t[k] = round2(since.reduce((s,c)=>s+(c[k]||0),0)); });
+  const accepted = t.individual+t.corp+t.aipac_direct;
+  t.dep_share = accepted>0 ? Math.round((t.corp+t.aipac_direct)/accepted*10000)/10000 : null;
+  t.aipac_udp_flag = t.aipac_direct>0 || t.udp_benefit>0;
+  return t;
+}
 function cycleRecord(p, cycle){
   if(cycle==='latest'){
-    const r = p.cycles.find(c=>c.cycle===p.verdict_cycle) || {};
-    return Object.assign({}, r, {clean:p.clean, dirty:p.dirty,
+    return Object.assign(termRecord(p), {clean:p.clean, dirty:p.dirty,
       tier_balanced:p.tier_balanced, tier_lenient:p.tier_lenient});
   }
   return p.cycles.find(c=>c.cycle===cycle) || {};
@@ -50,7 +64,7 @@ const isCycleChoice = c=>CYCLE_CHOICES.indexOf(c)>=0;
 let CY = '', IN_CY = '';
 function applyCycle(cycle){
   CY = cycle==='latest' ? 'latest' : String(cycle);
-  IN_CY = cycle==='latest' ? 'in their latest election' : 'in '+cycle;
+  IN_CY = cycle==='latest' ? 'since their last election' : 'in '+cycle;
   PEOPLE.forEach(p=>{
     const r = cycleRecord(p, cycle);
     CYCLE_FIELDS.forEach(k=>{

@@ -451,9 +451,12 @@
    separately, not in dirty money (whether it counts is still Craig's call). OPEN: bundled
    conduit checks (J Street's are the largest) are in no bulk file — only the FEC API has
    them, as each PAC's Schedule B by recipient committee; Craig chose to skip them for now.
-   Not reproduced: Track AIPAC's donor-matching layer. Also OPEN: the latest-election
-   verdict ignores money raised since that election (a senator's off-years); the rule for
-   members between elections is undecided.
+   Not reproduced: Track AIPAC's donor-matching layer.
+8. **Headline verdict between elections — DONE (Craig, Nov 25).** The headline judged a
+   member on their latest election's cycle alone, so a senator's off-year money (raised
+   toward the next race) never counted. It now judges that cycle and every cycle since as
+   one term (`receipts/domain/term.py`, methodology §14b); the site's default view is
+   "Since last election".
 7. **Cycle-neutral tracker — IN PROGRESS (Craig, Nov 24).** 2026 is just the
    current cycle; past cycles and 2028 must work the same way. Decisions:
    per-cycle records for every career cycle (one per person per cycle);

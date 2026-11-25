@@ -150,9 +150,9 @@ window.smoke = {
 
         showTab("leaders");
         const leadersHtml = document.getElementById("leaders").innerHTML;
-        assert.ok(leadersHtml.includes("Top 20 — dirtiest in their latest election"), "first board is dirtiest in their latest election");
+        assert.ok(leadersHtml.includes("Top 20 — dirtiest since their last election"), "first board is dirtiest since their last election");
         assert.ok(
-          leadersHtml.indexOf("dirtiest in their latest election") < leadersHtml.indexOf("dirtiest, career") &&
+          leadersHtml.indexOf("dirtiest since their last election") < leadersHtml.indexOf("dirtiest, career") &&
           leadersHtml.indexOf("dirtiest, career") < leadersHtml.indexOf("total accepted (career)"),
           "leaderboards lead with dirty, total accepted after");
         assert.ok(leadersHtml.includes(EXP.career_dirty.top1_exact), "career dirty board shows the #1 career figure");
@@ -813,7 +813,7 @@ window.smoke = {
         await setHash("explore?tab=leaders");
         assert.strictEqual(document.getElementById("tab-leaders").hidden, false, "FE5: hash restores the tab");
         await setHash("explore");
-        // The first tracker row is the dirtiest in their latest election (Stevens): open it.
+        // The first tracker row is the dirtiest since their last election (Stevens): open it.
         document.querySelector("#main-table tbody tr").dispatchEvent("click");
         assert.ok(location.hash.includes("detail="), "FE5: open drill-down lands in the hash: " + location.hash);
         assert.strictEqual(document.getElementById("detail").classList.contains("open"), true, "FE5: drill-down is open");
@@ -827,7 +827,7 @@ window.smoke = {
 
         /* ---- U10: prev/next, anchor nav, View in Tracker ---- */
         setMode("explore");
-        // The first tracker row is Stevens (dirtiest in their latest election): prev disabled, next live.
+        // The first tracker row is Stevens (dirtiest since their last election): prev disabled, next live.
         document.querySelector("#main-table tbody tr").dispatchEvent("click");
         assert.strictEqual(document.getElementById("detail-prev").disabled, true, "U10: prev disabled on the first row");
         assert.strictEqual(document.getElementById("detail-next").disabled, false, "U10: next enabled on the first row");
@@ -924,9 +924,12 @@ window.smoke = {
           searchBox.dispatchEvent("input");
           await sleep(250);
           observe("search_mi", document.querySelectorAll("#main-table tbody tr").length);
+          const ranked = [...document.querySelectorAll("#main-table tbody tr")].map((tr) => BY_KEY[tr.getAttribute("data-key")]);
+          const firstState = ranked.findIndex((p) => !p.full_name.toLowerCase().includes("mi"));
           assert.ok(
-            document.querySelector("#main-table tbody tr td").textContent.includes("Mike Johnson"),
-            "relevance ranks the Mike Johnson name match first for 'mi'");
+            ranked[0].full_name.toLowerCase().startsWith("mi")
+              && ranked.slice(firstState).every((p) => !p.full_name.toLowerCase().includes("mi")),
+            "relevance ranks name matches for 'mi' ahead of state matches");
           searchBox.value = "zzzznope";
           searchBox.dispatchEvent("input");
           await sleep(250);

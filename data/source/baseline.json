@@ -30,13 +30,13 @@
  "clean_2026.true_total": 97,
  "cycles.headline_by_cycle": {
   "2022": [
-   1,
-   31,
+   0,
+   32,
    0
   ],
   "2024": [
-   2,
-   32,
+   1,
+   33,
    0
   ],
   "2026": [
@@ -269,9 +269,9 @@
   },
   "house_named": 430,
   "senate": {
-   "clean D": 10,
+   "clean D": 8,
    "clean I": 1,
-   "dirty D": 43,
+   "dirty D": 45,
    "dirty I": 1,
    "dirty R": 44
   },
@@ -284,7 +284,7 @@
   }
  },
  "site.clean": {
-  "true_total": 94,
+  "true_total": 92,
   "null_unopposed": [
    "Aumua Amata Coleman Radewagen",
    "Ayanna Pressley",
@@ -298,8 +298,8 @@
   "house_120": 70,
   "house_120_democrat": 67,
   "house_120_republican": 3,
-  "senate_120": 11,
-  "all_120": 81,
+  "senate_120": 9,
+  "all_120": 79,
   "career_clean_house_120": 58
  },
  "site.composition.delegates": 6,
@@ -351,18 +351,18 @@
     3447667.69
    ],
    [
-    "Brett Guthrie",
-    1877280.0
+    "John Thune",
+    2519540.0
    ]
   ],
   "top1_key": "S001215",
   "top1_compact": "$31.03M",
   "top1_exact": "$31,025,889.44",
   "top1_returning": false,
-  "next_four_total": 15231247.67,
-  "next_four_compact": "$15.23M",
+  "next_four_total": 15873507.67,
+  "next_four_compact": "$15.87M",
   "exceeds_next_four": true,
-  "ratio": "2.04"
+  "ratio": "1.95"
  },
  "site.outcomes": {
   "yes": 535,
@@ -385,7 +385,7 @@
    "Adrian Boafo"
   ],
   "balanced_senate_top": [
-   "Tim Scott"
+   "John Thune"
   ],
   "balanced_parties": {
    "D": 147,
@@ -394,20 +394,20 @@
  },
  "site.tiers": {
   "balanced": {
-   "clean": 80,
+   "clean": 79,
    "below_threshold": 104,
-   "dirty": 347,
+   "dirty": 348,
    "null": 4
   },
   "lenient": {
-   "clean": 80,
+   "clean": 79,
    "below_threshold": 145,
-   "dirty": 306,
+   "dirty": 307,
    "null": 4
   },
   "not_dirty_120": {
-   "balanced": 184,
-   "lenient": 225
+   "balanced": 183,
+   "lenient": 224
   },
   "house_not_dirty_balanced": [
    148,
@@ -527,7 +527,7 @@
  ],
  "targets.strict": [
   362,
-  33
+  34
  ],
  "tiered_2026.aipac_udp_flag_120th": 231,
  "tiered_2026.aipac_udp_flag_all": 291,

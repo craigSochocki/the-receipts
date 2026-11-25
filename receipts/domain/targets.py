@@ -1,6 +1,7 @@
 """Primary targets: incoming members whose seat is up next cycle and who took dirty money."""
 
 from receipts.domain.seats import regular_senate_class
+from receipts.domain.term import term_record
 
 DIRTY_UNDER = {
     'strict': lambda record: (record['dirty'] or 0) > 0,
@@ -9,9 +10,15 @@ DIRTY_UNDER = {
 }
 
 
+HEADLINE = ('clean', 'dirty', 'tier_balanced', 'tier_lenient')
+
+
 def latest_record(person):
-    """The cycle record the headline verdict comes from; None when no cycle was up."""
-    return next((c for c in person['cycles'] if c['cycle'] == person['verdict_cycle']), None)
+    """The term the headline verdict judges, with that verdict; None when no cycle was up."""
+    if person['verdict_cycle'] is None:
+        return None
+    term = term_record(person['cycles'], person['verdict_cycle'])
+    return {**term, **{k: person[k] for k in HEADLINE}}
 
 
 def seat_up_in(person, cycle):

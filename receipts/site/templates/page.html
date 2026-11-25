@@ -49,7 +49,7 @@
 </div>
 <div class="controls-row"><span class="controls-label">Show only</span>
 <label><input type="checkbox" id="f-leader"> Leadership (119th; 120th TBD)</label>
-<label><input type="checkbox" id="f-clean"> Not dirty <span data-cy="in">in their latest election</span> only</label>
+<label><input type="checkbox" id="f-clean"> Not dirty <span data-cy="in">since their last election</span> only</label>
 <button class="btn" id="csv-btn" type="button">Download CSV</button>
 </div>
 </div>
@@ -62,7 +62,7 @@
 
 <section id="tab-leaders" hidden tabindex="-1">
 <h2 class="sec">Leaderboards</h2>
-<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, <span data-cy="in">in their latest election</span> and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
+<p style="color:var(--muted)">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, <span data-cy="in">since their last election</span> and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
 <div id="leaders"></div>
 </section>
 
@@ -98,7 +98,7 @@
 </section>
 <section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest">
 <span class="kicker">The dirtiest five</span>
-<h2>Dirtiest <span data-cy="in">in their latest election</span></h2>
+<h2>Dirtiest <span data-cy="in">since their last election</span></h2>
 <ol class="dirtiest" id="dirtiest-list"></ol>
 <p class="fine">Dirty money is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. %%CYCLE%% is partial; see the methodology for the coverage cutoffs.</p>
 </section>

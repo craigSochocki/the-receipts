@@ -329,7 +329,7 @@ function renderBreakdown(){
 /* ---- primary targets for the next cycle ----
    Incoming members of any party whose seat is up next cycle (every
    House seat; Senate seats of that cycle's class) and who took dirty
-   money in their latest election under the preset. The rule is
+   money since their last election under the preset. The rule is
    receipts/domain/targets.py; it ignores the cycle picker. Counts are
    computed at render, never typed: a watchlist, not a prediction. */
 const NEXT_CYCLE = COLS.next_cycle;
@@ -351,14 +351,14 @@ function renderTargets(){
   const house = rows.filter(p=>p.chamber_120==='House').length;
   document.getElementById('targets-intro').innerHTML =
     'A watchlist, not a prediction. '+rows.length+' incoming members whose seat is up in '+NEXT_CYCLE
-    +' took dirty money in their latest election ('+house+' House + '+(rows.length-house)+' Senate), any party, under the '
+    +' took dirty money since their last election ('+house+' House + '+(rows.length-house)+' Senate), any party, under the '
     +preset.label+' tolerance ('+preset.short+'; any AIPAC direct or UDP benefit dollar always counts). Retirements are unknown and '
     +NEXT_CYCLE+' filings are barely open. The rule is mechanical — dirty money only; the tracker does not judge electability or anything else.';
   document.querySelector('#targets-table thead').innerHTML =
     '<tr><th>#</th><th>Name</th><th>Party</th><th>Seat</th><th class="num">Election</th><th class="num">Dirty</th><th class="num">Corp PAC</th><th class="num">AIPAC</th><th class="num">UDP benefit</th><th class="num">Dirty career</th><th class="num">Individual</th></tr>';
   document.querySelector('#targets-table tbody').innerHTML = rows.map((p,i)=>{
     const r = cycleRecord(p, 'latest');
-    const flag = r.aipac_udp_flag===true ? ' <span class="badge flag" title="AIPAC PAC direct money or UDP benefit in their latest election">AIPAC/UDP</span>' : '';
+    const flag = r.aipac_udp_flag===true ? ' <span class="badge flag" title="AIPAC PAC direct money or UDP benefit since their last election">AIPAC/UDP</span>' : '';
     return '<tr data-key="'+esc(p.person_key)+'"><td>'+(i+1)+'</td><td class="name">'+esc(p.full_name)+flag+'</td><td>'+esc(party(p))+'</td><td>'+esc(place(p))+'</td><td class="num">'+r.cycle+'</td>'
       + ['dirty','corp','aipac_direct','udp_benefit'].map(k=>'<td class="num">'+fmtMoney(r[k])+'</td>').join('')
       + '<td class="num">'+fmtMoney(p.dirty_career)+'</td><td class="num">'+fmtMoney(r.individual)+'</td></tr>';
@@ -835,7 +835,7 @@ function init(){
   document.getElementById('f-clean').addEventListener('change', e=>{ state.clean=e.target.checked; renderTable(); });
   document.getElementById('f-tolerance').addEventListener('change', e=>{ setPreset(e.target.value); });
   const cyclePicker = document.getElementById('f-cycle');
-  cyclePicker.innerHTML = CYCLE_CHOICES.map(c=>'<option value="'+c+'">'+(c==='latest' ? 'Latest election' : c)+'</option>').join('');
+  cyclePicker.innerHTML = CYCLE_CHOICES.map(c=>'<option value="'+c+'">'+(c==='latest' ? 'Since last election' : c)+'</option>').join('');
   cyclePicker.value = String(state.cycle);
   cyclePicker.addEventListener('change', e=>{ setCycle(cycleValue(e.target.value)); syncHash(true); });
   document.getElementById('f-money').value = state.moneyFmt;

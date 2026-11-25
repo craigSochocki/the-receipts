@@ -21,6 +21,7 @@ from receipts.domain.clean_2026 import (
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.seats import regular_senate_class
 from receipts.domain.targets import latest_record, primary_targets
+from receipts.domain.term import term_record
 from receipts.store.races import races_in
 from receipts.store.read import connect
 
@@ -157,10 +158,25 @@ def headline_record(r, filed):
 
 
 def headline(r, filed):
+    """The verdict on the latest election's cycle and every cycle since (methodology §14b)."""
     record = headline_record(r, filed)
     if record is None:
         return {'verdict_cycle': None, **dict.fromkeys(HEADLINE)}
-    return {'verdict_cycle': record['cycle'], **{k: record[k] for k in HEADLINE}}
+    term = term_record(r['cycles'], record['cycle'])
+    unlinked = record['clean'] is None and not record['unopposed']
+    clean = None if unlinked else verdict(False, True, term['unopposed'], term['dirty'])[0]
+    presets = settings().verification.tolerance_presets
+    return {
+        'verdict_cycle': record['cycle'],
+        'clean': clean,
+        'dirty': term['dirty'],
+        **{
+            f'tier_{p}': tier(
+                clean, term['aipac_udp_flag'], term['corp'], term['total_receipts'], presets[p]
+            )
+            for p in ('balanced', 'lenient')
+        },
+    }
 
 
 def add_notes(r, unknown_because, unopposed):
