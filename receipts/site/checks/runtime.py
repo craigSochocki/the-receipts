@@ -61,7 +61,7 @@ def served_page(audit, page):
             'Data as of',
             'Find your member',
             'took no dirty money',
-            'Dirtiest',
+            'dotfield',
             'Explore the full data',
         ]:
             audit.check(f'served page contains {needle!r}', needle in body)
@@ -90,10 +90,6 @@ def run_smoke_test(page_path, expected):
             tab.goto(page_path.resolve().as_uri())
             tab.add_script_tag(path=site / 'smoke_test.js')
             observed = tab.evaluate('exp => smoke.main(exp)', expected)
-            tab.set_viewport_size({'width': 500, 'height': 800})
-            tab.evaluate('smoke.narrow()')
-            tab.set_viewport_size({'width': 1024, 'height': 800})
-            tab.evaluate('smoke.wide()')
             for reduce in (True, False):
                 tab.emulate_media(reduced_motion='reduce' if reduce else 'no-preference')
                 tab.evaluate('expected => smoke.reducedMotion(expected)', reduce)

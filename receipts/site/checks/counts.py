@@ -16,7 +16,7 @@ def composition(audit, page):
         'two Senate seats per state at most',
         len(senate) <= SENATE_SEATS and all(n <= 2 for n in per_state.values()),
     )
-    audit.check('Senate tiles cover every state', len(per_state) == STATES)
+    audit.check('every state has a senator', len(per_state) == STATES)
     audit.pin('House named voting members', 'site.composition.house_named', len(voting))
     audit.pin('Senate named members', 'site.composition.senate_named', len(senate))
     audit.pin(
@@ -24,7 +24,7 @@ def composition(audit, page):
         'site.composition.senate_states_with_uncalled_seat',
         sorted(state for state, n in per_state.items() if n < 2),
     )
-    audit.pin('delegates not plotted', 'site.composition.delegates', len(house) - len(voting))
+    audit.pin('non-voting delegates', 'site.composition.delegates', len(house) - len(voting))
 
 
 def outcomes(audit, page):

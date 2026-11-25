@@ -69,7 +69,6 @@ td.name{font-weight:600;white-space:normal;min-width:150px}
 .pchip.d{background:#dbeafe;color:#1e40af}
 .pchip.r{background:#fee2e2;color:#991b1b}
 .pchip.o{background:#e5e7eb;color:#374151}
-.ostatus{color:var(--muted);font-size:.85rem;white-space:nowrap}
 footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);font-size:.85rem}
 .foot-totals{font-size:.9rem;color:var(--ink);margin-bottom:8px}
 .detail{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:50}
@@ -110,7 +109,6 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .method table{min-width:0}
 .method th{cursor:default}
 .callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
-.story{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 8px 8px 0;padding:12px 14px;font-size:1.05rem;margin:0 0 10px}
 .frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
 .frontdoor h2{font-size:1.3rem;letter-spacing:.02em;margin:32px 0 6px}
 .frontdoor .kicker{display:block;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
@@ -124,40 +122,14 @@ h2.sec{font-size:1.25rem;margin:4px 0 10px}
 .frontdoor .chapter:first-child{margin-top:8px}
 html.js .chapter{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
 html.js .chapter.in{opacity:1;transform:none}
-html.js .chapter .dirtiest li{opacity:0;transform:translateY(8px);transition:opacity .5s ease,transform .5s ease}
-html.js .chapter.in .dirtiest li{opacity:1;transform:none}
-html.js .chapter .dot{opacity:0;transition:opacity .4s ease}
-html.js .chapter.in .dot{opacity:1}
-html.js .chapter .tile{opacity:0;transition:opacity .45s ease}
-html.js .chapter.in .tile{opacity:1}
 @media (prefers-reduced-motion: reduce){
-html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .chapter .tile{opacity:1 !important;transform:none !important;transition:none !important}
+html.js .chapter{opacity:1 !important;transform:none !important;transition:none !important}
 }
-@media(max-width:560px){.hook{font-size:1.9rem}.big-number{font-size:1.8rem}.detail .kv{grid-template-columns:1fr}}
-.comp{display:flex;flex-direction:column;gap:18px}
-.comp figure{margin:0;min-width:0}
-.comp svg{width:100%;height:auto;display:block}
-.comp [data-key]{cursor:pointer}
-.comp figcaption{text-align:center;font-weight:600;margin-top:2px}
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font-size:.85rem;color:var(--muted);margin:6px 0 0}
-.legend .lg{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
-.legend .lg i{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
-.delegates{color:var(--muted);font-size:.85rem;text-align:center;margin:8px 0 0}
+@media(max-width:560px){.hook{font-size:1.9rem}.detail .kv{grid-template-columns:1fr}}
 .hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600;font-variant-numeric:tabular-nums}
-.big-number{font-size:2.1rem;font-weight:700;margin:2px 0 0;line-height:1.2;font-variant-numeric:tabular-nums}
-.big-label{color:var(--muted);margin:2px 0 10px}
-.dirtiest{list-style:none;margin:6px 0 0;padding:0}
-.dirtiest li{border-bottom:1px solid #ececec}
-.dirty-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;width:100%;text-align:left;background:none;border:none;padding:12px 2px;font:inherit;cursor:pointer;color:inherit}
-.dirty-row:hover{background:#f7f9f7}
-.dirty-row .nm{font-weight:600}
-.dirty-row .pl{color:var(--muted);font-size:.88rem;display:block}
-.dirty-row .amt{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
 .fine{color:var(--muted);font-size:.88rem;margin:10px 0 0}
 .fresh{color:var(--muted);font-size:.88rem;margin:28px 0 12px}
 #explore-btn{width:100%}
-.story b{font-size:1.2rem}
 .linklike{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
 .finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .finder-slot{margin:0 0 12px}

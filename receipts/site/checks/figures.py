@@ -2,7 +2,6 @@
 
 import re
 
-from receipts.site.checks.counts import HOUSE_SEATS
 from receipts.site.checks.page import num
 from receipts.site.expectations import figure_literals
 
@@ -14,20 +13,12 @@ COUNT_PHRASES = (
 )
 
 
-def legend(counts):
-    return [f'{k.split()[0].capitalize()} {k.split()[1]} {n}' for k, n in counts.items()]
-
-
 def literals(page):
-    charts = page.expected['charts']
     career_dirty = sum(num(r['dirty_career']) for r in page.rows)
     return [
         *figure_literals(page.expected),
         page.expected['career_dirty']['total_compact'],
         f'{career_dirty:,.2f}',
-        *legend(charts['house']),
-        *legend(charts['senate']),
-        f'Uncalled {HOUSE_SEATS - charts["house_named"]}',
     ]
 
 

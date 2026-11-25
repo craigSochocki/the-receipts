@@ -68,7 +68,7 @@ def opposition_detail(audit, page):
         values_equal(page.opposition, opp_expected, 'opp'),
         f'{len(page.opposition)} persons, {sum(len(v) for v in page.opposition.values())} race-phases',
     )
-    for section in ('headline', 'career_dirty', 'charts', 'detail', 'clean', 'tiers'):
+    for section in ('headline', 'career_dirty', 'detail', 'clean', 'tiers'):
         audit.pin(f'site figures: {section}', f'site.{section}', page.expected[section])
     # The dataset audit pins the same target keys, so the site and the dataset cannot disagree.
     targets = page.expected['targets']

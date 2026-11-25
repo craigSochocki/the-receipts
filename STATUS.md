@@ -481,10 +481,10 @@
    verdict and why → receipts by cycle, dirty share highlighted → who
    funds them → outside spending on their races → their seat next
    cycle; the full tables follow. Explore stays the tabbed data tool.
-   Each lands as its own PR. Roadmap: move to Scrollama + D3 later. (a) first pass
-   built (`receipts/site/templates/story.js`): added after the hook; the older
-   dirtiest / definition / clean / chamber chapters stay until Craig decides what the
-   story replaces. (b) not started.
+   Each lands as its own PR. Roadmap: move to Scrollama + D3 later. (a) built
+   (`receipts/site/templates/story.js`): the front door is now hook → story → finder →
+   data; the story replaced the dirtiest-five, definition, clean-count and composition
+   chapters (Craig, Nov 25). (b) not started.
 8. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.

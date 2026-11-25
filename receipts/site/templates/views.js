@@ -384,7 +384,7 @@ function setPreset(preset){
   if(!PRESETS[preset]) return;
   state.preset = preset;
   document.getElementById('tolerance-note').textContent = PRESETS[preset].def;
-  renderStats(); renderTable(); renderCleanStory(); renderDirtiest(); renderStory();
+  renderStats(); renderTable(); renderHook(); renderStory();
   refreshTabs(['clean','breakdown','targets']);
 }
 
@@ -400,8 +400,7 @@ function setCycle(cycle){
   state.cycle = cycle;
   applyCycle(cycle);
   labelCycle();
-  renderViewBtns(); renderStats(); renderTable(); renderCleanStory();
-  renderDirtiest(); renderDirtyExplainer(); renderComposition(); renderStory();
+  renderViewBtns(); renderStats(); renderTable(); renderHook(); renderStory();
   refreshTabs(Object.keys(TAB_RENDER));
 }
 
@@ -771,28 +770,9 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder(); initStory();
-  // D1: a resize that crosses the 560px breakpoint reflows the
-  // Senate tiles (5 wide on phones, 10 wide otherwise). Debounced,
-  // and only when the column count actually changes.
-  let lastSenateCols = senateCols();
-  let resizeTimer = null;
-  if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
-    window.addEventListener('resize', ()=>{
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(()=>{
-        const c = senateCols();
-        if(c!==lastSenateCols){ lastSenateCols = c; renderComposition(); }
-      }, 150);
-    });
-  }
-  // U4: the charts are tappable — one delegated listener on the
-  // composition container opens the drill-down for the dot or tile
-  // half clicked. Attached once, on the container, so it survives
-  // re-renders (D1) and works while the reveal is still running
-  // (opacity never blocks pointer events). Per-dot keyboard focus
-  // was cut: 435 dots would be ~535 tab stops.
-  document.getElementById('composition').addEventListener('click', e=>{
+  renderHook(); initFinder(); initStory();
+  // A dot in the story opens that member's drill-down (one delegated listener).
+  document.getElementById('dotfield').addEventListener('click', e=>{
     const t = e.target && e.target.closest ? e.target.closest('[data-key]') : null;
     if(t) openDetail(t.getAttribute('data-key'));
   });

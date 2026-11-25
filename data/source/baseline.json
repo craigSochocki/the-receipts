@@ -258,31 +258,6 @@
   ],
   "top1_exact": "$36,854,643.88"
  },
- "site.charts": {
-  "house": {
-   "clean D": 64,
-   "clean R": 2,
-   "dirty D": 192,
-   "dirty R": 169,
-   "unopposed D": 2,
-   "unverified D": 1
-  },
-  "house_named": 430,
-  "senate": {
-   "clean D": 8,
-   "clean I": 1,
-   "dirty D": 45,
-   "dirty I": 1,
-   "dirty R": 44
-  },
-  "senate_named": 99,
-  "delegates": {
-   "clean D": 3,
-   "clean R": 1,
-   "dirty PPD": 1,
-   "unopposed R": 1
-  }
- },
  "site.clean": {
   "true_total": 92,
   "null_unopposed": [
