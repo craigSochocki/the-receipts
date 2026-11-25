@@ -22,6 +22,7 @@ class Committees:
     aipac_pac: str
     udp: str
     winred: str
+    class_overrides: Mapping[str, str]
 
 
 @dataclass(frozen=True)
