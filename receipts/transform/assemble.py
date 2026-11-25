@@ -51,9 +51,10 @@ OTHER_COMMITTEES = (
     + [f'{b}_earmark_transmitted_career' for b in BUCKETS]
 )
 ALL_IE = ['all_ie_support_career', 'all_ie_oppose_career', 'all_ie_total_career']
+PRO_ISRAEL = ['pro_israel_pac_career', 'pro_israel_ie_support_career']
 MONEY = (
     ACCEPTED + ['udp_ie_support_career'] + list(SELF_FUNDING) + ['debts_owed_to_career']
-    + OTHER_COMMITTEES + ALL_IE
+    + OTHER_COMMITTEES + ALL_IE + PRO_ISRAEL
 )  # fmt: skip
 RANKS = [
     'rank_total_accepted', 'rank_individual', 'rank_corporate_pac', 'rank_aipac_direct',
@@ -135,6 +136,14 @@ def all_ie_entries(by_candidate, ids):
             for e in sorted(found, key=lambda e: (e['cycle'], e['candidate_id']))]  # fmt: skip
 
 
+def pro_israel_entries(entries):
+    return [
+        {'cycle': e['cycle'], 'pro_israel_pac': dollars(e['pro_israel_pac']),
+         'pro_israel_ie_support': dollars(e['pro_israel_ie_support'])}
+        for e in entries
+    ]  # fmt: skip
+
+
 def top_committees(entries):
     return [{'committee_id': e['committee_id'], 'committee_name': e['committee_name'],
              'support': dollars(e['support']), 'oppose': dollars(e['oppose']),
@@ -177,6 +186,7 @@ def money_fields(key, gold):
         'debts_owed_to_career': None,
         **{c: dollars(gold['committees'][key][c]) for c in OTHER_COMMITTEES},
         **{c: dollars(ie[c]) for c in ALL_IE},
+        **{c: dollars(gold['pro_israel'][key][c]) for c in PRO_ISRAEL},
         'udp_ie_opposing_opponents_career': dollars(money['udp_opposing_opponents']),
         'udp_ie_total_benefit_career': dollars(money['udp_total_benefit']),
         'total_accepted_career': dollars(money['total_accepted']),
@@ -201,6 +211,7 @@ def record(person, gold, dedup_notes):
         'self_funding_per_cycle': self_funding_entries(gold['self_funding_cycles'][key]),
         'other_committees_per_cycle': other_committee_entries(gold['committee_cycles'][key]),
         'all_ie_per_cycle': all_ie_entries(gold['all_ie_by_candidate'], ids),
+        'pro_israel_per_cycle': pro_israel_entries(gold['pro_israel_cycles'][key]),
         'all_ie_top_committees': top_committees(gold['top_committees'][key]) if ids else None,
         'data_as_of': settings().data_as_of,
         **{r: gold['ranks'][key][r] for r in RANKS},
@@ -219,6 +230,8 @@ def read_gold():
             'self_funding': keyed(db, 'gold.self_funding_people'),
             'committees': keyed(db, 'gold.other_committees_people'),
             'all_ie': keyed(db, 'gold.all_ie_people'),
+            'pro_israel': keyed(db, 'gold.pro_israel_people'),
+            'pro_israel_cycles': grouped(db, 'gold.pro_israel_per_cycle'),
             'money': keyed(db, 'person_money'),
             'ranks': keyed(db, 'person_ranks'),
             'accepted_cycles': grouped(db, 'gold.accepted_money_per_cycle'),

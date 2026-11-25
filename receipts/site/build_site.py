@@ -73,6 +73,8 @@ SCALARS = [
     'all_ie_support_career',
     'all_ie_oppose_career',
     'all_ie_total_career',
+    'pro_israel_pac_career',
+    'pro_israel_ie_support_career',
     'total_accepted_career',
     'rank_total_accepted',
     'rank_individual',
@@ -165,6 +167,7 @@ AIE_COLS = [
     'no_direction_amount',
 ]
 TC_COLS = ['committee_id', 'committee_name', 'support', 'oppose', 'total', 'rows']
+PI_COLS = ['cycle', 'pro_israel_pac', 'pro_israel_ie_support']
 
 
 def cycle_cols():
@@ -180,6 +183,7 @@ NESTED = [
     'all_ie_per_cycle',
     'all_ie_top_committees',
     'cycles',
+    'pro_israel_per_cycle',
 ]
 NESTED_COLS = {
     'per_cycle': PC_COLS,
@@ -188,6 +192,7 @@ NESTED_COLS = {
     'other_committees_per_cycle': OC_COLS,
     'all_ie_per_cycle': AIE_COLS,
     'all_ie_top_committees': TC_COLS,
+    'pro_israel_per_cycle': PI_COLS,
 }
 
 
@@ -393,6 +398,7 @@ def main():
         'aie': AIE_COLS,
         'tc': TC_COLS,
         'cy': cycle_cols(),
+        'pi': PI_COLS,
         'current_cycle': settings().cycles.current,
         'next_cycle': settings().cycles.next,
         'next_senate_class': regular_senate_class(settings().cycles.next),

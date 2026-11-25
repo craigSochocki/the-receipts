@@ -53,6 +53,7 @@ paths:
   roster: data/intermediate/roster.json
   roster_intermediate: data/intermediate/roster_intermediate.json
   fec_lookup_results: data/source/fec_lookup_results.json
+  pro_israel_pacs: data/source/pro_israel_pacs.csv  # Track AIPAC's published list (research/pro-israel-pacs.md)
   baseline: data/source/baseline.json
   manual_roster_notes: data/source/manual_roster_notes.json
   other_committees_diagnostics: data/intermediate/other_committees_diagnostics.json
@@ -274,6 +275,9 @@ dataset:
     - dirty
     - tier_balanced
     - tier_lenient
+    - pro_israel_pac_career
+    - pro_israel_ie_support_career
+    - pro_israel_per_cycle
   json_keys:
     - person_key
     - full_name
@@ -378,3 +382,6 @@ dataset:
     - dirty
     - tier_balanced
     - tier_lenient
+    - pro_israel_pac_career
+    - pro_israel_ie_support_career
+    - pro_israel_per_cycle

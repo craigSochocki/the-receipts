@@ -1,4 +1,4 @@
-"""Career money families: self-funding, other committees, all-IE, roster totals, opposition."""
+"""Career money families: self-funding, other committees, all-IE, pro-Israel PACs, roster totals, opposition."""
 
 from receipts.common.settings import settings
 from receipts.store.read import connect
@@ -131,6 +131,21 @@ def all_ie(audit, dataset):
     elsayed = next(r for r in dataset.with_known_money if 'El-Sayed' in r['full_name'])
     for col in ('all_ie_support_career', 'all_ie_oppose_career'):
         audit.pin(f'El-Sayed {col}', f'spot.elsayed.{col}', elsayed[col])
+
+
+def pro_israel(audit, dataset):
+    """(l2) pro-Israel PAC money: each per-cycle list sums to its career columns; roster totals pinned."""
+    mism = 0
+    for r in dataset.with_known_money:
+        for column in ('pro_israel_pac', 'pro_israel_ie_support'):
+            summed = round(sum(e[column] for e in r['pro_israel_per_cycle']), 2)
+            mism += summed != round(r[f'{column}_career'], 2)
+    audit.check(
+        'pro-Israel per-cycle lists sum to the career columns', mism == 0, f'{mism} mismatches'
+    )
+    for column in ('pro_israel_pac', 'pro_israel_ie_support'):
+        total = round(sum(r[f'{column}_career'] for r in dataset.with_known_money), 2)
+        audit.pin(f'pro-Israel {column} roster total', f'pro_israel.{column}_career_total', total)
 
 
 def double_counts(audit, dataset):

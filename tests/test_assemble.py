@@ -3,6 +3,7 @@ from receipts.transform.assemble import (
     ALL_IE,
     ARMSTRONG_NOTE,
     OTHER_COMMITTEES,
+    PRO_ISRAEL,
     RANKS,
     SELF_FUNDING,
     record,
@@ -52,6 +53,10 @@ def gold(key='p', **notes):
             }
         },
         'all_ie': {key: money_row(ALL_IE)},
+        'pro_israel': {key: money_row(PRO_ISRAEL)},
+        'pro_israel_cycles': {
+            key: [{'cycle': 2024, 'pro_israel_pac': 5_00, 'pro_israel_ie_support': 0}]
+        },
         'money': {
             key: {
                 'udp_opposing_opponents': 0,

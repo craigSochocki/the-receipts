@@ -26,6 +26,7 @@ def decode_row(cols, arr):
         'all_ie_per_cycle',
         'all_ie_top_committees',
         'cycles',
+        'pro_israel_per_cycle',
     ]
     nested_cols = [
         cols['pc'],
@@ -35,6 +36,7 @@ def decode_row(cols, arr):
         cols['aie'],
         cols['tc'],
         cols['cy'],
+        cols['pi'],
     ]
     for j, (name, ccols) in enumerate(zip(nested_names, nested_cols, strict=True)):
         o[name] = [{k: e[i] for i, k in enumerate(ccols)} for e in (arr[base + j] or [])]
