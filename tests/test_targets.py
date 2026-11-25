@@ -1,22 +1,33 @@
 from receipts.domain.targets import is_primary_target, latest_record, primary_targets
 
 CLASS_UP_IN_2028 = 3
+MONEY = {'individual': 0, 'corp': 0, 'aipac_direct': 0, 'udp_benefit': 0, 'total_receipts': 0}
+
+
+def cycle(year, dirty, **fields):
+    return {'cycle': year, **MONEY, 'dirty': dirty, 'corp': dirty, 'unopposed': False,
+            'cash_on_hand': year, **fields}  # fmt: skip
 
 
 def member(dirty, tier='dirty', **seat):
-    record = {'cycle': 2026, 'dirty': dirty, 'tier_balanced': tier, 'tier_lenient': tier}
     return {
         'in_120th': 'yes',
         'chamber_120': 'House',
         'senate_class': None,
-        'verdict_cycle': 2026,
-        'cycles': [{'cycle': 2024, 'dirty': 0}, record],
+        'verdict_cycle': 2024,
+        'clean': dirty <= 0,
+        'dirty': dirty,
+        'tier_balanced': tier,
+        'tier_lenient': tier,
+        'cycles': [cycle(2022, 99), cycle(2024, dirty - 1), cycle(2026, 1)],
         **seat,
     }
 
 
-def test_the_latest_record_is_the_verdict_cycle():
-    assert latest_record(member(5.0))['dirty'] == 5.0
+def test_the_latest_record_is_the_election_and_every_cycle_since():
+    record = latest_record(member(5.0))
+    assert (record['cycle'], record['corp'], record['cash_on_hand']) == (2024, 5.0, 2026)
+    assert record['dirty'] == 5.0
     assert latest_record({**member(5.0), 'verdict_cycle': None}) is None
 
 

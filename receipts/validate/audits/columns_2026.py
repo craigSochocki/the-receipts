@@ -137,8 +137,20 @@ def cycle_records(audit, dataset):
     )
 
 
+def term_verdict(r, chosen):
+    """The headline a person should carry: the chosen election's cycle and every cycle since."""
+    if chosen is None:
+        return {'verdict_cycle': None, **dict.fromkeys(HEADLINE)}
+    dirty = round(sum(c['dirty'] for c in r['cycles'] if c['cycle'] >= chosen['cycle']), 2)
+    unlinked = chosen['clean'] is None and not chosen['unopposed']
+    unopposed_and_clean = chosen['unopposed'] and dirty <= 0
+    clean = None if unlinked or unopposed_and_clean else dirty <= 0
+    return {'verdict_cycle': chosen['cycle'], 'clean': clean, 'dirty': dirty}
+
+
 def headline_verdicts(audit, dataset):
-    """Each headline verdict is the current cycle's when it is used, else the latest cycle up."""
+    """Each headline is judged from the current cycle when it is used, else the latest cycle up,
+    through every cycle since."""
     current = settings().cycles.current
     wrong = 0
     for r in dataset.records:
@@ -149,11 +161,13 @@ def headline_verdicts(audit, dataset):
             if now['up_for_election'] or r['verdict_cycle'] == current
             else (up[-1] if up else None)
         )
-        want = {'verdict_cycle': chosen and chosen['cycle'],
-                **{k: chosen and chosen[k] for k in HEADLINE}}  # fmt: skip
+        want = term_verdict(r, chosen)
         wrong += any(r[k] != v for k, v in want.items())
+        wrong += (r['clean'] is None) != (r['tier_balanced'] is None)
     audit.check(
-        'headline verdicts follow the current-else-latest-up rule', wrong == 0, f'{wrong} rows'
+        'headline verdicts judge the latest election and every cycle since',
+        wrong == 0,
+        f'{wrong} rows',
     )
     by_cycle = {}
     for r in dataset.records:

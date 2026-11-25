@@ -579,7 +579,8 @@ electability or anything else.
 - **The rule** (`is_primary_target` in `receipts/domain/targets.py`): in the incoming
   Congress; seat up in the next cycle (`cycles.next` — every House seat, delegates
   included; a Senate seat when its `senate_class` is that cycle's regular class); and
-  dirty in the latest-election record (§14b) under the preset — Strict: `dirty > 0`;
+  dirty in the headline term (§14b: the latest election and every cycle since) under the
+  preset — Strict: `dirty > 0`;
   Balanced / Lenient: that preset's tier is `dirty`. A member with no latest election
   is never a target. Ranked by latest-election `dirty`, descending.
 - **It ignores the cycle picker.** The list always reads the latest election; the
@@ -640,17 +641,23 @@ election, so a senator raising money between races, or a Resident Commissioner o
 Rico (four-year term), is not up in those cycles; a special election is filed for its own
 year and counts.
 
-**Headline verdict.** Each person's `verdict_cycle`, `clean`, `dirty`, `tier_balanced` and
-`tier_lenient` come from one cycle record: the current cycle's when the person is up in it,
-or when they are an incoming member whose seat is up this cycle (a House seat, or a Senate
-seat whose class is up) and no filing places their next election later; otherwise their
-latest cycle up. An incoming member whose seat is up but whose current campaign is not
+**Headline verdict.** Each person's `verdict_cycle` is one election cycle: the current
+cycle when the person is up in it, or when they are an incoming member whose seat is up this
+cycle (a House seat, or a Senate seat whose class is up) and no filing places their next
+election later; otherwise their latest cycle up. Their `clean`, `dirty`, `tier_balanced` and
+`tier_lenient` judge that cycle **and every cycle since** as one term
+(`receipts/domain/term.py`): money summed across those cycles, the dependence share and the
+AIPAC/UDP flag recomputed from the sums, and the election cycle's own race (unopposed or
+not). So money a member raises between elections — toward the next race — counts. The
+election cycle's null verdict carries over only when its campaign is unlinked; an unopposed
+race is null only while the term's dirty money is $0 or less, as in §14. An incoming member whose seat is up but whose current campaign is not
 linked in the roster therefore keeps the current cycle's verdict (unverified, §14), never an
 older cycle's. A person never up in any cycle with data has no headline verdict (all null).
 The current-cycle columns of §14 are unchanged and remain the current cycle's own verdict.
 
-**What the site shows.** The site opens on the headline verdict ("Latest election"): every
-board, chart, count and table reads the record of each person's `verdict_cycle`. The cycle
+**What the site shows.** The site opens on the headline verdict ("Since last election"):
+every board, chart, count and table reads each person's term — their `verdict_cycle` and
+every cycle since, summed as above. The cycle
 picker swaps in one cycle's records instead, from `cycles.picker_start` to the current
 cycle; a person with no record for the picked cycle shows zero money and no verdict. The
 primary-target list always reads the headline verdict (§14).
