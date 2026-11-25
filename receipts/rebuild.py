@@ -22,6 +22,7 @@ from receipts.store import (
     models,
     opposition,
     other_committees,
+    pro_israel,
     self_funding,
     udp,
 )
@@ -46,6 +47,7 @@ STEPS = [
     Step('receipts.store.self_funding', self_funding.main),
     Step('receipts.store.other_committees', other_committees.main),
     Step('receipts.store.all_ie', all_ie.main),
+    Step('receipts.store.pro_israel', pro_israel.main),
     Step('receipts.store.opposition', opposition.main),
     Step('receipts.store.models marts', lambda: models.build('marts')),
     Step('receipts.transform.build_dataset', build_dataset.main),

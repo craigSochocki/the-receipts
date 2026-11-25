@@ -19,6 +19,7 @@ const PEOPLE = RAW.map(a=>{
   o.all_ie_per_cycle=a[NS+4]||[];
   o.all_ie_top_committees=a[NS+5]||[];
   o.cycles=(a[NS+6]||[]).map(e=>mkobj(COLS.cy, e));
+  o.pro_israel_per_cycle=a[NS+7]||[];
   return o;
 });
 const BY_KEY = {}; PEOPLE.forEach(p=>{ BY_KEY[p.person_key]=p; });
@@ -64,7 +65,7 @@ applyCycle('latest');
    Each nested list is a positional array until decoded; decodeNested
    maps it to named objects once and caches the result on the person,
    so a second drill-down (or the CSV export) pays nothing. */
-const NESTED_MAP = {per_cycle:'pc', udp_per_cycle:'upc', self_funding_per_cycle:'sf', other_committees_per_cycle:'oc', all_ie_per_cycle:'aie', all_ie_top_committees:'tc'};
+const NESTED_MAP = {per_cycle:'pc', udp_per_cycle:'upc', self_funding_per_cycle:'sf', other_committees_per_cycle:'oc', all_ie_per_cycle:'aie', all_ie_top_committees:'tc', pro_israel_per_cycle:'pi'};
 function decodeNested(p){
   Object.keys(NESTED_MAP).forEach(k=>{
     if(Array.isArray(p[k]) && p[k].length && Array.isArray(p[k][0])){

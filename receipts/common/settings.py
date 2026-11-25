@@ -70,6 +70,7 @@ class Paths:
     roster: Path
     roster_intermediate: Path
     fec_lookup_results: Path
+    pro_israel_pacs: Path
     baseline: Path
     manual_roster_notes: Path
     other_committees_diagnostics: Path

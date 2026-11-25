@@ -53,6 +53,7 @@ def csv_matches_json(audit, dataset):
                 'self_funding_per_cycle',
                 'other_committees_per_cycle',
                 'all_ie_per_cycle',
+                'pro_israel_per_cycle',
                 'fec_candidate_ids',
             ):
                 if cv != repr(jv):

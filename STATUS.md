@@ -444,6 +444,16 @@
    election, Schiff Strict-clean, and Brooks's 2026 verdict flipped clean. The rest of the
    reviewed list of 69 committees (associations, clubs and cooperatives coded corporate; some
    law and accounting firms not) is in `research/corporate-classification.md` and not adopted.
+7. **Pro-Israel PAC money — PARTLY DONE (Craig, Nov 25).** New columns
+   `pro_israel_pac_career`, `pro_israel_ie_support_career` and `pro_israel_per_cycle`:
+   direct contributions and supporting IEs from Track AIPAC's published list of pro-Israel
+   PACs (`data/source/pro_israel_pacs.csv`, `research/pro-israel-pacs.md`). Shown
+   separately, not in dirty money (whether it counts is still Craig's call). OPEN: bundled
+   conduit checks (J Street's are the largest) are in no bulk file — only the FEC API has
+   them, as each PAC's Schedule B by recipient committee; Craig chose to skip them for now.
+   Not reproduced: Track AIPAC's donor-matching layer. Also OPEN: the latest-election
+   verdict ignores money raised since that election (a senator's off-years); the rule for
+   members between elections is undecided.
 7. **Cycle-neutral tracker — IN PROGRESS (Craig, Nov 24).** 2026 is just the
    current cycle; past cycles and 2028 must work the same way. Decisions:
    per-cycle records for every career cycle (one per person per cycle);

@@ -100,7 +100,8 @@ the-receipts/
 │   ├── store/                 # silver tables (DuckDB, every FEC candidate and
 │   │                          # committee) and the scripts that read them:
 │   │                          # other_committees.py, self_funding.py, all_ie.py,
-│   │                          # udp.py, opposition.py; models.py runs dbt
+│   │                          # udp.py, opposition.py, pro_israel.py;
+│   │                          # models.py runs dbt
 │   ├── fec/                   # one typed reader per FEC bulk file
 │   │                          # (weball, cm, pas2, independent expenditures)
 │   ├── ingest/                # pulls from FEC bulk + API:
@@ -227,7 +228,7 @@ figure to get past it.
 
    It runs the pipeline in order (roster → FEC lookup → store →
    run checks → dbt silver → accepted money → UDP → self-funding →
-   other committees → all-IE → opposition → dbt marts → dataset (with
+   other committees → all-IE → pro-Israel PACs → opposition → dbt marts → dataset (with
    2026) → verify), backing the current dataset up
    to `data/snapshots/` first. It refuses to run on anything but the
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the

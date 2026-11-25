@@ -13,6 +13,7 @@ from receipts.validate.audits.money import (
     double_counts,
     opposition,
     other_committees,
+    pro_israel,
     roster_totals,
     self_funding,
 )
@@ -27,6 +28,7 @@ SECTIONS = [
     self_funding,
     other_committees,
     all_ie,
+    pro_israel,
     roster_totals,
     double_counts,
     ranks_and_dirty,
