@@ -166,6 +166,7 @@ function drawStory(){
   }
   const layout = storyLayout(storyStep, people);
   svg.querySelector('.states').classList.toggle('shown', storyStep==='senate');
+  svg.classList.toggle('hemi', storyStep==='house');
   svg.querySelectorAll('.districts, .district-states').forEach(g=>g.classList.toggle('shown', storyStep==='districts'));
   svg.querySelectorAll('circle').forEach(c=>{
     const p = BY_KEY[c.getAttribute('data-key')], pos = layout.at[p.person_key];
