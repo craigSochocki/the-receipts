@@ -146,18 +146,23 @@ html.js .chapter{opacity:1 !important;transform:none !important;transition:none 
 .dotfield circle{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .5s ease,fill .5s ease}
 .dotfield text{font-size:13px;font-weight:600;fill:var(--ink)}
 .dot-plain{fill:#9ca3af}
-.dot-dirty{fill:#111827}
-.dot-below_threshold{fill:#9ca3af}
-.dot-clean{fill:#fff;stroke:#14532d;stroke-width:1.6}
-.dot-unjudged{fill:#fff;stroke:#9ca3af;stroke-width:1.2;stroke-dasharray:2 2}
+.party-d{color:#1e40af}
+.party-r{color:#b91c1c}
+.party-o{color:#4b5563}
+.dot-dirty{fill:currentColor}
+.dot-below_threshold{fill:currentColor;fill-opacity:.35}
+.dot-clean{fill:#fff;stroke:currentColor;stroke-width:1.8}
+.dot-unjudged{fill:#fff;stroke:currentColor;stroke-width:1.2;stroke-dasharray:2 2}
 .dot-faded{opacity:.12}
-.dot-picked{stroke:#dc2626;stroke-width:3}
+.dot-picked{stroke:#111827;stroke-width:3.5}
 .scrolly-key{font-size:.8rem;color:var(--muted);margin:4px 0 0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
-.scrolly-key .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1px solid transparent}
-.scrolly-key .k.dot-dirty{background:#111827}
-.scrolly-key .k.dot-below_threshold{background:#9ca3af}
-.scrolly-key .k.dot-clean{background:#fff;border-color:#14532d}
-.scrolly-key .k.dot-unjudged{background:#fff;border:1px dashed #9ca3af}
+.scrolly-key .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #4b5563}
+.scrolly-key .k.dot-dirty{background:#4b5563}
+.scrolly-key .k.dot-below_threshold{background:rgba(75,85,99,.35);border-color:transparent}
+.scrolly-key .k.dot-clean{background:#fff}
+.scrolly-key .k.dot-unjudged{background:#fff;border-style:dashed;border-width:1px}
+.scrolly-key .k.party-d{background:#1e40af;border-color:#1e40af}
+.scrolly-key .k.party-r{background:#b91c1c;border-color:#b91c1c}
 .scrolly-steps{position:relative;z-index:1;pointer-events:none}
 .scrolly-step{min-height:75vh;display:flex;align-items:center;justify-content:center}
 .scrolly-step:last-child{min-height:55vh}

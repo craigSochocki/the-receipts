@@ -11,6 +11,7 @@ const STORY_STEPS = ['all', 'status', 'ranked', 'party', 'chamber', 'targets', '
 let storyStep = 'all', storyPick = null;
 
 function storyStatus(p){ return tierOf(p) || 'unjudged'; }
+function partyClass(p){ return {Democrat:'party-d', Republican:'party-r'}[party(p)] || 'party-o'; }
 function incomingMembers(){ return PEOPLE.filter(p=>p.in_120th==='yes'); }
 function byStatus(a, b){
   return STATUS_ORDER[storyStatus(a)]-STATUS_ORDER[storyStatus(b)] || num(b.cy_dirty)-num(a.cy_dirty);
@@ -62,7 +63,7 @@ function chamberGroups(people){
 function storyLayout(step, people){
   if(step==='all') return {at: centredGrid(people, 27)};
   if(step==='ranked') return {at: rankCurve(people), r: 4};
-  if(step==='party'){ const groups = partyGroups(people); return {at: groupedGrids(groups, 11), groups}; }
+  if(step==='party'){ const groups = partyGroups(people); return {at: groupedGrids(groups, 15), groups}; }
   if(step==='chamber'){ const groups = chamberGroups(people); return {at: groupedGrids(groups, 18), groups}; }
   return {at: centredGrid(people.slice().sort(byStatus), 27)};
 }
@@ -71,7 +72,7 @@ function dotClass(p, step){
   if(step==='all') return 'dot-plain';
   const lit = step==='targets' ? STORY_TARGETS.has(p.person_key)
     : step==='find' ? (storyPick===null || storyPick===p.person_key) : true;
-  return 'dot-'+storyStatus(p)+(lit ? '' : ' dot-faded')+(step==='find' && storyPick===p.person_key ? ' dot-picked' : '');
+  return 'dot-'+storyStatus(p)+' '+partyClass(p)+(lit ? '' : ' dot-faded')+(step==='find' && storyPick===p.person_key ? ' dot-picked' : '');
 }
 
 let STORY_TARGETS = new Set();
