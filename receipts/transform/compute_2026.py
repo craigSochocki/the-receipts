@@ -20,10 +20,13 @@ from receipts.domain.clean_2026 import (
     verdict,
 )
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
+from receipts.domain.seats import regular_senate_class
 from receipts.store.races import races_in
 from receipts.store.read import connect
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
+CANDIDACIES = 'SELECT DISTINCT candidate_id, cycle, election_year FROM candidacies'
+HEADLINE = ('clean', 'dirty', 'tier_balanced', 'tier_lenient')
 CREDITS = (
     'SELECT cycle, credited_to, SUM(credit) FROM gold.opposition_credits '
     "WHERE credited_to NOT LIKE '__nonroster__%' GROUP BY cycle, credited_to"
@@ -119,11 +122,45 @@ def cycles_of(r):
     return sorted(found | {settings().cycles.current})
 
 
-def cycle_record(r, cycle, credit, races):
+def cycle_record(r, cycle, credit, races, up):
     money = money_in(r, cycle, credit)
     verdict_fields, unknown_because, unopposed = judged(r, cycle, money, races)
     fields = {**money, **verdict_fields}
-    return {'cycle': cycle, **{k: fields[k] for k in cycle_fields()}}, unknown_because, unopposed
+    record = {'cycle': cycle, **{k: fields[k] for k in cycle_fields()}}
+    record['up_for_election'] = any(
+        cycle in up.get((cid, cycle), ()) for cid in r['fec_candidate_ids'] or []
+    )
+    return record, unknown_because, unopposed
+
+
+def seat_up_now(r, filed):
+    """An incoming member's seat is up this cycle unless their filing is for a later election."""
+    current = settings().cycles.current
+    if r['in_120th'] != 'yes':
+        return False
+    ids = r['fec_candidate_ids'] or []
+    if any(year > current for cid in ids for year in filed.get((cid, current), ())):
+        return False
+    if r['chamber_120'] == 'Senate':
+        return r['senate_class'] == regular_senate_class(current)
+    return True
+
+
+def headline_record(r, filed):
+    """The current cycle's record if the person or their seat is up in it, else the latest up."""
+    current = settings().cycles.current
+    up = [c for c in r['cycles'] if c['up_for_election']]
+    now = [c for c in r['cycles'] if c['cycle'] == current]
+    if now and (now[0]['up_for_election'] or seat_up_now(r, filed)):
+        return now[0]
+    return (up[-1:] or [None])[0]
+
+
+def headline(r, filed):
+    record = headline_record(r, filed)
+    if record is None:
+        return {'verdict_cycle': None, **dict.fromkeys(HEADLINE)}
+    return {'verdict_cycle': record['cycle'], **{k: record[k] for k in HEADLINE}}
 
 
 def add_notes(r, unknown_because, unopposed):
@@ -134,6 +171,15 @@ def add_notes(r, unknown_because, unopposed):
         r['data_notes'] += note
     if r[f'corp_{current}'] > 0 and r[f'individual_{current}'] == 0:
         r['data_notes'] += NO_INDIVIDUAL_MONEY_NOTE.format(corp=f'{r[f"corp_{current}"]:,.0f}')
+
+
+def filed_elections():
+    """{(candidate ID, cycle): the election years the cycle's candidacies are filed for}."""
+    filed = {}
+    with connect() as db:
+        for cid, cycle, year in db.execute(CANDIDACIES).fetchall():
+            filed.setdefault((cid, cycle), set()).add(year)
+    return filed
 
 
 def opposition_credits():
@@ -226,26 +272,27 @@ def write_primary_targets(records):
     settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
 
 
-def add_cycle_records(records, credits, races_for):
-    """Each record's per-cycle records, and the current cycle's as its dataset columns."""
+def add_cycle_records(records, credits, races_for, filed=None):
+    """Per-cycle records, the current cycle's as dataset columns, and the headline verdict."""
     current = settings().cycles.current
     for r in records:
         r['cycles'] = []
         for cycle in cycles_of(r):
             record, unknown_because, unopposed = cycle_record(
-                r, cycle, credits.get((cycle, r['person_key']), 0.0), races_for(cycle)
+                r, cycle, credits.get((cycle, r['person_key']), 0.0), races_for(cycle), filed or {}
             )
             r['cycles'].append(record)
             if cycle == current:
-                r.update({f'{k}_{current}': v for k, v in record.items() if k != 'cycle'})
+                r.update({f'{k}_{current}': record[k] for k in cycle_fields()})
                 add_notes(r, unknown_because, unopposed)
+        r.update(headline(r, filed or {}))
     return records
 
 
 def with_cycles(records):
     """Add the cycle records and columns; check the counts; write the target list."""
     races = cache(races_in)
-    add_cycle_records(records, opposition_credits(), races)
+    add_cycle_records(records, opposition_credits(), races, filed_elections())
     check_against_baseline(records)
     write_primary_targets(records)
     return [{k: r[k] for k in settings().dataset.json_keys} for r in records]

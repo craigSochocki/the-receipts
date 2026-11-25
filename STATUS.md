@@ -435,6 +435,15 @@
      never with wrong figures.
    - The freshness gate is retired; restore `receipts/ingest/pull_gate.py`
      from git history if `--all` is ever scheduled.
+7. **Corporate-PAC classification — OPEN, decided "not now" (Craig, Nov 25).** The
+   corporate rule trusts the FEC's self-reported organization code, which is noisy both
+   ways: NEA's union PAC is coded corporate in 2024 only; Democracy Engine, a conduit
+   forwarding individuals' earmarks, is coded corporate every cycle; some associations,
+   clubs and cooperatives are coded corporate, and some law and accounting firms are not.
+   A reviewed list of the 69 committees holding 90% of the affected money, with proposed
+   classes and what adopting them would move (four incoming members' 2026 verdicts flip),
+   is in `research/corporate-classification.md`. Published figures still use the FEC
+   codes as filed.
 7. **Cycle-neutral tracker — IN PROGRESS (Craig, Nov 24).** 2026 is just the
    current cycle; past cycles and 2028 must work the same way. Decisions:
    per-cycle records for every career cycle (one per person per cycle);
@@ -443,8 +452,8 @@
    (House every cycle, Senate by class, plus specials); the site gets a
    cycle picker, computed cycle labels and "targets for the next cycle".
    Phases: (1) no literal years in code — DONE; (2) per-cycle records
-   added beside today's columns — DONE (JSON `cycles` + cycles CSV); (3) the headline verdict rule — moves
-   public figures, needs Craig's review; (4) the site; (5) the `*_2026`
+   added beside today's columns — DONE (JSON `cycles` + cycles CSV); (3) the headline verdict rule — DONE as new
+   columns (`verdict_cycle`, `clean`, `dirty`, tiers); the site switches to them in (4); (4) the site; (5) the `*_2026`
    columns and the roster's `*_119`/`*_120` fields replaced by the
    per-cycle and per-Congress records — schema change, needs Craig's
    review; (6) methodology and tour rewritten cycle-neutral.

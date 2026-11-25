@@ -615,6 +615,24 @@ an older record exists only where there is data; and a record exists for any cyc
 money, including a year the person was not on the ballot (off-cycle fundraising), so a
 record is not by itself a judgement of that cycle's election.
 
+## 14b. Up for election, and the headline verdict
+
+**Up for election.** A cycle record's `up_for_election` is true when one of the person's
+FEC candidacies for that cycle is filed for that cycle's election (the candidate file's
+election year equals the cycle). The FEC files off-year fundraising against the next
+election, so a senator raising money between races, or a Resident Commissioner of Puerto
+Rico (four-year term), is not up in those cycles; a special election is filed for its own
+year and counts.
+
+**Headline verdict.** Each person's `verdict_cycle`, `clean`, `dirty`, `tier_balanced` and
+`tier_lenient` come from one cycle record: the current cycle's when the person is up in it,
+or when they are an incoming member whose seat is up this cycle (a House seat, or a Senate
+seat whose class is up) and no filing places their next election later; otherwise their
+latest cycle up. An incoming member whose seat is up but whose current campaign is not
+linked in the roster therefore keeps the current cycle's verdict (unverified, §14), never an
+older cycle's. A person never up in any cycle with data has no headline verdict (all null).
+The current-cycle columns of §14 are unchanged and remain the current cycle's own verdict.
+
 ## 15. Coverage end dates by column family — and the re-pull plan
 
 The bulk files behind this dataset do not all end on the same date (§8 item 1). The

@@ -263,6 +263,11 @@ dataset:
     - all_ie_support_2026
     - all_ie_oppose_2026
     - all_ie_total_2026
+    - verdict_cycle
+    - clean
+    - dirty
+    - tier_balanced
+    - tier_lenient
   json_keys:
     - person_key
     - full_name
@@ -362,3 +367,8 @@ dataset:
     - all_ie_oppose_2026
     - all_ie_total_2026
     - cycles
+    - verdict_cycle
+    - clean
+    - dirty
+    - tier_balanced
+    - tier_lenient
