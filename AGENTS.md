@@ -109,7 +109,8 @@ the-receipts/
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
 │   │                          # assemble, compute_2026, build_dataset
 │   ├── site/                  # build_site.py fills templates/ (page.html,
-│   │                          # style.css, tracker.js, views.js, method.html)
+│   │                          # style.css, tracker.js, views.js, story.js,
+│   │                          # method.html)
 │   │                          # into docs/index.html; verify_site.py checks it
 │   ├── validate/              # verify_dataset.py — the standing audits;
 │   │                          # run_history.py — the FEC input checks
@@ -120,6 +121,7 @@ the-receipts/
 │   ├── source/                # committed TRUE inputs: legislators yaml,
 │   │                          # dedup-applied.json, manual_roster_notes.json,
 │   │                          # fec_lookup_results.json, baseline.json,
+│   │                          # pro_israel_pacs.csv, us_states_albers.json,
 │   │                          # run_history.csv
 │   ├── intermediate/          # regenerable staging files, GITIGNORED —
 │   │                          # rebuild.py recreates them all

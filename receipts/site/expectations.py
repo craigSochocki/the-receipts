@@ -6,7 +6,6 @@ from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean
 from receipts.domain.targets import DIRTY_UNDER, latest_record, primary_targets
 
-TERRITORIES = {'AS', 'DC', 'GU', 'MP', 'PR', 'VI'}
 PARTY_LETTERS = {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}
 NOT_DIRTY_TIERS = ('clean', 'below_threshold')
 # What the page shows for someone with no latest election (no cycle was up).
@@ -52,14 +51,6 @@ def party_letter(person):
     return PARTY_LETTERS.get(party, party)
 
 
-def seat_status(person):
-    if latest(person)['clean'] is True:
-        return 'clean'
-    if latest(person)['clean'] is False:
-        return 'dirty'
-    return 'unopposed' if latest(person)['unopposed'] is True else 'unverified'
-
-
 def by_dirty(person):
     return -dollars(latest(person)['dirty'])
 
@@ -88,19 +79,12 @@ def is_flagged(person):
     return latest(person)['aipac_udp_flag'] is True
 
 
-def seat_counts(people):
-    counts = Counter(f'{seat_status(p)} {party_letter(p)}' for p in people)
-    return dict(sorted(counts.items()))
-
-
 class Roster:
     def __init__(self, people):
         self.everyone = people
         self.incoming = [p for p in people if p['in_120th'] == 'yes']
         self.house = [p for p in self.incoming if p['chamber_120'] == 'House']
         self.senate = [p for p in self.incoming if p['chamber_120'] == 'Senate']
-        self.house_voting = [p for p in self.house if p['state'] not in TERRITORIES]
-        self.delegates = [p for p in self.house if p['state'] in TERRITORIES]
 
 
 def headline(roster):
@@ -183,16 +167,6 @@ def tiers(roster):
     }
 
 
-def charts(roster):
-    return {
-        'house': seat_counts(roster.house_voting),
-        'house_named': len(roster.house_voting),
-        'senate': seat_counts(roster.senate),
-        'senate_named': len(roster.senate),
-        'delegates': seat_counts(roster.delegates),
-    }
-
-
 def targets(roster):
     cycle = settings().cycles.next
     lists = {p: primary_targets(roster.incoming, p, cycle) for p in DIRTY_UNDER}
@@ -240,7 +214,6 @@ def site_expectations(people, opposition_credit):
         'career_dirty': career_dirty(roster),
         'clean': clean(roster),
         'tiers': tiers(roster),
-        'charts': charts(roster),
         'targets': targets(roster),
         'detail': detail(roster, opposition_credit, hook['top1_key']),
     }

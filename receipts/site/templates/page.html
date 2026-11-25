@@ -96,26 +96,19 @@
 <p class="hook" id="dirtiest-headline"></p>
 <p class="fine" id="hook-definition"></p>
 </section>
-<section class="chapter" data-chapter="dirtiest" aria-label="Dirtiest">
-<span class="kicker">The dirtiest five</span>
-<h2>Dirtiest <span data-cy="in">since their last election</span></h2>
-<ol class="dirtiest" id="dirtiest-list"></ol>
-<p class="fine">Dirty money is corporate PAC + AIPAC PAC direct + UDP benefit — money from sources other than individual contributors. %%CYCLE%% is partial; see the methodology for the coverage cutoffs.</p>
-</section>
-<section class="chapter" data-chapter="dirty-definition" aria-label="What counts as dirty">
-<span class="kicker">The definition</span>
-<h2>What counts as dirty</h2>
-<div id="dirty-explainer"></div>
-</section>
-<section class="chapter" data-chapter="clean" aria-label="Clean money">
-<span class="kicker">The clean ones</span>
-<h2>Clean money</h2>
-<div class="story" id="landing-story"></div>
-</section>
-<section class="chapter" data-chapter="chamber" aria-label="Composition of Congress">
-<span class="kicker">The whole chamber</span>
-<h2>Who sits in the 120th</h2>
-<div id="composition"></div>
+<section class="chapter scrolly" id="story" data-chapter="story" aria-label="Every incoming member, by their money">
+<div class="scrolly-graphic"><svg id="dotfield" class="dotfield" viewBox="0 0 600 400" role="img" aria-label="Every incoming member of the 120th Congress as a dot, regrouped by each step of the story"></svg>
+<p class="scrolly-key"><span><span class="k party-d"></span>Democrat</span><span><span class="k party-r"></span>Republican</span><span><span class="k dot-dirty"></span>Dirty</span><span><span class="k dot-below_threshold"></span>Below threshold</span><span><span class="k dot-clean"></span>Clean</span><span><span class="k dot-unjudged"></span>Not judged</span></p></div>
+<div class="scrolly-steps" id="scrolly-steps">
+<div class="scrolly-step active" data-step="all"><p class="card" id="step-all"></p></div>
+<div class="scrolly-step" data-step="status"><p class="card" id="step-status"></p></div>
+<div class="scrolly-step" data-step="ranked"><p class="card" id="step-ranked"></p></div>
+<div class="scrolly-step" data-step="party"><p class="card" id="step-party"></p></div>
+<div class="scrolly-step" data-step="house"><p class="card" id="step-house"></p></div>
+<div class="scrolly-step" data-step="senate"><p class="card" id="step-senate"></p></div>
+<div class="scrolly-step" data-step="targets"><p class="card" id="step-targets"></p></div>
+<div class="scrolly-step" data-step="find"><p class="card" id="step-find"></p></div>
+</div>
 </section>
 <section class="chapter" data-chapter="finder" aria-label="Find your member">
 <span class="kicker">Your seat</span>
@@ -142,8 +135,10 @@
 <script id="receipts-cols" type="application/json">%%COLS_JSON%%</script>
 <script id="receipts-data" type="application/json">%%DATA_JSON%%</script>
 <script id="opp-data" type="application/json">%%OPP_JSON%%</script>
+<script id="us-states" type="application/json">%%US_STATES_JSON%%</script>
 <script>%%TRACKER_JS%%</script>
 
+<script>%%STORY_JS%%</script>
 <script>%%VIEWS_JS%%</script>
 </body>
 </html>

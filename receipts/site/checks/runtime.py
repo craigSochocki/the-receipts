@@ -13,12 +13,18 @@ from pathlib import Path
 from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.site.build_site import main as build_main
+from receipts.site.build_site import template
 
 
 def javascript_parses(audit, page):
     """JS syntax"""
     app_scripts = re.findall(r'<script>(.*?)</script>', page.html, re.DOTALL)
-    audit.check('two app scripts present', len(app_scripts) == 2, f'got {len(app_scripts)}')
+    expected = template('page.html').count('_JS%%</script>')
+    audit.check(
+        'every app script template is embedded',
+        len(app_scripts) == expected,
+        f'got {len(app_scripts)}, want {expected}',
+    )
     node_ok = True
     for i, src in enumerate(app_scripts):
         with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False) as f:
@@ -55,7 +61,7 @@ def served_page(audit, page):
             'Data as of',
             'Find your member',
             'took no dirty money',
-            'Dirtiest',
+            'dotfield',
             'Explore the full data',
         ]:
             audit.check(f'served page contains {needle!r}', needle in body)
@@ -84,10 +90,6 @@ def run_smoke_test(page_path, expected):
             tab.goto(page_path.resolve().as_uri())
             tab.add_script_tag(path=site / 'smoke_test.js')
             observed = tab.evaluate('exp => smoke.main(exp)', expected)
-            tab.set_viewport_size({'width': 500, 'height': 800})
-            tab.evaluate('smoke.narrow()')
-            tab.set_viewport_size({'width': 1024, 'height': 800})
-            tab.evaluate('smoke.wide()')
             for reduce in (True, False):
                 tab.emulate_media(reduced_motion='reduce' if reduce else 'no-preference')
                 tab.evaluate('expected => smoke.reducedMotion(expected)', reduce)

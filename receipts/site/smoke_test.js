@@ -73,16 +73,6 @@ window.smoke = {
         assert.ok(
           hookDef.includes("any AIPAC direct or UDP benefit dollar always counts"),
           "hook definition states the flag rule");
-        const dirtiestHtml = document.getElementById("dirtiest-list").innerHTML;
-        TOP5.forEach((n) =>
-          assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));
-        assert.ok(
-          TOP5.every((n, i) => i === 0 || dirtiestHtml.indexOf(TOP5[i - 1]) < dirtiestHtml.indexOf(n)),
-          "dirtiest list is in latest-dirty order");
-        if (!EXP.headline.top1_returning) {
-          assert.ok(dirtiestHtml.includes("Not returning"), "#1 row says Not returning");
-        }
-        assert.ok(dirtiestHtml.includes("pchip d"), "dirtiest rows carry party chips");
         assert.strictEqual(
           document.getElementById("front-door").hidden, false,
           "default mode is the front door (no hash)");
@@ -163,80 +153,6 @@ window.smoke = {
         assert.ok(leadersHtml.includes("Rick Scott"), "self-funding board has Rick Scott");
         assert.ok(leadersHtml.includes("Talarico"), "all-IE board has Talarico");
 
-        /* ---- composition charts: House waffle grid, Senate state tiles ---- */
-        const compHtml = document.getElementById("composition").innerHTML;
-        assert.ok(compHtml.includes("House — 435 voting seats"), "House chart captioned 435");
-        assert.ok(compHtml.includes("Senate — 100 seats"), "Senate chart captioned 100");
-        const countDots = (html, cls, party) =>
-          (html.match(new RegExp('<g class="dot ' + cls + '" data-party="' + party + '"', "g")) || []).length;
-        // The House svg sits before its figcaption; the Senate svg sits after the
-        // House figcaption and before its own, so split on the captions.
-        const housePart = compHtml.split("House — 435 voting seats")[0];
-        const senPart = compHtml.split("House — 435 voting seats")[1].split("Senate — 100 seats")[0];
-        // House waffle: 15 rows x 29 cols, column-major fill, grouped
-        // Clean D, Dirty D, Dirty R, Clean R, then the small categories.
-        assert.ok(housePart.includes('viewBox="0 0 348 180"'), "House waffle is 29x15");
-        assert.strictEqual((housePart.match(/<g class="dot/g) || []).length, 435, "House chart has 435 dots");
-        assert.ok(housePart.indexOf('class="dot clean" data-party="D"') < housePart.indexOf('class="dot dirty" data-party="D"'), "waffle starts with Clean D");
-        assert.ok(housePart.indexOf('class="dot dirty" data-party="D"') < housePart.indexOf('class="dot dirty" data-party="R"'), "waffle: Dirty D before Dirty R");
-        assert.ok(housePart.indexOf('class="dot dirty" data-party="R"') < housePart.indexOf('class="dot clean" data-party="R"'), "waffle: Dirty R before Clean R");
-        assert.ok(housePart.indexOf('class="dot clean" data-party="R"') < housePart.indexOf('class="dot uncalled"'), "waffle: small categories at the far right");
-        Object.entries(EXP.charts.house).forEach(([k, n]) => {
-          const [status, party] = k.split(" ");
-          assert.strictEqual(countDots(housePart, status, party), n, "House " + seatLabel(k) + " " + n);
-        });
-        assert.strictEqual(countDots(housePart, "uncalled", ""), 435 - EXP.charts.house_named, "House Uncalled");
-        // Senate state tiles: 50 tiles, one per state, two seat halves each.
-        assert.strictEqual((senPart.match(/<g class="tile"/g) || []).length, 50, "Senate chart has 50 state tiles");
-        assert.strictEqual((senPart.match(/class="half/g) || []).length, 100, "Senate chart has 100 seat halves");
-        const countHalves = (html, cls, party) =>
-          (html.match(new RegExp('class="half ' + cls + '" data-party="' + party + '"', "g")) || []).length;
-        Object.entries(EXP.charts.senate).forEach(([k, n]) => {
-          const [status, party] = k.split(" ");
-          assert.strictEqual(countHalves(senPart, status, party), n, "Senate " + seatLabel(k) + " " + n);
-        });
-        assert.strictEqual(countHalves(senPart, "uncalled", ""), 100 - EXP.charts.senate_named, "Senate Uncalled");
-        // Each state tile shows its senators' halves, plus an uncalled half per unnamed seat.
-        const tileStatus = (p) => p.clean === true ? "clean" : p.clean === false ? "dirty"
-          : (p.cy_unopposed === true ? "unopposed" : "unverified");
-        const tileParty = (p) => ({ Democrat: "D", Republican: "R", Independent: "I" }[p.party_120] || p.party_120);
-        const senatorsByState = {};
-        PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate")
-          .forEach((p) => (senatorsByState[p.state] = senatorsByState[p.state] || []).push(p));
-        Object.entries(senatorsByState).forEach(([st, sens]) => {
-          const tile = senPart.split('data-state="' + st + '"')[1].split('data-state="')[0];
-          const want = {};
-          sens.forEach((p) => {
-            const k = 'class="half ' + tileStatus(p) + '" data-party="' + tileParty(p) + '"';
-            want[k] = (want[k] || 0) + 1;
-          });
-          Object.entries(want).forEach(([k, n]) =>
-            assert.strictEqual(tile.split(k).length - 1, n, st + " tile shows " + n + " x " + k));
-          assert.strictEqual(tile.split('class="half uncalled"').length - 1, 2 - sens.length, st + " tile uncalled halves");
-        });
-        assert.ok(compHtml.includes("Dirty D " + EXP.charts.house["dirty D"]), "House legend shows the Dirty D count");
-        assert.ok(compHtml.includes("Uncalled " + (435 - EXP.charts.house_named)), "House legend shows the Uncalled count");
-        assert.ok(compHtml.includes("Dirty D " + EXP.charts.senate["dirty D"]), "Senate legend shows the Dirty D count");
-        assert.ok(compHtml.includes("Not shown: " + Object.values(EXP.charts.delegates).reduce((a, b) => a + b, 0) + " non-voting delegates"), "delegate note present");
-        Object.entries(EXP.charts.delegates).forEach(([k, n]) =>
-          assert.ok(compHtml.includes(seatLabel(k) + " " + n), "delegate note shows " + seatLabel(k) + " " + n));
-        assert.ok(compHtml.includes("visually-hidden"), "FE10: charts have a visually-hidden text alternative");
-        assert.ok(compHtml.includes("House: 435 seats"), "FE10: text alternative states the House counts");
-        const compDelays = [...compHtml.matchAll(/transition-delay:(\d+)ms/g)].map((m) => +m[1]);
-        assert.ok(compDelays.length > 0, "FE10: chart stagger delays present");
-        assert.ok(
-          Math.max(...compDelays) <= 500,
-          "FE10: chart stagger totals stay under ~500ms, max " + Math.max(...compDelays));
-
-        /* ---- U4: charts carry person keys (clicks tested after FE1a,
-         * because opening a drill-down decodes that person's lists) ---- */
-        assert.ok(
-          document.querySelector('#composition .dot[data-key]'),
-          "U4: waffle dots carry a person key");
-        assert.ok(
-          document.querySelector('#composition .half[data-key]'),
-          "U4: Senate tile halves carry a person key");
-
         showTab("clean");
         assert.ok(
           document.getElementById("clean-stats").innerHTML.includes(EXP.tiers.house_not_dirty_balanced[0] + " of " + EXP.tiers.house_not_dirty_balanced[1]),
@@ -272,7 +188,7 @@ window.smoke = {
         setPreset("strict");
         assert.ok(countsTargets(TGT.strict), "Strict targets intro counts by chamber");
         assert.ok(
-          document.getElementById("landing-story").innerHTML.replace(/<[^>]+>/g, "").includes(EXP.clean.all_120 + " of " + EXP.tiers.incoming_total),
+          document.getElementById("step-status").innerHTML.includes("<b>" + EXP.clean.all_120 + "</b> took no dirty money"),
           "Strict story shows the verified-clean count of the incoming members");
         setPreset("balanced");
         assert.ok(countsTargets(TGT.balanced), "Balanced targets intro counts by chamber");
@@ -323,16 +239,11 @@ window.smoke = {
           "Stevens drill-down header has the D chip and Not returning");
         closeDetail();
 
-        /* ---- U4: clicking a chart opens the drill-down ---- */
-        document.querySelector('#composition .dot[data-key]').dispatchEvent("click");
+        /* ---- U4: clicking a story dot opens the drill-down ---- */
+        document.querySelector("#dotfield circle[data-key]").dispatchEvent("click");
         assert.ok(
           document.getElementById("detail-sheet").innerHTML.includes("Dirty latest"),
-          "U4: clicking a waffle dot opens the drill-down");
-        closeDetail();
-        document.querySelector('#composition .half[data-key]').dispatchEvent("click");
-        assert.ok(
-          document.getElementById("detail-sheet").innerHTML.includes("Dirty latest"),
-          "U4: clicking a Senate tile half opens the drill-down");
+          "U4: clicking a story dot opens the drill-down");
         closeDetail();
 
         downloadCsv(); // must not throw (Blob + object URL path)
@@ -341,15 +252,10 @@ window.smoke = {
         const incoming120 = PEOPLE.filter((p) => p.in_120th === "yes");
         const notDirty120 = incoming120.filter(
           (p) => p.tier_balanced === "clean" || p.tier_balanced === "below_threshold").length;
-        const storyHtml = document.getElementById("landing-story").innerHTML;
-        // The counts are count-up spans now, so strip tags before matching.
-        const storyText = storyHtml.replace(/<[^>]+>/g, "");
-        assert.ok(
-          storyText.includes(notDirty120 + " of " + incoming120.length),
+        const storyHtml = document.getElementById("step-status").innerHTML;
+        assert.ok(storyHtml.includes("<b>" + notDirty120 + "</b> were not dirty"),
           "story renders the computed Balanced not-dirty count: " + storyHtml);
-        assert.ok(storyText.includes("Balanced tolerance"), "story labels the tolerance");
-        assert.ok(storyHtml.includes("story-clean-link"), "story links to the clean list");
-        assert.ok(storyHtml.includes("big-number"), "D3: clean story count uses the big-number treatment");
+        assert.ok(storyHtml.includes("Balanced tolerance"), "story labels the tolerance");
         const findStateHtml = document.getElementById("find-state").innerHTML;
         assert.ok(findStateHtml.includes("Michigan"), "finder state list has Michigan");
         assert.ok(findStateHtml.includes("American Samoa"), "finder state list has American Samoa");
@@ -424,7 +330,7 @@ window.smoke = {
         const chapterOrder = [...document.querySelectorAll("[data-chapter]")].map((el) => el.dataset.chapter);
         assert.deepStrictEqual(
           chapterOrder,
-          ["hook", "dirtiest", "dirty-definition", "clean", "chamber", "finder", "data"],
+          ["hook", "story", "finder", "data"],
           "front door chapters in narrative order: " + chapterOrder.join(","));
         // Count-up spans: data-value is the computed figure. With no
         // IntersectionObserver (smoke_prelude.js) reveals run at once.
@@ -439,25 +345,6 @@ window.smoke = {
         const nextFour = dirtyTop5.slice(1).reduce((s, p) => s + p.dirty, 0);
         assert.strictEqual(parseFloat(hookCountups[1][1]), nextFour, "hook count-up targets the next-four total");
         assert.strictEqual(hookCountups[1][3], EXP.headline.next_four_compact, "hook count-up shows the next-four total");
-        const storyCountups = [...storyHtml.matchAll(/<span class="countup" data-value="(\d+)" data-format="int"[^>]*>(\d+)<\/span>/g)].map((m) => m[1]);
-        assert.deepStrictEqual(storyCountups, [String(notDirty120), String(incoming120.length)], "story count-ups are the not-dirty and incoming counts");
-        // Dirty explainer: big number counts up to the career dirty total;
-        // the three components sum to it exactly.
-        const explainerHtml = document.getElementById("dirty-explainer").innerHTML;
-        const dcTotal = PEOPLE.reduce((s, p) => s + (typeof p.dirty_career === "number" ? p.dirty_career : 0), 0);
-        assert.ok(explainerHtml.includes(EXP.career_dirty.total_compact), "explainer shows the career dirty total");
-        const explainerCountup = explainerHtml.match(/<span class="countup" data-value="([\d.]+)" data-format="compact"[^>]*>([^<]+)<\/span>/);
-        assert.ok(explainerCountup, "explainer has a count-up span");
-        assert.strictEqual(parseFloat(explainerCountup[1]), dcTotal, "explainer count-up targets the computed career dirty total");
-        assert.strictEqual(explainerCountup[2], EXP.career_dirty.total_compact, "explainer count-up shows the career dirty total");
-        assert.ok(explainerHtml.includes("Individual contributions are <b>not</b> dirty money"), "explainer says individual contributions are not dirty");
-        const dcParts = ["corporate_pac_career", "aipac_pac_direct_career", "udp_ie_total_benefit_career"]
-          .reduce((s, k) => s + PEOPLE.reduce((a, p) => a + (typeof p[k] === "number" ? p[k] : 0), 0), 0);
-        assert.ok(Math.abs(dcParts - dcTotal) < 0.01, "explainer components sum to the career dirty total");
-        // Stagger: waffle dots carry per-column delays, senate tiles per-tile.
-        assert.ok(housePart.includes("transition-delay"), "waffle dots stagger by column");
-        assert.ok(senPart.includes("transition-delay"), "senate tiles stagger");
-        assert.ok(dirtiestHtml.includes("transition-delay"), "dirtiest rows stagger");
 
         /* ---- handler coverage ----
          * findPerson (above) left the search box and the congress filter
@@ -492,11 +379,8 @@ window.smoke = {
           document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
           "querySelectorAll finds every table row");
         assert.strictEqual(
-          document.querySelectorAll(".chapter").length, 7,
-          "querySelectorAll finds all 7 chapters");
-        assert.strictEqual(
-          document.querySelectorAll("#dirtiest-list .dirty-row").length, 5,
-          "querySelectorAll finds the 5 dirtiest rows");
+          document.querySelectorAll(".chapter").length, 4,
+          "querySelectorAll finds all 4 chapters");
         assert.strictEqual(
           document.querySelectorAll(".tabs button").length, 6,
           "querySelectorAll finds all 6 tab buttons");
@@ -516,13 +400,10 @@ window.smoke = {
         assert.ok(
           document.querySelectorAll(".tabs button").every(hasClick),
           "every tab button has a click listener");
-        assert.ok(
-          document.querySelectorAll("#dirtiest-list .dirty-row").every(hasClick),
-          "every dirtiest row has a click listener");
+        assert.ok(hasClick(document.getElementById("dotfield")), "the story's dot field has a click listener");
         assert.ok(
           document.querySelectorAll("#targets-table tbody tr").every(hasClick),
           "every targets row has a click listener");
-        assert.ok(hasClick(document.getElementById("story-clean-link")), "story clean link has a click listener");
         assert.ok(hasClick(document.getElementById("explore-btn")), "explore button has a click listener");
         assert.ok(hasClick(document.getElementById("targets-btn")), "targets button has a click listener");
         assert.ok(hasClick(document.getElementById("csv-btn")), "CSV button has a click listener");
@@ -573,6 +454,35 @@ window.smoke = {
         assert.ok(
           document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
           "view button switches back to the core columns");
+
+        /* ---- the front-door story: one dot per incoming member, every count computed ---- */
+        const storyDots = document.querySelectorAll("#dotfield circle");
+        assert.strictEqual(storyDots.length, EXP.tiers.incoming_total, "the story draws one dot per incoming member");
+        assert.ok(document.getElementById("story").classList.contains("static"),
+          "without IntersectionObserver every story card shows");
+        assert.ok(document.getElementById("step-status").innerHTML.includes("<b>" + EXP.tiers.balanced.dirty + "</b>"),
+          "the status step counts the Balanced dirty members");
+        setStoryStep("party");
+        assert.ok(document.querySelector("#dotfield .labels").innerHTML.includes("Democrats"),
+          "the party step labels its groups");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle.dot-dirty").length, EXP.tiers.balanced.dirty,
+          "the party step colors every dirty member");
+        const incomingHouse = PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "House");
+        setStoryStep("house");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length, incomingHouse.length,
+          "the House step seats every incoming House member in the arc");
+        assert.ok(document.querySelector("#dotfield .arc-count").textContent === String(incomingHouse.length),
+          "the arc is labelled with the House count");
+        setStoryStep("senate");
+        assert.ok(document.querySelector("#dotfield .states").classList.contains("shown"), "the Senate step shows the state map");
+        assert.strictEqual(document.querySelectorAll("#dotfield .states path").length, 51, "the map draws 50 states and DC");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length,
+          PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate").length,
+          "the Senate step puts every incoming senator on their state");
+        setStoryStep("targets");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-faded)").length,
+          TGT.balanced[0] + TGT.balanced[1], "the targets step lights exactly the primary targets");
+        setStoryStep("status");
 
         /* ---- the cycle picker re-reads every surface from the picked cycle ---- */
         const picker = document.getElementById("f-cycle");
@@ -965,25 +875,6 @@ window.smoke = {
           assert.strictEqual(globalThis.__injected, undefined, "no injected handler ran");
 
         return observed;
-  },
-  // Viewport phases: runtime.py resizes the browser before each one.
-  async narrow() {
-    await sleep(250);
-    assert.strictEqual(senateCols(), 5, "D1: senateCols is 5 below 560px");
-    assert.ok(
-      document.getElementById("composition").innerHTML.includes('viewBox="0 0 320 505"'),
-      "D1: resize to 500px reflows the Senate tiles to 5 wide (320x505)");
-    renderComposition();
-    assert.strictEqual(
-      (document.getElementById("composition").innerHTML.match(/<g class="tile"/g) || []).length, 50,
-      "D1: still 50 state tiles at 5 wide");
-  },
-  async wide() {
-    await sleep(250);
-    assert.strictEqual(senateCols(), 10, "D1: senateCols is 10 above 560px");
-    assert.ok(
-      document.getElementById("composition").innerHTML.includes('viewBox="0 0 645 250"'),
-      "D1: resize back to 1024px restores the tiles to 10 wide (645x250)");
   },
   reducedMotion(expected) {
     assert.strictEqual(reducedMotion(), expected, "page reducedMotion() follows the OS preference");
