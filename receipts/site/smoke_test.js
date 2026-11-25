@@ -424,7 +424,7 @@ window.smoke = {
         const chapterOrder = [...document.querySelectorAll("[data-chapter]")].map((el) => el.dataset.chapter);
         assert.deepStrictEqual(
           chapterOrder,
-          ["hook", "dirtiest", "dirty-definition", "clean", "chamber", "finder", "data"],
+          ["hook", "story", "dirtiest", "dirty-definition", "clean", "chamber", "finder", "data"],
           "front door chapters in narrative order: " + chapterOrder.join(","));
         // Count-up spans: data-value is the computed figure. With no
         // IntersectionObserver (smoke_prelude.js) reveals run at once.
@@ -492,8 +492,8 @@ window.smoke = {
           document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
           "querySelectorAll finds every table row");
         assert.strictEqual(
-          document.querySelectorAll(".chapter").length, 7,
-          "querySelectorAll finds all 7 chapters");
+          document.querySelectorAll(".chapter").length, 8,
+          "querySelectorAll finds all 8 chapters");
         assert.strictEqual(
           document.querySelectorAll("#dirtiest-list .dirty-row").length, 5,
           "querySelectorAll finds the 5 dirtiest rows");
@@ -573,6 +573,23 @@ window.smoke = {
         assert.ok(
           document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
           "view button switches back to the core columns");
+
+        /* ---- the front-door story: one dot per incoming member, every count computed ---- */
+        const storyDots = document.querySelectorAll("#dotfield circle");
+        assert.strictEqual(storyDots.length, EXP.tiers.incoming_total, "the story draws one dot per incoming member");
+        assert.ok(document.getElementById("story").classList.contains("static"),
+          "without IntersectionObserver every story card shows");
+        assert.ok(document.getElementById("step-status").innerHTML.includes("<b>" + EXP.tiers.balanced.dirty + "</b>"),
+          "the status step counts the Balanced dirty members");
+        setStoryStep("party");
+        assert.ok(document.querySelector("#dotfield .labels").innerHTML.includes("Democrats"),
+          "the party step labels its groups");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle.dot-dirty").length, EXP.tiers.balanced.dirty,
+          "the party step colors every dirty member");
+        setStoryStep("targets");
+        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-faded)").length,
+          TGT.balanced[0] + TGT.balanced[1], "the targets step lights exactly the primary targets");
+        setStoryStep("status");
 
         /* ---- the cycle picker re-reads every surface from the picked cycle ---- */
         const picker = document.getElementById("f-cycle");

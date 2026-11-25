@@ -384,7 +384,7 @@ function setPreset(preset){
   if(!PRESETS[preset]) return;
   state.preset = preset;
   document.getElementById('tolerance-note').textContent = PRESETS[preset].def;
-  renderStats(); renderTable(); renderCleanStory(); renderDirtiest();
+  renderStats(); renderTable(); renderCleanStory(); renderDirtiest(); renderStory();
   refreshTabs(['clean','breakdown','targets']);
 }
 
@@ -401,7 +401,7 @@ function setCycle(cycle){
   applyCycle(cycle);
   labelCycle();
   renderViewBtns(); renderStats(); renderTable(); renderCleanStory();
-  renderDirtiest(); renderDirtyExplainer(); renderComposition();
+  renderDirtiest(); renderDirtyExplainer(); renderComposition(); renderStory();
   refreshTabs(Object.keys(TAB_RENDER));
 }
 
@@ -771,7 +771,7 @@ function init(){
   const states = [...new Set(PEOPLE.map(p=>p.state))].sort();
   document.getElementById('f-state').innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder();
+  renderDirtiest(); renderDirtyExplainer(); renderCleanStory(); renderComposition(); initFinder(); initStory();
   // D1: a resize that crosses the 560px breakpoint reflows the
   // Senate tiles (5 wide on phones, 10 wide otherwise). Debounced,
   // and only when the column count actually changes.

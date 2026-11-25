@@ -166,3 +166,31 @@ html.js .chapter,html.js .chapter .dirtiest li,html.js .chapter .dot,html.js .ch
 .finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
 .finder .person-btn{white-space:normal;text-align:left}
 @media(max-width:560px){.finder select{flex:1 1 100%}.finder label{flex:1 1 100%}}
+
+/* The front-door story: a pinned dot field with text steps scrolling past it. */
+.scrolly{position:relative}
+.scrolly-graphic{position:sticky;top:0;z-index:0;background:var(--bg);padding:8px 0}
+.dotfield{display:block;width:100%;height:auto;max-height:56vh;margin:0 auto}
+.dotfield circle{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .5s ease,fill .5s ease}
+.dotfield text{font-size:13px;font-weight:600;fill:var(--ink)}
+.dot-plain{fill:#9ca3af}
+.dot-dirty{fill:#111827}
+.dot-below_threshold{fill:#9ca3af}
+.dot-clean{fill:#fff;stroke:#14532d;stroke-width:1.6}
+.dot-unjudged{fill:#fff;stroke:#9ca3af;stroke-width:1.2;stroke-dasharray:2 2}
+.dot-faded{opacity:.12}
+.dot-picked{stroke:#dc2626;stroke-width:3}
+.scrolly-key{font-size:.8rem;color:var(--muted);margin:4px 0 0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+.scrolly-key .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1px solid transparent}
+.scrolly-key .k.dot-dirty{background:#111827}
+.scrolly-key .k.dot-below_threshold{background:#9ca3af}
+.scrolly-key .k.dot-clean{background:#fff;border-color:#14532d}
+.scrolly-key .k.dot-unjudged{background:#fff;border:1px dashed #9ca3af}
+.scrolly-steps{position:relative;z-index:1;pointer-events:none}
+.scrolly-step{min-height:75vh;display:flex;align-items:center;justify-content:center}
+.scrolly-step:last-child{min-height:55vh}
+.scrolly-step .card{pointer-events:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-width:38ch;margin:0;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:.55;transition:opacity .4s ease}
+.scrolly-step.active .card{opacity:1;border-color:var(--ink)}
+.scrolly.static .scrolly-step{min-height:0;margin:10px 0}
+.scrolly.static .scrolly-step .card{opacity:1}
+@media (prefers-reduced-motion:reduce){.dotfield circle{transition:none}}

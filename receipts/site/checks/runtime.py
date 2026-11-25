@@ -13,12 +13,18 @@ from pathlib import Path
 from receipts.common.log import log
 from receipts.common.settings import settings
 from receipts.site.build_site import main as build_main
+from receipts.site.build_site import template
 
 
 def javascript_parses(audit, page):
     """JS syntax"""
     app_scripts = re.findall(r'<script>(.*?)</script>', page.html, re.DOTALL)
-    audit.check('two app scripts present', len(app_scripts) == 2, f'got {len(app_scripts)}')
+    expected = template('page.html').count('_JS%%</script>')
+    audit.check(
+        'every app script template is embedded',
+        len(app_scripts) == expected,
+        f'got {len(app_scripts)}, want {expected}',
+    )
     node_ok = True
     for i, src in enumerate(app_scripts):
         with tempfile.NamedTemporaryFile('w', suffix='.js', delete=False) as f:

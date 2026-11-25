@@ -258,6 +258,7 @@ def page_template():
         ('%%STYLE%%', 'style.css'),
         ('%%TRACKER_JS%%', 'tracker.js'),
         ('%%VIEWS_JS%%', 'views.js'),
+        ('%%STORY_JS%%', 'story.js'),
     ):
         page = page.replace(slot, template(name))
     return page

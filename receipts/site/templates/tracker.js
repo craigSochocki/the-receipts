@@ -854,6 +854,7 @@ function initFinder(){
       person.innerHTML = '<span style="color:var(--muted);font-size:.9rem">No incoming member listed for this seat yet.</span>';
       return;
     }
+    if(typeof pickInStory==='function') pickInStory(people[0].person_key);
     person.innerHTML = people.map(p=>
       '<button type="button" class="btn person-btn" data-key="'+esc(p.person_key)+'">'
       + partyChip(p)+' '+esc(p.full_name)+' · '+outcomeLabel(p)+' '+fmtTierBadge(p)+'</button>').join(' ');
