@@ -553,24 +553,24 @@ unopposed. The site renders unopposed members as **Unopposed**, distinct from
 AIPAC PAC direct, UDP support and UDP opposition credit (career columns) are all zero. It
 is derived from those career columns only and is untouched by the unopposed rule.
 
-**2028 primary targets — the dirtiest Democrats to watch.** The site's "2028 primary
-targets" tab is a watchlist built from 2026-cycle dirty money, NOT a prediction of who
-will be on the ballot: retirements are unknown, 2028 filings are not open, and 2026 is
-partial. The rule is mechanical (dirty money only); the tracker does not judge
+**Primary targets — the next cycle's watchlist.** The site's "Primary targets — <next
+cycle>" tab lists incoming members of any party whose seat is up in the next cycle and
+who took dirty money in their latest election. It is a watchlist, NOT a prediction of
+who will be on the ballot: retirements are unknown and the next cycle's filings are
+barely open. The rule is mechanical (dirty money only); the tracker does not judge
 electability or anything else.
 
-- **The 2026 primary-target list:** 120th House Democrats with `dirty_2026 > 0`, ranked by
-  `dirty_2026` descending (`is_primary_target_2026` in `receipts/domain/clean_2026.py`;
-  also written to `data/intermediate/primary-targets.md`). Columns: Dirty 2026, Corp PAC
-  2026, AIPAC 2026, UDP benefit 2026, Individual 2026.
-- **The 2028 tab, House:** the same rule — every House seat is up in 2028, so the pool
-  carries over directly. One extra column: Dirty career.
-- **The 2028 tab, Senate:** 120th Democratic senators whose seats are up in 2028 — Class 3
-  (`senate_class == 3`) with `dirty_2026 > 0`, ranked the same way. A Class 3 Democrat
-  whose `dirty_2026` is zero or negative is not listed: the rule is `> 0` only.
-- **Under a tolerance preset** the target rule is tier `dirty` instead of
-  `dirty_2026 > 0`. The preset changes which members of the pool count as dirty, never
-  the pool.
+- **The rule** (`is_primary_target` in `receipts/domain/targets.py`): in the incoming
+  Congress; seat up in the next cycle (`cycles.next` — every House seat, delegates
+  included; a Senate seat when its `senate_class` is that cycle's regular class); and
+  dirty in the latest-election record (§14b) under the preset — Strict: `dirty > 0`;
+  Balanced / Lenient: that preset's tier is `dirty`. A member with no latest election
+  is never a target. Ranked by latest-election `dirty`, descending.
+- **It ignores the cycle picker.** The list always reads the latest election; the
+  preset changes which members count as dirty, never the pool.
+- **Columns:** party, seat, the election judged, and that election's dirty money,
+  corporate PAC, AIPAC direct, UDP benefit and individual contributions, plus dirty
+  career. The Balanced list is also written to `data/intermediate/primary-targets.md`.
 - **How `senate_class` is derived.** From the legislators data
   (`data/source/legislators-current.yaml`): every Senate term carries a `class` field
   (1/2/3), so no date arithmetic is needed. A senator serving into 2026 takes their own
@@ -582,8 +582,8 @@ electability or anything else.
   cycle presence separates nobody; "earliest Senate-ID cycle mod 6" breaks on
   special-election winners; and the FEC candidate-ID digits carry no class. The class
   lives in the legislators data, not the FEC data.
-- **Front door.** The Data chapter carries a compact pointer whose button opens the 2028
-  tab by in-page navigation (`showTab('targets28')`).
+- **Front door.** The Data chapter carries a compact pointer whose button opens the
+  targets tab by in-page navigation (`showTab('targets')`).
 
 **Data gaps — read before quoting any 2026 zero.**
 
@@ -632,6 +632,12 @@ latest cycle up. An incoming member whose seat is up but whose current campaign 
 linked in the roster therefore keeps the current cycle's verdict (unverified, §14), never an
 older cycle's. A person never up in any cycle with data has no headline verdict (all null).
 The current-cycle columns of §14 are unchanged and remain the current cycle's own verdict.
+
+**What the site shows.** The site opens on the headline verdict ("Latest election"): every
+board, chart, count and table reads the record of each person's `verdict_cycle`. The cycle
+picker swaps in one cycle's records instead, from `cycles.picker_start` to the current
+cycle; a person with no record for the picked cycle shows zero money and no verdict. The
+primary-target list always reads the headline verdict (§14).
 
 ## 15. Coverage end dates by column family — and the re-pull plan
 

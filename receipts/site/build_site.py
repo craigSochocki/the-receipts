@@ -11,7 +11,9 @@ from pathlib import Path
 
 from receipts.common.log import log, run
 from receipts.common.settings import settings
-from receipts.domain.clean_2026 import is_career_clean, is_not_dirty, is_primary_target_2026
+from receipts.domain.clean_2026 import is_career_clean, is_not_dirty
+from receipts.domain.seats import regular_senate_class
+from receipts.site.expectations import latest
 from receipts.store.read import connect
 from receipts.transform.compute_2026 import cycle_fields
 
@@ -308,16 +310,16 @@ def clean_count_tokens(h_clean, s_clean):
 
 
 def sentence_tokens(dataset, h_clean):
-    unknown = [r for r in dataset if r['clean_2026'] is None]
+    unknown = [r for r in dataset if latest(r)['clean'] is None]
     return {
         '%%CLEAN_HOUSE_R_SENTENCE%%': republicans_sentence(
             [r['full_name'] for r in h_clean if r['party_120'] == 'Republican']
         ),
         '%%UNVERIFIED_SENTENCE%%': unverified_sentence(
-            [r['full_name'] for r in unknown if not r['unopposed_2026']]
+            [r['full_name'] for r in unknown if not latest(r)['unopposed']]
         ),
         '%%UNOPPOSED_SENTENCE%%': unopposed_sentence(
-            [r['full_name'] for r in unknown if r['unopposed_2026']]
+            [r['full_name'] for r in unknown if latest(r)['unopposed']]
         ),
     }
 
@@ -330,12 +332,12 @@ def preset_tokens(incoming, house):
     return {
         '%%CAREER_CLEAN_HOUSE%%': count_where(house, is_career_clean),
         '%%BALANCED_NOT_DIRTY%%': count_where(
-            incoming, lambda r: is_not_dirty(r['tier_balanced_2026'])
+            incoming, lambda r: is_not_dirty(latest(r)['tier_balanced'])
         ),
         '%%LENIENT_NOT_DIRTY%%': count_where(
-            incoming, lambda r: is_not_dirty(r['tier_lenient_2026'])
+            incoming, lambda r: is_not_dirty(latest(r)['tier_lenient'])
         ),
-        '%%FLAG_120%%': count_where(incoming, lambda r: r['aipac_udp_flag_2026'] is True),
+        '%%FLAG_120%%': count_where(incoming, lambda r: latest(r)['aipac_udp_flag'] is True),
     }
 
 
@@ -343,8 +345,8 @@ def method_tokens(dataset):
     """Every figure and sentence the methodology clean paragraph shows."""
     incoming = [r for r in dataset if r['in_120th'] == 'yes']
     house = [r for r in incoming if r['chamber_120'] == 'House']
-    h_clean = [r for r in house if r['clean_2026'] is True]
-    s_clean = [r for r in incoming if r['chamber_120'] == 'Senate' and r['clean_2026'] is True]
+    h_clean = [r for r in house if latest(r)['clean'] is True]
+    s_clean = [r for r in incoming if r['chamber_120'] == 'Senate' and latest(r)['clean'] is True]
     return {
         **clean_count_tokens(h_clean, s_clean),
         **sentence_tokens(dataset, h_clean),
@@ -364,6 +366,7 @@ def cycle_tokens():
     cycles = settings().cycles
     return {
         '%%CYCLE%%': str(cycles.current),
+        '%%NEXT_CYCLE%%': str(cycles.next),
         '%%CAREER_START%%': str(cycles.career_start),
         '%%CAREER_END%%': str(cycles.career_end),
         '%%IE_SPAN%%': f'{cycles.ie[0]}–{cycles.ie[-1]}',
@@ -391,6 +394,8 @@ def main():
         'tc': TC_COLS,
         'cy': cycle_cols(),
         'current_cycle': settings().cycles.current,
+        'next_cycle': settings().cycles.next,
+        'next_senate_class': regular_senate_class(settings().cycles.next),
         'picker_cycles': settings().cycles.picker,
         'ie_span': cycle_tokens()['%%IE_SPAN%%'],
         'csv': csv_cols,
@@ -431,8 +436,6 @@ def main():
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
     html = html.replace('%%DATA_JSON%%', safe_json(rows))
     html = html.replace('%%OPP_JSON%%', safe_json(opp_payload))
-    targets_2026_house = sum(1 for r in dataset if is_primary_target_2026(r))
-    html = html.replace('%%TARGETS_2026_HOUSE%%', str(targets_2026_house))
     html = html.replace('%%DATASET_MD5%%', dataset_md5)
     html = html.replace('%%DATA_AS_OF%%', ', '.join(data_as_of))
     html = html.replace('%%STAMP%%', stamp)

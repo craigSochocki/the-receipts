@@ -37,6 +37,11 @@ class Cycles:
         return range(self.career_start, self.career_end + 1, 2)
 
     @property
+    def next(self) -> int:
+        """The upcoming cycle, the one primary targets are for."""
+        return self.current + 2
+
+    @property
     def picker(self) -> list[int]:
         """The cycles the site's cycle picker offers, newest first."""
         return list(range(self.current, self.picker_start - 1, -2))

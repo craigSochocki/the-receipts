@@ -4,16 +4,25 @@ from collections import Counter
 
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean
-from receipts.domain.seats import regular_senate_class
+from receipts.domain.targets import DIRTY_UNDER, latest_record, primary_targets
 
 TERRITORIES = {'AS', 'DC', 'GU', 'MP', 'PR', 'VI'}
 PARTY_LETTERS = {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}
 NOT_DIRTY_TIERS = ('clean', 'below_threshold')
-TARGET_RULES = {
-    'strict': lambda r: dollars(r['dirty_2026']) > 0,
-    'balanced': lambda r: r['tier_balanced_2026'] == 'dirty',
-    'lenient': lambda r: r['tier_lenient_2026'] == 'dirty',
+# What the page shows for someone with no latest election (no cycle was up).
+NO_RECORD = {
+    'dirty': None,
+    'clean': None,
+    'tier_balanced': None,
+    'tier_lenient': None,
+    'unopposed': False,
+    'aipac_udp_flag': False,
 }
+
+
+def latest(person):
+    """The record the page's default view reads: the person's latest election."""
+    return latest_record(person) or NO_RECORD
 
 
 def dollars(value):
@@ -44,15 +53,15 @@ def party_letter(person):
 
 
 def seat_status(person):
-    if person['clean_2026'] is True:
+    if latest(person)['clean'] is True:
         return 'clean'
-    if person['clean_2026'] is False:
+    if latest(person)['clean'] is False:
         return 'dirty'
-    return 'unopposed' if person['unopposed_2026'] is True else 'unverified'
+    return 'unopposed' if latest(person)['unopposed'] is True else 'unverified'
 
 
-def by_dirty_2026(person):
-    return -dollars(person['dirty_2026'])
+def by_dirty(person):
+    return -dollars(latest(person)['dirty'])
 
 
 def names(people):
@@ -64,7 +73,7 @@ def count(people, predicate):
 
 
 def is_clean(person):
-    return person['clean_2026'] is True
+    return latest(person)['clean'] is True
 
 
 def is_democrat(person):
@@ -76,26 +85,12 @@ def is_republican(person):
 
 
 def is_flagged(person):
-    return person['aipac_udp_flag_2026'] is True
+    return latest(person)['aipac_udp_flag'] is True
 
 
 def seat_counts(people):
     counts = Counter(f'{seat_status(p)} {party_letter(p)}' for p in people)
     return dict(sorted(counts.items()))
-
-
-def targets_2028(incoming, preset):
-    """House Democrats and Class 3 Senate Democrats on the watchlist, dirtiest first."""
-    on_watchlist = TARGET_RULES[preset]
-    democrats = [p for p in incoming if is_democrat(p) and on_watchlist(p)]
-    house = [p for p in democrats if p['chamber_120'] == 'House']
-    senate = [
-        p
-        for p in democrats
-        if p['chamber_120'] == 'Senate'
-        and p['senate_class'] == regular_senate_class(settings().cycles.current + 2)
-    ]
-    return sorted(house, key=by_dirty_2026), sorted(senate, key=by_dirty_2026)
 
 
 class Roster:
@@ -110,20 +105,20 @@ class Roster:
 
 def headline(roster):
     dirtiest = sorted(
-        (p for p in roster.everyone if dollars(p['dirty_2026']) > 0), key=by_dirty_2026
+        (p for p in roster.everyone if dollars(latest(p)['dirty']) > 0), key=by_dirty
     )[:5]
     top = dirtiest[0]
-    next_four = sum(p['dirty_2026'] for p in dirtiest[1:])
+    next_four = sum(latest(p)['dirty'] for p in dirtiest[1:])
     return {
-        'top5': [[p['full_name'], p['dirty_2026']] for p in dirtiest],
+        'top5': [[p['full_name'], latest(p)['dirty']] for p in dirtiest],
         'top1_key': top['person_key'],
-        'top1_compact': compact(top['dirty_2026']),
-        'top1_exact': exact(top['dirty_2026']),
+        'top1_compact': compact(latest(top)['dirty']),
+        'top1_exact': exact(latest(top)['dirty']),
         'top1_returning': top['in_120th'] == 'yes',
         'next_four_total': next_four,
         'next_four_compact': compact(next_four),
-        'exceeds_next_four': top['dirty_2026'] > next_four,
-        'ratio': f'{top["dirty_2026"] / next_four:.2f}',
+        'exceeds_next_four': latest(top)['dirty'] > next_four,
+        'ratio': f'{latest(top)["dirty"] / next_four:.2f}',
     }
 
 
@@ -140,15 +135,15 @@ def career_dirty(roster):
 
 
 def clean(roster):
-    not_judged = [p for p in roster.everyone if p['clean_2026'] is None]
-    unopposed = [p for p in not_judged if p['unopposed_2026'] is True]
-    unverified = [p for p in not_judged if p['unopposed_2026'] is not True]
+    not_judged = [p for p in roster.everyone if latest(p)['clean'] is None]
+    unopposed = [p for p in not_judged if latest(p)['unopposed'] is True]
+    unverified = [p for p in not_judged if latest(p)['unopposed'] is not True]
     house_clean = [p for p in roster.house if is_clean(p)]
     return {
         'true_total': count(roster.everyone, is_clean),
         'null_unopposed': sorted(names(unopposed)),
         'null_unverified': sorted(names(unverified)),
-        'unopposed_total': count(roster.everyone, lambda p: p['unopposed_2026'] is True),
+        'unopposed_total': count(roster.everyone, lambda p: latest(p)['unopposed'] is True),
         'house_120': len(house_clean),
         'house_120_democrat': count(house_clean, is_democrat),
         'house_120_republican': count(house_clean, is_republican),
@@ -159,7 +154,7 @@ def clean(roster):
 
 
 def tier_counts(people, tier_column):
-    counts = Counter(p[tier_column] for p in people)
+    counts = Counter(latest(p)[tier_column] for p in people)
     return {
         'clean': counts['clean'],
         'below_threshold': counts['below_threshold'],
@@ -169,11 +164,11 @@ def tier_counts(people, tier_column):
 
 
 def not_dirty(people, tier_column):
-    return count(people, lambda p: p[tier_column] in NOT_DIRTY_TIERS)
+    return count(people, lambda p: latest(p)[tier_column] in NOT_DIRTY_TIERS)
 
 
 def tiers(roster):
-    balanced, lenient = 'tier_balanced_2026', 'tier_lenient_2026'
+    balanced, lenient = 'tier_balanced', 'tier_lenient'
     return {
         'balanced': tier_counts(roster.incoming, balanced),
         'lenient': tier_counts(roster.incoming, lenient),
@@ -198,20 +193,23 @@ def charts(roster):
     }
 
 
-def watchlist(roster):
-    lists = {preset: targets_2028(roster.incoming, preset) for preset in TARGET_RULES}
-    balanced_house, balanced_senate = lists['balanced']
-    strict_house, strict_senate = lists['strict']
-    sizes = {preset: [len(house), len(senate)] for preset, (house, senate) in lists.items()}
+def targets(roster):
+    cycle = settings().cycles.next
+    lists = {p: primary_targets(roster.incoming, p, cycle) for p in DIRTY_UNDER}
+    by_chamber = {
+        preset: [[p for p in people if p['chamber_120'] == c] for c in ('House', 'Senate')]
+        for preset, people in lists.items()
+    }
+    house, senate = by_chamber['balanced']
     return {
-        **sizes,
-        'balanced_house_order': names(balanced_house[:2]),
-        'balanced_house_top_dirty_exact': exact(balanced_house[0]['dirty_2026']),
-        'balanced_senate_order': names(balanced_senate),
-        'balanced_senate_top_dirty_exact': exact(balanced_senate[0]['dirty_2026']),
-        'balanced_senate_top_career_exact': exact(balanced_senate[0]['dirty_career']),
-        'strict_senate_top3': names(strict_senate[:3]),
-        'targets_2026_house': len(strict_house),
+        **{preset: [len(h), len(s)] for preset, (h, s) in by_chamber.items()},
+        'balanced_top3': names(lists['balanced'][:3]),
+        'balanced_top_dirty_exact': exact(latest(lists['balanced'][0])['dirty']),
+        'balanced_house_top': names(house[:1]),
+        'balanced_senate_top': names(senate[:1]),
+        'balanced_parties': dict(
+            sorted(Counter(party_letter(p) for p in lists['balanced']).items())
+        ),
     }
 
 
@@ -228,7 +226,7 @@ def detail(roster, opposition_credit, dirtiest_key):
     return {
         'top10_total_accepted': names(ranked[:10]),
         'constantino_self_funding_exact': exact(constantino['self_funding_career']),
-        'constantino_clean': constantino['clean_2026'],
+        'constantino_clean': latest(constantino)['clean'],
         'top1_opposition_credit': credit,
         'top1_opposition_credit_exact': [exact(amount) for amount in credit.values()],
     }
@@ -243,7 +241,7 @@ def site_expectations(people, opposition_credit):
         'clean': clean(roster),
         'tiers': tiers(roster),
         'charts': charts(roster),
-        'targets_2028': watchlist(roster),
+        'targets': targets(roster),
         'detail': detail(roster, opposition_credit, hook['top1_key']),
     }
 

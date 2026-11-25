@@ -39,7 +39,7 @@ window.smoke = {
 
         observe("rows", PEOPLE.length);
         const TOP5 = EXP.headline.top5.map((x) => x[0]);
-        const T28 = EXP.targets_2028;
+        const TGT = EXP.targets;
         const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1);
         /* ---- FE7: hidden Explore does not render at load ---- */
         assert.strictEqual(
@@ -55,7 +55,7 @@ window.smoke = {
         /* ---- front door (landing-first): dirtiest, clean story, default mode ---- */
         const headlineHtml = document.getElementById("dirtiest-headline").innerHTML;
         assert.ok(headlineHtml.includes(TOP5[0]), "headline leads with the dirtiest member: " + headlineHtml);
-        assert.ok(headlineHtml.includes(EXP.headline.top1_compact), "headline shows #1's dirty 2026 " + EXP.headline.top1_compact);
+        assert.ok(headlineHtml.includes(EXP.headline.top1_compact), "headline shows #1's latest dirty " + EXP.headline.top1_compact);
         assert.strictEqual(headlineHtml.includes("next four combined"), EXP.headline.exceeds_next_four, "headline compares #1 to next four only if it holds");
         if (EXP.headline.exceeds_next_four) {
           assert.ok(headlineHtml.includes(EXP.headline.ratio), "headline ratio is " + EXP.headline.ratio + "x");
@@ -78,7 +78,7 @@ window.smoke = {
           assert.ok(dirtiestHtml.includes(n), "dirtiest list has " + n));
         assert.ok(
           TOP5.every((n, i) => i === 0 || dirtiestHtml.indexOf(TOP5[i - 1]) < dirtiestHtml.indexOf(n)),
-          "dirtiest list is in dirty-2026 order");
+          "dirtiest list is in latest-dirty order");
         if (!EXP.headline.top1_returning) {
           assert.ok(dirtiestHtml.includes("Not returning"), "#1 row says Not returning");
         }
@@ -112,7 +112,7 @@ window.smoke = {
         assert.ok(tbodyHtml.includes("Warnock"), "default table contains Warnock");
         assert.ok(
           tbodyHtml.indexOf(TOP5[0]) < tbodyHtml.indexOf(TOP5[1]),
-          "default sort is Dirty 2026 desc (#1 before #2)");
+          "default sort is Dirty latest desc (#1 before #2)");
         assert.ok(
           document.getElementById("totals").innerHTML.includes("Total accepted"),
           "totals strip rendered");
@@ -150,9 +150,9 @@ window.smoke = {
 
         showTab("leaders");
         const leadersHtml = document.getElementById("leaders").innerHTML;
-        assert.ok(leadersHtml.includes("Top 20 — dirtiest in 2026"), "first board is dirtiest 2026");
+        assert.ok(leadersHtml.includes("Top 20 — dirtiest in their latest election"), "first board is dirtiest in their latest election");
         assert.ok(
-          leadersHtml.indexOf("dirtiest in 2026") < leadersHtml.indexOf("dirtiest, career") &&
+          leadersHtml.indexOf("dirtiest in their latest election") < leadersHtml.indexOf("dirtiest, career") &&
           leadersHtml.indexOf("dirtiest, career") < leadersHtml.indexOf("total accepted (career)"),
           "leaderboards lead with dirty, total accepted after");
         assert.ok(leadersHtml.includes(EXP.career_dirty.top1_exact), "career dirty board shows the #1 career figure");
@@ -197,8 +197,8 @@ window.smoke = {
         });
         assert.strictEqual(countHalves(senPart, "uncalled", ""), 100 - EXP.charts.senate_named, "Senate Uncalled");
         // Each state tile shows its senators' halves, plus an uncalled half per unnamed seat.
-        const tileStatus = (p) => p.clean_2026 === true ? "clean" : p.clean_2026 === false ? "dirty"
-          : (p.unopposed_2026 === true ? "unopposed" : "unverified");
+        const tileStatus = (p) => p.clean === true ? "clean" : p.clean === false ? "dirty"
+          : (p.cy_unopposed === true ? "unopposed" : "unverified");
         const tileParty = (p) => ({ Democrat: "D", Republican: "R", Independent: "I" }[p.party_120] || p.party_120);
         const senatorsByState = {};
         PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate")
@@ -250,69 +250,32 @@ window.smoke = {
           document.querySelector("#breakdown-table tbody").innerHTML.includes("Democrat"),
           "breakdown table has Democrat rows");
 
+        /* ---- primary targets for the next cycle (any party) ---- */
         showTab("targets");
+        assert.strictEqual(document.getElementById("tab-targets").hidden, false, "targets tab is shown after showTab");
+        const targetsIntro = () => document.getElementById("targets-intro").innerHTML;
+        const countsTargets = (t) => targetsIntro().includes((t[0] + t[1]) + " incoming members whose seat is up in " + NEXT_CYCLE)
+          && targetsIntro().includes("(" + t[0] + " House + " + t[1] + " Senate)");
+        assert.ok(targetsIntro().includes("A watchlist, not a prediction"), "targets intro frames it as a watchlist");
+        assert.ok(countsTargets(TGT.balanced), "targets intro counts the Balanced targets by chamber");
         const targetsHtml = document.querySelector("#targets-table tbody").innerHTML;
-        assert.ok(targetsHtml.includes("Boafo"), "targets table starts with Boafo");
-        assert.ok(targetsHtml.includes("Bell"), "targets table contains Bell");
-
-        /* ---- 2028 primary targets ---- */
-        showTab("targets28");
-        assert.strictEqual(
-          document.getElementById("tab-targets28").hidden, false,
-          "2028 tab is shown after showTab");
-        assert.strictEqual(
-          document.getElementById("tab-targets").hidden, true,
-          "2026 tab hides when the 2028 tab is shown");
-        const t28Intro = document.getElementById("targets28-intro").innerHTML;
-        assert.ok(t28Intro.includes("A watchlist, not a prediction"), "2028 intro frames it as a watchlist");
-        assert.ok(t28Intro.includes(T28.balanced[0] + " House Democrats"), "2028 intro counts the Balanced House targets");
-        assert.ok(t28Intro.includes(T28.balanced[1] + " Democratic senators"), "2028 intro counts the Balanced Senate targets");
-        const t28HouseHtml = document.querySelector("#targets28-house-table tbody").innerHTML;
-        const [t28H1, t28H2] = T28.balanced_house_order;
-        assert.ok(t28HouseHtml.includes(t28H1), "2028 House table starts with " + t28H1);
         assert.ok(
-          t28HouseHtml.indexOf(t28H1) < t28HouseHtml.indexOf(t28H2),
-          "2028 House table in dirty-2026 order");
-        assert.ok(t28HouseHtml.includes(T28.balanced_house_top_dirty_exact), "2028 House table shows the top dirty 2026 figure");
-        if (!EXP.headline.top1_returning) {
-          assert.ok(t28HouseHtml.includes(TOP5[0]) === false, "2028 House table does not show the overall #1 (not in the 120th)");
-        }
-        const t28SenHtml = document.querySelector("#targets28-senate-table tbody").innerHTML;
-        const t28Sen = T28.balanced_senate_order;
-        t28Sen.forEach((n) => assert.ok(t28SenHtml.includes(n), "2028 Senate table has " + n));
-        assert.ok(
-          t28Sen.every((n, i) => i === 0 || t28SenHtml.indexOf(t28Sen[i - 1]) < t28SenHtml.indexOf(n)),
-          "2028 Senate table in dirty-2026 order");
-        assert.ok(t28SenHtml.includes(T28.balanced_senate_top_dirty_exact), "2028 Senate table shows the top dirty 2026 figure");
-        assert.ok(t28SenHtml.includes(T28.balanced_senate_top_career_exact), "2028 Senate table shows the top member's dirty career");
-        assert.ok(t28SenHtml.includes(" · Senate"), "2028 Senate rows show the seat");
+          TGT.balanced_top3.every((n, i) => targetsHtml.includes(n) && (i === 0 || targetsHtml.indexOf(TGT.balanced_top3[i - 1]) < targetsHtml.indexOf(n))),
+          "targets table opens with the three dirtiest, in order");
+        assert.ok(targetsHtml.includes(TGT.balanced_top_dirty_exact), "targets table shows the top target's dirty money");
+        assert.ok(targetsHtml.includes(" · Senate") || TGT.balanced[1] === 0, "Senate targets show their seat");
 
         /* ---- tolerance preset switching (methodology §14) ---- */
         // Switching the preset recomputes the watchlist and the story live.
         setPreset("lenient");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[0] + " House Democrats"),
-          "Lenient 2028 intro counts the House Democrats");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.lenient[1] + " Democratic senators"),
-          "Lenient 2028 intro counts the Democratic senators");
+        assert.ok(countsTargets(TGT.lenient), "Lenient targets intro counts by chamber");
         setPreset("strict");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.strict[0] + " House Democrats"),
-          "Strict 2028 intro counts the House Democrats");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
-          "Strict 2028 intro counts the Democratic senators");
+        assert.ok(countsTargets(TGT.strict), "Strict targets intro counts by chamber");
         assert.ok(
           document.getElementById("landing-story").innerHTML.replace(/<[^>]+>/g, "").includes(EXP.clean.all_120 + " of " + EXP.tiers.incoming_total),
           "Strict story shows the verified-clean count of the incoming members");
         setPreset("balanced");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
-          "Balanced 2028 intro counts the House Democrats");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[1] + " Democratic senators"),
-          "Balanced 2028 intro counts the Democratic senators");
+        assert.ok(countsTargets(TGT.balanced), "Balanced targets intro counts by chamber");
 
         /* ---- FE1a: nested lists decode lazily ----
            Must run before the first openDetail / CSV export below, which
@@ -339,7 +302,7 @@ window.smoke = {
         assert.ok(detailHtml.includes("Self-funding"), "detail has self-funding section");
         assert.ok(detailHtml.includes("Cycle by cycle"), "detail has cycle tables");
         assert.ok(detailHtml.includes('class="detail-head"'), "D6/FE3: detail header shows exact figures");
-        assert.ok(detailHtml.includes("Dirty 2026"), "D6/FE3: detail header names Dirty 2026");
+        assert.ok(detailHtml.includes("Dirty latest"), "D6/FE3: detail header names Dirty latest");
         const detailCycles = document.querySelectorAll("#detail-sheet details.cycle");
         assert.ok(detailCycles.length >= 2, "D9: cycle tables collapse into details elements, got " + detailCycles.length);
         assert.ok(detailCycles[0].hasAttribute("open"), "D9: first cycle table is open");
@@ -363,12 +326,12 @@ window.smoke = {
         /* ---- U4: clicking a chart opens the drill-down ---- */
         document.querySelector('#composition .dot[data-key]').dispatchEvent("click");
         assert.ok(
-          document.getElementById("detail-sheet").innerHTML.includes("Dirty 2026"),
+          document.getElementById("detail-sheet").innerHTML.includes("Dirty latest"),
           "U4: clicking a waffle dot opens the drill-down");
         closeDetail();
         document.querySelector('#composition .half[data-key]').dispatchEvent("click");
         assert.ok(
-          document.getElementById("detail-sheet").innerHTML.includes("Dirty 2026"),
+          document.getElementById("detail-sheet").innerHTML.includes("Dirty latest"),
           "U4: clicking a Senate tile half opens the drill-down");
         closeDetail();
 
@@ -377,7 +340,7 @@ window.smoke = {
         /* ---- landing story + finder (Change 1) ---- */
         const incoming120 = PEOPLE.filter((p) => p.in_120th === "yes");
         const notDirty120 = incoming120.filter(
-          (p) => p.tier_balanced_2026 === "clean" || p.tier_balanced_2026 === "below_threshold").length;
+          (p) => p.tier_balanced === "clean" || p.tier_balanced === "below_threshold").length;
         const storyHtml = document.getElementById("landing-story").innerHTML;
         // The counts are count-up spans now, so strip tags before matching.
         const storyText = storyHtml.replace(/<[^>]+>/g, "");
@@ -469,11 +432,11 @@ window.smoke = {
         // runCountUp adds data-counted, so the patterns allow later attributes.
         const hookCountups = [...headlineHtml.matchAll(/<span class="countup" data-value="([\d.]+)" data-format="([^"]+)"[^>]*>([^<]+)<\/span>/g)];
         assert.ok(hookCountups.length === 2, "hook has two count-up spans, got " + hookCountups.length);
-        assert.strictEqual(parseFloat(hookCountups[0][1]), stevens.dirty_2026, "hook count-up targets Stevens dirty 2026");
+        assert.strictEqual(parseFloat(hookCountups[0][1]), stevens.dirty, "hook count-up targets Stevens latest dirty");
         assert.strictEqual(hookCountups[0][3], EXP.headline.top1_compact, "hook count-up shows #1's compact figure");
-        const dirtyTop5 = PEOPLE.filter((p) => typeof p.dirty_2026 === "number")
-          .sort((a, b) => b.dirty_2026 - a.dirty_2026).slice(0, 5);
-        const nextFour = dirtyTop5.slice(1).reduce((s, p) => s + p.dirty_2026, 0);
+        const dirtyTop5 = PEOPLE.filter((p) => typeof p.dirty === "number")
+          .sort((a, b) => b.dirty - a.dirty).slice(0, 5);
+        const nextFour = dirtyTop5.slice(1).reduce((s, p) => s + p.dirty, 0);
         assert.strictEqual(parseFloat(hookCountups[1][1]), nextFour, "hook count-up targets the next-four total");
         assert.strictEqual(hookCountups[1][3], EXP.headline.next_four_compact, "hook count-up shows the next-four total");
         const storyCountups = [...storyHtml.matchAll(/<span class="countup" data-value="(\d+)" data-format="int"[^>]*>(\d+)<\/span>/g)].map((m) => m[1]);
@@ -535,8 +498,8 @@ window.smoke = {
           document.querySelectorAll("#dirtiest-list .dirty-row").length, 5,
           "querySelectorAll finds the 5 dirtiest rows");
         assert.strictEqual(
-          document.querySelectorAll(".tabs button").length, 7,
-          "querySelectorAll finds all 7 tab buttons");
+          document.querySelectorAll(".tabs button").length, 6,
+          "querySelectorAll finds all 6 tab buttons");
         // Listeners the page attaches at render/init time.
         const sortHeaders = document.querySelectorAll("#main-table thead th[data-sort]");
         assert.ok(sortHeaders.length >= 1, "sortable headers exist");
@@ -558,16 +521,10 @@ window.smoke = {
           "every dirtiest row has a click listener");
         assert.ok(
           document.querySelectorAll("#targets-table tbody tr").every(hasClick),
-          "every 2026 targets row has a click listener");
-        assert.ok(
-          document.querySelectorAll("#targets28-house-table tbody tr").every(hasClick),
-          "every 2028 House targets row has a click listener");
-        assert.ok(
-          document.querySelectorAll("#targets28-senate-table tbody tr").every(hasClick),
-          "every 2028 Senate targets row has a click listener");
+          "every targets row has a click listener");
         assert.ok(hasClick(document.getElementById("story-clean-link")), "story clean link has a click listener");
         assert.ok(hasClick(document.getElementById("explore-btn")), "explore button has a click listener");
-        assert.ok(hasClick(document.getElementById("targets28-btn")), "2028 button has a click listener");
+        assert.ok(hasClick(document.getElementById("targets-btn")), "targets button has a click listener");
         assert.ok(hasClick(document.getElementById("csv-btn")), "CSV button has a click listener");
         assert.ok(hasListener(document.getElementById("q"), "input"), "search box has an input listener");
         for (const id of ["f-congress", "f-chamber", "f-party", "f-state", "f-tolerance", "f-leader", "f-clean"]) {
@@ -607,7 +564,7 @@ window.smoke = {
         /* ---- view buttons switch column sets ---- */
         document.querySelector('#viewbtns button[data-view="cycle"]').dispatchEvent("click");
         assert.ok(
-          document.querySelector("#main-table thead").innerHTML.includes("Individual " + CURRENT_CYCLE),
+          document.querySelector("#main-table thead").innerHTML.includes("Individual latest"),
           "view button switches to the cycle columns");
         assert.strictEqual(
           document.querySelector('#viewbtns button[data-view="cycle"]').getAttribute("aria-pressed"), "true",
@@ -637,7 +594,11 @@ window.smoke = {
           "Latest election reads the headline verdict");
         pickCycle(CURRENT_CYCLE);
         assert.ok(document.querySelector("#main-table thead").innerHTML.includes("Dirty " + CURRENT_CYCLE),
-          "picker switches back to the current cycle");
+          "picker switches to the current cycle");
+        pickCycle("latest");
+        assert.ok(document.querySelector("#main-table thead").innerHTML.includes("Dirty latest"),
+          "picker switches back to the latest election");
+        assert.ok(!currentHash().includes("cycle="), "the default cycle stays out of the URL");
 
         /* ---- clicking a table row opens the detail sheet ----
          * The first click lands on a cell, so it only reaches the row's
@@ -679,8 +640,8 @@ window.smoke = {
         const firstRowName = () => document.querySelector("#main-table tbody tr").children[0].textContent;
         assert.ok(firstRowName().includes("Stevens"), "default first row is Stevens");
         sortTh().dispatchEvent("click"); // toggles to ascending
-        const minDirty = PEOPLE.filter((p) => typeof p.dirty_2026 === "number")
-          .sort((a, b) => a.dirty_2026 - b.dirty_2026 || a.full_name.localeCompare(b.full_name))[0];
+        const minDirty = PEOPLE.filter((p) => typeof p.dirty === "number")
+          .sort((a, b) => a.dirty - b.dirty || a.full_name.localeCompare(b.full_name))[0];
         assert.strictEqual(
           firstRowName(), minDirty.full_name,
           "sort header click re-sorts ascending: first row is " + minDirty.full_name);
@@ -759,25 +720,16 @@ window.smoke = {
           document.querySelector(".controls-row .controls-label").textContent.includes("Filter"),
           "D8: first filter row is labelled Filter");
 
-        /* ---- tolerance select re-renders (targets28 tab must be showing) ---- */
-        document.querySelector('.tabs button[data-tab="targets28"]').dispatchEvent("click");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
-          "targets28 tab click shows the Balanced intro");
+        /* ---- tolerance select re-renders (targets tab must be showing) ---- */
+        document.querySelector('.tabs button[data-tab="targets"]').dispatchEvent("click");
+        assert.ok(countsTargets(TGT.balanced), "targets tab click shows the Balanced intro");
         const tolSel = document.getElementById("f-tolerance");
         tolSel.value = "strict";
         tolSel.dispatchEvent("change");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.strict[0] + " House Democrats"),
-          "tolerance select change to Strict recomputes the watchlist");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.strict[1] + " Democratic senators"),
-          "Strict intro counts the senators");
+        assert.ok(countsTargets(TGT.strict), "tolerance select change to Strict recomputes the watchlist");
         tolSel.value = "balanced";
         tolSel.dispatchEvent("change");
-        assert.ok(
-          document.getElementById("targets28-intro").innerHTML.includes(T28.balanced[0] + " House Democrats"),
-          "tolerance select change back to Balanced restores the Balanced count");
+        assert.ok(countsTargets(TGT.balanced), "tolerance select change back to Balanced restores the Balanced count");
         document.querySelector('.tabs button[data-tab="tracker"]').dispatchEvent("click");
 
         /* ---- D6/FE3: compact/exact money toggle (persisted, Compact default) ---- */
@@ -828,9 +780,9 @@ window.smoke = {
         assert.strictEqual(document.getElementById("front-door").hidden, true, "explore button leaves the front door");
         assert.strictEqual(document.getElementById("main").hidden, false, "explore button shows the workspace");
         setMode("front");
-        document.getElementById("targets28-btn").dispatchEvent("click");
-        assert.strictEqual(document.getElementById("tab-targets28").hidden, false, "2028 button opens the 2028 tab");
-        assert.strictEqual(document.getElementById("front-door").hidden, true, "2028 button leaves the front door");
+        document.getElementById("targets-btn").dispatchEvent("click");
+        assert.strictEqual(document.getElementById("tab-targets").hidden, false, "targets button opens the targets tab");
+        assert.strictEqual(document.getElementById("front-door").hidden, true, "targets button leaves the front door");
         // Setting location.hash fires hashchange, which the page listens for.
         setMode("front");
         await setHash("explore");
@@ -861,7 +813,7 @@ window.smoke = {
         await setHash("explore?tab=leaders");
         assert.strictEqual(document.getElementById("tab-leaders").hidden, false, "FE5: hash restores the tab");
         await setHash("explore");
-        // The first tracker row is the dirtiest in 2026 (Stevens): open it.
+        // The first tracker row is the dirtiest in their latest election (Stevens): open it.
         document.querySelector("#main-table tbody tr").dispatchEvent("click");
         assert.ok(location.hash.includes("detail="), "FE5: open drill-down lands in the hash: " + location.hash);
         assert.strictEqual(document.getElementById("detail").classList.contains("open"), true, "FE5: drill-down is open");
@@ -875,7 +827,7 @@ window.smoke = {
 
         /* ---- U10: prev/next, anchor nav, View in Tracker ---- */
         setMode("explore");
-        // The first tracker row is Stevens (dirtiest 2026): prev disabled, next live.
+        // The first tracker row is Stevens (dirtiest in their latest election): prev disabled, next live.
         document.querySelector("#main-table tbody tr").dispatchEvent("click");
         assert.strictEqual(document.getElementById("detail-prev").disabled, true, "U10: prev disabled on the first row");
         assert.strictEqual(document.getElementById("detail-next").disabled, false, "U10: next enabled on the first row");
@@ -883,9 +835,9 @@ window.smoke = {
         assert.ok(document.getElementById("detail-sheet").innerHTML.includes("Boafo"), "U10: next opens the second row (Boafo)");
         assert.ok(location.hash.includes("detail="), "U10: prev/next keeps the detail in the hash");
         assert.strictEqual(document.getElementById("detail-prev").disabled, false, "U10: prev enabled after stepping forward");
-        // Anchor nav: the 2026 section takes focus.
+        // Anchor nav: the cycle section takes focus.
         document.querySelector('[data-anchor="sec-cycle"]').dispatchEvent("click");
-        assert.strictEqual(document.activeElement && document.activeElement.id, "sec-cycle", "U10: anchor moves focus to the 2026 section");
+        assert.strictEqual(document.activeElement && document.activeElement.id, "sec-cycle", "U10: anchor moves focus to the cycle section");
         // View in Tracker: sheet closes, Tracker tab shows only this person.
         document.getElementById("detail-tracker").dispatchEvent("click");
         assert.strictEqual(document.getElementById("detail").classList.contains("open"), false, "U10: View in Tracker closes the sheet");

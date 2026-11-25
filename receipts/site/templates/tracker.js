@@ -58,7 +58,7 @@ function applyCycle(cycle){
     p.cy_cycle = (r.cycle===undefined) ? null : r.cycle;
   });
 }
-applyCycle(CURRENT_CYCLE);
+applyCycle('latest');
 
 /* ---- lazy-decode nested lists (FE1a) ----
    Each nested list is a positional array until decoded; decodeNested
@@ -276,7 +276,7 @@ const state = {q:'', congress:'all', chamber:'all', party:'all', state:'all',
   leadership:false, clean:false, view:'core', preset:'balanced',
   moneyFmt:loadMoneyFmt(),
   sortKey:'cy_dirty', sortDir:'desc', tab:'tracker', mode:'front', rendered:{},
-  cycle:CURRENT_CYCLE};
+  cycle:'latest'};
 // The drill-down's person key, when a sheet is open (FE5: it lives
 // in the URL hash, so Back closes the sheet).
 let detailKey = null;

@@ -6,10 +6,12 @@ from receipts.site.checks.counts import HOUSE_SEATS
 from receipts.site.checks.page import num
 from receipts.site.expectations import figure_literals
 
-# Counts the browser renders; the current-cycle targets tab's count is written at build
-# time, so only the next-cycle tab is scanned for the watchlist phrases.
-COUNT_PHRASES = (r'\d+ of \d+ incoming members', r'\d+ House \+ \d+ Senate')
-WATCHLIST_PHRASES = (r'\d+ House Democrats', r'\d+ Democratic senators')
+# Counts the browser renders, so none may appear in the page's static text.
+COUNT_PHRASES = (
+    r'\d+ of \d+ incoming members',
+    r'\d+ House \+ \d+ Senate',
+    r'\d+ incoming members whose seat',
+)
 
 
 def legend(counts):
@@ -29,23 +31,15 @@ def literals(page):
     ]
 
 
-def typed_figures(prose, watchlist, figures):
-    return (
-        [f for f in figures if f in prose]
-        + [p for p in COUNT_PHRASES if re.search(p, prose)]
-        + [p for p in WATCHLIST_PHRASES if re.search(p, watchlist)]
-    )
+def typed_figures(prose, figures):
+    return [f for f in figures if f in prose] + [p for p in COUNT_PHRASES if re.search(p, prose)]
 
 
 def no_typed_figures(audit, page):
     figures = literals(page)
-    watchlist = page.html[
-        page.html.index('id="tab-targets28"') : page.html.index('id="tab-method"')
-    ]
-    found = typed_figures(page.prose, watchlist, figures)
+    found = typed_figures(page.prose, figures)
     audit.check('no result figure is typed into the page', not found, f'found {found}')
     audit.check(
         'negative test: a typed figure and a typed count trip the check',
-        len(typed_figures(page.prose + figures[0], watchlist + ' 999 House Democrats', figures))
-        == 2,
+        len(typed_figures(page.prose + figures[0] + ' 999 House + 9 Senate', figures)) == 2,
     )
