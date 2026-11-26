@@ -54,7 +54,8 @@ python3 receipts/rebuild.py
 It runs the full pipeline in order — `build_roster` → `apply_fec_lookup`
 → `build_store` → `run_history` → `models` (dbt) → `accepted_money` → `udp` → `self_funding` →
 `other_committees` → `all_ie` → `opposition` →
-`build_dataset` (merge → ranking → 2026, written once) → `verify_dataset` —
+`build_dataset` (merge → ranking → 2026, written once) → `primary_targets` →
+`verify_dataset` —
 and backs the current dataset up to
 `data/snapshots/congress-money-tracker-pre-rebuild-<timestamp>.csv/.json` first.
 It fails fast with a clear message if the FEC bulk data isn't staged,
@@ -146,8 +147,10 @@ What each step does (each script documents its own rules in its header):
 - `assemble.py` — the base dataset rows from the store: roster fields, the
   gold tables' money and notes, and the dbt marts' career totals and twelve
   ranks (folds the duplicate Kristen McDonald Rivet roster entry).
-- `compute_2026.py` — the 2026 columns, clean/dirty flags, and
-  `data/intermediate/primary-targets.md` (House Democrats by dirty_2026).
+- `compute_2026.py` — the 2026 columns, clean/dirty flags, and the headline verdict.
+- `primary_targets.py` — the next cycle's primary-target list from the published dataset:
+  `data/intermediate/primary-targets.md` (incoming members, any party, by dirty money
+  under the Balanced preset).
 - `verify_dataset.py` — the standing audits; exit non-zero on any
   mismatch. It checks the dataset against its own definitions — it
   cannot catch a missing money dimension (see its header).

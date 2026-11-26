@@ -232,7 +232,7 @@ figure to get past it.
    It runs the pipeline in order (roster → FEC lookup → store →
    run checks → dbt silver → accepted money → UDP → self-funding →
    other committees → all-IE → pro-Israel PACs → opposition → dbt marts → dataset (with
-   2026) → verify), backing the current dataset up
+   2026) → primary targets → verify), backing the current dataset up
    to `data/snapshots/` first. It refuses to run on anything but the
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
    FEC updates its bulk files in place, so a live download is a

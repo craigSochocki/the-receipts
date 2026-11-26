@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Per-cycle records, the current cycle's columns, verdicts and tiers, and the target list."""
+"""Per-cycle records, the current cycle's columns, verdicts and tiers."""
 
 from collections.abc import Mapping, Sequence
 from functools import cache
@@ -20,7 +20,6 @@ from receipts.domain.clean_2026 import (
 )
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.seats import regular_senate_class
-from receipts.domain.targets import latest_record, primary_targets
 from receipts.domain.term import term_record
 from receipts.store.races import races_in
 from receipts.store.read import connect
@@ -223,44 +222,6 @@ def check_against_baseline(records: Sequence[Mapping[str, Any]]):
             raise SystemExit(f'{key}: computed {got} != baseline {want}')
 
 
-def write_primary_targets(records):
-    """The next cycle's primary targets under the default (Balanced) preset."""
-    cycle = settings().cycles.next
-    targets = primary_targets(records, 'balanced', cycle)
-    lines = [
-        f'# Primary targets — {cycle}: incoming members, any party, by dirty money',
-        '',
-        f'Generated from the tracker dataset (data as of {settings().data_as_of}). '
-        f'{len(targets)} incoming members whose seat is up in {cycle} took dirty money in '
-        f'their latest election under the Balanced preset (corporate PAC + AIPAC direct + '
-        f'UDP benefit). Individual contributions are not dirty money.',
-        '',
-        "A public-facing version of this list needs Craig's explicit go-ahead.",
-        '',
-        '| # | Name | Party | Seat | Election | Dirty | Corp PAC | AIPAC | UDP benefit | Individual |',
-        '|---|------|-------|------|---------:|------:|---------:|------:|------------:|-----------:|',
-    ]
-    for i, r in enumerate(targets, 1):
-        record = latest_record(r)
-        lines.append(
-            f'| {i} | {r["full_name"]} | {r["party_120"]} | {seat_label(r)} | {record["cycle"]} | '
-            + ' | '.join(
-                f'${record[k]:,.2f}'
-                for k in ('dirty', 'corp', 'aipac_direct', 'udp_benefit', 'individual')
-            )
-            + ' |'
-        )
-    settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
-
-
-def seat_label(r: PersonRecord):
-    return (
-        f'{r["state"]}-{r["district_120"]}'
-        if r['chamber_120'] == 'House'
-        else f'{r["state"]} Senate'
-    )
-
-
 def add_cycle_records(records, credits, races_for, filed=None):
     """Per-cycle records, the current cycle's as dataset columns, and the headline verdict."""
     current = settings().cycles.current
@@ -279,9 +240,8 @@ def add_cycle_records(records, credits, races_for, filed=None):
 
 
 def with_cycles(records: list[PersonRecord]) -> list[PersonRecord]:
-    """Add the cycle records and columns; check the counts; write the target list."""
+    """Add the cycle records and columns, and check the counts."""
     races = cache(races_in)
     add_cycle_records(records, opposition_credits(), races, filed_elections())
     check_against_baseline(records)
-    write_primary_targets(records)
     return [select_keys(r, settings().dataset.json_keys) for r in records]
