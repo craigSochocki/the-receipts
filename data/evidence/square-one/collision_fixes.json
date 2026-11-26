@@ -1,0 +1,165 @@
+{
+ "fixes": [
+  {
+   "amount": 55600.0,
+   "committee": "C00797670",
+   "cycle": 2022,
+   "evidence": "SB AIPAC->C00497321 cy2022 n=52",
+   "person_key": "V000130",
+   "name": "VARGASFORCONGRESS"
+  },
+  {
+   "amount": 162715.51,
+   "committee": "C00797670",
+   "cycle": 2024,
+   "evidence": "SB AIPAC->C00497321 cy2024 n=153",
+   "person_key": "V000130",
+   "name": "VARGASFORCONGRESS"
+  },
+  {
+   "amount": 133244.48,
+   "committee": "C00797670",
+   "cycle": 2026,
+   "evidence": "SB AIPAC->C00497321 cy2026 n=141",
+   "person_key": "V000130",
+   "name": "VARGASFORCONGRESS"
+  },
+  {
+   "amount": 2000.0,
+   "committee": "C00710848",
+   "cycle": 2022,
+   "evidence": "SB DMFI->C00497321 cy2022 n=1, name VARGAS FOR CONGRESS",
+   "person_key": "V000130",
+   "name": "VARGASFORCONGRESS"
+  },
+  {
+   "amount": 516823.1,
+   "committee": "C00797670",
+   "cycle": 2024,
+   "evidence": "SB AIPAC->C00367862 cy2024",
+   "person_key": "R000575",
+   "name": "MIKEROGERSFORCONGRESS"
+  },
+  {
+   "amount": 7500.0,
+   "committee": "C00247403",
+   "cycle": 2024,
+   "evidence": "SB NORPAC->C00367862 cy2024",
+   "person_key": "R000575",
+   "name": "MIKEROGERSFORCONGRESS"
+  },
+  {
+   "amount": 72601.0,
+   "committee": "C00797670",
+   "cycle": 2022,
+   "evidence": "SB AIPAC->C00495952 cy2022",
+   "person_key": "S001190",
+   "name": "SCHNEIDERFORCONGRESS"
+  },
+  {
+   "amount": 15200.0,
+   "committee": "C00247403",
+   "cycle": 2022,
+   "evidence": "SB NORPAC->C00495952 cy2022",
+   "person_key": "S001190",
+   "name": "SCHNEIDERFORCONGRESS"
+  },
+  {
+   "amount": 2500.0,
+   "committee": "C00139659",
+   "cycle": 2022,
+   "evidence": "SB JACPAC->C00495952 cy2022 non-memo; $25 memo excluded",
+   "person_key": "S001190",
+   "name": "SCHNEIDERFORCONGRESS"
+  },
+  {
+   "amount": 2000.0,
+   "committee": "C00710848",
+   "cycle": 2022,
+   "evidence": "SB DMFI->C00495952 cy2022",
+   "person_key": "S001190",
+   "name": "SCHNEIDERFORCONGRESS"
+  },
+  {
+   "amount": 37967.0,
+   "committee": "C00797670",
+   "cycle": 2022,
+   "evidence": "SB AIPAC->C00714261 cy2022",
+   "person_key": "S000168",
+   "name": "SALAZARFORCONGRESS"
+  },
+  {
+   "amount": 29142.78,
+   "committee": "C00345132",
+   "cycle": 2022,
+   "evidence": "SB RJC->C00714261 cy2022",
+   "person_key": "S000168",
+   "name": "SALAZARFORCONGRESS"
+  },
+  {
+   "amount": 32168.82,
+   "committee": "C00797670",
+   "cycle": 2026,
+   "evidence": "SB AIPAC->C00680918 cy2026",
+   "person_key": "C001055",
+   "name": "CASEFORCONGRESS"
+  },
+  {
+   "amount": 10345.93,
+   "committee": "C00797670",
+   "cycle": 2024,
+   "evidence": "SB AIPAC->C00680918 cy2024",
+   "person_key": "C001055",
+   "name": "CASEFORCONGRESS"
+  },
+  {
+   "amount": 27222.92,
+   "committee": "C00797670",
+   "cycle": 2024,
+   "evidence": "SB AIPAC->C00410233 cy2024",
+   "person_key": "C001069",
+   "name": "COURTNEYFORCONGRESS"
+  },
+  {
+   "amount": 12836.29,
+   "committee": "C00441949",
+   "cycle": 2026,
+   "evidence": "SB JStreet->C00410233 cy2026",
+   "person_key": "C001069",
+   "name": "COURTNEYFORCONGRESS"
+  },
+  {
+   "amount": 11166.37,
+   "committee": "C00441949",
+   "cycle": 2024,
+   "evidence": "SB JStreet->C00410233 cy2024",
+   "person_key": "C001069",
+   "name": "COURTNEYFORCONGRESS"
+  },
+  {
+   "amount": 10567.43,
+   "committee": "C00797670",
+   "cycle": 2024,
+   "evidence": "SB AIPAC->C00287912 cy2024",
+   "person_key": "L000491",
+   "name": "LUCASFORCONGRESS"
+  },
+  {
+   "amount": 4450.0,
+   "committee": "C00441949",
+   "cycle": 2022,
+   "evidence": "SB JStreet->C00397505 cy2022",
+   "person_key": "M001160",
+   "name": "MOOREFORCONGRESS"
+  },
+  {
+   "amount": 3500.0,
+   "committee": "C00441949",
+   "cycle": 2024,
+   "evidence": "SB JStreet->C00397505 cy2024",
+   "person_key": "M001160",
+   "name": "MOOREFORCONGRESS"
+  }
+ ],
+ "provenance": "Transcribed 2026-11-25 from the JFC pilot's fix_collisions.py FIXES list. Each amount was verified by the JFC pilot from raw FEC Schedule B (committee_id + recipient_committee_id + cycle), and each moves money the last-wins committee-master classifier had put in the wrong candidate's bucket to the roster member who owns the recipient committee. The matching pre-fix figures are in tmp-jfc/per_person_api3.json.v3.json; the fixed figures are in tmp-jfc/per_person_api3.json."
+}
