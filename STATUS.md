@@ -474,8 +474,9 @@
    attach to him under roster linkage at all). OPEN: the full roster-wide API pull needs
    the registered key (December run, CI with the secret) — it fills the 53 missing 2022
    files and resolves the ambiguous names by recipient committee ID; the Latimer and
-   Collins residuals vs Track AIPAC stay documented-unknown; the JFC decision, the Barr
-   wider double-count, and the Ryan/Luria roster links are Craig's calls. The pipeline
+   Collins residuals vs Track AIPAC stay documented-unknown; the JFC decision is made —
+   variant A is the headline (JFC shares count as direct, decided Nov 25); the Barr
+   wider double-count, and the Ryan/Luria roster links are still Craig's calls. The pipeline
    and the dataset are untouched on this branch; the rebuild still reproduces the
    committed dataset byte-identically.
 8. **Headline verdict between elections — DONE (Craig, Nov 25).** The headline judged a

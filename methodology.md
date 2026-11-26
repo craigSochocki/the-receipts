@@ -405,11 +405,15 @@ loudly if the two rows' money ever differs (§4).
     roster-wide pull needs a registered API key and is the December run; until then the
     2022 figures cover AIPAC and the main conduits only.
 24. **Joint-fundraising variants.** Whether money a conduit sends to a joint
-    fundraising committee counts as money from that conduit is an open decision, so the
-    derivation carries both variants as parallel columns and picks neither as the
-    headline: variant A counts JFC shares as direct, variant B excludes them. The shares
-    come from name-attributed JFCs and from multi-candidate JFCs' own Schedule B
-    outflows, split pro-rata to the conduits that funded them.
+    fundraising committee counts as money from that conduit is decided: variant A is the
+    headline — JFC shares count as direct. The reason is that the money is earmarked by
+    individual donors, transmitted by the conduit, and lands in the candidate's own
+    fundraising vehicle before reaching the candidate's committee, so excluding it
+    understates what the conduit delivered. Variant B (excluded) is still carried as a
+    parallel column for comparison. The shares come from name-attributed JFCs and from
+    multi-candidate JFCs' own Schedule B outflows, split pro-rata to the conduits that
+    funded them; the pro-rata split is an allocation rule, stated as such, because the
+    FEC record does not tag a JFC's outflows by funding source.
 25. **Shared-committee transfer dedup.** When two candidate IDs share one principal
     committee, their weball rows are two views of one committee, and transfer fields are
     counted once: the kept view is the ID whose office matches the person's current
