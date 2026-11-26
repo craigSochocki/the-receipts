@@ -1,12 +1,24 @@
 """The dataset's rows before the cycle columns, from the store's gold tables and marts."""
 
 from collections import defaultdict
+from typing import cast
 
 from receipts.common.files import read_json
 from receipts.common.settings import load_double_count_records, settings
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.weball_double_counts import correction_notes
 from receipts.store.read import connect
+from receipts.transform.records import (
+    AcceptedCycleEntry,
+    AllIeCycleEntry,
+    OtherCommitteeCycleEntry,
+    PersonRecord,
+    ProIsraelCycleEntry,
+    SelfFundingCycleEntry,
+    TopCommitteeEntry,
+    UdpCycleEntryWithAttribution,
+    select_keys,
+)
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 ARMSTRONG_NOTE = (
@@ -73,7 +85,7 @@ SELF_FUNDING_ENTRY = [
 ]  # fmt: skip
 
 
-def dollars(cents):
+def dollars(cents: int | None) -> float | None:
     return None if cents is None else cents / 100
 
 
@@ -94,17 +106,25 @@ def grouped(db, table):
     return found
 
 
-def accepted_entries(entries):
-    names = ['individual', 'aipac_pac_direct', 'aipac_earmark_transmitted', 'corporate_pac',
-             'corporate_earmark_transmitted']  # fmt: skip
-    return [{'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-             **{n: dollars(e[n]) for n in names}} for e in entries]  # fmt: skip
+def accepted_entries(entries) -> list[AcceptedCycleEntry]:
+    return [
+        {
+            'cycle': e['cycle'],
+            'candidate_id': e['candidate_id'],
+            'individual': dollars(e['individual']),
+            'aipac_pac_direct': dollars(e['aipac_pac_direct']),
+            'aipac_earmark_transmitted': dollars(e['aipac_earmark_transmitted']),
+            'corporate_pac': dollars(e['corporate_pac']),
+            'corporate_earmark_transmitted': dollars(e['corporate_earmark_transmitted']),
+        }
+        for e in entries
+    ]
 
 
-def udp_entries(entries):
-    found = []
+def udp_entries(entries) -> list[UdpCycleEntryWithAttribution]:
+    found: list[UdpCycleEntryWithAttribution] = []
     for e in entries:
-        entry = {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
+        entry: UdpCycleEntryWithAttribution = {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
                  'udp_ie_support': dollars(e['udp_ie_support'])}  # fmt: skip
         if e['attribution'] is not None:
             entry['attribution'] = e['attribution']
@@ -112,35 +132,69 @@ def udp_entries(entries):
     return found
 
 
-def self_funding_entries(entries):
+def self_funding_entries(entries) -> list[SelfFundingCycleEntry]:
     return [
-        {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-         **{n: dollars(e[n]) for n in SELF_FUNDING_ENTRY}, 'debts_owed_to': None,
-         'coverage_end_date': e['coverage_end_date']}
+        {
+            'cycle': e['cycle'],
+            'candidate_id': e['candidate_id'],
+            'candidate_contributions': dollars(e['candidate_contributions']),
+            'candidate_loans': dollars(e['candidate_loans']),
+            'loan_repayments': dollars(e['loan_repayments']),
+            'debts_owed_by': dollars(e['debts_owed_by']),
+            'debts_owed_to': None,
+            'total_receipts': dollars(e['total_receipts']),
+            'total_disbursements': dollars(e['total_disbursements']),
+            'cash_on_hand': dollars(e['cash_on_hand']),
+            'transfers_from_auth': dollars(e['transfers_from_auth']),
+            'transfers_to_auth': dollars(e['transfers_to_auth']),
+            'coverage_end_date': e['coverage_end_date'],
+        }
         for e in entries
-    ]  # fmt: skip
+    ]
 
 
-def other_committee_entries(entries):
-    return [
-        {'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-         **{b: dollars(e[b]) for b in BUCKETS},
-         'earmark_transmitted': {b: dollars(e[f'earmark_{b}']) for b in BUCKETS
-                                 if e[f'earmark_{b}'] is not None},
-         'winred_included': dollars(e['winred_included'])}
-        for e in entries
-    ]  # fmt: skip
+def other_committee_entries(entries) -> list[OtherCommitteeCycleEntry]:
+    found: list[OtherCommitteeCycleEntry] = []
+    for e in entries:
+        earmark: dict[str, float] = {}
+        for b in BUCKETS:
+            amount = dollars(e[f'earmark_{b}'])
+            if amount is not None:
+                earmark[b] = amount
+        found.append(
+            {
+                'cycle': e['cycle'],
+                'candidate_id': e['candidate_id'],
+                'party_committees': dollars(e['party_committees']),
+                'leadership_pacs': dollars(e['leadership_pacs']),
+                'labor_pacs': dollars(e['labor_pacs']),
+                'trade_pacs': dollars(e['trade_pacs']),
+                'membership_pacs': dollars(e['membership_pacs']),
+                'cooperative_pacs': dollars(e['cooperative_pacs']),
+                'other_unclassified': dollars(e['other_unclassified']),
+                'earmark_transmitted': earmark,
+                'winred_included': dollars(e['winred_included']),
+            }
+        )
+    return found
 
 
-def all_ie_entries(by_candidate, ids):
-    names = ['all_ie_support', 'all_ie_oppose', 'all_ie_total', 'no_direction_amount']
+def all_ie_entries(by_candidate, ids) -> list[AllIeCycleEntry]:
     found = [e for e in by_candidate if e['candidate_id'] in ids]
-    return [{'cycle': e['cycle'], 'candidate_id': e['candidate_id'],
-             **{n: dollars(e[n]) for n in names}}
-            for e in sorted(found, key=lambda e: (e['cycle'], e['candidate_id']))]  # fmt: skip
+    return [
+        {
+            'cycle': e['cycle'],
+            'candidate_id': e['candidate_id'],
+            'all_ie_support': dollars(e['all_ie_support']),
+            'all_ie_oppose': dollars(e['all_ie_oppose']),
+            'all_ie_total': dollars(e['all_ie_total']),
+            'no_direction_amount': dollars(e['no_direction_amount']),
+        }
+        for e in sorted(found, key=lambda e: (e['cycle'], e['candidate_id']))
+    ]
 
 
-def pro_israel_entries(entries):
+def pro_israel_entries(entries) -> list[ProIsraelCycleEntry]:
     return [
         {'cycle': e['cycle'], 'pro_israel_pac': dollars(e['pro_israel_pac']),
          'pro_israel_ie_support': dollars(e['pro_israel_ie_support']),
@@ -149,7 +203,7 @@ def pro_israel_entries(entries):
     ]  # fmt: skip
 
 
-def top_committees(entries):
+def top_committees(entries) -> list[TopCommitteeEntry]:
     return [{'committee_id': e['committee_id'], 'committee_name': e['committee_name'],
              'support': dollars(e['support']), 'oppose': dollars(e['oppose']),
              'total': dollars(e['total']), 'rows': e['rows']} for e in entries]  # fmt: skip
@@ -182,7 +236,7 @@ def data_notes(key, gold, dedup_notes):
     return note
 
 
-def money_fields(key, gold):
+def money_fields(key, gold) -> dict[str, float | None]:
     sf, ie, money = gold['self_funding'][key], gold['all_ie'][key], gold['money'][key]
     return {
         **{c: dollars(gold['accepted'][key][c]) for c in ACCEPTED},
@@ -199,7 +253,7 @@ def money_fields(key, gold):
     }
 
 
-def unknown_money():
+def unknown_money() -> dict[str, str | None]:
     return {
         **dict.fromkeys(MONEY, 'unknown'),
         **dict.fromkeys(['udp_ie_opposing_opponents_career', 'udp_ie_total_benefit_career',
@@ -207,7 +261,7 @@ def unknown_money():
     }  # fmt: skip
 
 
-def record(person, gold, dedup_notes):
+def record(person: PersonRecord, gold, dedup_notes) -> PersonRecord:
     key, ids = person['person_key'], person['fec_candidate_ids']
     rec = {
         **person,
@@ -222,8 +276,14 @@ def record(person, gold, dedup_notes):
         **{r: gold['ranks'][key][r] for r in RANKS},
     }
     if not ids:
-        return {**rec, **unknown_money(), 'data_notes': ARMSTRONG_NOTE}
-    return {**rec, **money_fields(key, gold), 'data_notes': data_notes(key, gold, dedup_notes)}
+        rec.update(unknown_money())
+        rec['data_notes'] = ARMSTRONG_NOTE
+    else:
+        rec.update(money_fields(key, gold))
+        rec['data_notes'] = data_notes(key, gold, dedup_notes)
+    # The rank and career-money columns arrive under config-driven names,
+    # so the assembled dict is asserted to be a PersonRecord here.
+    return cast(PersonRecord, rec)
 
 
 def read_gold():
@@ -264,8 +324,8 @@ def tracked_people(tracked, roster_rows):
     return [roster_fields(roster[key], folded[key]) for key in tracked]
 
 
-def base_records(json_keys):
+def base_records(json_keys: list[str]) -> list[PersonRecord]:
     gold = read_gold()
     dedup_notes = correction_notes(load_double_count_records())
     people = tracked_people(gold['tracked'], read_json(settings().paths.roster_intermediate))
-    return [{k: r[k] for k in json_keys} for r in (record(p, gold, dedup_notes) for p in people)]
+    return [select_keys(r, json_keys) for r in (record(p, gold, dedup_notes) for p in people)]

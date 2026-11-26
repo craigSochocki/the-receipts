@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Per-cycle records, the current cycle's columns, verdicts and tiers, and the target list."""
 
+from collections.abc import Mapping, Sequence
 from functools import cache
+from typing import Any
 
 from receipts.common.baseline import expected
 from receipts.common.settings import settings
@@ -22,6 +24,7 @@ from receipts.domain.targets import latest_record, primary_targets
 from receipts.domain.term import term_record
 from receipts.store.races import races_in
 from receipts.store.read import connect
+from receipts.transform.records import CycleRecord, PersonRecord, select_keys
 from receipts.validate.audits.clean import clean_count_values
 from receipts.validate.audits.tiers import tier_count_values
 
@@ -46,7 +49,7 @@ def cycle_sum(entries, field, cycle):
     return round(sum(e[field] for e in found), 2) if found else 0
 
 
-def has_linkage(r, cycle):
+def has_linkage(r: PersonRecord, cycle: int):
     """Data in `cycle` in any money source: committee money, UDP, or that cycle's weball summary."""
     return (
         bool(in_cycle(r['per_cycle'], cycle))
@@ -58,7 +61,7 @@ def has_linkage(r, cycle):
     )
 
 
-def has_2026_linkage(r):
+def has_2026_linkage(r: PersonRecord):
     return has_linkage(r, settings().cycles.current)
 
 
@@ -95,7 +98,7 @@ def money_in(r, cycle, credit):
     return m
 
 
-def judged(r, cycle, money, races):
+def judged(r: PersonRecord, cycle: int, money, races):
     """The cycle's unopposed flag, clean verdict and tiers, with why a verdict is unknown."""
     race_map, race_of = races
     in_races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
@@ -136,7 +139,7 @@ def cycle_record(r, cycle, credit, races, up):
     return record, unknown_because, unopposed
 
 
-def seat_up_now(r, filed):
+def seat_up_now(r: PersonRecord, filed):
     """An incoming member's seat is up this cycle unless their filing is for a later election."""
     current = settings().cycles.current
     if r['in_120th'] != 'yes':
@@ -149,14 +152,16 @@ def seat_up_now(r, filed):
     return True
 
 
-def headline_record(r, filed):
+def headline_record(r: PersonRecord, filed) -> CycleRecord | None:
     """The current cycle's record if the person or their seat is up in it, else the latest up."""
     current = settings().cycles.current
     up = [c for c in r['cycles'] if c['up_for_election']]
     now = [c for c in r['cycles'] if c['cycle'] == current]
     if now and (now[0]['up_for_election'] or seat_up_now(r, filed)):
         return now[0]
-    return (up[-1:] or [None])[0]
+    if up:
+        return up[-1]
+    return None
 
 
 def headline(r, filed):
@@ -210,7 +215,7 @@ def opposition_credits():
         return {(cycle, key): cents / 100 for cycle, key, cents in db.execute(CREDITS).fetchall()}
 
 
-def check_against_baseline(records):
+def check_against_baseline(records: Sequence[Mapping[str, Any]]):
     """The build-time check, over the same counts the verify audits pin."""
     for key, got in {**clean_count_values(records), **tier_count_values(records)}.items():
         want = expected(key, got)
@@ -248,7 +253,7 @@ def write_primary_targets(records):
     settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
 
 
-def seat_label(r):
+def seat_label(r: PersonRecord):
     return (
         f'{r["state"]}-{r["district_120"]}'
         if r['chamber_120'] == 'House'
@@ -273,10 +278,10 @@ def add_cycle_records(records, credits, races_for, filed=None):
     return records
 
 
-def with_cycles(records):
+def with_cycles(records: list[PersonRecord]) -> list[PersonRecord]:
     """Add the cycle records and columns; check the counts; write the target list."""
     races = cache(races_in)
     add_cycle_records(records, opposition_credits(), races, filed_elections())
     check_against_baseline(records)
     write_primary_targets(records)
-    return [{k: r[k] for k in settings().dataset.json_keys} for r in records]
+    return [select_keys(r, settings().dataset.json_keys) for r in records]
