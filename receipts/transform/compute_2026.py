@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Per-cycle records, the current cycle's columns, verdicts and tiers, and the target list."""
 
-from collections import Counter
 from functools import cache
 
 from receipts.common.baseline import expected
@@ -12,7 +11,6 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED,
     UNOPPOSED_NOTE,
     aipac_udp_flagged,
-    is_career_clean,
     race_label,
     races_and_unopposed,
     tier,
@@ -24,6 +22,8 @@ from receipts.domain.targets import latest_record, primary_targets
 from receipts.domain.term import term_record
 from receipts.store.races import races_in
 from receipts.store.read import connect
+from receipts.validate.audits.clean import clean_count_values
+from receipts.validate.audits.tiers import tier_count_values
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 CANDIDACIES = 'SELECT DISTINCT candidate_id, cycle, election_year FROM candidacies'
@@ -210,60 +210,9 @@ def opposition_credits():
         return {(cycle, key): cents / 100 for cycle, key, cents in db.execute(CREDITS).fetchall()}
 
 
-def by_party(house_clean, career_clean):
-    found = {}
-    for party in ('Democrat', 'Republican'):
-        found[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in house_clean
-        )
-        found[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in career_clean
-        )
-    return found
-
-
-def clean_counts(records):
-    house = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
-    house_clean = [r for r in house if r['clean_2026'] is True]
-    career_clean = [r for r in house if is_career_clean(r)]
-    career_keys = {r['person_key'] for r in career_clean}
-    found = {
-        'clean_2026.true_total': sum(r['clean_2026'] is True for r in records),
-        'clean_2026.false_total': sum(r['clean_2026'] is False for r in records),
-        'clean_2026.null_total': sum(r['clean_2026'] is None for r in records),
-        'clean_2026.house_120th_verified_clean': len(house_clean),
-        'clean_2026.house_120th_career_clean': len(career_clean),
-        **by_party(house_clean, career_clean),
-    }
-    found['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
-        r['person_key'] not in career_keys for r in house_clean
-    )
-    return found
-
-
-def tier_counts(records):
-    r120 = [r for r in records if r['in_120th'] == 'yes']
-    found = {
-        'tiered_2026.aipac_udp_flag_all': sum(r['aipac_udp_flag_2026'] for r in records),
-        'tiered_2026.aipac_udp_flag_120th': sum(r['aipac_udp_flag_2026'] for r in r120),
-    }
-    for preset in ('balanced', 'lenient'):
-        tiers = Counter(r[f'tier_{preset}_2026'] for r in r120)
-        for name in ('clean', 'below_threshold', 'dirty'):
-            found[f'tiered_2026.{preset}.{name}'] = tiers.get(name, 0)
-        found[f'tiered_2026.{preset}.null'] = tiers.get(None, 0)
-        found[f'tiered_2026.{preset}.not_dirty'] = tiers.get('clean', 0) + tiers.get(
-            'below_threshold', 0
-        )
-    return found
-
-
-def observed_counts(records):
-    return {**clean_counts(records), **tier_counts(records)}
-
-
 def check_against_baseline(records):
-    for key, got in observed_counts(records).items():
+    """The build-time check, over the same counts the verify audits pin."""
+    for key, got in {**clean_count_values(records), **tier_count_values(records)}.items():
         want = expected(key, got)
         if got != want:
             raise SystemExit(f'{key}: computed {got} != baseline {want}')
