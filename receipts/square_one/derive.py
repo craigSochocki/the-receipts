@@ -32,7 +32,6 @@ from receipts.square_one import (
 )
 
 EVIDENCE = Path('data') / 'evidence'
-JFC_DIR = Path('/home/hatch/workspace/tmp-jfc')
 AUDIT_CYCLES = [2022, 2024, 2026]
 
 
@@ -93,7 +92,7 @@ def derive_conduit(root, bulk, people, person_of, ie_cycles, started):
         cm_by_cycle[cycle], cm_multi_by_cycle[cycle] = conduit.load_cm_maps(bulk, cycle)
     pas2_names = conduit.build_pas2_name_map(bulk, [2024, 2026])
     committees = conduit.listed_committees(root / 'data' / 'source' / 'pro_israel_pacs.csv')
-    resolutions = json.loads((JFC_DIR / 'collision_resolutions.json').read_text())
+    resolutions = json.loads((root / 'data' / 'source' / 'collision_resolutions.json').read_text())
     direct, merge_report = conduit.direct_from_by_recipient(
         root / EVIDENCE / 'jfc-variants',
         committees,
@@ -110,7 +109,8 @@ def derive_conduit(root, bulk, people, person_of, ie_cycles, started):
     ]
     conduit.apply_collision_fixes(direct, fixes, merge_report['resolved_keys'])
     jfc = variants.combine_jfc(
-        JFC_DIR / 'jfc_attribution4.json', JFC_DIR / 'jfc_outflow_shares4.json'
+        root / 'data' / 'source' / 'jfc_attribution4.json',
+        root / 'data' / 'source' / 'jfc_outflow_shares4.json',
     )
     return variants.corrected_figures(direct, jfc), merge_report
 
