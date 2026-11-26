@@ -253,6 +253,10 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
             f'{key}|{cycle}': entry['transfers_from_auth']
             for (key, cycle), entry in money_data['rollup_transfers'].items()
         },
+        'transfers_to_corrected': {
+            f'{key}|{cycle}': entry['transfers_to_auth']
+            for (key, cycle), entry in money_data['rollup_transfers'].items()
+        },
         'ryan_election_attributed': {
             f'{cid}|{cycle}': cents for (cid, cycle), cents in ryan_attributed.items()
         },
