@@ -189,7 +189,7 @@ function waffleLegend(people){
   const counts = {dirty: 0, below_threshold: 0, clean: 0, unjudged: 0};
   people.forEach(p=>{ counts[storyStatus(p)]++; });
   return STATUS_KEYS.map(s=>
-    '<span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+STATUS_FILL[s]+';border:1.5px solid #4b5563;vertical-align:-1px;margin-right:4px"></span>'
+    '<span><span class="k dot-'+s+'"></span>'
     +STATUS_LABELS[s]+' — <b>'+counts[s]+'</b></span>').join(' ');
 }
 /* Plot renders one <rect> per waffle cell, in data order (verified
@@ -266,6 +266,7 @@ function drawPlotChart(plotEl, step, people){
   plotEl.appendChild(plot);
   if(step==='all' || step==='status' || step==='targets' || step==='find'){
     const legend = document.createElement('div');
+    legend.className = 'plot-legend';
     legend.innerHTML = step==='all'
       ? '<p>Each cell is one member.</p>'
       : '<p>'+waffleLegend(people)+'</p>';
@@ -277,7 +278,10 @@ function drawStory(){
   const people = incomingMembers();
   const plotEl = document.getElementById('story-plot');
   const svg = document.getElementById('dotfield');
-  if(plotEl) plotEl.setAttribute('aria-label', storyPlotLabel(storyStep));
+  if(plotEl){
+    plotEl.setAttribute('aria-label', storyPlotLabel(storyStep));
+    plotEl.setAttribute('aria-describedby', 'step-'+storyStep);
+  }
   if(PLOT_STEPS.indexOf(storyStep)!==-1 && hasPlot() && plotEl){
     drawPlotChart(plotEl, storyStep, people);
     plotEl.style.display = '';
