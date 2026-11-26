@@ -251,9 +251,27 @@ def template(name):
     return (TEMPLATES / name).read_text(encoding='utf-8')
 
 
+def vendor_script(name):
+    """A vendored library, inlined; a missing file fails the build loudly."""
+    path = TEMPLATES / 'vendor' / name
+    if not path.exists():
+        raise SystemExit(f'missing vendored library: {path}')
+    return path.read_text(encoding='utf-8')
+
+
 def page_template():
-    """templates/page.html with its stylesheet and two scripts inlined: the page is one file."""
+    """templates/page.html with its stylesheet and scripts inlined: the page is one file.
+
+    The vendored libraries come first (d3, then Plot on the d3 global,
+    then scrollama), then the tracker's own scripts.
+    """
     page = template('page.html')
+    for slot, name in (
+        ('%%D3_JS%%', 'd3.min.js'),
+        ('%%PLOT_JS%%', 'plot.umd.min.js'),
+        ('%%SCROLLAMA_JS%%', 'scrollama.min.js'),
+    ):
+        page = page.replace(slot, vendor_script(name))
     for slot, name in (
         ('%%STYLE%%', 'style.css'),
         ('%%TRACKER_JS%%', 'tracker.js'),
