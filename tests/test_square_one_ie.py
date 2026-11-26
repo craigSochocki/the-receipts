@@ -4,7 +4,7 @@ import csv
 import json
 from pathlib import Path
 
-from receipts.square_one import ie, money, roster
+from receipts.square_one import ie, money, opposition, roster
 
 ROOT = Path(__file__).resolve().parents[1]
 BULK = ROOT / 'data' / 'raw'
@@ -46,11 +46,11 @@ def test_opposition_credit_single_backed_race():
         row('H0NY16143', 'O', 500, 'BOWMAN, JAMAAL'),
         row('H4NY16087', 'O', 50, 'LATIMER, GEORGE'),
     ]
-    credits, _, uncredited = ie.opposition_credits(rows, {'H4NY16087': 'L000606'})
+    credits, _, uncredited = opposition.opposition_credits(rows, {'H4NY16087': 'L000606'})
     assert credits == {('L000606', 2024): 500}
     assert uncredited == []
     two_backed = rows + [row('H9NY99999', 'S', 10, 'OTHER, PERSON')]
-    credits, _, uncredited = ie.opposition_credits(two_backed, {'H4NY16087': 'L000606'})
+    credits, _, uncredited = opposition.opposition_credits(two_backed, {'H4NY16087': 'L000606'})
     assert credits == {}
     assert len(uncredited) == 1
 
@@ -99,21 +99,15 @@ def test_full_ie_derivation_matches_baseline():
     assert sum(cents[0] for (cid, _), cents in udp_support.items() if cid in known_ids) == round(
         totals['udp_ie_support_career'] * 100
     )
-    credits, _, _ = ie.opposition_credits(udp_rows, person_of)
+    credits, _, _ = opposition.opposition_credits(udp_rows, person_of)
     assert sum(credits.values()) == round(totals['udp_ie_opposing_opponents_career'] * 100)
 
     # Pro-Israel IE support + opposition credit, spender by spender.
     listed = _listed_committees()
-    pi_support = 0
-    pi_credit: dict = {}
-    for spender in listed:
-        spender_rows = [r for r in rows if r.spender_id == spender]
-        ie.resolve_blank_ids(spender_rows, people)
-        support = ie.per_candidate_cycle(spender_rows)
-        pi_support += sum(cents[0] for (cid, _), cents in support.items() if cid in known_ids)
-        credits, _, _ = ie.opposition_credits(spender_rows, person_of)
-        for key, value in credits.items():
-            pi_credit[key] = pi_credit.get(key, 0) + value
+    pi_support_by_person, pi_credit = opposition.pro_israel_support_and_credits(
+        rows, listed, people, person_of
+    )
+    pi_support = sum(pi_support_by_person.values())
     assert pi_support == round(baseline['pro_israel.pro_israel_ie_support_career_total'] * 100)
     assert sum(pi_credit.values()) == round(
         baseline['pro_israel.pro_israel_opp_credit_career_total'] * 100
@@ -122,7 +116,7 @@ def test_full_ie_derivation_matches_baseline():
     # Spot cases: Latimer 2024 UDP support, and his opposition credit for
     # the Bowman race (both verified in the Latimer pilot report).
     assert udp_support[('H4NY16087', 2024)][0] == 468256029
-    udp_credit, _, _ = ie.opposition_credits(udp_rows, person_of)
+    udp_credit, _, _ = opposition.opposition_credits(udp_rows, person_of)
     assert udp_credit[('L000606', 2024)] == 986549296
     # Boafo: the dataset's all-IE support (Track AIPAC's $5,734,013.28 is
     # their comparable total, not this column).

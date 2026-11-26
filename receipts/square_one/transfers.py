@@ -14,12 +14,12 @@ Two corrections to person-level rollups, both from the transfers/Ryan pilot:
    against the filing cycle, but a refund belongs to the election it
    refunds: the pas2 TRANSACTION_PGI names it (P2026, G2024, ...), and the
    live Schedule A rows confirm the PGI matches the filing's election_type
-   exactly. Attributing Ryan's five $5,000 refunds by election year gives
-   2026 net $0 — not the +$5,000 the pilot report computed, which
-   subtracted only the P2026 refund and missed the G2026 refund even
-   though it is in the report's own election list. Ryan does NOT flip
-   under the corrected election-attributed method; only Schedule B-only
-   (+$10,000) flips him. That correction is the point of this module.
+   exactly. Attributing Ryan's five refunds by election year gives a 2026
+   net of zero — not the positive net the pilot report computed, which
+   subtracted only the primary refund and missed the general-election
+   refund even though it is in the report's own election list. Ryan does
+   NOT flip under the corrected election-attributed method; only Schedule
+   B-only flips him. That correction is the point of this module.
 """
 
 from pathlib import Path

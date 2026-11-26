@@ -182,6 +182,49 @@ def _chamber_after_cycle(person: dict, cycle: int) -> str | None:
     return None
 
 
+def _kept_id_for_group(group: list[str], person: dict, cycle: int, weball: dict):
+    """The kept ID where the files decide it, else (None, None)."""
+    winners = [cid for cid in group if 'W' in weball[(cid, cycle)]['elections']]
+    if len(winners) == 1:
+        return winners[0], 'election-result marker'
+    chamber = _chamber_after_cycle(person, cycle)
+    office = {'House': 'H', 'Senate': 'S'}.get(chamber or '')
+    matches = [cid for cid in group if office and cid.startswith(office)]
+    if len(matches) == 1:
+        return matches[0], 'chamber after cycle'
+    return None, None
+
+
+def _dedup_groups_for_person(person: dict, weball: dict) -> list[dict]:
+    """(person, cycle) groups where two IDs repeat one individual total."""
+    ids = person['fec_candidate_ids']
+    if len(ids) < 2:
+        return []
+    found = []
+    for cycle in sorted({c for (cid, c) in weball if cid in ids}):
+        rows = [(cid, weball[(cid, cycle)]) for cid in ids if (cid, cycle) in weball]
+        if len(rows) < 2:
+            continue
+        by_value: dict[int, list[str]] = {}
+        for cid, entry in rows:
+            by_value.setdefault(entry['individual'], []).append(cid)
+        for value, group in by_value.items():
+            if value == 0 or len(group) < 2:
+                continue
+            kept, reason = _kept_id_for_group(group, person, cycle, weball)
+            found.append(
+                {
+                    'person_key': person['person_key'],
+                    'cycle': cycle,
+                    'kept_id': kept,
+                    'dropped_ids': [cid for cid in group if cid != kept] if kept else group,
+                    'amount_cents': value,
+                    'reason': reason,
+                }
+            )
+    return found
+
+
 def derive_dedup_candidates(weball: dict, people: list[dict]) -> list[dict]:
     """(person, cycle) groups where two IDs repeat one individual total.
 
@@ -192,41 +235,7 @@ def derive_dedup_candidates(weball: dict, people: list[dict]) -> list[dict]:
     """
     found = []
     for person in people:
-        ids = person['fec_candidate_ids']
-        if len(ids) < 2:
-            continue
-        cycles = sorted({c for (cid, c) in weball if cid in ids})
-        for cycle in cycles:
-            rows = [(cid, weball[(cid, cycle)]) for cid in ids if (cid, cycle) in weball]
-            if len(rows) < 2:
-                continue
-            by_value: dict[int, list[str]] = {}
-            for cid, entry in rows:
-                by_value.setdefault(entry['individual'], []).append(cid)
-            for value, group in by_value.items():
-                if value == 0 or len(group) < 2:
-                    continue
-                kept = None
-                reason = None
-                winners = [cid for cid in group if 'W' in weball[(cid, cycle)]['elections']]
-                if len(winners) == 1:
-                    kept, reason = winners[0], 'election-result marker'
-                else:
-                    chamber = _chamber_after_cycle(person, cycle)
-                    office = {'House': 'H', 'Senate': 'S'}.get(chamber or '')
-                    matches = [cid for cid in group if office and cid.startswith(office)]
-                    if len(matches) == 1:
-                        kept, reason = matches[0], 'chamber after cycle'
-                found.append(
-                    {
-                        'person_key': person['person_key'],
-                        'cycle': cycle,
-                        'kept_id': kept,
-                        'dropped_ids': [cid for cid in group if cid != kept] if kept else group,
-                        'amount_cents': value,
-                        'reason': reason,
-                    }
-                )
+        found.extend(_dedup_groups_for_person(person, weball))
     return found
 
 

@@ -13,7 +13,7 @@ Blank candidate IDs are resolved by name where the name allows.
 from collections import defaultdict
 from pathlib import Path
 
-from receipts.square_one import parsers
+from receipts.square_one import expenditures, parsers
 
 SUFFIXES = ('JR', 'SR', 'II', 'III', 'IV')
 
@@ -79,7 +79,7 @@ class IeRow:
         'resolved_via',
     )
 
-    def __init__(self, row: parsers.IndependentExpenditure, excluded: str | None) -> None:
+    def __init__(self, row: expenditures.IndependentExpenditure, excluded: str | None) -> None:
         self.spender_id = row.spe_id
         self.candidate_id = row.candidate_id
         self.candidate_name = row.cand_name.strip()
@@ -104,8 +104,8 @@ class IeRow:
 
 def _latest(rows: list) -> tuple[list, list]:
     """One row per (spender, transaction ID): latest receipt, then highest file number."""
-    kept: dict[tuple, parsers.IndependentExpenditure] = {}
-    dropped: list[parsers.IndependentExpenditure] = []
+    kept: dict[tuple, expenditures.IndependentExpenditure] = {}
+    dropped: list[expenditures.IndependentExpenditure] = []
     for row in rows:
         prior = kept.get(row.identity)
         if prior is None:
@@ -138,7 +138,7 @@ def derive_ie(
     }
     for cycle in cycles:
         registered = {r.committee_id for r in parsers.committee_rows(bulk_dir, cycle)}
-        filed = list(parsers.ie_rows(bulk_dir / 'ie', cycle))
+        filed = list(expenditures.ie_rows(bulk_dir / 'ie', cycle))
         stats['rows_read'] += len(filed)
         kept, dropped = _latest(filed)
         stats['dedup_dropped_rows'] += len(dropped)
@@ -204,59 +204,3 @@ def per_candidate_cycle(rows: list[IeRow]) -> dict:
             entry[1] += row.cents
         entry[2] += row.cents
     return {key: tuple(value) for key, value in totals.items()}
-
-
-class Race:
-    """One race-phase: who the spender backed, and what it spent against whom."""
-
-    def __init__(self) -> None:
-        self.backed: set[str] = set()
-        self.backed_names: dict[str, str] = {}
-        self.oppose_total = 0
-        self.oppose_rows: list[IeRow] = []
-
-    def add(self, row: IeRow) -> None:
-        if row.direction == 'S' and row.candidate_id:
-            self.backed.add(row.candidate_id)
-            self.backed_names[row.candidate_id] = row.candidate_name
-        elif row.direction == 'O':
-            self.oppose_total += row.cents
-            self.oppose_rows.append(row)
-
-    def against_backed(self, backed_id: str) -> int:
-        backed_name = self.backed_names[backed_id].upper()
-        return sum(
-            row.cents
-            for row in self.oppose_rows
-            if row.candidate_id == backed_id
-            or (not row.candidate_id and row.candidate_name.upper() == backed_name)
-        )
-
-
-def opposition_credits(rows: list[IeRow], person_of: dict[str, str]) -> tuple[dict, dict, list]:
-    """Opposition credit per (person_key, cycle), non-roster credit, and uncredited races.
-
-    A race credits only when exactly one candidate was backed in it; the
-    credit is all opposition spending in the race minus spending against
-    the backed candidate themselves.
-    """
-    races: dict[tuple, Race] = defaultdict(Race)
-    for row in rows:
-        races[row.race_key].add(row)
-    by_person: dict[tuple[str, int], int] = defaultdict(int)
-    nonroster: dict[tuple[str, int], int] = defaultdict(int)
-    uncredited = []
-    for key, race in sorted(races.items()):
-        if race.oppose_total <= 0:
-            continue
-        if len(race.backed) != 1:
-            uncredited.append((key, len(race.backed), race.oppose_total))
-            continue
-        backed_id = next(iter(race.backed))
-        creditable = race.oppose_total - race.against_backed(backed_id)
-        person_key = person_of.get(backed_id)
-        if person_key:
-            by_person[(person_key, key[0])] += creditable
-        else:
-            nonroster[(backed_id, key[0])] += creditable
-    return dict(by_person), dict(nonroster), uncredited

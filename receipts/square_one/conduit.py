@@ -123,6 +123,75 @@ def _fuzzy(table: dict, key: str, thresh: float = 0.88):
     return table[best[0]] if best else None
 
 
+def _cm_lookup(cycle: int, key: str, cm_by_cycle: dict[int, dict]):
+    """Committee-master hit for a name, this cycle first, then other cycles."""
+    hit = cm_by_cycle[cycle].get(key) or _prefix(cm_by_cycle[cycle], key)
+    if hit == 'AMBIGUOUS':
+        hit = None
+    if not hit:
+        hit = _fuzzy(cm_by_cycle[cycle], key)
+    if hit:
+        return hit
+    # Terminated committees vanish from the current cycle's master.
+    for other_cycle in (2024, 2022, 2026):
+        if other_cycle == cycle:
+            continue
+        hit = cm_by_cycle[other_cycle].get(key) or _prefix(cm_by_cycle[other_cycle], key)
+        if hit and hit != 'AMBIGUOUS':
+            return hit
+    return None
+
+
+def _cm_verdict(hit, cycle: int, key: str, cm_multi_by_cycle: dict[int, dict]):
+    """Designation decides: J -> joint fundraising committee, P/A -> direct."""
+    cands_multi = {cand for _, _, cand, _ in cm_multi_by_cycle[cycle].get(key, []) if cand}
+    if len(cands_multi) > 1:
+        return 'ambiguous', {
+            'candidates': sorted(cands_multi),
+            'cmtes': sorted({c for c, _, _, _ in cm_multi_by_cycle[cycle].get(key, [])}),
+        }
+    cm_id, designation, cand_id, legal = hit
+    if designation == 'J':
+        return 'jfc', {'cm_id': cm_id, 'cm_name': legal}
+    if designation in ('P', 'A'):
+        return 'direct', {
+            'cm_id': cm_id,
+            'cm_name': legal,
+            'cands': sorted({cand_id}) if cand_id else [],
+        }
+    return 'other', {'cm_id': cm_id, 'dsgn': designation, 'cm_name': legal}
+
+
+def _pas2_fallback(
+    key: str,
+    recipient_name: str,
+    pas2_name_map: dict[str, set],
+    cand_to_person: dict[str, str],
+    person_surname: dict[str, str],
+):
+    """Committee-master miss only: pas2-name fallback, surname-token rule."""
+    cands = pas2_name_map.get(key)
+    if not cands:
+        cands = _prefix(pas2_name_map, key)
+        if cands == 'AMBIGUOUS':
+            cands = None
+    if not cands:
+        cands = _fuzzy(pas2_name_map, key)
+    if not cands:
+        return None
+    persons = {cand_to_person[c] for c in cands if c in cand_to_person}
+    tokens = set(re.sub(r'[^A-Z ]', '', recipient_name.upper()).split())
+    kept = {pk for pk in persons if person_surname.get(pk, '') in tokens}
+    if kept:
+        return 'direct', {
+            'cm_id': None,
+            'cm_name': None,
+            'cands': sorted(kept),
+            'via': 'pas2-fallback',
+        }
+    return 'unmatched', {'note': 'pas2-name hit but no roster surname token'}
+
+
 def classify_recipient(
     cycle: int,
     recipient_name: str,
@@ -142,59 +211,12 @@ def classify_recipient(
     key = norm_name(recipient_name)
     if key in ALIASES:
         return ALIASES[key]
-    hit = cm_by_cycle[cycle].get(key) or _prefix(cm_by_cycle[cycle], key)
-    if hit == 'AMBIGUOUS':
-        hit = None
-    if not hit:
-        fuzzy = _fuzzy(cm_by_cycle[cycle], key)
-        if fuzzy:
-            hit = fuzzy
-    if not hit:
-        # Terminated committees vanish from the current cycle's master.
-        for other_cycle in (2024, 2022, 2026):
-            if other_cycle == cycle:
-                continue
-            hit = cm_by_cycle[other_cycle].get(key) or _prefix(cm_by_cycle[other_cycle], key)
-            if hit and hit != 'AMBIGUOUS':
-                break
-            hit = None
+    hit = _cm_lookup(cycle, key, cm_by_cycle)
     if hit:
-        cands_multi = {cand for _, _, cand, _ in cm_multi_by_cycle[cycle].get(key, []) if cand}
-        if len(cands_multi) > 1:
-            return 'ambiguous', {
-                'candidates': sorted(cands_multi),
-                'cmtes': sorted({c for c, _, _, _ in cm_multi_by_cycle[cycle].get(key, [])}),
-            }
-        cm_id, designation, cand_id, legal = hit
-        if designation == 'J':
-            return 'jfc', {'cm_id': cm_id, 'cm_name': legal}
-        if designation in ('P', 'A'):
-            return 'direct', {
-                'cm_id': cm_id,
-                'cm_name': legal,
-                'cands': sorted({cand_id}) if cand_id else [],
-            }
-        return 'other', {'cm_id': cm_id, 'dsgn': designation, 'cm_name': legal}
-    # Committee-master miss only: pas2-name fallback, surname-token rule.
-    cands = pas2_name_map.get(key)
-    if not cands:
-        cands = _prefix(pas2_name_map, key)
-        if cands == 'AMBIGUOUS':
-            cands = None
-    if not cands:
-        cands = _fuzzy(pas2_name_map, key)
-    if cands:
-        persons = {cand_to_person[c] for c in cands if c in cand_to_person}
-        tokens = set(re.sub(r'[^A-Z ]', '', recipient_name.upper()).split())
-        kept = {pk for pk in persons if person_surname.get(pk, '') in tokens}
-        if kept:
-            return 'direct', {
-                'cm_id': None,
-                'cm_name': None,
-                'cands': sorted(kept),
-                'via': 'pas2-fallback',
-            }
-        return 'unmatched', {'note': 'pas2-name hit but no roster surname token'}
+        return _cm_verdict(hit, cycle, key, cm_multi_by_cycle)
+    fallback = _pas2_fallback(key, recipient_name, pas2_name_map, cand_to_person, person_surname)
+    if fallback:
+        return fallback
     if JFC_PAT.search(recipient_name):
         return 'jfc?', {'cm_id': None, 'note': 'name pattern only, no cm/pas2 match'}
     return 'unmatched', {}

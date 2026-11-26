@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from receipts.square_one import parsers, roster
+from receipts.square_one import expenditures, parsers, roster
 
 ROOT = Path(__file__).resolve().parents[1]
 BULK = ROOT / 'data' / 'raw'
@@ -57,9 +57,9 @@ def test_cm_layout_and_aipac_row():
 
 
 def test_ie_header_and_row_counts():
-    rows_2026 = list(parsers.ie_rows(BULK / 'ie', 2026))
+    rows_2026 = list(expenditures.ie_rows(BULK / 'ie', 2026))
     assert len(rows_2026) == 51401
-    rows_2024 = list(parsers.ie_rows(BULK / 'ie', 2024))
+    rows_2024 = list(expenditures.ie_rows(BULK / 'ie', 2024))
     assert len(rows_2024) == 73449
 
 
@@ -67,7 +67,7 @@ def test_ie_missing_column_raises(tmp_path):
     bad = tmp_path / 'independent_expenditure_2026.csv'
     bad.write_text('cand_id,spe_id\nH1, C1\n')
     with pytest.raises(parsers.LayoutChanged):
-        list(parsers.ExpenditureFile(bad))
+        list(expenditures.ExpenditureFile(bad))
 
 
 def test_cn_layout():
