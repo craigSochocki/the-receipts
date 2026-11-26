@@ -1,0 +1,63 @@
+{
+ "committee_id": "C00935809",
+ "cycle": 2026,
+ "count": 5,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00935809",
+   "committee_total_disbursements": 2041694.05,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.62,
+   "recipient_name": "TOM KING COMMUNICATIONS",
+   "total": 12590.0
+  },
+  {
+   "committee_id": "C00935809",
+   "committee_total_disbursements": 2041694.05,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "HUNTINGTON BANK",
+   "total": 220.88
+  },
+  {
+   "committee_id": "C00935809",
+   "committee_total_disbursements": 2041694.05,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.12,
+   "recipient_name": "HUCKABY DAVIS LISKER",
+   "total": 2500.0
+  },
+  {
+   "committee_id": "C00935809",
+   "committee_total_disbursements": 2041694.05,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.02,
+   "recipient_name": "UNITED DEMOCRACY PROJECT ('UDP')",
+   "total": 61654.48
+  },
+  {
+   "committee_id": "C00935809",
+   "committee_total_disbursements": 2041694.05,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.61,
+   "recipient_name": "BAKER GROVE PARTNERS LLC",
+   "total": 12500.0
+  }
+ ]
+}

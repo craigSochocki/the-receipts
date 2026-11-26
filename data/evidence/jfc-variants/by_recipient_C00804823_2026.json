@@ -1,0 +1,162 @@
+{
+ "committee_id": "C00804823",
+ "cycle": 2026,
+ "count": 14,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 7,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.33,
+   "recipient_name": "NGP VAN INC",
+   "total": 992.28
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 26,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.37,
+   "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+   "total": 1112.35
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 13,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.08,
+   "recipient_name": "UTRECHT, KLEINFELD, FIORI, CLARK PARTNERS",
+   "total": 12372.34
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 26,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.98,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 2956.84
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 8,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.79,
+   "recipient_name": "ELEVEN11 GROUP",
+   "total": 2400.0
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 4,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 5.94,
+   "recipient_name": "KITCHENS, KENDRA",
+   "total": 18006.69
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 14.85,
+   "recipient_name": "THE BONNER GROUP",
+   "total": 45000.0
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 11,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.42,
+   "recipient_name": "TRILOGY INTERACTIVE LLC",
+   "total": 1272.0
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 12,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 9.24,
+   "recipient_name": "NICKENS, APRIL",
+   "total": 28000.0
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 18,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 14.19,
+   "recipient_name": "CAMPAIGN REPORTS, LLC",
+   "total": 43000.0
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 13,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.59,
+   "recipient_name": "NGP VAN, INC.",
+   "total": 10889.83
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 6.11,
+   "recipient_name": "CHANGE ANALYTICS",
+   "total": 18521.54
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 4,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 38.65,
+   "recipient_name": "DEMOCRATIC MAJORITY FOR ISRAEL",
+   "total": 117112.73
+  },
+  {
+   "committee_id": "C00804823",
+   "committee_total_disbursements": 303015.36,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.22,
+   "recipient_name": "THE MELLMAN GROUP",
+   "total": 676.77
+  }
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "committee_id": "C00113019",
+ "cycle": 2024,
+ "count": 1,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00113019",
+   "committee_total_disbursements": 1009.62,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 100.0,
+   "recipient_name": "AMERICANS UNITED IN SUPPORT OF DEMOCRACY",
+   "total": 1009.62
+  }
+ ]
+}

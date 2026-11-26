@@ -1,0 +1,173 @@
+{
+ "committee_id": "C00110585",
+ "cycle": 2026,
+ "count": 15,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "GALAN-WOODS, MARLENE",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 11,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.52,
+   "recipient_name": "SQUARE, INC.",
+   "total": 1797.4
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "MCCLELLAN, JENNIFER",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "EMMER, THOMAS EARL JR.",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 11.24,
+   "recipient_name": "BAUMGARTNER, MICHAEL JAMES",
+   "total": 8000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "MOSKOWITZ, JARED",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "BOOKER, CORY A.",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "CARTER, EARL LEROY",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "SULLIVAN, MAURA CORBY",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "SYKES, EMILIA",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.21,
+   "recipient_name": "MFUME, KWEISI",
+   "total": 3000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.21,
+   "recipient_name": "OLSZEWSKI, JOHN ANTHONY JR.",
+   "total": 3000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "WASSERMAN SCHULTZ, DEBBIE",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "GLUESENKAMP PEREZ, MARIE",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00110585",
+   "committee_total_disbursements": 71204.35,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.02,
+   "recipient_name": "BOAFO, ADRIAN",
+   "total": 5000.0
+  }
+ ]
+}

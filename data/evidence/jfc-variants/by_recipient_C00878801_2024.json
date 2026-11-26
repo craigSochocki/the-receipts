@@ -1,0 +1,129 @@
+{
+ "committee_id": "C00878801",
+ "cycle": 2024,
+ "count": 11,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.03,
+   "recipient_name": "HUCKABY DAVIS LISKER",
+   "total": 30000.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.04,
+   "recipient_name": "DICKINSON WRIGHT LLC",
+   "total": 45553.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.26,
+   "recipient_name": "NATIONAL RESEARCH INC",
+   "total": 289800.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.02,
+   "recipient_name": "FORWARD STRATEGIES",
+   "total": 20000.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 5,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.28,
+   "recipient_name": "THE TARRANCE GROUP",
+   "total": 314844.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 8,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "CHAIN BRIDGE BANK",
+   "total": 175.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.15,
+   "recipient_name": "NORWAY HILL ASSOCIATES INC.",
+   "total": 165000.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.08,
+   "recipient_name": "CAVALRY LLC",
+   "total": 90000.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.04,
+   "recipient_name": "FULL REACH MEDIA GROUP LLC",
+   "total": 43660.0
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "WINRED",
+   "total": 7490.8
+  },
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 113343630.54,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "MB PUBLIC AFFAIRS INC",
+   "total": 15000.0
+  }
+ ]
+}

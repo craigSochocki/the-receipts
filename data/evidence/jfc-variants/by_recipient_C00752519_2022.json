@@ -1,0 +1,162 @@
+{
+ "committee_id": "C00752519",
+ "cycle": 2022,
+ "count": 14,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 0,
+   "cycle": 2022,
+   "memo_count": 1,
+   "memo_total": 8669.22,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "GOOD GRACIOUS EVENTS, INC",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 0,
+   "cycle": 2022,
+   "memo_count": 1,
+   "memo_total": 39.6,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "FEDERAL EXPRESS",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 7,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 18.63,
+   "recipient_name": "NRCC - NATIONAL REPUBLICAN CONGRESSIONAL COMMITTEE",
+   "total": 154565.03
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 0,
+   "cycle": 2022,
+   "memo_count": 1,
+   "memo_total": 1795.99,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "204 EVENTS",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 21,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.71,
+   "recipient_name": "CAMPAIGN COMPLIANCE GROUP",
+   "total": 30775.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 9,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 18.92,
+   "recipient_name": "GET AMERICA RIGHT: COMMUNITY IN ACTION - GARCIA PAC",
+   "total": 156950.47
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 0,
+   "cycle": 2022,
+   "memo_count": 1,
+   "memo_total": 837.68,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "MATSUMOTO FLORALS",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 21,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.59,
+   "recipient_name": "CAPITOL TECH SOLUTIONS",
+   "total": 29751.93
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 1,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.9,
+   "recipient_name": "KHAN, AMANDA",
+   "total": 7500.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 13,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 13.62,
+   "recipient_name": "PLUVIOUS GROUP LLC",
+   "total": 113009.89
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 0,
+   "cycle": 2022,
+   "memo_count": 1,
+   "memo_total": 2100.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "PETERSEN AUTOMOTIVE MUSEUM",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 1,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "AMERICAN EXPRESS",
+   "total": 39.6
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 2,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "BANK OF AMERICA",
+   "total": 32.0
+  },
+  {
+   "committee_id": "C00752519",
+   "committee_total_disbursements": 829728.62,
+   "count": 16,
+   "cycle": 2022,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 40.63,
+   "recipient_name": "MIKE GARCIA FOR CONGRESS",
+   "total": 337104.7
+  }
+ ]
+}

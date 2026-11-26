@@ -1,0 +1,129 @@
+{
+ "committee_id": "C00429571",
+ "cycle": 2024,
+ "count": 11,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 0,
+   "cycle": 2024,
+   "memo_count": 1,
+   "memo_total": 233.24,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "WOODLAND HILLS PRINTING",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 36.47,
+   "recipient_name": "CALIFORNIA JOBS AND JUSTICE",
+   "total": 9000.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.6,
+   "recipient_name": "SOLKOVITS, GREGG",
+   "total": 888.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 11,
+   "cycle": 2024,
+   "memo_count": 3,
+   "memo_total": 3105.15,
+   "recipient_disbursement_percent": 1.63,
+   "recipient_name": "WILD APRICOT",
+   "total": 401.4
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 0,
+   "cycle": 2024,
+   "memo_count": 1,
+   "memo_total": 894.84,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "SAFE CREDIT UNION CONVENTION CENTER",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 10.65,
+   "recipient_name": "LACHMAN, ANDREW",
+   "total": 2629.24
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 10.53,
+   "recipient_name": "WILD APRICOT INC.",
+   "total": 2598.04
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 8.1,
+   "recipient_name": "CALIFORNIA FOR A BRIGHTER FUTURE PAC",
+   "total": 2000.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 29,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 14.99,
+   "recipient_name": "GOULD & ORELLANA, LLC",
+   "total": 3700.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 11.65,
+   "recipient_name": "CHASE CARD SERVICES",
+   "total": 2875.84
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 24680.97,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.85,
+   "recipient_name": "JEWISH DEMOCRATIC CLUB OF SILICON VALLEY",
+   "total": 457.15
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "committee_id": "C00889279",
+ "cycle": 2024,
+ "count": 6,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 7,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.31,
+   "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+   "total": 1131.72
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.9,
+   "recipient_name": "PREMIER POLITICAL COMPLIANCE",
+   "total": 10570.0
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.54,
+   "recipient_name": "ELIAS LAW GROUP",
+   "total": 5607.25
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.55,
+   "recipient_name": "ROTHBLATT, HANNAH",
+   "total": 2000.0
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.09,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 321.0
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 364459.4,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 9.1,
+   "recipient_name": "CATALYST CAMPAIGNS",
+   "total": 33180.5
+  }
+ ]
+}

@@ -1,0 +1,30 @@
+{
+ "committee_id": "C00889279",
+ "cycle": 2026,
+ "count": 2,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 7953.25,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 8.02,
+   "recipient_name": "ELIAS LAW GROUP",
+   "total": 637.5
+  },
+  {
+   "committee_id": "C00889279",
+   "committee_total_disbursements": 7953.25,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 88.01,
+   "recipient_name": "BEEHIVE RESEARCH INC.",
+   "total": 7000.0
+  }
+ ]
+}
