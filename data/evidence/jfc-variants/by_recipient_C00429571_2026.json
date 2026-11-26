@@ -1,0 +1,140 @@
+{
+ "committee_id": "C00429571",
+ "cycle": 2026,
+ "count": 12,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 9.66,
+   "recipient_name": "ARAMARK @ ANAHEIM CONVENTION CENTER",
+   "total": 2546.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 35,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 22.36,
+   "recipient_name": "GOULD & ORELLANA, LLC",
+   "total": 5895.58
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 13.47,
+   "recipient_name": "CALIFORNIA JOBS AND JUSTICE",
+   "total": 3550.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 906.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "NETFILE",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 1750.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "LEGENDS GLOBAL HOSPITALITY",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 6.04,
+   "recipient_name": "FRONTRUNNER PRODUCTIONS",
+   "total": 1592.5
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 7.76,
+   "recipient_name": "LACHMAN, ANDREW",
+   "total": 2046.13
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.79,
+   "recipient_name": "DEMOCRATS FOR ISRAEL STATE",
+   "total": 1000.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 9.48,
+   "recipient_name": "CALIFORNIA JEWISH",
+   "total": 2500.0
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 19,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 23.56,
+   "recipient_name": "WILD APRICOT INC.",
+   "total": 6211.43
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.3,
+   "recipient_name": "ENCORE GROUP (USA) LLC",
+   "total": 871.03
+  },
+  {
+   "committee_id": "C00429571",
+   "committee_total_disbursements": 26363.31,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 275.13,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "GOOGLE WORKSPACE",
+   "total": 0.0
+  }
+ ]
+}

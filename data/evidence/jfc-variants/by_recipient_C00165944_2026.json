@@ -1,0 +1,85 @@
+{
+ "committee_id": "C00165944",
+ "cycle": 2026,
+ "count": 7,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 19.76,
+   "recipient_name": "KEN CALVERT FOR CONGRESS COMMITTEE",
+   "total": 4000.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 6.15,
+   "recipient_name": "APFEL, LEVY, ZLOTNICK & CO., -",
+   "total": 1245.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 17.29,
+   "recipient_name": "HALEY STEVENS FOR CONGRESS",
+   "total": 3500.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.94,
+   "recipient_name": "HUSTED FOR OH SENATE REPUBLICAN NOMINEE FUND 2026",
+   "total": 1000.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 24.7,
+   "recipient_name": "JIM RISCH FOR U.S. SENATE COMMITTEE",
+   "total": 5000.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.47,
+   "recipient_name": "NORMA TORRES FOR CONGRESS",
+   "total": 500.0
+  },
+  {
+   "committee_id": "C00165944",
+   "committee_total_disbursements": 20245.0,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 24.7,
+   "recipient_name": "ROGERS FOR SENATE",
+   "total": 5000.0
+  }
+ ]
+}

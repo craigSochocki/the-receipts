@@ -1,0 +1,19 @@
+{
+ "committee_id": "C00891259",
+ "cycle": 2024,
+ "count": 1,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00891259",
+   "committee_total_disbursements": 988149.13,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.03,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 339.21
+  }
+ ]
+}

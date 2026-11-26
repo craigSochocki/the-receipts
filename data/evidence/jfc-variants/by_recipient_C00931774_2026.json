@@ -1,0 +1,129 @@
+{
+ "committee_id": "C00931774",
+ "cycle": 2026,
+ "count": 11,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 5,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.02,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 1085.81
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.81,
+   "recipient_name": "UPSWING RESEARCH & STRATEGY LLC",
+   "total": 90800.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.03,
+   "recipient_name": "MISSION CONTROL, INC.",
+   "total": 1453.68
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 4,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "THE DOVER GROUP",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "THE STRATEGY GROUP",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 2,
+   "memo_total": 55636.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "LCV VICTORY FUND",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.07,
+   "recipient_name": "ELIAS LAW GROUP LLP",
+   "total": 3733.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.15,
+   "recipient_name": "WAVE BREAK DIGITAL LLC",
+   "total": 7500.0
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.25,
+   "recipient_name": "PREMIER POLITICAL COMPLIANCE",
+   "total": 12776.83
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 9,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.1,
+   "recipient_name": "EVERYACTION, INC.",
+   "total": 5130.4
+  },
+  {
+   "committee_id": "C00931774",
+   "committee_total_disbursements": 5022883.68,
+   "count": 5,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.66,
+   "recipient_name": "RISING TIDE INTERACTIVE, LLC",
+   "total": 133600.0
+  }
+ ]
+}

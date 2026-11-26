@@ -1,0 +1,140 @@
+{
+ "committee_id": "C00881292",
+ "cycle": 2026,
+ "count": 12,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 5,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 14.55,
+   "recipient_name": "GUARDING OUR LASTING DEMOCRACY (GOLD) PAC",
+   "total": 160721.27
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.92,
+   "recipient_name": "JOE T. GARCIA'S",
+   "total": 10169.26
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.38,
+   "recipient_name": "MOUNTAIN, JANET",
+   "total": 4193.54
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 21,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.48,
+   "recipient_name": "CMDI",
+   "total": 5250.0
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 19955.89,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "COLONIAL CC TICKETS",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.1,
+   "recipient_name": "LILLY & COMPANY",
+   "total": 1120.33
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.11,
+   "recipient_name": "AMERICAN EXPRESS",
+   "total": 45365.89
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 9,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 70.26,
+   "recipient_name": "CRAIG GOLDMAN FOR CONGRESS",
+   "total": 776120.5
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.03,
+   "recipient_name": "REPUBLICAN JEWISH COALITION-POLITICAL ACTION COMMITTEE (RJC-PAC)",
+   "total": 321.2
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 9,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.31,
+   "recipient_name": "ANEDOT",
+   "total": 25521.47
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 25410.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "BOWIE HOUSE",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00881292",
+   "committee_total_disbursements": 1104695.23,
+   "count": 11,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 6.78,
+   "recipient_name": "NRCC",
+   "total": 74878.49
+  }
+ ]
+}

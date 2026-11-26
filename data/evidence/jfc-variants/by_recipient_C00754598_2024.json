@@ -1,0 +1,118 @@
+{
+ "committee_id": "C00754598",
+ "cycle": 2024,
+ "count": 10,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 40,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.96,
+   "recipient_name": "NEXT LEVEL PARTNERS",
+   "total": 74443.29
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 10,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.38,
+   "recipient_name": "NEW YORK STATE DEMOCRATIC COMMITTEE",
+   "total": 110213.87
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.02,
+   "recipient_name": "NORPAC",
+   "total": 462.0
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 32,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 15.14,
+   "recipient_name": "EQUALITY PAC",
+   "total": 381064.57
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 91,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.58,
+   "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+   "total": 90012.54
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 22,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.1,
+   "recipient_name": "NGP VAN, INC",
+   "total": 2544.0
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 25,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 12.19,
+   "recipient_name": "LA BAMBA PAC",
+   "total": 306817.99
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.04,
+   "recipient_name": "KEIDAN, JONATHAN",
+   "total": 1000.0
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "LASKEY, RICHARD",
+   "total": 250.0
+  },
+  {
+   "committee_id": "C00754598",
+   "committee_total_disbursements": 2516893.13,
+   "count": 55,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 61.58,
+   "recipient_name": "TORRES FOR CONGRESS",
+   "total": 1549870.84
+  }
+ ]
+}

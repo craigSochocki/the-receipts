@@ -1,0 +1,74 @@
+{
+ "committee_id": "C00936724",
+ "cycle": 2026,
+ "count": 6,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 4.21,
+   "recipient_name": "UNITED DEMOCRACY PROJECT ('UDP')",
+   "total": 475875.51
+  },
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.11,
+   "recipient_name": "BAKER GROVE PARTNERS LLC",
+   "total": 12500.0
+  },
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.02,
+   "recipient_name": "HUCKABY DAVIS LISKER",
+   "total": 2500.0
+  },
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.18,
+   "recipient_name": "MSL STRATEGIES LLC",
+   "total": 20737.89
+  },
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 8.84,
+   "recipient_name": "CHICAGO PROGRESSIVE PARTNERSHIP",
+   "total": 1000000.0
+  },
+  {
+   "committee_id": "C00936724",
+   "committee_total_disbursements": 11307962.46,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "SIGNATURE BANK",
+   "total": 525.0
+  }
+ ]
+}

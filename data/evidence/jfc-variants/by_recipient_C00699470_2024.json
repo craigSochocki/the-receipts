@@ -1,0 +1,30 @@
+{
+ "committee_id": "C00699470",
+ "cycle": 2024,
+ "count": 2,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00699470",
+   "committee_total_disbursements": 8650.3,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.45,
+   "recipient_name": "PAYA",
+   "total": 298.18
+  },
+  {
+   "committee_id": "C00699470",
+   "committee_total_disbursements": 8650.3,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 96.55,
+   "recipient_name": "PRO-ISRAEL AMERICA INC",
+   "total": 8352.12
+  }
+ ]
+}

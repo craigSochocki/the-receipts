@@ -1,0 +1,129 @@
+{
+ "committee_id": "C00815753",
+ "cycle": 2024,
+ "count": 11,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 14,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.26,
+   "recipient_name": "PAYPAL",
+   "total": 630.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 21,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.33,
+   "recipient_name": "KATZ COMPLIANCE LLC",
+   "total": 5598.75
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 14,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.37,
+   "recipient_name": "STRIPE",
+   "total": 883.22
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.71,
+   "recipient_name": "PROGRESS RHODE ISLAND",
+   "total": 6500.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 5,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.15,
+   "recipient_name": "ALTA CPA GROUP",
+   "total": 2760.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 2.44,
+   "recipient_name": "ELEVEN11",
+   "total": 5850.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.13,
+   "recipient_name": "J STREET (C4 FUND)",
+   "total": 305.28
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.33,
+   "recipient_name": "SIMPLEPAY",
+   "total": 798.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 14,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.2,
+   "recipient_name": "CHASE PAYMENTECH",
+   "total": 490.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.65,
+   "recipient_name": "NGP EVERYACTION INC",
+   "total": 8763.78
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 239895.0,
+   "count": 6,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.17,
+   "recipient_name": "GOOGLE",
+   "total": 396.38
+  }
+ ]
+}

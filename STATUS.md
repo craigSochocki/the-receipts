@@ -452,6 +452,33 @@
    conduit checks (J Street's are the largest) are in no bulk file — only the FEC API has
    them, as each PAC's Schedule B by recipient committee; Craig chose to skip them for now.
    Not reproduced: Track AIPAC's donor-matching layer.
+7. **Square-one re-derivation — DONE Nov 26, on branch `square-one-rederivation` (PR not
+   opened).** The tracker re-derived from scratch, independent of the DuckDB store and the
+   committed dataset: fresh stdlib parsers for pas2, weball, cm and IE bulk files
+   (`receipts/square_one/`, CLI `python3 -m receipts.square_one.derive`, output
+   `data/intermediate/square_one/derived.json`), plus completeness audits that fail loudly
+   on a zero column, implausible earmark shares, and live-FEC / Track AIPAC spot checks.
+   The conduit merge (methodology §8 items 22–23) substitutes FEC API Schedule B figures
+   for cycles 2022–2026: AIPAC career direct rises by about $101M under either JFC variant
+   (variant A counts JFC shares, variant B excludes them; only Crane and LePage differ
+   between variants), pro-Israel direct by about $117M (B) / $123M (A). Counts, recomputed
+   with the repo's own rules: cycle flag 231 → 258 (A) / 256 (B), Strict clean 83 → 81,
+   Balanced not-dirty 201 → 189 / 191; term flag 270 → 299 / 297, Strict clean 79 → 77.
+   The shared-committee transfer dedup (§8 item 25) generalizes the Barr case to 29
+   people and removes about $21M of double-counted transfers-from. Full reconciliation
+   in `research/square-one-reconciliation.md`: 130,944 figures checked, 2,045 differ, all
+   in the six corrected fields — every other figure reproduces the dataset to the cent,
+   including the baseline counts. Bugs found and fixed along the way: the transfer
+   kept-choice letter mismatch, the §8/transfer double-zeroing, the all-IE total dropping
+   blank-direction rows, and the Ryan pilot figure (+$5,000 → $0, and the money doesn't
+   attach to him under roster linkage at all). OPEN: the full roster-wide API pull needs
+   the registered key (December run, CI with the secret) — it fills the 53 missing 2022
+   files and resolves the ambiguous names by recipient committee ID; the Latimer and
+   Collins residuals vs Track AIPAC stay documented-unknown; the JFC decision is made —
+   variant A is the headline (JFC shares count as direct, decided Nov 25); the Barr
+   wider double-count, and the Ryan/Luria roster links are still Craig's calls. The pipeline
+   and the dataset are untouched on this branch; the rebuild still reproduces the
+   committed dataset byte-identically.
 8. **Headline verdict between elections — DONE (Craig, Nov 25).** The headline judged a
    member on their latest election's cycle alone, so a senator's off-year money (raised
    toward the next race) never counted. It now judges that cycle and every cycle since as

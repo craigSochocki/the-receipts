@@ -1,0 +1,129 @@
+{
+ "committee_id": "C00898015",
+ "cycle": 2026,
+ "count": 11,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 0,
+   "cycle": 2026,
+   "memo_count": 1,
+   "memo_total": 2179.16,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "OCCASIONS",
+   "total": 0.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 47.0,
+   "recipient_name": "JON OSSOFF FOR SENATE",
+   "total": 125298.13
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.82,
+   "recipient_name": "DREZNER, JEFFREY",
+   "total": 2179.16
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 5.25,
+   "recipient_name": "DREZNER, LORA",
+   "total": 14000.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 6,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.07,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 184.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.08,
+   "recipient_name": "POLITICAL COMPLIANCE MANAGEMENT SERVICES LLC",
+   "total": 2875.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.19,
+   "recipient_name": "DOHERTY, CHRISTOPHER",
+   "total": 500.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.35,
+   "recipient_name": "PROPARK ATP VALET",
+   "total": 940.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 41.72,
+   "recipient_name": "VAN HOLLEN FOR SENATE",
+   "total": 111217.13
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.38,
+   "recipient_name": "LEGGETT, CATHERINE",
+   "total": 1000.0
+  },
+  {
+   "committee_id": "C00898015",
+   "committee_total_disbursements": 266605.51,
+   "count": 15,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.08,
+   "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+   "total": 8209.39
+  }
+ ]
+}

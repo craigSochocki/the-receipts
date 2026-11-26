@@ -1,0 +1,19 @@
+{
+ "committee_id": "C00878801",
+ "cycle": 2026,
+ "count": 1,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00878801",
+   "committee_total_disbursements": 750013.27,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 100.0,
+   "recipient_name": "MAGA KY",
+   "total": 750000.0
+  }
+ ]
+}

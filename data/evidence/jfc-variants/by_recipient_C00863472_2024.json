@@ -1,0 +1,118 @@
+{
+ "committee_id": "C00863472",
+ "cycle": 2024,
+ "count": 10,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 7,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.94,
+   "recipient_name": "OLSON REMCHO, LLP",
+   "total": 7628.5
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.2,
+   "recipient_name": "THE STRATHDEE GROUP",
+   "total": 1633.23
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.43,
+   "recipient_name": "APOLLO ARTISTRY",
+   "total": 3500.0
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 40.75
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 5.19,
+   "recipient_name": "BUSTOS, CHERI",
+   "total": 42000.0
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 5,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.48,
+   "recipient_name": "BLUE WAVE POLITICAL PARTNERS, LLC",
+   "total": 12000.0
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.58,
+   "recipient_name": "APPLE",
+   "total": 4693.42
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.3,
+   "recipient_name": "NGP VAN, INC.",
+   "total": 10494.0
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 3,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 24.85,
+   "recipient_name": "PRO-CHOICE MAJORITY 2024",
+   "total": 201000.0
+  },
+  {
+   "committee_id": "C00863472",
+   "committee_total_disbursements": 808798.93,
+   "count": 2,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.07,
+   "recipient_name": "OSTERIA MORINI",
+   "total": 525.9
+  }
+ ]
+}

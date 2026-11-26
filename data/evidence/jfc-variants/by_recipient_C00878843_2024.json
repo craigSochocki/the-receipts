@@ -1,0 +1,52 @@
+{
+ "committee_id": "C00878843",
+ "cycle": 2024,
+ "count": 4,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00878843",
+   "committee_total_disbursements": 107435.0,
+   "count": 4,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 47.83,
+   "recipient_name": "FRIENDS OF JANELLE STELSON",
+   "total": 51382.58
+  },
+  {
+   "committee_id": "C00878843",
+   "committee_total_disbursements": 107435.0,
+   "count": 15,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 3.84,
+   "recipient_name": "ACTBLUE TECHNICAL SERVICES",
+   "total": 4125.37
+  },
+  {
+   "committee_id": "C00878843",
+   "committee_total_disbursements": 107435.0,
+   "count": 1,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.97,
+   "recipient_name": "BLUE WAVE POLITICAL PARTNERS",
+   "total": 1040.7
+  },
+  {
+   "committee_id": "C00878843",
+   "committee_total_disbursements": 107435.0,
+   "count": 5,
+   "cycle": 2024,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 47.3,
+   "recipient_name": "CHRIS DELUZIO FOR CONGRESS",
+   "total": 50811.85
+  }
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "committee_id": "C00891259",
+ "cycle": 2026,
+ "count": 1,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00891259",
+   "committee_total_disbursements": 626.79,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 97.77,
+   "recipient_name": "ZIONESS ACTION FUND",
+   "total": 612.79
+  }
+ ]
+}

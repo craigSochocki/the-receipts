@@ -1,0 +1,118 @@
+{
+ "committee_id": "C00815753",
+ "cycle": 2026,
+ "count": 10,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 11,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.01,
+   "recipient_name": "CHASE PAYMENTECH",
+   "total": 385.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 35.72,
+   "recipient_name": "HMP",
+   "total": 1050000.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 16,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.08,
+   "recipient_name": "STRIPE",
+   "total": 2398.57
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 3,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.04,
+   "recipient_name": "ELEVEN11",
+   "total": 1125.0
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 15,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.03,
+   "recipient_name": "GOOGLE",
+   "total": 911.6
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.1,
+   "recipient_name": "NGP EVERYACTION INC",
+   "total": 2804.76
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 18,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.07,
+   "recipient_name": "AMALGAMATED BANK",
+   "total": 1924.06
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 20,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.17,
+   "recipient_name": "KATZ COMPLIANCE LLC",
+   "total": 4918.05
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 1.01,
+   "recipient_name": "OLD TOWN MEDIA",
+   "total": 29696.44
+  },
+  {
+   "committee_id": "C00815753",
+   "committee_total_disbursements": 2939417.96,
+   "count": 2,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 34.02,
+   "recipient_name": "SMP",
+   "total": 1000000.0
+  }
+ ]
+}

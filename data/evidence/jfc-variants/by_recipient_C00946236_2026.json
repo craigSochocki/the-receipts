@@ -1,0 +1,74 @@
+{
+ "committee_id": "C00946236",
+ "cycle": 2026,
+ "count": 6,
+ "fetched": "2026-11-25",
+ "results": [
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 15,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.31,
+   "recipient_name": "NRSC",
+   "total": 21165.11
+  },
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 5.12,
+   "recipient_name": "MEDIUM BUYING",
+   "total": 346776.0
+  },
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.05,
+   "recipient_name": "NATIONAL COMPLIANCE",
+   "total": 3500.0
+  },
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 11,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.1,
+   "recipient_name": "WINRED",
+   "total": 7028.87
+  },
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 1,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.0,
+   "recipient_name": "CHAIN BRIDGE BANK N.A.",
+   "total": 25.0
+  },
+  {
+   "committee_id": "C00946236",
+   "committee_total_disbursements": 6775147.68,
+   "count": 6,
+   "cycle": 2026,
+   "memo_count": 0,
+   "memo_total": 0.0,
+   "recipient_disbursement_percent": 0.65,
+   "recipient_name": "DEMOCRACY ENGINE LLC",
+   "total": 43737.5
+  }
+ ]
+}
