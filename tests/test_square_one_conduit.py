@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BULK = ROOT / 'data' / 'raw'
 EVIDENCE = ROOT / 'data' / 'evidence' / 'jfc-variants'
 SQUARE_ONE = ROOT / 'data' / 'evidence' / 'square-one'
-JFC_DIR = Path('/home/hatch/workspace/tmp-jfc')
+JFC_DIR = ROOT / 'data' / 'source'
 
 
 def _load_json(path):
