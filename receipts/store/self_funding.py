@@ -9,6 +9,8 @@ from receipts.domain.money import Money
 from receipts.domain.roster import Roster, candidate_ids
 from receipts.domain.weball_double_counts import FINANCIAL_FIELDS
 from receipts.fec.weball import CandidateSummary
+from receipts.square_one.corrected import load as load_corrected
+from receipts.square_one.corrected import substitute_transfers
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.read import connect, for_candidates
 
@@ -195,6 +197,9 @@ def main():
     roster_ids = {i for p in roster.people for i in candidate_ids(p)}
     finances, coverage_end, found_differing = read_store(roster_ids)
     differing = describe(found_differing, load_double_count_records())
+    finances = substitute_transfers(
+        finances, roster.people, load_double_count_records(), load_corrected()
+    )
     rows, persons = self_funding_by_person(roster, finances, coverage_end, differing)
     write(rows, persons)
     log.info(f'persons: {len(rows)}; differing columns flagged, not corrected: {len(differing)}')
