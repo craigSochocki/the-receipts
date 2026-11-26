@@ -1,3 +1,4 @@
+from receipts.domain.money import Money
 from receipts.domain.roster import Roster
 from receipts.store.other_committees import (
     AIPAC,
@@ -73,3 +74,34 @@ def test_the_reconciliation_note_lands_only_on_the_named_case():
     )
     assert people['named']['reconciliation_note'] == 'PENDING RECONCILIATION'
     assert people['other']['reconciliation_note'] == ''
+
+
+def test_the_aipac_cross_check_uses_the_corrected_total():
+    from receipts.domain.ledger import Ledger
+    from receipts.square_one.corrected import Corrected
+    from receipts.store.other_committees import LEDGER_COLUMNS, corrected_aipac_career
+
+    corrected = Corrected(
+        {
+            'snapshot': '2026-11-22',
+            'counts': {'A': {}},
+            'corrected_per_cycle': {
+                'p|2026': {
+                    'aipac_a_cents': 5235943,
+                    'aipac_b_cents': 5235943,
+                    'pro_israel_a_cents': 9624746,
+                    'pro_israel_b_cents': 9124746,
+                    'jfc_aipac_cents': 0,
+                    'jfc_other_cents': 0,
+                }
+            },
+            'transfers_from_corrected': {},
+            'transfers_to_corrected': {},
+        }
+    )
+    ledger = Ledger(LEDGER_COLUMNS)
+    ledger.add('H1', 2020, AIPAC, Money(100_00))
+    ledger.add('H1', 2026, AIPAC, Money(500_00))
+    ledger.add('S1', 2026, AIPAC, Money(0))
+    roster = Roster([person('p', 'H1', 'S1')])
+    assert corrected_aipac_career(ledger, roster, corrected) == Money(100_00 + 5235943)
