@@ -8,7 +8,11 @@
 <style>%%STYLE%%</style>
 </head>
 <body>
-<a class="skip-link" href="#explore" id="skip-link">Skip to the data</a>
+<nav class="skip-links" aria-label="Skip links">
+<a class="skip-link" href="#main" id="skip-link">Skip to the data</a>
+<a class="skip-link" href="#story">Skip to the story</a>
+<a class="skip-link" href="#main-table">Skip to the table</a>
+</nav>
 <header>
 <h1 tabindex="-1"><a href="#" id="home-link">The Receipts</a></h1>
 <p class="sub">Every person in Congress and the money behind them — from FEC filings, not press releases. Career totals, clean/dirty flags by cycle, self-funding, and outside spending.</p>
@@ -97,7 +101,7 @@
 <p class="fine" id="hook-definition"></p>
 </section>
 <section class="chapter scrolly" id="story" data-chapter="story" aria-label="Every incoming member, by their money">
-<div class="scrolly-graphic"><svg id="dotfield" class="dotfield" viewBox="0 0 600 400" role="img" aria-label="Every incoming member of the 120th Congress as a dot, regrouped by each step of the story"></svg>
+<div class="scrolly-graphic"><div id="story-plot" role="img" aria-describedby="step-all"></div><svg id="dotfield" class="dotfield" viewBox="0 0 600 400" role="img" aria-label="Every incoming member of the 120th Congress as a dot, regrouped by each step of the story"></svg>
 <p class="scrolly-key"><span><span class="k party-d"></span>Democrat</span><span><span class="k party-r"></span>Republican</span><span><span class="k dot-dirty"></span>Dirty</span><span><span class="k dot-below_threshold"></span>Below threshold</span><span><span class="k dot-clean"></span>Clean</span><span><span class="k dot-unjudged"></span>Not judged</span></p></div>
 <div class="scrolly-steps" id="scrolly-steps">
 <div class="scrolly-step active" data-step="all"><p class="card" id="step-all">%%STORY_ALL%%</p></div>
@@ -110,6 +114,7 @@
 <div class="scrolly-step" data-step="targets"><p class="card" id="step-targets">%%STORY_TARGETS%%</p></div>
 <div class="scrolly-step" data-step="find"><p class="card" id="step-find">%%STORY_FIND%%</p></div>
 </div>
+<div class="story-stepper" hidden><button type="button" data-stepper="prev">Previous</button><button type="button" data-stepper="next">Next</button><span class="stepper-label"></span></div>
 </section>
 <section class="chapter" data-chapter="finder" aria-label="Find your member">
 <span class="kicker">Your seat</span>
