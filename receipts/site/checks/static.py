@@ -2,7 +2,7 @@
 
 import re
 
-from receipts.site.build_site import story_texts, table_row, table_rows, table_thead
+from receipts.site.static_render import story_texts, table_row, table_rows, table_thead
 
 
 def static_story_and_table(audit, page):
