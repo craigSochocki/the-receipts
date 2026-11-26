@@ -15,6 +15,7 @@ def test_parse_cents():
     assert parsers.parse_cents('5000.00') == 500000
     assert parsers.parse_cents('-2500.50') == -250050
     assert parsers.parse_cents('0.06') == 6
+    assert parsers.parse_cents('.77') == 77
     assert parsers.parse_cents('') == 0
     assert parsers.parse_cents('  12.3 ') == 1230
     with pytest.raises(ValueError):
