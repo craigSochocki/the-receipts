@@ -16,6 +16,7 @@ from receipts.site.checks.runtime import (
     runtime_smoke_test,
     served_page,
 )
+from receipts.site.checks.static import static_story_and_table
 from receipts.validate.audit import Audit
 
 SECTIONS = [
@@ -25,6 +26,7 @@ SECTIONS = [
     composition,
     outcomes,
     no_typed_figures,
+    static_story_and_table,
     javascript_parses,
     served_page,
     runtime_smoke_test,

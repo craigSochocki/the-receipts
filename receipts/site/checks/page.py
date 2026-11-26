@@ -74,6 +74,14 @@ class BuiltPage:
             self.html,
             flags=re.DOTALL,
         )
+        # The story step cards and the main table are generated at build
+        # time from the dataset, not typed: their figures are computed,
+        # so they are out of the typed-figures scan too. A separate
+        # check (static_story_and_table) pins them to the computed values.
+        self.prose = re.sub(
+            r'<p class="card" id="step-[^"]+">.*?</p>', '', self.prose, flags=re.DOTALL
+        )
+        self.prose = re.sub(r'<table id="main-table">.*?</table>', '', self.prose, flags=re.DOTALL)
         self.cols = extract_payload(self.html, 'receipts-cols')
         self.rows = [
             decode_row(self.cols, arr) for arr in extract_payload(self.html, 'receipts-data')
