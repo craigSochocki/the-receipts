@@ -41,13 +41,18 @@ window.smoke = {
         const TOP5 = EXP.headline.top5.map((x) => x[0]);
         const TGT = EXP.targets;
         const seatLabel = (k) => k.charAt(0).toUpperCase() + k.slice(1);
-        /* ---- FE7: hidden Explore does not render at load ---- */
+        /* ---- FE7: hidden Explore does not render at load, except the
+           static table fallback, which is server-rendered ---- */
         assert.strictEqual(
           document.getElementById("stats").innerHTML, "",
           "stats do not render at load on the front door");
         assert.strictEqual(
-          document.querySelector("#main-table tbody").innerHTML, "",
-          "table does not render at load on the front door");
+          document.querySelectorAll("#main-table tbody tr").length, PEOPLE.length,
+          "static table fallback renders every row at load on the front door");
+        assert.strictEqual(
+          document.querySelector("#main-table tbody tr").getAttribute("data-key"),
+          EXP.headline.top1_key,
+          "static table fallback is dirtiest-first at load");
         assert.strictEqual(
           document.getElementById("totals").innerHTML, "",
           "totals strip does not render at load on the front door");
