@@ -346,6 +346,9 @@ loudly if the two rows' money ever differs (§4).
     receipts, transfers-from and disbursements), the dropped copy is zeroed for weball
     cols 6–9 as well; the expected arithmetic is recorded with the decision, and
     `receipts/domain/weball_double_counts.py` fails loudly if it ever stops matching.
+    As implemented, the dropped copy is zeroed for every weball financial field in which
+    it equals the kept copy, not only the individual column; the extension above covers
+    the remaining columns where the dropped row is a strict subset.
 16. **The roster is "current members plus the 120th incoming,"** not "everyone who served
     in the 119th" (§1). A member elected in a special election is counted from the
     Congress in which they are seated.
@@ -381,11 +384,51 @@ loudly if the two rows' money ever differs (§4).
 22. **Pro-Israel PAC money undercounts bundling and does not match Track AIPAC.** A
     listed PAC acting as a conduit (J Street is the largest) forwards individuals'
     earmarked checks on line 23 with no candidate ID, so neither bulk file carries them;
-    the FEC API does (each PAC's Schedule B by recipient committee), but it is not part
-    of the pinned snapshot. Track AIPAC also adds individual donors with a history of
-    giving to listed PACs, a donor-matching model the tracker does not reproduce. Both
-    gaps make these columns a lower bound of Track AIPAC's totals. The list is theirs,
-    as published; whether a listed committee belongs on it is their judgment.
+    the FEC API does (each PAC's Schedule B by recipient committee). The square-one
+    derivation merges the API figures for cycles 2022–2026 (see the conduit-merge item
+    below); until the full roster-wide API run lands, the 2022 figures cover only AIPAC
+    and the main conduits, and ambiguous recipient names stay unattributed. Track AIPAC
+    also adds individual donors with a history of giving to listed PACs, a donor-matching
+    model the tracker does not reproduce. Both gaps make these columns a lower bound of
+    Track AIPAC's totals. The list is theirs, as published; whether a listed committee
+    belongs on it is their judgment.
+23. **Conduit merge (square-one method).** For cycles 2022–2026 the AIPAC and
+    pro-Israel direct figures come from the FEC API Schedule B, not pas2: each listed
+    conduit's disbursements are pulled by recipient (cursor-paginated, unfiltered, line
+    23 selected client-side), earmarks identified by per-committee rules (memo text for
+    AIPAC and J Street, memo code for JACPAC, disbursement description for NORPAC),
+    attributed by recipient committee ID — never by candidate ID — and deduplicated on
+    the FEC sub-ID. By-recipient aggregates exclude memo rows, so the memo layer is
+    tracked separately and belongs to neither JFC variant. Names shared by two committees
+    with different candidate IDs are ambiguous and stay unattributed rather than guessed;
+    the December row-level pull resolves them by recipient committee ID. The full
+    roster-wide pull needs a registered API key and is the December run; until then the
+    2022 figures cover AIPAC and the main conduits only.
+24. **Joint-fundraising variants.** Whether money a conduit sends to a joint
+    fundraising committee counts as money from that conduit is an open decision, so the
+    derivation carries both variants as parallel columns and picks neither as the
+    headline: variant A counts JFC shares as direct, variant B excludes them. The shares
+    come from name-attributed JFCs and from multi-candidate JFCs' own Schedule B
+    outflows, split pro-rata to the conduits that funded them.
+25. **Shared-committee transfer dedup.** When two candidate IDs share one principal
+    committee, their weball rows are two views of one committee, and transfer fields are
+    counted once: the kept view is the ID whose office matches the person's current
+    chamber, except where a §8 item 15 record exists for that cycle, in which case the
+    record's kept ID wins (the two dedups must agree on which copy survives). This
+    generalizes the Barr case to every House-to-Senate redesignation. It covers transfer
+    fields only; the same pattern doubles the other weball fields where the two views
+    differ, and that wider double-count is untouched.
+26. **Election-attributed refunds.** A refund belongs to the election it refunds,
+    named by the pas2 transaction's election designator and confirmed against Schedule A
+    line 16 — not to the cycle the refund was filed in.
+27. **All-IE total includes blank-direction rows.** Independent-expenditure rows with
+    no support/oppose direction count in the all-IE total and in neither bucket. Support
+    plus oppose therefore does not always equal the total.
+28. **Roster-linkage gaps are not derivation errors.** Money filed under a candidate ID
+    the roster does not link does not attach to the person, in either direction: a
+    committee's API total can sit unattributed when its candidate ID is unlinked, and a
+    person's current committee can be invisible when its ID is unlinked. Linking an ID
+    is a roster change, never something the derivation does unilaterally.
 
 ---
 
