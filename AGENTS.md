@@ -232,7 +232,7 @@ figure to get past it.
    It runs the pipeline in order (roster → FEC lookup → store →
    run checks → dbt silver → accepted money → UDP → self-funding →
    other committees → all-IE → pro-Israel PACs → opposition → dbt marts → dataset (with
-   2026) → verify), backing the current dataset up
+   2026) → primary targets → verify), backing the current dataset up
    to `data/snapshots/` first. It refuses to run on anything but the
    snapshot recorded in `data/source/baseline.json` (`_snapshot`): the
    FEC updates its bulk files in place, so a live download is a
@@ -315,7 +315,10 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
   (`git diff --exit-code` on `congress-money-tracker.csv` / `.json`),
   then `build_site.py`, **fail if the committed `docs/index.html` is not
   the rebuilt page** (timestamp aside), then `verify_site.py`. No deploy
-  step — GitHub Pages serves `docs/` on `master` automatically.
+  step — GitHub Pages serves `docs/` on `master` automatically. The JS
+  unit tests run in their own step after the type check
+  (`node --test "receipts/site/tests/*.test.mjs"`, Node's built-in runner,
+  no dependencies; node is preinstalled on the runner).
   `permissions: contents: read`. Needs no secrets, so it is safe on PRs
   from forks.
 - **`fec-snapshot.yml`** — manual, and called by the refresh. Publishes the live FEC bulk files as

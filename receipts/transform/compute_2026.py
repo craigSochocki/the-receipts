@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Per-cycle records, the current cycle's columns, verdicts and tiers, and the target list."""
+"""Per-cycle records, the current cycle's columns, verdicts and tiers."""
 
-from collections import Counter
+from collections.abc import Mapping, Sequence
 from functools import cache
+from typing import Any
 
 from receipts.common.baseline import expected
 from receipts.common.settings import settings
@@ -12,7 +13,6 @@ from receipts.domain.clean_2026 import (
     UNOPPOSED,
     UNOPPOSED_NOTE,
     aipac_udp_flagged,
-    is_career_clean,
     race_label,
     races_and_unopposed,
     tier,
@@ -20,10 +20,12 @@ from receipts.domain.clean_2026 import (
 )
 from receipts.domain.committee_classes import OTHER_COMMITTEE_CLASSES
 from receipts.domain.seats import regular_senate_class
-from receipts.domain.targets import latest_record, primary_targets
 from receipts.domain.term import term_record
 from receipts.store.races import races_in
 from receipts.store.read import connect
+from receipts.transform.records import CycleRecord, PersonRecord, select_keys
+from receipts.validate.audits.clean import clean_count_values
+from receipts.validate.audits.tiers import tier_count_values
 
 BUCKETS = [c.value for c in OTHER_COMMITTEE_CLASSES]
 CANDIDACIES = 'SELECT DISTINCT candidate_id, cycle, election_year FROM candidacies'
@@ -46,7 +48,7 @@ def cycle_sum(entries, field, cycle):
     return round(sum(e[field] for e in found), 2) if found else 0
 
 
-def has_linkage(r, cycle):
+def has_linkage(r: PersonRecord, cycle: int):
     """Data in `cycle` in any money source: committee money, UDP, or that cycle's weball summary."""
     return (
         bool(in_cycle(r['per_cycle'], cycle))
@@ -58,7 +60,7 @@ def has_linkage(r, cycle):
     )
 
 
-def has_2026_linkage(r):
+def has_2026_linkage(r: PersonRecord):
     return has_linkage(r, settings().cycles.current)
 
 
@@ -95,7 +97,7 @@ def money_in(r, cycle, credit):
     return m
 
 
-def judged(r, cycle, money, races):
+def judged(r: PersonRecord, cycle: int, money, races):
     """The cycle's unopposed flag, clean verdict and tiers, with why a verdict is unknown."""
     race_map, race_of = races
     in_races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
@@ -136,7 +138,7 @@ def cycle_record(r, cycle, credit, races, up):
     return record, unknown_because, unopposed
 
 
-def seat_up_now(r, filed):
+def seat_up_now(r: PersonRecord, filed):
     """An incoming member's seat is up this cycle unless their filing is for a later election."""
     current = settings().cycles.current
     if r['in_120th'] != 'yes':
@@ -149,14 +151,16 @@ def seat_up_now(r, filed):
     return True
 
 
-def headline_record(r, filed):
+def headline_record(r: PersonRecord, filed) -> CycleRecord | None:
     """The current cycle's record if the person or their seat is up in it, else the latest up."""
     current = settings().cycles.current
     up = [c for c in r['cycles'] if c['up_for_election']]
     now = [c for c in r['cycles'] if c['cycle'] == current]
     if now and (now[0]['up_for_election'] or seat_up_now(r, filed)):
         return now[0]
-    return (up[-1:] or [None])[0]
+    if up:
+        return up[-1]
+    return None
 
 
 def headline(r, filed):
@@ -210,101 +214,12 @@ def opposition_credits():
         return {(cycle, key): cents / 100 for cycle, key, cents in db.execute(CREDITS).fetchall()}
 
 
-def by_party(house_clean, career_clean):
-    found = {}
-    for party in ('Democrat', 'Republican'):
-        found[f'clean_2026.house_120th_verified_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in house_clean
-        )
-        found[f'clean_2026.house_120th_career_clean_{party.lower()}'] = sum(
-            r['party_120'] == party for r in career_clean
-        )
-    return found
-
-
-def clean_counts(records):
-    house = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
-    house_clean = [r for r in house if r['clean_2026'] is True]
-    career_clean = [r for r in house if is_career_clean(r)]
-    career_keys = {r['person_key'] for r in career_clean}
-    found = {
-        'clean_2026.true_total': sum(r['clean_2026'] is True for r in records),
-        'clean_2026.false_total': sum(r['clean_2026'] is False for r in records),
-        'clean_2026.null_total': sum(r['clean_2026'] is None for r in records),
-        'clean_2026.house_120th_verified_clean': len(house_clean),
-        'clean_2026.house_120th_career_clean': len(career_clean),
-        **by_party(house_clean, career_clean),
-    }
-    found['clean_2026.house_120th_clean_2026_not_career_clean'] = sum(
-        r['person_key'] not in career_keys for r in house_clean
-    )
-    return found
-
-
-def tier_counts(records):
-    r120 = [r for r in records if r['in_120th'] == 'yes']
-    found = {
-        'tiered_2026.aipac_udp_flag_all': sum(r['aipac_udp_flag_2026'] for r in records),
-        'tiered_2026.aipac_udp_flag_120th': sum(r['aipac_udp_flag_2026'] for r in r120),
-    }
-    for preset in ('balanced', 'lenient'):
-        tiers = Counter(r[f'tier_{preset}_2026'] for r in r120)
-        for name in ('clean', 'below_threshold', 'dirty'):
-            found[f'tiered_2026.{preset}.{name}'] = tiers.get(name, 0)
-        found[f'tiered_2026.{preset}.null'] = tiers.get(None, 0)
-        found[f'tiered_2026.{preset}.not_dirty'] = tiers.get('clean', 0) + tiers.get(
-            'below_threshold', 0
-        )
-    return found
-
-
-def observed_counts(records):
-    return {**clean_counts(records), **tier_counts(records)}
-
-
-def check_against_baseline(records):
-    for key, got in observed_counts(records).items():
+def check_against_baseline(records: Sequence[Mapping[str, Any]]):
+    """The build-time check, over the same counts the verify audits pin."""
+    for key, got in {**clean_count_values(records), **tier_count_values(records)}.items():
         want = expected(key, got)
         if got != want:
             raise SystemExit(f'{key}: computed {got} != baseline {want}')
-
-
-def write_primary_targets(records):
-    """The next cycle's primary targets under the default (Balanced) preset."""
-    cycle = settings().cycles.next
-    targets = primary_targets(records, 'balanced', cycle)
-    lines = [
-        f'# Primary targets — {cycle}: incoming members, any party, by dirty money',
-        '',
-        f'Generated from the tracker dataset (data as of {settings().data_as_of}). '
-        f'{len(targets)} incoming members whose seat is up in {cycle} took dirty money in '
-        f'their latest election under the Balanced preset (corporate PAC + AIPAC direct + '
-        f'UDP benefit). Individual contributions are not dirty money.',
-        '',
-        "A public-facing version of this list needs Craig's explicit go-ahead.",
-        '',
-        '| # | Name | Party | Seat | Election | Dirty | Corp PAC | AIPAC | UDP benefit | Individual |',
-        '|---|------|-------|------|---------:|------:|---------:|------:|------------:|-----------:|',
-    ]
-    for i, r in enumerate(targets, 1):
-        record = latest_record(r)
-        lines.append(
-            f'| {i} | {r["full_name"]} | {r["party_120"]} | {seat_label(r)} | {record["cycle"]} | '
-            + ' | '.join(
-                f'${record[k]:,.2f}'
-                for k in ('dirty', 'corp', 'aipac_direct', 'udp_benefit', 'individual')
-            )
-            + ' |'
-        )
-    settings().paths.primary_targets.write_text('\n'.join(lines) + '\n')
-
-
-def seat_label(r):
-    return (
-        f'{r["state"]}-{r["district_120"]}'
-        if r['chamber_120'] == 'House'
-        else f'{r["state"]} Senate'
-    )
 
 
 def add_cycle_records(records, credits, races_for, filed=None):
@@ -324,10 +239,9 @@ def add_cycle_records(records, credits, races_for, filed=None):
     return records
 
 
-def with_cycles(records):
-    """Add the cycle records and columns; check the counts; write the target list."""
+def with_cycles(records: list[PersonRecord]) -> list[PersonRecord]:
+    """Add the cycle records and columns, and check the counts."""
     races = cache(races_in)
     add_cycle_records(records, opposition_credits(), races, filed_elections())
     check_against_baseline(records)
-    write_primary_targets(records)
-    return [{k: r[k] for k in settings().dataset.json_keys} for r in records]
+    return [select_keys(r, settings().dataset.json_keys) for r in records]

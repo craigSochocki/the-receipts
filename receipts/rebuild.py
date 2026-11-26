@@ -27,7 +27,13 @@ from receipts.store import (
     self_funding,
     udp,
 )
-from receipts.transform import apply_fec_lookup, build_dataset, build_roster, fec_lookup
+from receipts.transform import (
+    apply_fec_lookup,
+    build_dataset,
+    build_roster,
+    fec_lookup,
+    primary_targets,
+)
 from receipts.validate import run_history, verify_dataset
 
 
@@ -53,6 +59,7 @@ STEPS = [
     Step('receipts.store.opposition', opposition.main),
     Step('receipts.store.models marts', lambda: models.build('marts')),
     Step('receipts.transform.build_dataset', build_dataset.main),
+    Step('receipts.transform.primary_targets', primary_targets.main),
     Step('receipts.validate.verify_dataset', lambda: verify_dataset.main([])),
 ]
 LOOKUP_STEP = Step('receipts.transform.fec_lookup', fec_lookup.main)

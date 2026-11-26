@@ -11,10 +11,55 @@ from radon.metrics import mi_visit
 
 from receipts.common.settings import repo_root
 
-MAX_COMPLEXITY = 20  # radon grade C or better
+MAX_COMPLEXITY = 10  # radon grade B or better
 MIN_MAINTAINABILITY = 20  # radon grade A
 
-COMPLEXITY_DEBT = {}
+COMPLEXITY_DEBT = {
+    'common/fec_api.py:scan_filings': 12,
+    'common/settings.py:_build_record': 13,
+    'ingest/pull_freshness.py:person_summary': 13,
+    'rebuild.py:main': 11,
+    'site/checks/counts.py:composition': 12,
+    'site/checks/data.py:data_round_trip': 12,
+    'site/checks/page.py:values_equal': 12,
+    'square_one/conduit.py:_cm_lookup': 11,
+    'square_one/conduit.py:direct_from_by_recipient': 20,
+    'square_one/corrected.py:kept_candidate_id': 11,
+    'square_one/corrected.py:substitute_aipac': 20,
+    'square_one/corrected.py:substitute_transfers': 19,
+    'square_one/counts.py:build_person_lists': 17,
+    'square_one/counts.py:count_results': 11,
+    'square_one/derive.py:derive_ie_data': 12,
+    'square_one/derive.py:run': 11,
+    'square_one/ie.py:derive_ie': 11,
+    'square_one/money.py:_dedup_groups_for_person': 15,
+    'square_one/money.py:derive_committee_money': 13,
+    'square_one/transfers.py:apply_transfer_dedup': 15,
+    'square_one/transfers.py:shared_committee_groups': 13,
+    'square_one/variants.py:combine_jfc': 12,
+    'store/all_ie_report.py:bogus_examples': 11,
+    'store/all_ie_report.py:file_exclusions': 18,
+    'store/all_ie_report.py:roster_career_totals': 17,
+    'store/other_committees.py:per_cycle_record': 11,
+    'store/pro_israel.py:per_cycle': 13,
+    'store/self_funding.py:person_summary': 12,
+    'transform/assemble.py:data_notes': 11,
+    'transform/build_roster.py:RosterBuilder.note_successors': 13,
+    'transform/build_roster.py:senate_class': 14,
+    'transform/compute_2026.py:money_in': 13,
+    'transform/fec_lookup.py:matching_candidates': 13,
+    'validate/audits/clean.py:clean_count_values': 16,
+    'validate/audits/clean.py:unopposed': 14,
+    'validate/audits/columns_2026.py:cycle_records': 13,
+    'validate/audits/columns_2026.py:headline_verdicts': 11,
+    'validate/audits/columns_2026.py:term_verdict': 13,
+    'validate/audits/money.py:all_ie': 13,
+    'validate/audits/ranks.py:ranks_and_dirty': 14,
+    'validate/audits/rows.py:csv_matches_json': 18,
+    'validate/audits/senate.py:SeatClasses': 11,
+    'validate/audits/senate.py:SeatClasses.of': 16,
+    'validate/run_history.py:main': 12,
+}
 # Scored without docstrings, so prose cannot lift a file over the line.
 MAINTAINABILITY_DEBT = {}
 
