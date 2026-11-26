@@ -167,6 +167,26 @@ def load():
     return Corrected(output)
 
 
+def _claim(claims, person, cycle, value, label, dedup_records, offices):
+    """Record one nonzero corrected figure's claim on its kept (candidate, cycle).
+
+    Two people can share a candidate ID: each row takes its claim, never
+    a later person's zero, and two different nonzero claims on one row
+    fail loudly.
+    """
+    key = person['person_key']
+    kept = kept_candidate_id(person, cycle, dedup_records, offices)
+    if kept is None:
+        raise SystemExit(f'{key} {cycle}: corrected {label} {value} but no FEC IDs')
+    pair = (kept, cycle)
+    if pair in claims and claims[pair] != value:
+        raise SystemExit(
+            f'{key} {cycle}: corrected {label} {value} conflicts with '
+            f'{claims[pair]} already claimed for {pair}'
+        )
+    claims[pair] = value
+
+
 def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, offices=None):
     """Replace aipac_pac_direct in accepted-money rows with the corrected figures.
 
@@ -201,15 +221,7 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
             cents = corrected.aipac_cents(key, cycle)
             if not cents:
                 continue
-            kept = kept_candidate_id(person, cycle, dedup_records, offices)
-            if kept is None:
-                raise SystemExit(f'{key} {cycle}: corrected AIPAC {cents} but no FEC IDs')
-            if (kept, cycle) in claims and claims[(kept, cycle)] != cents:
-                raise SystemExit(
-                    f'{key} {cycle}: corrected AIPAC {cents} conflicts with '
-                    f'{claims[(kept, cycle)]} already claimed for {(kept, cycle)}'
-                )
-            claims[(kept, cycle)] = cents
+            _claim(claims, person, cycle, cents, 'AIPAC', dedup_records, offices)
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
@@ -270,15 +282,7 @@ def substitute_transfers(finances, people, dedup_records, corrected, offices=Non
             pair = corrected.transfers_cents(key, cycle)
             if pair is None or pair == (0, 0):
                 continue
-            kept = kept_candidate_id(person, cycle, dedup_records, offices)
-            if kept is None:
-                raise SystemExit(f'{key} {cycle}: corrected transfers {pair} but no FEC IDs')
-            if (kept, cycle) in claims and claims[(kept, cycle)] != pair:
-                raise SystemExit(
-                    f'{key} {cycle}: corrected transfers {pair} conflict with '
-                    f'{claims[(kept, cycle)]} already claimed for {(kept, cycle)}'
-                )
-            claims[(kept, cycle)] = pair
+            _claim(claims, person, cycle, pair, 'transfers', dedup_records, offices)
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
