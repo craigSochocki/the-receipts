@@ -315,7 +315,10 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
   (`git diff --exit-code` on `congress-money-tracker.csv` / `.json`),
   then `build_site.py`, **fail if the committed `docs/index.html` is not
   the rebuilt page** (timestamp aside), then `verify_site.py`. No deploy
-  step — GitHub Pages serves `docs/` on `master` automatically.
+  step — GitHub Pages serves `docs/` on `master` automatically. The JS
+  unit tests run in their own step after the type check
+  (`node --test "receipts/site/tests/*.test.mjs"`, Node's built-in runner,
+  no dependencies; node is preinstalled on the runner).
   `permissions: contents: read`. Needs no secrets, so it is safe on PRs
   from forks.
 - **`fec-snapshot.yml`** — manual, and called by the refresh. Publishes the live FEC bulk files as

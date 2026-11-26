@@ -234,7 +234,9 @@ Three workflows in `.github/workflows/`:
   `congress-money-tracker.csv` / `.json`), builds the site, **fails if
   the committed `docs/index.html` is not the rebuilt page** (timestamp
   aside), and runs `python3 receipts/site/verify_site.py`. No deploy step —
-  GitHub Pages serves `docs/` on `master` automatically.
+  GitHub Pages serves `docs/` on `master` automatically. The JS unit tests
+  run in their own step after the type check
+  (`node --test "receipts/site/tests/*.test.mjs"`).
   `permissions: contents: read`. It needs no secrets, so it is safe to
   run on pull requests, including PRs from forks.
 - **`fec-snapshot.yml` — manual, and called by the refresh.** Downloads the live FEC bulk files once

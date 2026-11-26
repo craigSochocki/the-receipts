@@ -47,6 +47,12 @@ jobs:
       - name: Type check
         run: mypy
 
+      - name: JS unit tests
+        # Node's built-in runner, no dependencies: loads the shipped site
+        # scripts in a vm context and tests the rule mirrors directly.
+        # Node is preinstalled on the runner.
+        run: node --test "receipts/site/tests/*.test.mjs"
+
       - name: Stage the pinned FEC snapshot
         # Before the tests: the square-one tests read the raw bulk files
         # from data/raw/, which only exist once the snapshot is staged.
