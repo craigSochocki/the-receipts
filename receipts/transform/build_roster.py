@@ -87,7 +87,7 @@ class FormerMembers:
         return None
 
 
-class Roster:
+class RosterBuilder:
     """Everyone who serves in the 119th or the 120th Congress, keyed by person_key."""
 
     def __init__(self, legislators):
@@ -311,7 +311,7 @@ def senate_class(row, legislators, continuing):
 
 def build(legislators, historical_lookup, r120, facts):
     """(roster, the 120th seats, who is new) from the parsed sources and curated facts."""
-    roster = Roster(legislators)
+    roster = RosterBuilder(legislators)
     former = FormerMembers(historical_lookup)
     seats = list(seats_120th(r120))
     newcomers = roster.seat_120th(seats, former)
