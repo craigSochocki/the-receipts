@@ -135,7 +135,9 @@ def test_substitute_aipac_sets_the_kept_entry_and_zeroes_the_other():
         }
     )
     filed = {('H0KY06104', 2026), ('S6KY00286', 2026), ('H0KY06104', 2024)}
-    new_counted, new_filed = substitute_aipac(counted, filed, [barr], [], corrected, COLUMNS)
+    new_counted, new_filed = substitute_aipac(
+        counted, filed, [barr], [], corrected, COLUMNS, {'H0KY06104': 'H', 'S6KY00286': 'S'}
+    )
     assert new_counted[('S6KY00286', 2026)]['aipac_pac_direct'] == Money(5235943)
     assert new_counted[('H0KY06104', 2026)]['aipac_pac_direct'] == Money(0)
     assert new_counted[('H0KY06104', 2026)]['individual'] == Money(100)
@@ -149,7 +151,9 @@ def test_substitute_aipac_adds_a_missing_cycle_entry():
     hern = person('H001082', ['H8OK01157', 'S6OK04247'])
     counted = _counted({('H8OK01157', 2024): {'individual': 100}})
     filed = {('H8OK01157', 2024)}
-    new_counted, new_filed = substitute_aipac(counted, filed, [hern], [], corrected, COLUMNS)
+    new_counted, new_filed = substitute_aipac(
+        counted, filed, [hern], [], corrected, COLUMNS, {'H8OK01157': 'H', 'S6OK04247': 'S'}
+    )
     assert ('S6OK04247', 2026) in new_counted
     assert new_counted[('S6OK04247', 2026)]['aipac_pac_direct'] == Money(1000000)
     assert new_counted[('S6OK04247', 2026)]['individual'] == Money(0)
@@ -183,7 +187,9 @@ def test_substitute_transfers_keeps_the_kept_view_only():
             ('H0KY06104', 2024): (48586314, 0),
         }
     )
-    new = substitute_transfers(finances, [barr], [], corrected)
+    new = substitute_transfers(
+        finances, [barr], [], corrected, {'H0KY06104': 'H', 'S6KY00286': 'S'}
+    )
     assert new[('S6KY00286', 2026)].transfers_from_auth == Money(282810951)
     assert new[('S6KY00286', 2026)].transfers_to_auth == Money(5681782)
     assert new[('H0KY06104', 2026)].transfers_from_auth == Money(0)
@@ -195,7 +201,7 @@ def test_substitute_transfers_fails_loudly_without_a_weball_row():
     corrected = Corrected(fake_output())
     barr = person('B001282', ['H0KY06104', 'S6KY00286'])
     with pytest.raises(SystemExit, match='no weball row'):
-        substitute_transfers(_finances({}), [barr], [], corrected)
+        substitute_transfers(_finances({}), [barr], [], corrected, {})
 
 
 def test_api_cycles_are_2022_2024_2026():

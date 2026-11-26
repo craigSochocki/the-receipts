@@ -148,7 +148,7 @@ def load():
     return Corrected(output)
 
 
-def substitute_aipac(counted, filed, people, dedup_records, corrected, columns):
+def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, offices=None):
     """Replace aipac_pac_direct in accepted-money rows with the corrected figures.
 
     `counted` maps (candidate_id, cycle) to {column: Money} and `filed` is
@@ -158,12 +158,15 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns):
     IDs carry zero. A cycle with a corrected total but no entry gains
     one on the kept ID (other columns zero). Returns (counted, filed)
     with new dicts. The earmark column is untouched (still pas2).
+    `offices` is the committee-master office map; it is read from the
+    staged bulk files when not given.
     """
     from receipts.domain.money import Money
 
     counted = dict(counted)
     filed = set(filed)
-    offices = office_map()
+    if offices is None:
+        offices = office_map()
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
@@ -191,21 +194,24 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns):
     return counted, filed
 
 
-def substitute_transfers(finances, people, dedup_records, corrected):
+def substitute_transfers(finances, people, dedup_records, corrected, offices=None):
     """Replace transfers from/to in weball finances with the deduped figures.
 
     `finances` maps (candidate_id, cycle) to CampaignFinances. For every
     API cycle the person's entries are set so they sum to the corrected
     totals: the kept ID carries them, the other IDs carry zero. A cycle
     with corrected transfers but no weball row is a derivation/store
-    disagreement and fails loudly. Returns a new dict.
+    disagreement and fails loudly. Returns a new dict. `offices` is the
+    committee-master office map; it is read from the staged bulk files
+    when not given.
     """
     from dataclasses import replace
 
     from receipts.domain.money import Money
 
     finances = dict(finances)
-    offices = office_map()
+    if offices is None:
+        offices = office_map()
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
