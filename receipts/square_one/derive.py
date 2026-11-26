@@ -278,6 +278,22 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
     return output
 
 
+def run_rebuild_step() -> None:
+    """The rebuild step: derive the corrected figures from the staged snapshot."""
+    root = repo_root()
+    span = settings().cycles
+    output = run(
+        root,
+        root / 'data' / 'intermediate' / 'square_one' / 'derived.json',
+        list(range(span.career_start, span.career_end + 1, 2)),
+        list(span.udp),
+    )
+    print('counts:', json.dumps(output['counts'], indent=1))
+    print('audits:', output['audits_line'])
+    if not output['audits_passed']:
+        raise SystemExit('audits failed')
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=repo_root())
