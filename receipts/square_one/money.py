@@ -316,55 +316,49 @@ def rollup_person_cycle(
 ) -> dict:
     """Per (person_key, cycle): weball + committee money, summed across the person's IDs."""
     per_person: dict[tuple[str, int], dict] = {}
+    weball_fields = (
+        'individual',
+        'total_receipts',
+        'transfers_from_auth',
+        'total_disbursements',
+        'transfers_to_auth',
+        'cash_on_hand',
+        'cand_contrib',
+        'cand_loans',
+        'loan_repayments',
+        'debts_owed_by',
+        'other_committee_col26',
+        'party_col27',
+    )
     for person in people:
         key = person['person_key']
         for cycle in cycles:
-            entry: dict[str, int | str | None] = {'person_key': key, 'cycle': cycle}
-            for field in (
-                'individual',
-                'total_receipts',
-                'transfers_from_auth',
-                'total_disbursements',
-                'transfers_to_auth',
-                'cash_on_hand',
-                'cand_contrib',
-                'cand_loans',
-                'loan_repayments',
-                'debts_owed_by',
-                'other_committee_col26',
-                'party_col27',
-            ):
-                entry[field] = 0
-            entry['coverage_end'] = None
-            entry['has_weball'] = False
-            entry['has_committee_money'] = False
+            totals: dict[str, int] = {field: 0 for field in weball_fields}
+            for kind in ALL_CLASSES:
+                totals[kind] = 0
+                totals[f'{kind}_earmark'] = 0
+            coverage_end = None
+            has_weball = False
+            has_committee_money = False
             for cid in person['fec_candidate_ids']:
                 web = weball.get((cid, cycle))
                 if web is not None:
-                    entry['has_weball'] = True
-                    for field in (
-                        'individual',
-                        'total_receipts',
-                        'transfers_from_auth',
-                        'total_disbursements',
-                        'transfers_to_auth',
-                        'cash_on_hand',
-                        'cand_contrib',
-                        'cand_loans',
-                        'loan_repayments',
-                        'debts_owed_by',
-                        'other_committee_col26',
-                        'party_col27',
-                    ):
-                        entry[field] = int(entry[field]) + web[field]  # type: ignore[arg-type]
-                    entry['coverage_end'] = web['coverage_end']
+                    has_weball = True
+                    for field in weball_fields:
+                        totals[field] += web[field]
+                    coverage_end = web['coverage_end']
                 money = committee_money.get((cid, cycle))
                 if money is not None:
-                    entry['has_committee_money'] = True
+                    has_committee_money = True
                     for kind in ALL_CLASSES:
-                        entry[kind] = int(entry.get(kind, 0)) + money.get(kind, 0)  # type: ignore[arg-type]
-                        entry[f'{kind}_earmark'] = int(entry.get(f'{kind}_earmark', 0)) + money.get(
-                            f'{kind}_earmark', 0
-                        )  # type: ignore[arg-type]
-            per_person[(key, cycle)] = entry  # type: ignore[assignment]
+                        totals[kind] += money.get(kind, 0)
+                        totals[f'{kind}_earmark'] += money.get(f'{kind}_earmark', 0)
+            per_person[(key, cycle)] = {
+                'person_key': key,
+                'cycle': cycle,
+                **totals,
+                'coverage_end': coverage_end,
+                'has_weball': has_weball,
+                'has_committee_money': has_committee_money,
+            }
     return per_person
