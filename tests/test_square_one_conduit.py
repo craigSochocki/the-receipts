@@ -139,3 +139,15 @@ def test_classifier_reproduces_per_person_api3():
         if direct[key] != expected_direct[key]
     ]
     assert mismatches == [], mismatches[:10]
+
+
+def test_cm_lookup_tolerates_unloaded_cycles():
+    """The cross-cycle fallback only consults cycles whose maps are loaded."""
+    maps = {2026: {'SOME COMMITTEE': ('C00000001', 'P', 'H0XX00001', 'SOME COMMITTEE')}}
+    assert conduit._cm_lookup(2026, 'ABSENT COMMITTEE', maps) is None
+    assert conduit._cm_lookup(2026, 'SOME COMMITTEE', maps) == (
+        'C00000001',
+        'P',
+        'H0XX00001',
+        'SOME COMMITTEE',
+    )

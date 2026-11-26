@@ -134,7 +134,7 @@ def _cm_lookup(cycle: int, key: str, cm_by_cycle: dict[int, dict]):
         return hit
     # Terminated committees vanish from the current cycle's master.
     for other_cycle in (2024, 2022, 2026):
-        if other_cycle == cycle:
+        if other_cycle == cycle or other_cycle not in cm_by_cycle:
             continue
         hit = cm_by_cycle[other_cycle].get(key) or _prefix(cm_by_cycle[other_cycle], key)
         if hit and hit != 'AMBIGUOUS':
