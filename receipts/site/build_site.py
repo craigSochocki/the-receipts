@@ -14,6 +14,7 @@ from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean, is_not_dirty
 from receipts.domain.seats import regular_senate_class
 from receipts.site.expectations import latest
+from receipts.site.static_render import render_story_slots, render_table_slots
 from receipts.store.read import connect
 from receipts.transform.compute_2026 import cycle_fields
 
@@ -251,9 +252,27 @@ def template(name):
     return (TEMPLATES / name).read_text(encoding='utf-8')
 
 
+def vendor_script(name):
+    """A vendored library, inlined; a missing file fails the build loudly."""
+    path = TEMPLATES / 'vendor' / name
+    if not path.exists():
+        raise SystemExit(f'missing vendored library: {path}')
+    return path.read_text(encoding='utf-8')
+
+
 def page_template():
-    """templates/page.html with its stylesheet and two scripts inlined: the page is one file."""
+    """templates/page.html with its stylesheet and scripts inlined: the page is one file.
+
+    The vendored libraries come first (d3, then Plot on the d3 global,
+    then scrollama), then the tracker's own scripts.
+    """
     page = template('page.html')
+    for slot, name in (
+        ('%%D3_JS%%', 'd3.min.js'),
+        ('%%PLOT_JS%%', 'plot.umd.min.js'),
+        ('%%SCROLLAMA_JS%%', 'scrollama.min.js'),
+    ):
+        page = page.replace(slot, vendor_script(name))
     for slot, name in (
         ('%%STYLE%%', 'style.css'),
         ('%%TRACKER_JS%%', 'tracker.js'),
@@ -439,6 +458,8 @@ def main():
     )
     html = page_template()
     html = html.replace('%%METHOD_HTML%%', clean_method_html(dataset))
+    html = render_story_slots(html, dataset)
+    html = render_table_slots(html, dataset)
     for token, value in cycle_tokens().items():
         html = html.replace(token, value)
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))

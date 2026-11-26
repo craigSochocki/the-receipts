@@ -1,4 +1,4 @@
-"""No result figure is typed into the page: every one is computed in the browser."""
+"""No result figure is typed into the page: every one is computed from the dataset, at build time or in the browser."""
 
 import re
 

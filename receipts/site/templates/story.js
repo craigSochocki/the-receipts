@@ -1,13 +1,22 @@
-/* ---- the front-door story: one pinned field of every incoming member ----
-   Each step is a layout of the same dots; scrolling a step's card into
-   the middle of the screen moves the dots there. Status comes from
+/* ---- the front-door story: one pinned graphic of every incoming member ----
+   Each step is a view of the same people; scrolling a step's card into
+   the middle of the screen moves the graphic there. Status comes from
    tierOf (the preset and the cycle picker drive it, like the rest of the
-   page) and every count is computed here, never typed. Without
-   IntersectionObserver (or with reduced motion) every card shows and the
-   field holds the clean-vs-dirty layout. */
+   page) and every count is computed here, never typed. Standard steps
+   render with Observable Plot into #story-plot; the three bespoke steps
+   (House hemicycle, district map, Senate tiles) keep the hand-rolled SVG
+   in #dotfield. Without Plot, or without a step library (or with reduced
+   motion), the story falls back to the dot field and the static layout. */
 const STORY_W = 600, STORY_H = 400, DOT_R = 6, DOT_GAP = 15;
 const STATUS_ORDER = {dirty:0, below_threshold:1, clean:2, unjudged:3};
 const STORY_STEPS = ['all', 'status', 'ranked', 'party', 'house', 'districts', 'senate', 'targets', 'find'];
+/* Steps drawn by Observable Plot; the rest keep the bespoke dot field. */
+const PLOT_STEPS = ['all', 'status', 'ranked', 'party', 'targets', 'find'];
+const STATUS_KEYS = ['dirty', 'below_threshold', 'clean', 'unjudged'];
+const STATUS_LABELS = {dirty:'Dirty', below_threshold:'Below threshold', clean:'Clean', unjudged:'Not judged'};
+/* Same greys as the site's key: dirty solid, below-threshold mid grey,
+   clean white, unjudged pale grey — labels always accompany the colour. */
+const STATUS_FILL = {dirty:'#4b5563', below_threshold:'#9ca3af', clean:'#ffffff', unjudged:'#e5e7eb'};
 const US_STATES = JSON.parse(document.getElementById('us-states').textContent);
 const US_DISTRICTS = JSON.parse(document.getElementById('us-districts').textContent);
 // The outlines' Albers frame (975 x 610), fitted into the story's field.
@@ -157,10 +166,132 @@ function dotClass(p, step){
 }
 
 let STORY_TARGETS = new Set();
+/* Observable Plot is vendored and inlined before this script; the Node
+   vm tests load this file with no Plot global, so guard every use. */
+function hasPlot(){ return typeof Plot !== 'undefined' && Plot && typeof Plot.plot === 'function'; }
+/* The waffle's rows, sorted by status so the blocks read dirty first. */
+function waffleRows(people){
+  return people.slice().sort(byStatus).map(p=>({key: p.person_key, status: storyStatus(p), n: 1}));
+}
+function storyPlotLabel(step){
+  return storyTexts()[step].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function wafflePlot(rows, fill){
+  const cols = 27, lines = Math.ceil(rows.length/cols), cell = (STORY_W-16)/cols;
+  return Plot.plot({
+    width: STORY_W, height: Math.round(lines*cell+16),
+    axis: null, label: null, marginTop: 8, marginBottom: 8, marginLeft: 8, marginRight: 8,
+    color: {domain: STATUS_KEYS, range: STATUS_KEYS.map(k=>STATUS_FILL[k])},
+    marks: [Plot.waffleX(rows, {x: 'n', unit: 1, fill: fill, multiple: cols})],
+  });
+}
+function waffleLegend(people){
+  const counts = {dirty: 0, below_threshold: 0, clean: 0, unjudged: 0};
+  people.forEach(p=>{ counts[storyStatus(p)]++; });
+  return STATUS_KEYS.map(s=>
+    '<span><span class="k dot-'+s+'"></span>'
+    +STATUS_LABELS[s]+' — <b>'+counts[s]+'</b></span>').join(' ');
+}
+/* Plot renders one <rect> per waffle cell, in data order (verified
+   against the pinned Plot 0.6.19 in jsdom): tag each cell with its
+   member so clicks open the drill-down, and outline the cells the
+   step is about — targets on the targets step, the picked member on
+   the find step. If Plot's output ever stops matching the rows, skip
+   the tagging rather than mislabelling cells. */
+function tagWaffleCells(plotEl, rows, step){
+  const rects = plotEl.querySelectorAll('svg rect');
+  if(rects.length!==rows.length) return;
+  rects.forEach((r, i)=>{
+    r.setAttribute('data-key', rows[i].key);
+    if(step==='targets' && STORY_TARGETS.has(rows[i].key)){
+      r.setAttribute('data-target', '1');
+      r.setAttribute('stroke', '#111827'); r.setAttribute('stroke-width', '2.5');
+    }
+    if(step==='find' && storyPick && storyPick===rows[i].key){
+      r.setAttribute('data-picked', '1');
+      r.setAttribute('stroke', '#111827'); r.setAttribute('stroke-width', '3.5');
+    }
+  });
+}
+function rankedPlot(people){
+  const ranked = people.slice().sort((a, b)=>(num(b.cy_dirty)||0)-(num(a.cy_dirty)||0));
+  const vals = ranked.map(p=>({key: p.person_key, dirty: Math.max(0, num(p.cy_dirty)||0), status: storyStatus(p)}));
+  const amounts = vals.map(v=>v.dirty).sort((a, b)=>a-b);
+  const median = amounts.length ? amounts[Math.floor(amounts.length/2)] : 0;
+  const top = Math.max(10, 1+(num(ranked[0].cy_dirty)||0));
+  return Plot.plot({
+    width: STORY_W, height: 240,
+    x: {type: 'log', label: 'Dirty money, $ (log scale)', domain: [1, top]},
+    y: {axis: null},
+    color: {domain: STATUS_KEYS, range: STATUS_KEYS.map(k=>STATUS_FILL[k])},
+    marks: [
+      /* One dot per member; $0 plots at $1, as log(1+x). The jitter is
+         a fixed function of the rank, so the strip is stable. */
+      Plot.dot(vals, {x: d=>1+d.dirty, y: (d, i)=>((i*2654435761)%100)/100, r: 3.5, fill: 'status', fillOpacity: 0.85}),
+      Plot.ruleX([1+median], {stroke: '#b91c1c', strokeWidth: 2}),
+      Plot.text(['median '+fmtCompact(median)], {x: 1+median, y: 0.92, dy: -8, fill: '#b91c1c', fontWeight: 'bold', fontSize: 12}),
+      Plot.text(['log scale — each step is 10×'], {frameAnchor: 'top-left', dx: 6, dy: 14, fontWeight: 'bold', fontSize: 13}),
+    ],
+  });
+}
+function partyPlot(people){
+  const groups = partyGroups(people);
+  const rows = [];
+  STATUS_KEYS.forEach(st=>groups.forEach(g=>{
+    rows.push({party: g.label, status: st, n: g.people.filter(p=>storyStatus(p)===st).length});
+  }));
+  return Plot.plot({
+    width: STORY_W, height: 260,
+    x: {label: 'Members'},
+    y: {label: null, domain: groups.map(g=>g.label)},
+    color: {domain: STATUS_KEYS, range: STATUS_KEYS.map(k=>STATUS_FILL[k])},
+    marks: [
+      Plot.barX(rows, {x: 'n', y: 'party', fill: 'status'}),
+      Plot.text(rows, Plot.stackX({
+        x: 'n', y: 'party', text: d=>d.n>0 ? String(d.n) : '',
+        fill: d=>d.status==='dirty' ? '#fff' : '#111827', fontWeight: 'bold',
+      })),
+    ],
+  });
+}
+/* Render a Plot step into #story-plot. The targets and find steps reuse
+   the status waffle: same sorted layout, with their cells outlined. */
+function drawPlotChart(plotEl, step, people){
+  plotEl.innerHTML = '';
+  let plot;
+  if(step==='all') plot = wafflePlot(waffleRows(people), '#9ca3af');
+  else if(step==='ranked') plot = rankedPlot(people);
+  else if(step==='party') plot = partyPlot(people);
+  else plot = wafflePlot(waffleRows(people), 'status');
+  plotEl.appendChild(plot);
+  if(step==='all' || step==='status' || step==='targets' || step==='find'){
+    const legend = document.createElement('div');
+    legend.className = 'plot-legend';
+    legend.innerHTML = step==='all'
+      ? '<p>Each cell is one member.</p>'
+      : '<p>'+waffleLegend(people)+'</p>';
+    plotEl.appendChild(legend);
+    tagWaffleCells(plotEl, waffleRows(people), step);
+  }
+}
 function drawStory(){
-  const svg = document.getElementById('dotfield');
-  if(!svg) return;
   const people = incomingMembers();
+  const plotEl = document.getElementById('story-plot');
+  const svg = document.getElementById('dotfield');
+  if(plotEl){
+    plotEl.setAttribute('aria-label', storyPlotLabel(storyStep));
+    plotEl.setAttribute('aria-describedby', 'step-'+storyStep);
+  }
+  if(PLOT_STEPS.indexOf(storyStep)!==-1 && hasPlot() && plotEl){
+    drawPlotChart(plotEl, storyStep, people);
+    plotEl.style.display = '';
+    if(svg) svg.style.display = 'none';
+    return;
+  }
+  /* Bespoke step, or Plot unavailable: the dot field, as before. */
+  if(plotEl) plotEl.style.display = 'none';
+  if(svg) svg.style.display = '';
+  if(!svg) return;
   if(!svg.childNodes.length || svg.querySelectorAll('circle').length!==people.length){
     svg.innerHTML = districtLayer(people)+mapLayer(people)+'<g class="dots">'+people.map(p=>'<circle r="'+DOT_R+'" data-key="'+esc(p.person_key)+'"><title>'+esc(p.full_name)+'</title></circle>').join('')+'</g><g class="labels"></g>';
   }
@@ -215,8 +346,46 @@ function setStoryStep(step){
   storyStep = step;
   document.querySelectorAll('.scrolly-step').forEach(el=>el.classList.toggle('active', el.getAttribute('data-step')===step));
   drawStory();
+  syncStepper();
 }
 function pickInStory(personKey){ storyPick = personKey || null; if(storyStep==='find') drawStory(); }
+
+/* ---- the stepper: the reduced-motion / static fallback control ----
+   Shown only in static mode; prev/next move to the neighbouring step
+   card and set the step. Wiring is defensive: the template may not
+   have the stepper yet, and the vm stubs return placeholder elements. */
+let stepperEl = null, stepperPrev = null, stepperNext = null, stepperLabel = null;
+function initStepper(){
+  stepperEl = document.querySelector('.story-stepper');
+  if(!stepperEl) return;
+  stepperPrev = stepperEl.querySelector('[data-stepper="prev"]');
+  stepperNext = stepperEl.querySelector('[data-stepper="next"]');
+  stepperLabel = stepperEl.querySelector('.stepper-label');
+  if(stepperPrev) stepperPrev.addEventListener('click', ()=>stepStory(-1));
+  if(stepperNext) stepperNext.addEventListener('click', ()=>stepStory(1));
+  syncStepper();
+}
+function showStepper(){ if(stepperEl) stepperEl.hidden = false; }
+function syncStepper(){
+  if(!stepperEl) return;
+  const i = STORY_STEPS.indexOf(storyStep);
+  if(stepperLabel) stepperLabel.textContent = 'Step '+(i+1)+' of '+STORY_STEPS.length;
+  if(stepperPrev) stepperPrev.disabled = i<=0;
+  if(stepperNext) stepperNext.disabled = i>=STORY_STEPS.length-1;
+}
+function stepStory(delta){
+  const i = STORY_STEPS.indexOf(storyStep);
+  const j = Math.min(STORY_STEPS.length-1, Math.max(0, i+delta));
+  if(j===i) return;
+  const el = document.getElementById('step-'+STORY_STEPS[j]);
+  if(el && typeof el.scrollIntoView==='function') el.scrollIntoView({block: 'center'});
+  setStoryStep(STORY_STEPS[j]);
+}
+function showStaticStory(){
+  document.getElementById('story').classList.add('static');
+  showStepper();
+  setStoryStep('status');
+}
 
 function initStory(){
   if(!document.getElementById('dotfield')) return;
@@ -225,15 +394,38 @@ function initStory(){
     if(go==='targets') showTab('targets');
     if(go==='finder'){ const f = document.getElementById('find-state'); if(f){ f.scrollIntoView({block:'center'}); f.focus(); } }
   });
+  /* A Plot waffle cell opens its member's drill-down, like a dot. */
+  const plotEl = document.getElementById('story-plot');
+  if(plotEl) plotEl.addEventListener('click', e=>{
+    const t = e.target && e.target.closest ? e.target.closest('[data-key]') : null;
+    if(t) openDetail(t.getAttribute('data-key'));
+  });
   renderStory();
-  const steps = document.querySelectorAll('.scrolly-step');
-  if(reducedMotion() || typeof IntersectionObserver==='undefined'){
-    document.getElementById('story').classList.add('static');
-    setStoryStep('status');
+  initStepper();
+  if(reducedMotion()){
+    showStaticStory();
     return;
   }
-  const io = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{ if(e.isIntersecting) setStoryStep(e.target.getAttribute('data-step')); });
-  }, {rootMargin:'-45% 0px -45% 0px'});
-  steps.forEach(s=>io.observe(s));
+  /* Scrollama is the step logic; plain IntersectionObserver is only the
+     fallback when its script failed to load. Never both at once. */
+  if(typeof scrollama !== 'undefined' && typeof IntersectionObserver !== 'undefined'){
+    const scroller = scrollama();
+    scroller.setup({step: '.scrolly-step', offset: 0.5});
+    scroller.onStepEnter(resp=>{
+      if(resp && resp.element) setStoryStep(resp.element.getAttribute('data-step'));
+    });
+    if(typeof window !== 'undefined' && typeof window.addEventListener === 'function'){
+      window.addEventListener('resize', ()=>{ try{ scroller.resize(); }catch(e){} });
+    }
+    return;
+  }
+  const steps = document.querySelectorAll('.scrolly-step');
+  if(typeof IntersectionObserver !== 'undefined'){
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting) setStoryStep(e.target.getAttribute('data-step')); });
+    }, {rootMargin:'-45% 0px -45% 0px'});
+    steps.forEach(s=>io.observe(s));
+    return;
+  }
+  showStaticStory();
 }
