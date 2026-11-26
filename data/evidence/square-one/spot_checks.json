@@ -1,0 +1,50 @@
+{
+ "provenance": "Live FEC Schedule B 2026 figures and Track AIPAC career totals from ~/workspace/user/trackaipac-opensecrets-comparison-2026.md (Nov 25, 2026). Live figures are AIPAC Schedule B line-23 own-money + earmarks to the candidate committee; Jeffries excludes his $399,300 to JFCs (variant A only). Gottheimer live 2026 is $810,090.17 across both 2026 committees (JFC report), not the $398,164 single-committee figure in the comparison table.",
+ "live_aipac_2026": {
+  "C001035": 3358020.0,
+  "B001324": 2301963.0,
+  "W000805": 671736.0,
+  "A000371": 605986.0,
+  "G000583": 810090.17,
+  "S001215": 381346.0,
+  "L000606": 94333.0,
+  "J000294": 22096.0,
+  "adrianboafomdhouse": 0.0,
+  "F000479": 0.0
+ },
+ "ta_career_total": {
+  "S001215": 36298931.0,
+  "B001324": 18996686.0,
+  "G000583": 2398662.0,
+  "L000606": 19195523.0,
+  "C001035": 4613803.0,
+  "adrianboafomdhouse": 5753395.0,
+  "A000371": 1537090.0,
+  "J000294": 1497947.0,
+  "W000805": 809336.0,
+  "F000479": 487491.0
+ },
+ "known_residuals": [
+  {
+   "person_key": "L000606",
+   "dollars": 610488.0,
+   "note": "TA exceeds the tracker+WFMR reconstruction by $610,488; DOCUMENTED-UNKNOWN (Latimer report)."
+  },
+  {
+   "person_key": "C001035",
+   "dollars": 293670.0,
+   "note": "TA exceeds the reconstruction by $293,670; most likely post-Oct-14 earmarks (timing)."
+  }
+ ],
+ "os_2024_earmark_share": {
+  "BELL": 0.998,
+  "note": "OpenSecrets 2024: Bell AIPAC $2,555,095 = individuals $2,550,095 (earmarked) + org $5,000 \u2014 99.8% earmark."
+ },
+ "ta_ie_undercount": [
+  {
+   "person_key": "F000479",
+   "dollars": 65539.0,
+   "note": "TA IE $223,073 is $65,539 below the tracker pro-Israel IE support $288,612.19 (comparison doc \u00a75) \u2014 TA undercounts IE for Fetterman, so the corrected comparable may exceed TA by up to this much."
+  }
+ ]
+}

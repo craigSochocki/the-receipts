@@ -133,6 +133,43 @@ def load_pas2_base(dataset_path: Path) -> tuple[dict, dict]:
     return per_cycle, career
 
 
+def corrected_career_for_person(
+    figures: dict, pas2_per_cycle: dict, pas2_career: dict, person_key: str
+) -> dict:
+    """One person's career totals under both variants, in cents (recount formula)."""
+    api_cycles = (2022, 2024, 2026)
+    base = pas2_career.get(person_key, {'aipac': 0, 'pro_israel': 0})
+    pas2_3cy = {'aipac': 0, 'pro_israel': 0}
+    for cycle in api_cycles:
+        entry = pas2_per_cycle.get((person_key, cycle), {'aipac': 0, 'pro_israel': 0})
+        pas2_3cy['aipac'] += entry['aipac']
+        pas2_3cy['pro_israel'] += entry['pro_israel']
+    api_3cy = {'aipac': 0, 'pro_israel': 0, 'jfc_aipac': 0, 'jfc_other': 0}
+    for cycle in api_cycles:
+        entry = figures.get((person_key, cycle))
+        if entry is None:
+            continue
+        api_3cy['aipac'] += entry['aipac_b_cents']
+        api_3cy['pro_israel'] += entry['pro_israel_b_cents']
+        api_3cy['jfc_aipac'] += entry['jfc_aipac_cents']
+        api_3cy['jfc_other'] += entry['jfc_other_cents']
+    return {
+        'aipac_a_cents': base['aipac']
+        - pas2_3cy['aipac']
+        + api_3cy['aipac']
+        + api_3cy['jfc_aipac'],
+        'aipac_b_cents': base['aipac'] - pas2_3cy['aipac'] + api_3cy['aipac'],
+        'pro_israel_a_cents': base['pro_israel']
+        - pas2_3cy['pro_israel']
+        + api_3cy['pro_israel']
+        + api_3cy['jfc_aipac']
+        + api_3cy['jfc_other'],
+        'pro_israel_b_cents': base['pro_israel'] - pas2_3cy['pro_israel'] + api_3cy['pro_israel'],
+        'jfc_aipac_cents': api_3cy['jfc_aipac'],
+        'jfc_other_cents': api_3cy['jfc_other'],
+    }
+
+
 def corrected_career_totals(
     figures: dict, pas2_per_cycle: dict, pas2_career: dict, person_keys: set
 ) -> dict:
@@ -150,37 +187,8 @@ def corrected_career_totals(
         'jfc_aipac_cents': 0,
         'jfc_other_cents': 0,
     }
-    api_cycles = (2022, 2024, 2026)
     for person_key in person_keys:
-        base = pas2_career.get(person_key, {'aipac': 0, 'pro_israel': 0})
-        pas2_3cy = {'aipac': 0, 'pro_israel': 0}
-        for cycle in api_cycles:
-            entry = pas2_per_cycle.get((person_key, cycle), {'aipac': 0, 'pro_israel': 0})
-            pas2_3cy['aipac'] += entry['aipac']
-            pas2_3cy['pro_israel'] += entry['pro_israel']
-        api_3cy = {'aipac': 0, 'pro_israel': 0, 'jfc_aipac': 0, 'jfc_other': 0}
-        for cycle in api_cycles:
-            entry = figures.get((person_key, cycle))
-            if entry is None:
-                continue
-            api_3cy['aipac'] += entry['aipac_b_cents']
-            api_3cy['pro_israel'] += entry['pro_israel_b_cents']
-            api_3cy['jfc_aipac'] += entry['jfc_aipac_cents']
-            api_3cy['jfc_other'] += entry['jfc_other_cents']
-        totals['aipac_b_cents'] += base['aipac'] - pas2_3cy['aipac'] + api_3cy['aipac']
-        totals['pro_israel_b_cents'] += (
-            base['pro_israel'] - pas2_3cy['pro_israel'] + api_3cy['pro_israel']
-        )
-        totals['aipac_a_cents'] += (
-            base['aipac'] - pas2_3cy['aipac'] + api_3cy['aipac'] + api_3cy['jfc_aipac']
-        )
-        totals['pro_israel_a_cents'] += (
-            base['pro_israel']
-            - pas2_3cy['pro_israel']
-            + api_3cy['pro_israel']
-            + api_3cy['jfc_aipac']
-            + api_3cy['jfc_other']
-        )
-        totals['jfc_aipac_cents'] += api_3cy['jfc_aipac']
-        totals['jfc_other_cents'] += api_3cy['jfc_other']
+        per_person = corrected_career_for_person(figures, pas2_per_cycle, pas2_career, person_key)
+        for field in totals:
+            totals[field] += per_person[field]
     return totals
