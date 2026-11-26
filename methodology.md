@@ -562,10 +562,13 @@ head-to-head with full cycles.
   way from their per-cycle lists. A person with no 2026 entry in a family reads an
   integer 0 in that family's 2026 columns (except `cash_on_hand_2026`, which reads null).
   `dirty_2026` never includes self-funding, other-committee money or all-IE spending.
-- `clean_2026` — true when the member took no NET dirty money in 2026: `dirty_2026 <= 0`.
-  A cycle test, not a career test. The rule is net because `dirty_2026` is the defined
-  net total: a member whose 2026 refunds exceed their 2026 contributions reads clean, not
-  dirty on a negative total. **Verification rule:** a person in the 120th is
+- `clean_2026` — true when the member took no NET dirty money in 2026: `dirty_2026 <= 0`,
+  AND took no AIPAC direct or UDP benefit dollar. The flag takes precedence over the
+  net: corporate refunds cannot cancel AIPAC/UDP money, so a flagged member is never
+  clean even when refunds elsewhere make the net negative. A cycle test, not a career
+  test. The rule is net because `dirty_2026` is the defined net total: a member whose
+  2026 refunds exceed their 2026 contributions reads clean, not dirty on a negative
+  total — as long as no flagged money is among them. **Verification rule:** a person in the 120th is
   *unverified* (`clean_2026 = null`) when they have NO 2026 linkage evidence in ANY money
   source — no `per_cycle` / `udp_per_cycle` 2026 entry, and no `self_funding_per_cycle`
   2026 entry whose `coverage_end_date` falls in calendar 2026. Other-committee and all-IE
