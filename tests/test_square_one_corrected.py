@@ -32,6 +32,14 @@ def fake_output():
         'snapshot': '2026-11-22',
         'counts': {'A': {'term_flag': 299}},
         'corrected_per_cycle': {
+            'B001282|2022': {
+                'aipac_a_cents': 1910000,
+                'aipac_b_cents': 1910000,
+                'pro_israel_a_cents': 1910000,
+                'pro_israel_b_cents': 1910000,
+                'jfc_aipac_cents': 0,
+                'jfc_other_cents': 0,
+            },
             'B001282|2026': {
                 'aipac_a_cents': 5235943,
                 'aipac_b_cents': 5235943,
@@ -57,8 +65,18 @@ def fake_output():
                 'jfc_other_cents': 0,
             },
         },
-        'transfers_from_corrected': {'B001282|2026': 282810951, 'B001282|2024': 48586314},
-        'transfers_to_corrected': {'B001282|2026': 5681782, 'B001282|2024': 0},
+        'transfers_from_corrected': {
+            'B001282|2026': 282810951,
+            'B001282|2024': 48586314,
+            'M001198|2020': 18402162,
+            'M001237|2024': 17728821,
+        },
+        'transfers_to_corrected': {
+            'B001282|2026': 5681782,
+            'B001282|2024': 0,
+            'M001198|2020': 21572,
+            'M001237|2024': 0,
+        },
     }
 
 
@@ -151,7 +169,9 @@ def test_substitute_aipac_sets_the_kept_entry_and_zeroes_the_other():
     assert new_counted[('H0KY06104', 2026)]['individual'] == Money(100)
     # 2024 has no corrected entry for Barr in the fixture, so it corrects to zero.
     assert new_counted[('H0KY06104', 2024)]['aipac_pac_direct'] == Money(0)
-    assert new_filed == filed
+    # 2022 has a corrected entry but no counted row, so it gains one on the kept ID.
+    assert new_counted[('S6KY00286', 2022)]['aipac_pac_direct'] == Money(1910000)
+    assert new_filed == filed | {('S6KY00286', 2022)}
 
 
 def test_substitute_aipac_adds_a_missing_cycle_entry():
@@ -236,6 +256,62 @@ def test_substitute_transfers_fails_loudly_without_a_weball_row():
     barr = person('B001282', ['H0KY06104', 'S6KY00286'])
     with pytest.raises(SystemExit, match='no weball row'):
         substitute_transfers(_finances({}), [barr], [], corrected, {})
+
+
+def test_substitute_transfers_dedups_before_the_api_cycles_too():
+    # Roger Marshall, 2020: the derivation's transfer dedup runs over
+    # the whole career, and the kept House ID follows the committee
+    # master, not the ID prefix.
+    corrected = Corrected(fake_output())
+    marshall = person('M001198', ['H6KS01179', 'S0KS00315'], chamber_120='', chamber_119='Senate')
+    finances = _finances(
+        {
+            ('H6KS01179', 2020): (18402162, 21572),
+            ('S0KS00315', 2020): (370902, 1050292),
+        }
+    )
+    new = substitute_transfers(
+        finances, [marshall], [], corrected, {'H6KS01179': 'S', 'S0KS00315': 'S'}
+    )
+    assert new[('H6KS01179', 2020)].transfers_from_auth == Money(18402162)
+    assert new[('H6KS01179', 2020)].transfers_to_auth == Money(21572)
+    assert new[('S0KS00315', 2020)].transfers_from_auth == Money(0)
+    assert new[('S0KS00315', 2020)].transfers_to_auth == Money(0)
+
+
+def test_a_shared_id_keeps_the_claimed_money_whichever_person_runs_first():
+    # M001237 and kristen-mcdonaldrivetmihouse share H4MI08218. The
+    # derivation attributes the committee's money to M001237; the
+    # duplicate roster entry's zero must not overwrite it.
+    corrected = Corrected(fake_output())
+    owner = person('M001237', ['H4MI08218'])
+    duplicate = person('kristen-mcdonaldrivetmihouse', ['H4MI08218'])
+    offices = {'H4MI08218': 'H'}
+    for people in ([owner, duplicate], [duplicate, owner]):
+        finances = _finances({('H4MI08218', 2024): (17728821, 0)})
+        new = substitute_transfers(finances, people, [], corrected, offices)
+        assert new[('H4MI08218', 2024)].transfers_from_auth == Money(17728821)
+
+
+def test_substitute_aipac_creates_the_kept_row_when_only_the_other_id_filed():
+    # Barr, 2022: the kept Senate ID has no counted row; only the House
+    # ID filed. The corrected money gains a row on the kept ID instead
+    # of landing on the filing ID.
+    corrected = Corrected(fake_output())
+    barr = person('B001282', ['H0KY06104', 'S6KY00286'])
+    counted = _counted({('H0KY06104', 2022): {'aipac_pac_direct': 790000}})
+    new_counted, new_filed = substitute_aipac(
+        counted,
+        {('H0KY06104', 2022)},
+        [barr],
+        [],
+        corrected,
+        COLUMNS,
+        {'H0KY06104': 'H', 'S6KY00286': 'S'},
+    )
+    assert new_counted[('S6KY00286', 2022)]['aipac_pac_direct'] == Money(1910000)
+    assert new_counted[('H0KY06104', 2022)]['aipac_pac_direct'] == Money(0)
+    assert ('S6KY00286', 2022) in new_filed
 
 
 def test_api_cycles_are_2022_2024_2026():

@@ -5,8 +5,13 @@ Loads data/intermediate/square_one/derived.json (written by
 and exposes the corrected per-person per-cycle figures the store steps
 substitute for cycles 2022-2026: AIPAC direct, pro-Israel direct, and
 transfers from/to. Variant A is the headline (methodology §8 item 24):
-JFC shares count as direct. Earlier cycles keep the bulk figures; the
-accessors return None for them so callers fall through to the store.
+JFC shares count as direct. Transfers are substituted in every cycle
+the derivation covers, not just the API cycles: the derivation's
+transfer dedup (shared committees, one kept view) runs over the whole
+career, while the AIPAC and pro-Israel corrections only exist for
+2022-2026. Earlier cycles keep the bulk figures for AIPAC and
+pro-Israel; the accessors return None for them so callers fall through
+to the store.
 
 The figures are exact integer cents. A person's corrected total for a
 cycle is carried on one candidate ID — the kept view (methodology §8
@@ -128,12 +133,26 @@ class Corrected:
         return self.pro_israel.get((person_key, cycle), 0)
 
     def transfers_cents(self, person_key, cycle):
-        if cycle not in API_CYCLES:
-            return None
-        return (
-            self.transfers_from.get((person_key, cycle), 0),
-            self.transfers_to.get((person_key, cycle), 0),
-        )
+        """Corrected transfers from/to for a cycle, in cents.
+
+        The derivation dedups transfers in every cycle, so a pair is
+        returned for any cycle the derivation covers. An API cycle with
+        no entry corrects to zero; any other cycle with no entry is
+        untouched (None) — the derivation has no figure for it.
+        """
+        if (person_key, cycle) in self.transfers_from:
+            return (
+                self.transfers_from[(person_key, cycle)],
+                self.transfers_to.get((person_key, cycle), 0),
+            )
+        if cycle in API_CYCLES:
+            return (0, 0)
+        return None
+
+    @property
+    def transfer_cycles(self):
+        """Every cycle the derivation's transfer figures cover."""
+        return sorted({cycle for (_, cycle) in self.transfers_from})
 
 
 def load():
@@ -156,10 +175,18 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
     store. For every API cycle the person's entries are set so they sum
     to the corrected Variant A total: the kept ID carries it, the other
     IDs carry zero. A cycle with a corrected total but no entry gains
-    one on the kept ID (other columns zero). Returns (counted, filed)
-    with new dicts. The earmark column is untouched (still pas2).
-    `offices` is the committee-master office map; it is read from the
-    staged bulk files when not given.
+    one on the kept ID (other columns zero), and the kept pair counts
+    as filed — otherwise accepted_by_person drops the row and the money
+    vanishes from the dataset. Returns (counted, filed) with new dicts.
+    The earmark column is untouched (still pas2). `offices` is the
+    committee-master office map; it is read from the staged bulk files
+    when not given.
+
+    Two people can share a candidate ID, so the substitution runs in
+    two passes: first every nonzero corrected figure claims its kept
+    (candidate, cycle), then each row takes its claim or zero. A later
+    person's zero never overwrites an earlier person's money on a
+    shared ID, and two different nonzero claims on one row fail loudly.
     """
     from receipts.domain.money import Money
 
@@ -167,6 +194,22 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
     filed = set(filed)
     if offices is None:
         offices = office_map()
+    claims = {}
+    for person in people:
+        key = person['person_key']
+        for cycle in API_CYCLES:
+            cents = corrected.aipac_cents(key, cycle)
+            if not cents:
+                continue
+            kept = kept_candidate_id(person, cycle, dedup_records, offices)
+            if kept is None:
+                raise SystemExit(f'{key} {cycle}: corrected AIPAC {cents} but no FEC IDs')
+            if (kept, cycle) in claims and claims[(kept, cycle)] != cents:
+                raise SystemExit(
+                    f'{key} {cycle}: corrected AIPAC {cents} conflicts with '
+                    f'{claims[(kept, cycle)]} already claimed for {(kept, cycle)}'
+                )
+            claims[(kept, cycle)] = cents
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
@@ -179,23 +222,18 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
                 if cents == 0:
                     continue
                 kept = kept_candidate_id(person, cycle, dedup_records, offices)
-                if kept is None:
-                    raise SystemExit(f'{key} {cycle}: corrected AIPAC {cents} but no FEC IDs')
                 counted[(kept, cycle)] = {c: Money(0) for c in columns}
                 counted[(kept, cycle)]['aipac_pac_direct'] = Money(cents)
                 filed.add((kept, cycle))
                 continue
-            kept = kept_candidate_id(person, cycle, dedup_records, offices)
-            target = kept if kept in present else present[0]
             if cents != 0:
-                # The kept ID carries corrected money, so it counts as
-                # filed this cycle even when the store has no filing row
-                # for it — otherwise accepted_by_person drops the row
-                # and the money vanishes from the dataset.
-                filed.add((target, cycle))
-            for cid in present:
+                kept = kept_candidate_id(person, cycle, dedup_records, offices)
+                if (kept, cycle) not in counted:
+                    counted[(kept, cycle)] = {c: Money(0) for c in columns}
+                filed.add((kept, cycle))
+            for cid in [c for c in ids if (c, cycle) in counted]:
                 row = dict(counted[(cid, cycle)])
-                row['aipac_pac_direct'] = Money(cents if cid == target else 0)
+                row['aipac_pac_direct'] = Money(claims.get((cid, cycle), 0))
                 counted[(cid, cycle)] = row
     return counted, filed
 
@@ -203,13 +241,20 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
 def substitute_transfers(finances, people, dedup_records, corrected, offices=None):
     """Replace transfers from/to in weball finances with the deduped figures.
 
-    `finances` maps (candidate_id, cycle) to CampaignFinances. For every
-    API cycle the person's entries are set so they sum to the corrected
-    totals: the kept ID carries them, the other IDs carry zero. A cycle
-    with corrected transfers but no weball row is a derivation/store
-    disagreement and fails loudly. Returns a new dict. `offices` is the
-    committee-master office map; it is read from the staged bulk files
-    when not given.
+    `finances` maps (candidate_id, cycle) to CampaignFinances. The
+    derivation dedups transfers in every cycle it covers, so every
+    covered cycle is substituted here, not just the API cycles: the
+    person's entries are set so they sum to the corrected totals, the
+    kept ID carrying them and the other IDs zero. A cycle with
+    corrected transfers but no weball row is a derivation/store
+    disagreement and fails loudly. Where the kept committee filed no
+    weball row that cycle, the money stays on the filing ID — the
+    person-cycle total is exact either way, and fabricating a weball
+    row would corrupt the cash stocks. Returns a new dict. `offices`
+    is the committee-master office map; it is read from the staged
+    bulk files when not given. Claims work as in substitute_aipac: a
+    shared candidate ID's row takes its nonzero claim, never a later
+    person's zero.
     """
     from dataclasses import replace
 
@@ -218,10 +263,26 @@ def substitute_transfers(finances, people, dedup_records, corrected, offices=Non
     finances = dict(finances)
     if offices is None:
         offices = office_map()
+    claims = {}
+    for person in people:
+        key = person['person_key']
+        for cycle in corrected.transfer_cycles:
+            pair = corrected.transfers_cents(key, cycle)
+            if pair is None or pair == (0, 0):
+                continue
+            kept = kept_candidate_id(person, cycle, dedup_records, offices)
+            if kept is None:
+                raise SystemExit(f'{key} {cycle}: corrected transfers {pair} but no FEC IDs')
+            if (kept, cycle) in claims and claims[(kept, cycle)] != pair:
+                raise SystemExit(
+                    f'{key} {cycle}: corrected transfers {pair} conflict with '
+                    f'{claims[(kept, cycle)]} already claimed for {(kept, cycle)}'
+                )
+            claims[(kept, cycle)] = pair
     for person in people:
         key = person['person_key']
         ids = list(person['fec_candidate_ids'] or [])
-        for cycle in API_CYCLES:
+        for cycle in corrected.transfer_cycles:
             pair = corrected.transfers_cents(key, cycle)
             if pair is None:
                 continue
@@ -238,7 +299,14 @@ def substitute_transfers(finances, people, dedup_records, corrected, offices=Non
             target = kept if kept in present else present[0]
             for cid in present:
                 row = finances[(cid, cycle)]
-                if cid == target:
+                if (cid, cycle) in claims:
+                    claim_from, claim_to = claims[(cid, cycle)]
+                    finances[(cid, cycle)] = replace(
+                        row,
+                        transfers_from_auth=Money(claim_from),
+                        transfers_to_auth=Money(claim_to),
+                    )
+                elif cid == target:
                     finances[(cid, cycle)] = replace(
                         row,
                         transfers_from_auth=Money(from_cents),
