@@ -51,13 +51,19 @@ def race_label(race):
     return f'{state} Senate' if office == 'S' else f'{state}-{district}'
 
 
-def verdict(in_120th, linked, unopposed, dirty):
-    """(clean_2026, why unknown): None without 2026 data or when unopposed; else net dirty <= 0."""
+def verdict(in_120th, linked, unopposed, dirty, flagged):
+    """(clean_2026, why unknown): None without 2026 data or when unopposed; else net dirty <= 0 with no flagged money.
+
+    The flag takes precedence over the net: a member who took any AIPAC
+    direct or UDP benefit dollar is not clean even when refunds
+    elsewhere make the net negative — corporate refunds cannot cancel
+    AIPAC/UDP money. A flagged unopposed member stays dirty, not null.
+    """
     if in_120th and not linked:
         return None, UNLINKED
-    if unopposed and dirty <= 0:
+    if unopposed and dirty <= 0 and not flagged:
         return None, UNOPPOSED
-    return dirty <= 0, None
+    return dirty <= 0 and not flagged, None
 
 
 CAREER_DIRTY_COLUMNS = (

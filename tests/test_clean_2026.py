@@ -35,12 +35,19 @@ def test_race_labels():
 
 
 def test_clean_is_no_net_dirty_money_and_unknown_without_data_or_a_contest():
-    assert verdict(True, True, False, 0) == (True, None)
-    assert verdict(True, True, False, -50) == (True, None)
-    assert verdict(True, True, False, 10) == (False, None)
-    assert verdict(True, False, False, 0) == (None, UNLINKED)
-    assert verdict(True, True, True, 0) == (None, UNOPPOSED)
-    assert verdict(True, True, True, 10) == (False, None)
+    assert verdict(True, True, False, 0, False) == (True, None)
+    assert verdict(True, True, False, -50, False) == (True, None)
+    assert verdict(True, True, False, 10, False) == (False, None)
+    assert verdict(True, False, False, 0, False) == (None, UNLINKED)
+    assert verdict(True, True, True, 0, False) == (None, UNOPPOSED)
+    assert verdict(True, True, True, 10, False) == (False, None)
+
+
+def test_a_flagged_member_is_not_clean_even_when_refunds_make_the_net_negative():
+    # Pelosi, 2026: $11.43 of AIPAC direct against $1,900 of corporate
+    # refunds. The flag takes precedence over the net.
+    assert verdict(True, True, False, -1888.57, True) == (False, None)
+    assert verdict(True, True, True, -1888.57, True) == (False, None)
 
 
 def test_tiers_under_a_preset():

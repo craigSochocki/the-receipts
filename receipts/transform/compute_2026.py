@@ -101,7 +101,9 @@ def judged(r, cycle, money, races):
     in_races, unopposed = races_and_unopposed(r['fec_candidate_ids'] or [], race_map, race_of)
     is_unopposed = bool(in_races) and len(unopposed) == len(in_races)
     incoming = r['in_120th'] == 'yes' and cycle == settings().cycles.current
-    clean, unknown_because = verdict(incoming, has_linkage(r, cycle), is_unopposed, money['dirty'])
+    clean, unknown_because = verdict(
+        incoming, has_linkage(r, cycle), is_unopposed, money['dirty'], money['aipac_udp_flag']
+    )
     presets = settings().verification.tolerance_presets
     tiers = {
         f'tier_{p}': tier(clean, money['aipac_udp_flag'], money['corp'],
@@ -164,7 +166,11 @@ def headline(r, filed):
         return {'verdict_cycle': None, **dict.fromkeys(HEADLINE)}
     term = term_record(r['cycles'], record['cycle'])
     unlinked = record['clean'] is None and not record['unopposed']
-    clean = None if unlinked else verdict(False, True, term['unopposed'], term['dirty'])[0]
+    clean = (
+        None
+        if unlinked
+        else verdict(False, True, term['unopposed'], term['dirty'], term['aipac_udp_flag'])[0]
+    )
     presets = settings().verification.tolerance_presets
     return {
         'verdict_cycle': record['cycle'],

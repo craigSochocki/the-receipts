@@ -70,7 +70,7 @@ def expected_verdict(r, money, unopposed):
     """The AIPAC/UDP flag, the net clean verdict and both tolerance tiers."""
     flag = aipac_udp_flagged(money['aipac_direct_2026'], money['udp_benefit_2026'])
     linked = has_2026_linkage(r)
-    clean, _ = verdict(r['in_120th'] == 'yes', linked, unopposed, money['dirty_2026'])
+    clean, _ = verdict(r['in_120th'] == 'yes', linked, unopposed, money['dirty_2026'], flag)
     presets = settings().verification.tolerance_presets
     return {
         'unopposed_2026': unopposed,
@@ -141,10 +141,15 @@ def term_verdict(r, chosen):
     """The headline a person should carry: the chosen election's cycle and every cycle since."""
     if chosen is None:
         return {'verdict_cycle': None, **dict.fromkeys(HEADLINE)}
-    dirty = round(sum(c['dirty'] for c in r['cycles'] if c['cycle'] >= chosen['cycle']), 2)
+    term_cycles = [c for c in r['cycles'] if c['cycle'] >= chosen['cycle']]
+    dirty = round(sum(c['dirty'] for c in term_cycles), 2)
+    flagged = aipac_udp_flagged(
+        round(sum(c['aipac_direct'] for c in term_cycles), 2),
+        round(sum(c['udp_benefit'] for c in term_cycles), 2),
+    )
     unlinked = chosen['clean'] is None and not chosen['unopposed']
-    unopposed_and_clean = chosen['unopposed'] and dirty <= 0
-    clean = None if unlinked or unopposed_and_clean else dirty <= 0
+    unopposed_and_clean = chosen['unopposed'] and dirty <= 0 and not flagged
+    clean = None if unlinked or unopposed_and_clean else dirty <= 0 and not flagged
     return {'verdict_cycle': chosen['cycle'], 'clean': clean, 'dirty': dirty}
 
 
