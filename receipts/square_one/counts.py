@@ -276,28 +276,44 @@ def career_clean(
     )
 
 
+def _count(records: list, key: str, value) -> int:
+    return sum(1 for r in records if r[key] == value)
+
+
+def _not_dirty(records: list, key: str) -> int:
+    return sum(1 for r in records if r[key] in ('clean', 'below_threshold'))
+
+
+def _cycle_counts(c26: list[dict]) -> dict:
+    return {
+        'c26_flag': sum(1 for c in c26 if c['aipac_udp_flag']),
+        'c26_strict_clean': _count(c26, 'clean', True),
+        'c26_null': _count(c26, 'clean', None),
+        'c26_bal_notdirty': _not_dirty(c26, 'tier_balanced'),
+        'c26_len_notdirty': _not_dirty(c26, 'tier_lenient'),
+    }
+
+
+def _term_counts(terms: list[dict], headlines: list[dict]) -> dict:
+    return {
+        'term_flag': sum(1 for v in terms if v['term']['aipac_udp_flag']),
+        'term_strict_clean': _count(headlines, 'clean', True),
+        'term_null': _count(headlines, 'clean', None),
+        'term_bal_notdirty': _not_dirty(headlines, 'tier_balanced'),
+        'term_len_notdirty': _not_dirty(headlines, 'tier_lenient'),
+    }
+
+
 def count_results(results: list[dict]) -> dict:
     """The recount-shaped counts over the 120th (n=535)."""
     rows = [v for v in results if v['in_120']]
     c26 = [v['c26'] for v in rows if v['c26'] is not None]
     terms = [v for v in rows if v['term'] is not None]
     headlines = [v['headline'] for v in rows]
-
-    def not_dirty(records, key):
-        return sum(1 for r in records if r[key] in ('clean', 'below_threshold'))
-
     return {
         'n': len(rows),
-        'c26_flag': sum(1 for c in c26 if c['aipac_udp_flag']),
-        'c26_strict_clean': sum(1 for c in c26 if c['clean'] is True),
-        'c26_null': sum(1 for c in c26 if c['clean'] is None),
-        'c26_bal_notdirty': not_dirty(c26, 'tier_balanced'),
-        'c26_len_notdirty': not_dirty(c26, 'tier_lenient'),
-        'term_flag': sum(1 for v in terms if v['term']['aipac_udp_flag']),
-        'term_strict_clean': sum(1 for h in headlines if h['clean'] is True),
-        'term_null': sum(1 for h in headlines if h['clean'] is None),
-        'term_bal_notdirty': not_dirty(headlines, 'tier_balanced'),
-        'term_len_notdirty': not_dirty(headlines, 'tier_lenient'),
+        **_cycle_counts(c26),
+        **_term_counts(terms, headlines),
         'house_120th_career_clean': sum(
             1 for v in rows if v['chamber_120'] == 'House' and v['career_clean'] is True
         ),

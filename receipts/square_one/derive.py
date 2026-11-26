@@ -47,17 +47,10 @@ def _step(name: str, started: float) -> None:
     print(f'[{time.time() - started:6.1f}s] {name}', flush=True)
 
 
-def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> dict:
-    """The full derivation. Returns the dict written to `out_path`."""
-    started = time.time()
-    bulk = root / 'data' / 'raw'
-    aipac = settings().committees.aipac_pac
-    udp = settings().committees.udp
-    overrides = _overrides()
-
+def derive_money(root, bulk, cycles, ie_cycles, aipac, overrides, started):
+    """Roster, weball + dedup, committee money, transfer dedup."""
     _step('roster + weball', started)
     people = roster.load_roster(root / 'congress-money-tracker.json')
-    person_of = roster.person_of(people)
     weball = money.derive_weball(bulk, cycles)
     records = roster.load_dedup_applied(root / 'data' / 'source' / 'dedup-applied.json')
     records = [r for r in records if r['cycle'] in cycles]
@@ -76,7 +69,23 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
     groups = transfers.shared_committee_groups(people, principal, offices)
     weball_transfers, transfer_report = transfers.apply_transfer_dedup(adjusted, groups, records)
     rollup_transfers = money.rollup_person_cycle(weball_transfers, committee_money, people, cycles)
+    return {
+        'people': people,
+        'person_of': roster.person_of(people),
+        'weball': weball,
+        'adjusted': adjusted,
+        'committee_money': committee_money,
+        'rollup': rollup,
+        'rollup_transfers': rollup_transfers,
+        'transfer_report': transfer_report,
+        'records': records,
+        'differing': differing,
+        'cm_stats': cm_stats,
+    }
 
+
+def derive_conduit(root, bulk, people, person_of, ie_cycles, started):
+    """API conduit merge + JFC variants."""
     _step('conduit merge', started)
     surnames = conduit.person_surnames(people)
     cm_by_cycle, cm_multi_by_cycle = {}, {}
@@ -103,8 +112,11 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
     jfc = variants.combine_jfc(
         JFC_DIR / 'jfc_attribution4.json', JFC_DIR / 'jfc_outflow_shares4.json'
     )
-    corrected = variants.corrected_figures(direct, jfc)
+    return variants.corrected_figures(direct, jfc), merge_report
 
+
+def derive_ie_data(bulk, people, adjusted, udp, person_of, ie_cycles, started):
+    """IE rows: UDP support, all-IE per candidate, opposition credits."""
     _step('independent expenditures', started)
     ie_rows, ie_stats = ie.derive_ie(bulk, ie_cycles, people, adjusted)
     ie_by_candidate = ie.per_candidate_cycle(ie_rows)
@@ -123,24 +135,19 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
                 for (cid, cy), cents in udp_by_candidate.items()
                 if cy == cycle and cid in ids
             )
-            all_ie[(key, cycle)] = (
+            all_ie[(key, cycle)] = tuple(
                 sum(
-                    cents[0]
+                    cents[index]
                     for (cid, cy), cents in ie_by_candidate.items()
                     if cy == cycle and cid in ids
-                ),
-                sum(
-                    cents[1]
-                    for (cid, cy), cents in ie_by_candidate.items()
-                    if cy == cycle and cid in ids
-                ),
-                sum(
-                    cents[2]
-                    for (cid, cy), cents in ie_by_candidate.items()
-                    if cy == cycle and cid in ids
-                ),
+                )
+                for index in (0, 1, 2)
             )
+    return udp_support, all_ie, opp_credits, ie_stats
 
+
+def derive_ryan(bulk, aipac, started):
+    """Ryan's election-attributed refunds on the name-matched rows."""
     _step('Ryan election-attributed refunds', started)
     ryan_rows = [
         row
@@ -152,20 +159,24 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
         for row in ryan_rows
         if row.transaction_type in ('24K', '24P') and not (row.is_earmark and row.amount_cents < 0)
     ]
-    ryan_attributed = transfers.attribute_refunds_by_election(ryan_counted, 2026)
+    attributed = transfers.attribute_refunds_by_election(ryan_counted, 2026)
+    net = sum(row.amount_cents for row in ryan_counted)
+    return attributed, net
 
+
+def derive_counts(money_data, corrected, udp_support, all_ie, opp_credits, bulk, cycles, started):
+    """Flag and clean counts under the baseline and both JFC variants."""
     _step('counts', started)
     filed = counts.build_filed(bulk, cycles)
     races_for = counts.build_races_getter(bulk)
     all_counts = {}
-    all_results = {}
     for variant in ('baseline', 'A', 'B'):
-        results, variant_counts = counts.run_variant(
-            people,
-            rollup,
-            adjusted,
-            weball,
-            committee_money,
+        _results, variant_counts = counts.run_variant(
+            money_data['people'],
+            money_data['rollup'],
+            money_data['adjusted'],
+            money_data['weball'],
+            money_data['committee_money'],
             corrected if variant != 'baseline' else None,
             variant,
             udp_support,
@@ -175,7 +186,32 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
             filed,
         )
         all_counts[variant] = variant_counts
-        all_results[variant] = results
+    return all_counts
+
+
+def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> dict:
+    """The full derivation. Returns the dict written to `out_path`."""
+    started = time.time()
+    bulk = root / 'data' / 'raw'
+    aipac = settings().committees.aipac_pac
+    udp = settings().committees.udp
+    money_data = derive_money(root, bulk, cycles, ie_cycles, aipac, _overrides(), started)
+    corrected, merge_report = derive_conduit(
+        root, bulk, money_data['people'], money_data['person_of'], ie_cycles, started
+    )
+    udp_support, all_ie, opp_credits, ie_stats = derive_ie_data(
+        bulk,
+        money_data['people'],
+        money_data['adjusted'],
+        udp,
+        money_data['person_of'],
+        ie_cycles,
+        started,
+    )
+    ryan_attributed, ryan_net = derive_ryan(bulk, aipac, started)
+    all_counts = derive_counts(
+        money_data, corrected, udp_support, all_ie, opp_credits, bulk, cycles, started
+    )
 
     _step('audits', started)
     audit_results = audits.audit_no_zero_columns(
@@ -196,12 +232,12 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
     # shortcut around the derivation. The counts above use the rollup
     # directly and never touch the dataset.
     pas2_per_cycle, pas2_career = variants.load_pas2_base(root / 'congress-money-tracker.json')
-    career = {}
-    for person in people:
-        key = person['person_key']
-        career[key] = variants.corrected_career_for_person(
-            corrected, pas2_per_cycle, pas2_career, key
+    career = {
+        person['person_key']: variants.corrected_career_for_person(
+            corrected, pas2_per_cycle, pas2_career, person['person_key']
         )
+        for person in money_data['people']
+    }
     output = {
         'snapshot': settings().data_as_of,
         'counts': all_counts,
@@ -212,15 +248,15 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
         'corrected_per_cycle': {
             f'{key}|{cycle}': entry for (key, cycle), entry in corrected.items()
         },
-        'transfer_dedup': transfer_report,
+        'transfer_dedup': money_data['transfer_report'],
         'transfers_from_corrected': {
             f'{key}|{cycle}': entry['transfers_from_auth']
-            for (key, cycle), entry in rollup_transfers.items()
+            for (key, cycle), entry in money_data['rollup_transfers'].items()
         },
         'ryan_election_attributed': {
             f'{cid}|{cycle}': cents for (cid, cycle), cents in ryan_attributed.items()
         },
-        'ryan_pas2_net_2026_cents': sum(row.amount_cents for row in ryan_counted),
+        'ryan_pas2_net_2026_cents': ryan_net,
         'merge_report': {
             key: (sorted(value) if key == 'resolved_keys' else value)
             for key, value in merge_report.items()
@@ -228,9 +264,9 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
         },
         'merge_unmatched': merge_report['unmatched'],
         'merge_ambiguous': merge_report['ambiguous'],
-        'cm_stats': cm_stats,
+        'cm_stats': money_data['cm_stats'],
         'ie_stats': ie_stats,
-        'dedup_differing': differing,
+        'dedup_differing': money_data['differing'],
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(output, indent=1, sort_keys=True, default=str))
