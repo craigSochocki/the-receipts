@@ -4,6 +4,7 @@
 import csv
 import hashlib
 import json
+import re
 from collections import defaultdict
 from dataclasses import asdict
 from datetime import datetime, timezone
@@ -13,7 +14,8 @@ from receipts.common.log import log, run
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean, is_not_dirty
 from receipts.domain.seats import regular_senate_class
-from receipts.site.expectations import latest
+from receipts.domain.targets import primary_targets
+from receipts.site.expectations import dollars, latest
 from receipts.store.read import connect
 from receipts.transform.compute_2026 import cycle_fields
 
@@ -398,6 +400,173 @@ def cycle_tokens():
     }
 
 
+# ---- server-rendered story text (the no-JS fallback) ----
+# The step cards' text, computed here from the dataset exactly as
+# story.js storyTexts() computes it in the browser: default preset
+# (Balanced) and the latest election. The script re-renders on preset
+# or cycle change, so this static text is the default-view fallback.
+
+
+def esc_html(value):
+    """The page's esc(): the same replacements, in the same order."""
+    text = '' if value is None else str(value)
+    return (
+        text.replace('&', '&amp;')
+        .replace('<', '&lt;')
+        .replace('>', '&gt;')
+        .replace('"', '&quot;')
+        .replace("'", '&#39;')
+    )
+
+
+def fmt_compact(value):
+    """Compact money, as the page formats it."""
+    if value is None:
+        return '—'
+    if value == 'unknown':
+        return 'unknown'
+    if not isinstance(value, (int, float)):
+        return str(value)
+    neg = value < 0
+    size = abs(value)
+    if size >= 1e9:
+        text = f'${size / 1e9:.2f}B'
+    elif size >= 1e6:
+        text = f'${size / 1e6:.2f}M'
+    elif size >= 1e3:
+        text = f'${size / 1e3:.1f}K'
+    else:
+        text = f'${size:.0f}'
+    return ('\u2212' if neg else '') + text
+
+
+def preset_short(preset):
+    """The tolerance short label, from the config thresholds."""
+    return (
+        f'corporate PAC over ${preset.corp_amount // 1000}k'
+        f' and over {round(preset.corp_share * 100)}% of receipts'
+    )
+
+
+def story_steps():
+    """The step names, read from story.js so the renderer follows it."""
+    match = re.search(r'const STORY_STEPS = \[([^\]]+)\]', template('story.js'))
+    if not match:
+        raise SystemExit('story.js has no STORY_STEPS list')
+    return re.findall(r"'(\w+)'", match.group(1))
+
+
+def story_status(person):
+    """The Balanced tier, or unjudged where there is none."""
+    tier = latest(person)['tier_balanced']
+    return tier if tier is not None else 'unjudged'
+
+
+def party_of(person):
+    return person['party_120'] or person['party_119'] or '—'
+
+
+def party_groups(people):
+    """The people grouped Democrats / Republicans / Others, in that order."""
+    named = {'Democrat': 'Democrats', 'Republican': 'Republicans'}
+    groups = []
+    for label in ('Democrats', 'Republicans', 'Others'):
+        members = [p for p in people if named.get(party_of(p), 'Others') == label]
+        if members:
+            groups.append((label, members))
+    return groups
+
+
+def group_line(groups):
+    """One '<b>n of m</b> Label' per group, joined as the page joins them."""
+    parts = []
+    for label, members in groups:
+        dirty = sum(1 for p in members if story_status(p) == 'dirty')
+        parts.append(f'<b>{dirty} of {len(members)}</b> {esc_html(label)}')
+    return ' · '.join(parts)
+
+
+def incoming_members(dataset):
+    """The members of the incoming Congress."""
+    return [r for r in dataset if r['in_120th'] == 'yes']
+
+
+def chamber_members(people, chamber):
+    """The incoming members of one chamber."""
+    return [p for p in people if p['chamber_120'] == chamber]
+
+
+def count_dirty(people):
+    """How many of these people took dirty money under the default preset."""
+    return sum(1 for p in people if story_status(p) == 'dirty')
+
+
+def count_not_dirty(people):
+    """How many of these people were not dirty under the default preset."""
+    return sum(1 for p in people if is_not_dirty(latest(p)['tier_balanced']))
+
+
+def story_texts(dataset):
+    """Every step card's text, computed from the dataset."""
+    people = incoming_members(dataset)
+    preset = settings().verification.tolerance_presets['balanced']
+    top = max(people, key=lambda p: dollars(latest(p)['dirty']))
+    targets = primary_targets(people, 'balanced', settings().cycles.next)
+    house = chamber_members(people, 'House')
+    senate = chamber_members(people, 'Senate')
+    return {
+        'all': (
+            f'These are the <b>{len(people)}</b> members of the incoming 120th Congress. '
+            'Each dot is one person.'
+        ),
+        'status': (
+            f'<b>{count_dirty(people)}</b> of them took dirty money since their last election — '
+            'corporate PAC, AIPAC PAC direct or UDP benefit. '
+            f'<b>{count_not_dirty(people)}</b> were not dirty. '
+            'The rest were not judged (unopposed or unlinked). '
+            f'Balanced tolerance: {esc_html(preset_short(preset))}.'
+        ),
+        'ranked': (
+            'Lined up by how much: '
+            f'<b>{esc_html(top["full_name"])}</b> took '
+            f'<b>{esc_html(fmt_compact(dollars(latest(top)["dirty"])))}</b> '
+            'since their last election, the most of anyone arriving in the 120th.'
+        ),
+        'party': f'By party, dirty: {group_line(party_groups(people))}.',
+        'house': (f'The House, seat by seat: {group_line(party_groups(house))} took dirty money.'),
+        'districts': (
+            'District by district: each House seat shaded by its member — party colour, '
+            'strong when dirty, light when below threshold, white when clean. '
+            'The five territorial delegates are not on the map.'
+        ),
+        'senate': (
+            'The Senate, state by state: '
+            f'{group_line(party_groups(senate))} took dirty money. '
+            'Each state is shaded by its senators’ parties; each dot is one senator.'
+        ),
+        'targets': (
+            f'<b>{len(targets)}</b> hold seats on the ballot in {settings().cycles.next} '
+            'and took dirty money — the primary targets. '
+            '<button type="button" class="linklike" data-story-go="targets">See the list</button>'
+        ),
+        'find': (
+            'Which one is yours? '
+            '<button type="button" class="linklike" data-story-go="finder">Find your member</button> '
+            'and their dot lights up.'
+        ),
+    }
+
+
+def render_story_slots(html, dataset):
+    """Fill each step card's slot with its computed text."""
+    texts = story_texts(dataset)
+    for step in story_steps():
+        if step not in texts:
+            raise SystemExit(f'no server-rendered text for story step: {step}')
+        html = html.replace(f'%%STORY_{step.upper()}%%', texts[step])
+    return html
+
+
 def main():
     dataset = json.loads(settings().paths.dataset_json.read_text())
     if not isinstance(dataset, list):
@@ -457,6 +626,7 @@ def main():
     )
     html = page_template()
     html = html.replace('%%METHOD_HTML%%', clean_method_html(dataset))
+    html = render_story_slots(html, dataset)
     for token, value in cycle_tokens().items():
         html = html.replace(token, value)
     html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
