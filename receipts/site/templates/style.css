@@ -190,6 +190,12 @@ html.js .chapter{opacity:1 !important;transform:none !important;transition:none 
 .scrolly-key .k.dot-below_threshold{background:rgba(75,85,99,.35);border-color:transparent}
 .scrolly-key .k.dot-clean{background:#fff}
 .scrolly-key .k.dot-unjudged{background:#fff;border-style:dashed;border-width:1px}
+/* Plot waffle legend: same swatches as the story key, coloured per status. */
+.plot-legend .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #4b5563}
+.plot-legend .k.dot-dirty{background:#4b5563}
+.plot-legend .k.dot-below_threshold{background:#9ca3af}
+.plot-legend .k.dot-clean{background:#fff}
+.plot-legend .k.dot-unjudged{background:#e5e7eb}
 .scrolly-key .k.party-d{background:#1e40af;border-color:#1e40af}
 .scrolly-key .k.party-r{background:#b91c1c;border-color:#b91c1c}
 .scrolly-steps{position:relative;z-index:1;pointer-events:none}
