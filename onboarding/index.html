@@ -173,16 +173,16 @@ dl.gloss dd { margin: 0; }
     <p class="lede">The Receipts shows who pays for every member of Congress. This tour walks the code from first principles, following one real contribution from a raw government file to the public website.</p>
     <p class="muted">About 25 minutes. No setup needed to read it. Figures are from the pinned FEC snapshot <code>fec-bulk-2026-11-22</code>.</p>
   </div>
-  <div class="receipt" role="img" aria-label="Darren Soto's career money as a receipt: individual contributions $4,455,094.59, corporate PAC $2,196,552.00, AIPAC PAC direct $29,200.00, total accepted $6,680,846.59.">
+  <div class="receipt" role="img" aria-label="Darren Soto's career money as a receipt: individual contributions $4,455,094.59, corporate PAC $2,196,552.00, AIPAC PAC direct $489,229.10, total accepted $7,140,875.69.">
     <div class="hd">THE RECEIPTS</div>
     <div class="hd muted" style="font-weight:400">REP. DARREN SOTO · FL-09</div>
     <hr>
     <div class="row"><span>Individuals</span><span>4,455,094.59</span></div>
     <div class="row"><span>Corporate PACs</span><span>2,196,552.00</span></div>
-    <div class="row"><span>AIPAC PAC direct</span><span>29,200.00</span></div>
+    <div class="row"><span>AIPAC PAC direct</span><span>489,229.10</span></div>
     <hr>
-    <div class="row tot"><span>TOTAL ACCEPTED</span><span>6,680,846.59</span></div>
-    <div class="row muted"><span>Rank (of 664)</span><span>#359</span></div>
+    <div class="row tot"><span>TOTAL ACCEPTED</span><span>7,140,875.69</span></div>
+    <div class="row muted"><span>Rank (of 664)</span><span>#352</span></div>
     <div class="foot">career 1980–2026 · every line traces to an FEC filing</div>
   </div>
 </header>
@@ -329,7 +329,7 @@ receipts.validate.verify_dataset     <span class="c"># the 18 groups of standing
 <section id="journey">
   <span class="eyebrow">Part 3 · worked example</span>
   <h2>Follow one receipt from filing to website</h2>
-  <p class="col">Abstract pipelines are hard to hold in your head, so here is a concrete one. In the 2026 cycle, AIPAC's PAC sent Rep. Darren Soto's campaign three checks of $5,000. Here is each step those dollars take, with the real rows and the real code.</p>
+  <p class="col">Abstract pipelines are hard to hold in your head, so here is a concrete one. In the 2026 cycle, AIPAC's PAC sent Rep. Darren Soto's campaign three checks of $5,000 — that is what the FEC bulk file shows. The dataset's figure is larger, $310,236.17: the bulk file drops nearly all of AIPAC's earmarked checks, so the pipeline substitutes the corrected figure from the FEC API. Here is each step those dollars take, with the real rows and the real code.</p>
   <ol class="journey">
     <li class="l-raw">
       <div class="body">
@@ -381,14 +381,14 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
       <div class="body">
         <span class="tag">Gold · gold.accepted_money_per_cycle</span>
         <h3>A money step sums it per person, per cycle</h3>
-        <p><code>store/accepted_money.py</code> adds up the rows that count and writes one row per person per cycle, still in cents. Soto, 2026:</p>
+        <p><code>store/accepted_money.py</code> adds up the rows that count — then substitutes the corrected AIPAC figure from the API merge (methodology §8 item 23), because the bulk file drops nearly all earmarked checks — and writes one row per person per cycle, still in cents. Soto, 2026:</p>
         <div class="tablebox">
           <table>
             <thead><tr><th>person_key</th><th>cycle</th><th class="num">individual</th><th class="num">corporate_pac</th><th class="num">aipac_pac_direct</th></tr></thead>
-            <tbody><tr><td class="mono">S001200</td><td class="mono">2026</td><td class="num mono">156791737</td><td class="num mono">62900000</td><td class="num mono" style="color:var(--gold);font-weight:500">1500000</td></tr></tbody>
+            <tbody><tr><td class="mono">S001200</td><td class="mono">2026</td><td class="num mono">156791737</td><td class="num mono">62900000</td><td class="num mono" style="color:var(--gold);font-weight:500">31023617</td></tr></tbody>
           </table>
         </div>
-        <p class="muted">Three checks × 500,000 cents = 1,500,000 cents = $15,000. dbt tests then check that every career total equals the sum of its cycles.</p>
+        <p class="muted">The three bulk-file checks sum to 1,500,000 cents = $15,000; the corrected figure is 31,023,617 cents = $310,236.17. dbt tests then check that every career total equals the sum of its cycles.</p>
       </div>
     </li>
     <li class="l-data">
@@ -398,25 +398,25 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
         <p><code>transform/compute_2026.py</code> builds the 2026 columns and decides each member's 2026 verdict. "Dirty" is the project's term for money from sources other than individual donors:</p>
 <pre><span class="s">"individual_2026"</span>:   1567917.37,
 <span class="s">"corp_2026"</span>:          629000.0,
-<span class="s">"aipac_direct_2026"</span>:   <span class="hl">15000.0</span>,
+<span class="s">"aipac_direct_2026"</span>:   <span class="hl">310236.17</span>,
 <span class="s">"udp_benefit_2026"</span>:        0.0,
-<span class="s">"dirty_2026"</span>:         644000.0,   <span class="c">// corp + AIPAC + UDP benefit</span>
+<span class="s">"dirty_2026"</span>:         939236.17,   <span class="c">// corp + AIPAC + UDP benefit</span>
 <span class="s">"clean_2026"</span>:            false,   <span class="c">// clean means dirty_2026 &lt;= 0</span>
 <span class="s">"tier_balanced_2026"</span>:  <span class="s">"dirty"</span></pre>
 <pre><span class="c"># receipts/domain/clean_2026.py</span>
-<span class="k">def</span> verdict(in_120th, linked, unopposed, dirty):
+<span class="k">def</span> verdict(in_120th, linked, unopposed, dirty, flagged):
     <span class="k">if</span> in_120th <span class="k">and not</span> linked:
         <span class="k">return</span> None, UNLINKED      <span class="c"># no 2026 data: unknown, never "clean"</span>
-    <span class="k">if</span> unopposed <span class="k">and</span> dirty &lt;= 0:
+    <span class="k">if</span> unopposed <span class="k">and</span> dirty &lt;= 0 <span class="k">and not</span> flagged:
         <span class="k">return</span> None, UNOPPOSED     <span class="c"># no contest: unknown, not clean</span>
-    <span class="k">return</span> dirty &lt;= 0, None</pre>
+    <span class="k">return</span> dirty &lt;= 0 <span class="k">and not</span> flagged, None</pre>
       </div>
     </li>
     <li class="l-site">
       <div class="body">
         <span class="tag">Website · docs/index.html</span>
         <h3>The page embeds the dataset and draws it</h3>
-        <p><code>site/build_site.py</code> fills the HTML templates and embeds all 664 rows, so the page needs no server. <code>verify_site.py</code> then decodes the embedded copy and checks that it matches the dataset field by field. A reader who opens Soto's row sees the same $15,000, and can follow it back through every step above.</p>
+        <p><code>site/build_site.py</code> fills the HTML templates and embeds all 664 rows, so the page needs no server. <code>verify_site.py</code> then decodes the embedded copy and checks that it matches the dataset field by field. A reader who opens Soto's row sees the same $310,236.17, and can follow it back through every step above.</p>
       </div>
     </li>
   </ol>
@@ -434,31 +434,31 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
   </div>
   <figure>
     <div class="scroll">
-      <svg viewBox="0 0 900 200" role="img" aria-label="Darren Soto, 2026, to scale: accepted money is $2,211,917 made of $1,567,917 from individuals, $629,000 from corporate PACs and $15,000 from AIPAC. Dirty money is $644,000: only the corporate PAC and AIPAC parts.">
+      <svg viewBox="0 0 900 200" role="img" aria-label="Darren Soto, 2026, to scale: accepted money is $2,507,154 made of $1,567,917 from individuals, $629,000 from corporate PACs and $310,236 from AIPAC. Dirty money is $939,236: only the corporate PAC and AIPAC parts.">
         <text x="0" y="52" font-size="13" font-weight="600" style="fill:var(--ink)">Accepted</text>
-        <text x="0" y="70" font-size="12" class="mono" style="fill:var(--muted)">$2,211,917</text>
+        <text x="0" y="70" font-size="12" class="mono" style="fill:var(--muted)">$2,507,154</text>
         <text x="0" y="132" font-size="13" font-weight="600" style="fill:var(--ink)">Dirty</text>
-        <text x="0" y="150" font-size="12" class="mono" style="fill:var(--muted)">$644,000</text>
-        <rect x="160" y="40" width="496.2" height="36" style="fill:var(--data)" opacity="0.85"/>
-        <rect x="656.2" y="40" width="199.1" height="36" style="fill:var(--dirty)"/>
-        <rect x="855.3" y="40" width="4.7" height="36" style="fill:var(--gold)"/>
+        <text x="0" y="150" font-size="12" class="mono" style="fill:var(--muted)">$939,236</text>
+        <rect x="160" y="40" width="437.8" height="36" style="fill:var(--data)" opacity="0.85"/>
+        <rect x="597.8" y="40" width="175.6" height="36" style="fill:var(--dirty)"/>
+        <rect x="773.4" y="40" width="86.6" height="36" style="fill:var(--gold)"/>
         <text x="172" y="63" font-size="12" font-weight="600" style="fill:var(--paper)">Individuals $1,567,917</text>
-        <text x="668" y="63" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
-        <text x="860" y="30" font-size="12" text-anchor="end" font-weight="600" style="fill:var(--gold)">AIPAC $15,000 ↓</text>
-        <rect x="160" y="120" width="496.2" height="36" fill="none" style="stroke:var(--rule)" stroke-dasharray="5 4" stroke-width="1.5"/>
-        <text x="408" y="143" font-size="12" text-anchor="middle" style="fill:var(--muted)">individual money is never dirty</text>
-        <rect x="656.2" y="120" width="199.1" height="36" style="fill:var(--dirty)"/>
-        <rect x="855.3" y="120" width="4.7" height="36" style="fill:var(--gold)"/>
-        <text x="668" y="143" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
+        <text x="610" y="63" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
+        <text x="860" y="30" font-size="12" text-anchor="end" font-weight="600" style="fill:var(--gold)">AIPAC $310,236 ↓</text>
+        <rect x="160" y="120" width="437.8" height="36" fill="none" style="stroke:var(--rule)" stroke-dasharray="5 4" stroke-width="1.5"/>
+        <text x="379" y="143" font-size="12" text-anchor="middle" style="fill:var(--muted)">individual money is never dirty</text>
+        <rect x="597.8" y="120" width="175.6" height="36" style="fill:var(--dirty)"/>
+        <rect x="773.4" y="120" width="86.6" height="36" style="fill:var(--gold)"/>
+        <text x="610" y="143" font-size="12" font-weight="600" style="fill:var(--paper)">Corporate PACs $629,000</text>
         <g style="color:var(--muted)" font-size="11" class="mono">
           <line x1="160" y1="166" x2="860" y2="166" stroke="currentColor" stroke-width="1"/>
           <line x1="160" y1="166" x2="160" y2="172" stroke="currentColor"/><text x="160" y="186" text-anchor="middle" class="mono">$0</text>
-          <line x1="476.5" y1="166" x2="476.5" y2="172" stroke="currentColor"/><text x="476.5" y="186" text-anchor="middle" class="mono">$1M</text>
-          <line x1="793" y1="166" x2="793" y2="172" stroke="currentColor"/><text x="793" y="186" text-anchor="middle" class="mono">$2M</text>
+          <line x1="439.2" y1="166" x2="439.2" y2="172" stroke="currentColor"/><text x="439.2" y="186" text-anchor="middle" class="mono">$1M</text>
+          <line x1="718.4" y1="166" x2="718.4" y2="172" stroke="currentColor"/><text x="718.4" y="186" text-anchor="middle" class="mono">$2M</text>
         </g>
       </svg>
     </div>
-    <figcaption>Soto's 2026 cycle, drawn to scale. Dirty money is not a slice of the total: it reuses two of the three accepted parts and would add UDP outside spending if there were any (here $0). AIPAC's $15,000 is the thin gold sliver at the far right.</figcaption>
+    <figcaption>Soto's 2026 cycle, drawn to scale. Dirty money is not a slice of the total: it reuses two of the three accepted parts and would add UDP outside spending if there were any (here $0). AIPAC's $310,236 is the gold segment at the far right.</figcaption>
   </figure>
   <div class="callout trap col"><b>Common trap: adding outside spending to the total</b><p>A super PAC like UDP spends money <em>about</em> a race, on ads, without giving it to the campaign. Adding it to <code>total_accepted</code> would overstate what the candidate received. It counts toward "dirty" because it benefits the candidate, but it is never "accepted".</p></div>
 </section>
@@ -593,7 +593,7 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
   <h2>Check yourself</h2>
   <p class="col">Answer each in your head before opening it. Recalling an answer fixes it in memory far better than rereading.</p>
   <div class="quiz col">
-    <details><summary>Why does the app store $15,000 as 1,500,000?</summary><div><span class="reveal">Answer</span><p>Money is whole cents (principle 2). Integer cents add up exactly; floating-point dollars pick up rounding errors over millions of rows.</p></div></details>
+    <details><summary>Why does the app store $310,236.17 as 31,023,617?</summary><div><span class="reveal">Answer</span><p>Money is whole cents (principle 2). Integer cents add up exactly; floating-point dollars pick up rounding errors over millions of rows.</p></div></details>
     <details><summary>A member got $200,000 in UDP ads supporting them. Does their <code>total_accepted</code> go up?</summary><div><span class="reveal">Answer</span><p>No. UDP spent the money on ads about the race and never gave it to the campaign. It shows up in the UDP columns and counts toward <code>dirty</code>, never toward <code>total_accepted</code>.</p></div></details>
     <details><summary>Why was the −$6 row in Part 3 left out instead of subtracted?</summary><div><span class="reveal">Answer</span><p>It refunds an earmark whose original pass-through isn't in the file. Subtracting it would create a negative contribution that never happened, so the store marks it <code>voided_earmark</code> and keeps it for the record.</p></div></details>
     <details><summary>You fix a typo in a code comment and the rebuild's dataset md5 changes. What do you do?</summary><div><span class="reveal">Answer</span><p>Stop. A comment can't change the output, so something else differs: your inputs, a library version, or a real code change. Find which before committing anything. Never "fix" the dataset to match.</p></div></details>
