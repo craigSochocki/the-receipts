@@ -8,6 +8,11 @@ from receipts.domain.clean_2026 import is_career_clean
 from receipts.validate.audits.published import is_num
 
 
+def count_where(records, key, value):
+    """Rows whose `key` is `value` (identity: the clean verdicts are True/False/None)."""
+    return sum(1 for r in records if r[key] is value)
+
+
 def clean_count_values(records: Sequence[Mapping[str, Any]]) -> dict[str, int]:
     """The clean counts, keyed by baseline key; the audits pin these, the build checks them."""
     house120 = [r for r in records if r['in_120th'] == 'yes' and r['chamber_120'] == 'House']
@@ -15,9 +20,9 @@ def clean_count_values(records: Sequence[Mapping[str, Any]]) -> dict[str, int]:
     career_clean = [r for r in house120 if is_career_clean(r)]
     career_keys = {r['person_key'] for r in career_clean}
     found = {
-        'clean_2026.true_total': sum(1 for r in records if r['clean_2026'] is True),
-        'clean_2026.false_total': sum(1 for r in records if r['clean_2026'] is False),
-        'clean_2026.null_total': sum(1 for r in records if r['clean_2026'] is None),
+        'clean_2026.true_total': count_where(records, 'clean_2026', True),
+        'clean_2026.false_total': count_where(records, 'clean_2026', False),
+        'clean_2026.null_total': count_where(records, 'clean_2026', None),
         'clean_2026.house_120th_verified_clean': len(house_clean),
         'clean_2026.house_120th_career_clean': len(career_clean),
         'clean_2026.house_120th_clean_2026_not_career_clean': sum(
