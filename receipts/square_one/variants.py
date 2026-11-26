@@ -2,9 +2,9 @@
 
 The by_recipient classifier splits a listed conduit's disbursements into
 direct (to a candidate's own committee) and joint-fundraising (to a JFC).
-Whether JFC money counts as money "from" the conduit is the open
-decision Craig has to make, so the derivation carries both variants as
-parallel columns and picks neither as the headline:
+Whether JFC money counts as money "from" the conduit is decided: variant A
+is the headline (JFC shares count as direct). The derivation still carries
+both variants as parallel columns, so the choice stays visible:
 
 - Variant A (JFC counts): AIPAC = API direct + AIPAC-funded JFC shares;
   pro-Israel = API direct from all listed committees + all JFC shares.

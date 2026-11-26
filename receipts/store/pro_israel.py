@@ -6,6 +6,8 @@ from collections import defaultdict
 
 from receipts.common.log import log, run
 from receipts.common.settings import load_roster, settings
+from receipts.square_one.corrected import API_CYCLES
+from receipts.square_one.corrected import load as load_corrected
 from receipts.store.gold import write_gold
 from receipts.store.ie_rows import Roster
 from receipts.store.opposition import credits, person_of, races_of
@@ -43,7 +45,7 @@ def outside_spending(committees, roster, amounts, credit):
                 credit[person_key][race[0]] += round(dollars * 100)
 
 
-def per_cycle(person, amounts, credit=None):
+def per_cycle(person, amounts, credit=None, corrected=None):
     ids = Roster.ids(person)
     cycles = defaultdict(lambda: dict.fromkeys(COLUMNS, 0))
     for (candidate_id, cycle), money in amounts.items():
@@ -52,6 +54,12 @@ def per_cycle(person, amounts, credit=None):
                 cycles[cycle][column] += money[column]
     for cycle, cents in (credit or {}).get(person['person_key'], {}).items():
         cycles[cycle]['pro_israel_opp_credit'] += cents
+    if corrected is not None:
+        for cycle in API_CYCLES:
+            cents = corrected.pro_israel_cents(person['person_key'], cycle)
+            if cents is None or (cents == 0 and cycle not in cycles):
+                continue
+            cycles[cycle]['pro_israel_pac'] = cents
     return [{'cycle': c, **cycles[c]} for c in sorted(cycles) if any(cycles[c].values())]
 
 
@@ -71,7 +79,8 @@ def main():
     credit = defaultdict(lambda: defaultdict(int))
     direct(committees, amounts)
     outside_spending(committees, people, amounts, credit)
-    cycles = {p['person_key']: per_cycle(p, amounts, credit) for p in people}
+    corrected = load_corrected()
+    cycles = {p['person_key']: per_cycle(p, amounts, credit, corrected) for p in people}
     rows = [person_row(p, cycles[p['person_key']]) for p in people]
     write_gold('pro_israel_people', rows, set())
     write_gold(

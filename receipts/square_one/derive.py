@@ -32,7 +32,6 @@ from receipts.square_one import (
 )
 
 EVIDENCE = Path('data') / 'evidence'
-JFC_DIR = Path('/home/hatch/workspace/tmp-jfc')
 AUDIT_CYCLES = [2022, 2024, 2026]
 
 
@@ -93,7 +92,7 @@ def derive_conduit(root, bulk, people, person_of, ie_cycles, started):
         cm_by_cycle[cycle], cm_multi_by_cycle[cycle] = conduit.load_cm_maps(bulk, cycle)
     pas2_names = conduit.build_pas2_name_map(bulk, [2024, 2026])
     committees = conduit.listed_committees(root / 'data' / 'source' / 'pro_israel_pacs.csv')
-    resolutions = json.loads((JFC_DIR / 'collision_resolutions.json').read_text())
+    resolutions = json.loads((root / 'data' / 'source' / 'collision_resolutions.json').read_text())
     direct, merge_report = conduit.direct_from_by_recipient(
         root / EVIDENCE / 'jfc-variants',
         committees,
@@ -110,7 +109,8 @@ def derive_conduit(root, bulk, people, person_of, ie_cycles, started):
     ]
     conduit.apply_collision_fixes(direct, fixes, merge_report['resolved_keys'])
     jfc = variants.combine_jfc(
-        JFC_DIR / 'jfc_attribution4.json', JFC_DIR / 'jfc_outflow_shares4.json'
+        root / 'data' / 'source' / 'jfc_attribution4.json',
+        root / 'data' / 'source' / 'jfc_outflow_shares4.json',
     )
     return variants.corrected_figures(direct, jfc), merge_report
 
@@ -253,6 +253,10 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
             f'{key}|{cycle}': entry['transfers_from_auth']
             for (key, cycle), entry in money_data['rollup_transfers'].items()
         },
+        'transfers_to_corrected': {
+            f'{key}|{cycle}': entry['transfers_to_auth']
+            for (key, cycle), entry in money_data['rollup_transfers'].items()
+        },
         'ryan_election_attributed': {
             f'{cid}|{cycle}': cents for (cid, cycle), cents in ryan_attributed.items()
         },
@@ -272,6 +276,22 @@ def run(root: Path, out_path: Path, cycles: list[int], ie_cycles: list[int]) -> 
     out_path.write_text(json.dumps(output, indent=1, sort_keys=True, default=str))
     _step(f'wrote {out_path} ({out_path.stat().st_size / 1e6:.1f} MB)', started)
     return output
+
+
+def run_rebuild_step() -> None:
+    """The rebuild step: derive the corrected figures from the staged snapshot."""
+    root = repo_root()
+    span = settings().cycles
+    output = run(
+        root,
+        root / 'data' / 'intermediate' / 'square_one' / 'derived.json',
+        list(range(span.career_start, span.career_end + 1, 2)),
+        list(span.udp),
+    )
+    print('counts:', json.dumps(output['counts'], indent=1))
+    print('audits:', output['audits_line'])
+    if not output['audits_passed']:
+        raise SystemExit('audits failed')
 
 
 def main() -> None:

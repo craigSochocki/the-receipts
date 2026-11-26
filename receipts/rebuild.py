@@ -15,6 +15,7 @@ from receipts.common.log import log
 from receipts.common.log import run as run_script
 from receipts.common.settings import settings
 from receipts.site import build_site, verify_site
+from receipts.square_one import derive
 from receipts.store import (
     accepted_money,
     all_ie,
@@ -42,6 +43,7 @@ STEPS = [
     Step('receipts.store.build_store', build_store.main),
     Step('receipts.validate.run_history', run_history.main),
     Step('receipts.store.models silver', lambda: models.build('silver')),
+    Step('receipts.square_one.derive', derive.run_rebuild_step),
     Step('receipts.store.accepted_money', accepted_money.main),
     Step('receipts.store.udp', udp.main),
     Step('receipts.store.self_funding', self_funding.main),

@@ -1,9 +1,11 @@
 """Weball + pas2 derivation, checked against the committed baseline totals."""
 
 import json
+import time
 from pathlib import Path
 
-from receipts.square_one import money, parsers, roster
+from receipts.square_one import money, parsers, roster, transfers, variants
+from receipts.square_one.derive import derive_conduit
 
 ROOT = Path(__file__).resolve().parents[1]
 BULK = ROOT / 'data' / 'raw'
@@ -66,6 +68,39 @@ def test_full_derivation_matches_baseline_totals():
     }
     known = {p['person_key'] for p in people if p['fec_candidate_ids']}
 
+    # The corrected families no longer equal the pas2 base, so they are
+    # checked against the derivation's own corrected figures instead:
+    # AIPAC direct from the API conduit merge (variant A), transfers
+    # from the shared-committee dedup. Both are re-derived here from the
+    # bulk files and the committed evidence, never read from derived.json.
+    # (Pro-Israel has no pas2 base in this rollup — it is not a committee
+    # class here — so it stays unchecked by this test.)
+    corrected, _merge_report = derive_conduit(
+        ROOT, BULK, people, roster.person_of(people), [2022, 2024, 2026], time.time()
+    )
+    pas2_per_cycle = {}
+    pas2_career = {}
+    for (key, cycle), entry in rolled.items():
+        pas2_per_cycle[(key, cycle)] = {'aipac': int(entry.get('aipac', 0) or 0), 'pro_israel': 0}
+        career = pas2_career.setdefault(key, {'aipac': 0, 'pro_israel': 0})
+        career['aipac'] += pas2_per_cycle[(key, cycle)]['aipac']
+    corrected_totals = variants.corrected_career_totals(
+        corrected, pas2_per_cycle, pas2_career, known
+    )
+    principal = transfers.principal_committees(BULK, [2022, 2024, 2026])
+    offices = transfers.candidate_offices(BULK, [2022, 2024, 2026])
+    groups = transfers.shared_committee_groups(people, principal, offices)
+    weball_transfers, _transfer_report = transfers.apply_transfer_dedup(adjusted, groups, records)
+    rollup_transfers = money.rollup_person_cycle(weball_transfers, committee_money, people, CAREER)
+
+    def corrected_career_total(field):
+        total = 0
+        for (key, _cycle), entry in rollup_transfers.items():
+            if key not in known:
+                continue
+            total += int(entry.get(field, 0) or 0)
+        return total
+
     def career_total(field):
         total = 0
         for (key, _cycle), entry in rolled.items():
@@ -87,7 +122,7 @@ def test_full_derivation_matches_baseline_totals():
         return total
 
     assert career_total('individual') == round(totals['individual_contribution_total_career'] * 100)
-    assert career_total('aipac') == round(totals['aipac_pac_direct_career'] * 100)
+    assert corrected_totals['aipac_a_cents'] == round(totals['aipac_pac_direct_career'] * 100)
     assert career_total('aipac_earmark') == round(totals['aipac_earmark_transmitted_career'] * 100)
     assert career_total('corporate') == round(totals['corporate_pac_career'] * 100)
     assert career_total('corporate_earmark') == round(
@@ -99,8 +134,12 @@ def test_full_derivation_matches_baseline_totals():
     assert career_total('other_unclassified') == round(totals['other_unclassified_career'] * 100)
     assert career_total('total_receipts') == round(totals['total_receipts_career'] * 100)
     assert career_total('total_disbursements') == round(totals['total_disbursements_career'] * 100)
-    assert career_total('transfers_from_auth') == round(totals['transfers_from_auth_career'] * 100)
-    assert career_total('transfers_to_auth') == round(totals['transfers_to_auth_career'] * 100)
+    assert corrected_career_total('transfers_from_auth') == round(
+        totals['transfers_from_auth_career'] * 100
+    )
+    assert corrected_career_total('transfers_to_auth') == round(
+        totals['transfers_to_auth_career'] * 100
+    )
     assert career_total('cand_contrib') == round(totals['cand_contrib_career'] * 100)
     assert career_total('cand_loans') == round(totals['cand_loans_career'] * 100)
     assert career_total('loan_repayments') == round(totals['loan_repayments_career'] * 100)

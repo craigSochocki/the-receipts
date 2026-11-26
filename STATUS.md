@@ -1,6 +1,6 @@
 # Congress Money Tracker — Status Snapshot
 
-**As of: Tuesday, November 24, 2026**
+**As of: Thursday, November 26, 2026**
 
 ## What is built
 
@@ -242,8 +242,11 @@
 - **Career money (FEC filings, cycles 1980–2026, source of truth = FEC bulk
   files; OpenSecrets cross-check only):** individual contributions
   $8,763,847,353.73; corporate PAC $972,228,584.00; AIPAC PAC direct
-  $7,567,773.00 (earmark transmitted $191,573.00); UDP independent
-  expenditures supporting $42,415,003.76. **Complete picture (Nov 12):**
+  $109,040,065.96 (earmark transmitted $191,573.00 — the pas2-identified subset only;
+  see methodology §2); UDP independent
+  expenditures supporting $42,415,003.76. Pro-Israel PAC direct (career)
+  $147,959,436.30; transfers from authorized committees $1,063,335,318.41,
+  transfers to $192,913,118.13 (both de-duplicated, methodology §8 item 25). **Complete picture (Nov 12):**
   self-funding $453,274,533.68 (contributions $127,959,956.91 + loans
   $325,314,576.77); total receipts $13,123,758,383.28; total disbursements
   $12,119,674,234.67; cash on hand (latest-cycle sum) $1,011,890,622.93;
@@ -275,12 +278,13 @@
   breakdown for the 120th; clean-money view; 2026 primary-target list (House
   Democrats by dirty_2026: Boafo $5,745,013; Bell $3,446,668; Aguilar
   $1,359,750; Jeffries $1,259,000; Clark $1,166,250).
-- **Clean counts (Strict, `clean_2026`, post net-negative fix):** career-clean 53 incoming House members (all also
-  2026-clean). Verified-clean in 2026: **70 of 436** incoming House (67 D,
-  3 R); 17 are 2026-clean but not career-clean. Senate clean in 2026: 14 of
-  99 (13 D, 1 I, 0 R). **Tolerance presets (Balanced is the default):**
-  not-dirty in the 120th 203 of 535 under Balanced, 257 under Lenient;
-  AIPAC/UDP flag 231 in the 120th. Every clean / not-dirty figure is labeled
+- **Clean counts (Strict, `clean_2026`, post net-negative fix):** career-clean 58 incoming House members.
+  Verified-clean in 2026: **69 of 435** incoming House (66 D,
+  3 R); 12 incoming Senators (11 D, 1 I). Headline verdict (term, since last election):
+  **77 of 535** verified clean in the 120th — 69 House (66 D, 3 R), 8 Senate.
+  **Tolerance presets (Balanced is the default):**
+  not-dirty in the 120th 170 of 535 under Balanced, 203 under Lenient;
+  AIPAC/UDP flag 299 in the 120th (390 roster-wide). Every clean / not-dirty figure is labeled
   with its preset — see methodology §14.
 - **Design guide:** `architecture.md` (one canonical JSON dataset; stable
   FEC-ID keys; raw/staging/mart/presentation layers; idempotent re-runnable
@@ -476,9 +480,28 @@
    files and resolves the ambiguous names by recipient committee ID; the Latimer and
    Collins residuals vs Track AIPAC stay documented-unknown; the JFC decision is made —
    variant A is the headline (JFC shares count as direct, decided Nov 25); the Barr
-   wider double-count, and the Ryan/Luria roster links are still Craig's calls. The pipeline
-   and the dataset are untouched on this branch; the rebuild still reproduces the
-   committed dataset byte-identically.
+   wider double-count, and the Ryan/Luria roster links are still Craig's calls.
+   **APPLIED Nov 26, on branch `apply-square-one-figures` (PR not opened).** The
+   corrected figures (variant A) are now the committed dataset, applied as a build step:
+   the derivation regenerates `derived.json` on every rebuild and the store steps
+   substitute the six corrected fields before the per-person rollup; the verifier passes
+   with the new dataset as the baseline, and an independent per-person check
+   reproduces the derivation's AIPAC, pro-Israel and transfer figures to the cent on
+   all 664 rows. Dataset md5s: csv 4a591e983fcb84d41baa068e3c438fd6, json
+   5ab50a18f7b4030246ae3a44314c0dee, cycles f940a22ecbd65fa0a767aaa15b0e8180.
+   Headline counts (variant A): term flag 299 (was 270), Strict clean 77 (was 79),
+   Balanced not-dirty 170 (was 183), Lenient not-dirty 203 (was 224); 2026-cycle flag
+   258 (was 231), Strict clean 81 (was 83), Balanced not-dirty 189 (was 201),
+   Lenient not-dirty 234 (was 253). Two fixes landed with the apply: the AIPAC/UDP
+   flag now takes precedence over the net in the clean verdict (a flagged member is
+   never clean even when refunds elsewhere make the net negative), and transfers are
+   deduped in every cycle, not just the API cycles (the dataset's transfers were
+   $7.45M / $2.81M high across 19 people from pre-2022 double-counted views). The
+   earmark column stays at its pas2 values — it is the pas2-identified subset only and
+   understates transmitted earmarks under the corrected headline; the December
+   row-level pull is the moment to correct it. The memo layer stays undecided.
+   UNVERIFIED locally: the Playwright runtime smoke test — no browser binary exists in
+   this environment and the install fails, so it must run in CI.
 8. **Headline verdict between elections — DONE (Craig, Nov 25).** The headline judged a
    member on their latest election's cycle alone, so a senator's off-year money (raised
    toward the next race) never counted. It now judges that cycle and every cycle since as

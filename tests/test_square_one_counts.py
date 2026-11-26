@@ -1,11 +1,14 @@
 """Flag and clean counts under both JFC variants, from the square-one derivation.
 
-The baseline variant must reproduce the committed counts exactly (the
-recount's baseline: cycle flag 231, Strict clean 83, Balanced not-dirty
-201, Lenient 253; term flag 270, Strict clean 79, Balanced 183, Lenient
-224). Variants A and B must reproduce the JFC recount's counts. Ryan
-stays null and unflagged under every variant: his committee maps to an
-unlinked candidate ID, so the API money is unattributed.
+The committed dataset holds the Variant A figures, so Variant A must
+reproduce the committed counts exactly (cycle flag 258, Strict clean 81,
+Balanced not-dirty 189, Lenient 234; term flag 299, Strict clean 77,
+Balanced 170, Lenient 203). The baseline variant must reproduce the
+recount's baseline counts (cycle flag 231, Strict clean 83, Balanced
+not-dirty 201, Lenient 253; term flag 270, Strict clean 79, Balanced 183,
+Lenient 224). Variants A and B must reproduce the JFC recount's counts.
+Ryan stays null and unflagged under every variant: his committee maps to
+an unlinked candidate ID, so the API money is unattributed.
 """
 
 import json
@@ -25,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BULK = ROOT / 'data' / 'raw'
 EVIDENCE = ROOT / 'data' / 'evidence' / 'jfc-variants'
 SQUARE_ONE = ROOT / 'data' / 'evidence' / 'square-one'
-JFC_DIR = Path('/home/hatch/workspace/tmp-jfc')
+JFC_DIR = ROOT / 'data' / 'source'
 AIPAC = 'C00797670'
 UDP = 'C00799031'
 OVERRIDES = {'C00003251': 'labor', 'C00468314': 'other_unclassified'}
@@ -208,6 +211,8 @@ def test_ryan_stays_null_and_unflagged_under_both_variants():
 
 
 def test_cycle_records_match_dataset_for_spot_members():
+    # The committed dataset holds the Variant A figures, so the
+    # derivation's Variant A records must match it cycle by cycle.
     data = _assemble()
     results, _got = counts.run_variant(
         data['people'],
@@ -215,8 +220,8 @@ def test_cycle_records_match_dataset_for_spot_members():
         data['weball'],
         data['weball_filed'],
         data['committee_money'],
-        None,
-        'baseline',
+        data['corrected'],
+        'A',
         data['udp_support'],
         data['all_ie'],
         data['opp_credits'],

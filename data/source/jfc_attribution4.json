@@ -1,0 +1,2088 @@
+{
+ "attr": {
+  "C00830687|2024": [
+   "BALDWIN FOR WISCONSIN",
+   "B001230",
+   58879.7,
+   "surname-only, unique in roster"
+  ],
+  "C00768200|2026": [
+   "JEFFRIES VICTORY FUND",
+   "J000294",
+   263500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00834549|2024": [
+   "JEFFRIES MAJORITY FUND",
+   "J000294",
+   94650.0,
+   "surname-only, unique in roster"
+  ],
+  "C00678367|2024": [
+   "FISCHER VICTORY FUND",
+   "F000463",
+   25000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00867010|2024": [
+   "TEAM MORENO",
+   "M001242",
+   201500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00630632|2024": [
+   "ELISE VICTORY FUND",
+   "S001196",
+   158415.7,
+   "first-name-only, unique in roster"
+  ],
+  "C00859058|2024": [
+   "EMMER MAJORITY BUILDERS",
+   "E000294",
+   50070.0,
+   "surname-only, unique in roster"
+  ],
+  "C00542423|2024": [
+   "TED CRUZ VICTORY COMMITTEE",
+   "C001098",
+   103550.0,
+   "first+last name match"
+  ],
+  "C00632711|2024": [
+   "TEAM ESTES",
+   "E000298",
+   4200.0,
+   "surname-only, unique in roster"
+  ],
+  "C00699553|2026": [
+   "CALVERT VICTORY FUND",
+   "C000059",
+   8500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00859058|2026": [
+   "EMMER MAJORITY BUILDERS",
+   "E000294",
+   42450.0,
+   "surname-only, unique in roster"
+  ],
+  "C00718320|2026": [
+   "FOXX VICTORY FEDERAL COMMITTEE",
+   "F000450",
+   2000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00690891|2026": [
+   "GRAHAM MAJORITY FUND",
+   "G000608",
+   267686.19,
+   "surname-only, unique in roster"
+  ],
+  "C00894360|2026": [
+   "TEAM FINE",
+   "F000484",
+   113840.48,
+   "surname-only, unique in roster"
+  ],
+  "C00786772|2026": [
+   "KEAN VICTORY FUND",
+   "K000398",
+   46950.0,
+   "surname-only, unique in roster"
+  ],
+  "C00836403|2026": [
+   "TEAM EMMER",
+   "E000294",
+   30000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00632711|2026": [
+   "TEAM ESTES",
+   "E000298",
+   2500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00779827|2026": [
+   "MAX MILLER VICTORY",
+   "M001222",
+   4741.2,
+   "first+last name match"
+  ],
+  "C00815134|2026": [
+   "FETTERMAN VICTORY FUND",
+   "F000479",
+   25000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00689836|2026": [
+   "RESCHENTHALER VICTORY FUND",
+   "R000610",
+   70300.0,
+   "surname-only, unique in roster"
+  ],
+  "C00633792|2026": [
+   "FRIENDS OF ANDY BARR COMMITTEE",
+   "B001282",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00609255|2026": [
+   "SULLIVAN VICTORY",
+   "S001198",
+   58814.11,
+   "surname-only, unique in roster"
+  ],
+  "C00718221|2026": [
+   "ASHLEY HINSON VICTORY COMMITTEE",
+   "H001091",
+   66548.67,
+   "first+last name match"
+  ],
+  "C00630632|2026": [
+   "ELISE VICTORY FUND",
+   "S001196",
+   26540.07,
+   "first-name-only, unique in roster"
+  ],
+  "C00825810|2026": [
+   "CISCOMANI VICTORY FUND",
+   "C001133",
+   2500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00771543|2026": [
+   "CASSIDY LEADERSHIP FUND",
+   "C001075",
+   8300.0,
+   "surname-only, unique in roster"
+  ],
+  "C00799817|2026": [
+   "HAGEMAN VICTORY FUND",
+   "H001096",
+   1000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00700260|2022": [
+   "DUNN VICTORY FUND",
+   "D000628",
+   7.4,
+   "surname-only, unique in roster"
+  ],
+  "C00817379|2022": [
+   "LAWLER VICTORY FUND",
+   "L000599",
+   3173.6,
+   "surname-only, unique in roster"
+  ],
+  "C00832949|2024": [
+   "PETE RICKETTS VICTORY FUND",
+   "R000618",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00806612|2024": [
+   "JOHN JAMES FOR MICHIGAN",
+   "J000307",
+   5800.0,
+   "first+last name match"
+  ],
+  "C00849778|2024": [
+   "TED CRUZ VICTORY FUND",
+   "C001098",
+   70000.0,
+   "first+last name match"
+  ],
+  "C00568162|2024": [
+   "SCALISE LEADERSHIP FUND",
+   "S001176",
+   5001.0,
+   "surname-only, unique in roster"
+  ],
+  "C00851170|2024": [
+   "MIKE ROGERS VICTORY COMMITTEE",
+   "R000575",
+   25000.0,
+   "first+last name match"
+  ],
+  "C00817379|2024": [
+   "LAWLER VICTORY FUND",
+   "L000599",
+   56395.88,
+   "surname-only, unique in roster"
+  ],
+  "C00779827|2024": [
+   "MAX MILLER VICTORY",
+   "M001222",
+   5500.0,
+   "first+last name match"
+  ],
+  "C00845792|2024": [
+   "SHEEHY VICTORY COMMITTEE",
+   "S001232",
+   38600.0,
+   "surname-only, unique in roster"
+  ],
+  "C00692343|2024": [
+   "TEAM RICK SCOTT",
+   "S001217",
+   31600.0,
+   "first+last name match"
+  ],
+  "C00872499|2024": [
+   "TEAM BRIAN JACK",
+   "J000311",
+   10902.0,
+   "first+last name match"
+  ],
+  "C00700260|2024": [
+   "DUNN VICTORY FUND",
+   "D000628",
+   35.2,
+   "surname-only, unique in roster"
+  ],
+  "C00896332|2026": [
+   "ASHLEY MOODY VICTORY FUND",
+   "M001244",
+   47079.8,
+   "first+last name match"
+  ],
+  "C00857615|2026": [
+   "TEAM JORDAN",
+   "J000289",
+   1000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00896928|2026": [
+   "TEAM HUSTED",
+   "H001104",
+   25000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00817379|2026": [
+   "LAWLER VICTORY FUND",
+   "L000599",
+   82765.4,
+   "surname-only, unique in roster"
+  ],
+  "C00774703|2026": [
+   "COTTON MAJORITY COMMITTEE",
+   "C001095",
+   42994.25,
+   "surname-only, unique in roster"
+  ],
+  "C00945154|2026": [
+   "CLAY FULLER VICTORY FUND",
+   "F000485",
+   48.36,
+   "first+last name match"
+  ],
+  "C00731356|2026": [
+   "MALLIOTAKIS VICTORY COMMITTEE",
+   "M000317",
+   3500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00942797|2026": [
+   "TEAM ALME",
+   "kurtalmemtsenate",
+   16866.3,
+   "surname-only, unique in roster"
+  ],
+  "C00770180|2026": [
+   "CORNYN VICTORY COMMITTEE",
+   "C001056",
+   27598.32,
+   "surname-only, unique in roster"
+  ],
+  "C00868091|2026": [
+   "LISA MCCLAIN LEADERSHIP FUND",
+   "M001136",
+   41001.0,
+   "first+last name match"
+  ],
+  "C00817874|2026": [
+   "BARRETT BRIGADE VICTORY FUND",
+   "B001321",
+   7000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00832949|2026": [
+   "PETE RICKETTS VICTORY FUND",
+   "R000618",
+   7000.0,
+   "first+last name match"
+  ],
+  "C00812941|2026": [
+   "LUMMIS VICTORY COMMITTEE",
+   "L000571",
+   21.74,
+   "surname-only, unique in roster"
+  ],
+  "C00583161|2026": [
+   "MAST VICTORY COMMITTEE",
+   "M001199",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00872499|2026": [
+   "TEAM BRIAN JACK",
+   "J000311",
+   18.0,
+   "first+last name match"
+  ],
+  "C00768200|2024": [
+   "JEFFRIES VICTORY FUND",
+   "J000294",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00784579|2022": [
+   "CORTEZ MASTO VICTORY 2022",
+   "C001113",
+   10050.0,
+   "surname-only, unique in roster"
+  ],
+  "C00636100|2022": [
+   "DURBIN VICTORY FUND",
+   "D000563",
+   1610.0,
+   "surname-only, unique in roster"
+  ],
+  "C00876730|2024": [
+   "BOHANNAN VICTORY FUND 2024",
+   "christinabohannaniahouse",
+   16675.0,
+   "surname-only, unique in roster"
+  ],
+  "C00876466|2024": [
+   "VARGAS VICTORY FUND 2024",
+   "V000130",
+   23317.64,
+   "surname-only, unique in roster"
+  ],
+  "C00822056|2024": [
+   "ERIC SORENSEN VICTORY FUND",
+   "S001225",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00857136|2024": [
+   "MARCY KAPTUR VICTORY FUND",
+   "K000009",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00822064|2024": [
+   "CHRIS DELUZIO VICTORY FUND",
+   "D000530",
+   3300.0,
+   "surname-only, unique in roster"
+  ],
+  "C00873430|2024": [
+   "VICTORY NOW FOR BALDWIN",
+   "B001230",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00865410|2024": [
+   "SALINAS VICTORY FUND",
+   "S001226",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00873331|2024": [
+   "HAYES VICTORY FUND",
+   "H001081",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00724237|2024": [
+   "SHARICE DAVIDS VICTORY FUND 2024",
+   "D000629",
+   21217.64,
+   "first+last name match"
+  ],
+  "C00853598|2024": [
+   "KIM SCHRIER VICTORY 2024",
+   "S001216",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00862995|2024": [
+   "COLIN ALLRED VICTORY FUND",
+   "A000376",
+   51200.0,
+   "first+last name match"
+  ],
+  "C00819441|2024": [
+   "BUDZINSKI VICTORY FUND",
+   "B001315",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00860288|2024": [
+   "SCHOLTEN VICTORY FUND",
+   "S001221",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00817411|2024": [
+   "GABE VASQUEZ VICTORY FUND",
+   "V000136",
+   5000.0,
+   "first+last name match"
+  ],
+  "C00859553|2024": [
+   "ALSOBROOKS VICTORY FUND",
+   "A000382",
+   41500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00884007|2024": [
+   "MANNION VICTORY FUND",
+   "M001231",
+   18217.64,
+   "surname-only, unique in roster"
+  ],
+  "C00952440|2026": [
+   "JOSH TUREK VICTORY FUND",
+   "joshturekiasenate",
+   60130.0,
+   "first+last name match"
+  ],
+  "C00936955|2026": [
+   "MENDOZA VICTORY FUND",
+   "joannamendozaazhouse",
+   10.0,
+   "surname-only, unique in roster"
+  ],
+  "C00884007|2026": [
+   "MANNION VICTORY FUND",
+   "M001231",
+   100.0,
+   "surname-only, unique in roster"
+  ],
+  "C00820969|2026": [
+   "MRVAN VICTORY FUND",
+   "M001214",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00916429|2026": [
+   "JEFFRIES BATTLEGROUND PROTECTION FUND",
+   "J000294",
+   214800.0,
+   "surname-only, unique in roster"
+  ],
+  "C00949164|2026": [
+   "BOHANNAN VICTORY FUND 2026",
+   "christinabohannaniahouse",
+   19112.5,
+   "surname-only, unique in roster"
+  ],
+  "C00831669|2026": [
+   "KATHERINE CLARK MAJORITY FUND",
+   "C001101",
+   1000.0,
+   "first+last name match"
+  ],
+  "C00913574|2026": [
+   "COOPER VICTORY FUND",
+   "roycooperncsenate",
+   172038.0,
+   "surname-only, unique in roster"
+  ],
+  "C00878702|2026": [
+   "CHRIS PAPPAS VICTORY FUND",
+   "P000614",
+   360.0,
+   "first+last name match"
+  ],
+  "C00876524|2026": [
+   "TRAN VICTORY FUND",
+   "T000491",
+   16750.0,
+   "surname-only, unique in roster"
+  ],
+  "C00957894|2026": [
+   "REBECCA BENNETT VICTORY FUND",
+   "rebeccabennettnjhouse",
+   100.0,
+   "first+last name match"
+  ],
+  "C00492421|2026": [
+   "NANCY PELOSI VICTORY FUND",
+   "P000197",
+   1000.0,
+   "first+last name match"
+  ],
+  "C00955781|2026": [
+   "MANNY RUTINEL VICTORY FUND",
+   "mannyrutinelcohouse",
+   3600.0,
+   "first+last name match"
+  ],
+  "C00955831|2026": [
+   "FLANAGAN VICTORY FUND",
+   "peggyflanaganmnsenate",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00955039|2026": [
+   "FORSTAG VICTORY FUND",
+   "samforstagmthouse",
+   1825.0,
+   "surname-only, unique in roster"
+  ],
+  "C00750919|2026": [
+   "OSSOFF VICTORY FUND",
+   "O000174",
+   393224.23,
+   "surname-only, unique in roster"
+  ],
+  "C00831917|2026": [
+   "KATHERINE CLARK VICTORY FUND",
+   "C001101",
+   189750.0,
+   "first+last name match"
+  ],
+  "C00956334|2026": [
+   "SHANNON TAYLOR VICTORY FUND",
+   "shannontaylorvahouse",
+   1100.0,
+   "first+last name match"
+  ],
+  "C00950329|2026": [
+   "PULIDO VICTORY FUND",
+   "bobbypulidotxhouse",
+   15880.0,
+   "surname-only, unique in roster"
+  ],
+  "C00558262|2024": [
+   "SCHWEIKERT VICTORY COMMITTEE",
+   "S001183",
+   0.0,
+   "surname-only, unique in roster"
+  ],
+  "RITCHIE TORRES VICTORY FUND|2024": [
+   "RITCHIE TORRES VICTORY FUND",
+   "T000486",
+   250.0,
+   "first+last name match"
+  ],
+  "C00734319|2024": [
+   "BOOKER VICTORY FUND",
+   "B001288",
+   500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00815134|2024": [
+   "FETTERMAN VICTORY FUND",
+   "F000479",
+   500.0,
+   "surname-only, unique in roster"
+  ],
+  "C00848317|2024": [
+   "GALLEGO VICTORY FUND",
+   "G000574",
+   5000.0,
+   "surname-only, unique in roster"
+  ],
+  "C00920389|2026": [
+   "SUSAN COLLINS FOR MAINE",
+   "C001035",
+   10000.0,
+   "first+last name match"
+  ]
+ },
+ "need_pull": {
+  "C00578609|2024": [
+   "OHIO GRASSROOTS VICTORY FUND",
+   68300.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00771246|2026": [
+   "JOHNSON LEADERSHIP FUND",
+   11611.73,
+   "surname matches ['J000288', 'J000293', 'J000299', 'J000301', 'J000310', 'jakejohnsonmnhouse'], no first name"
+  ],
+  "C00754598|2024": [
+   "TORRES VICTORY FUND",
+   24800.0,
+   "surname matches ['T000474', 'T000486'], no first name"
+  ],
+  "C00895821|2026": [
+   "DEFEND OUR MAJORITY",
+   205000.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00754598|2026": [
+   "TORRES VICTORY FUND",
+   21600.0,
+   "surname matches ['T000474', 'T000486'], no first name"
+  ],
+  "C00884296|2026": [
+   "TEAM ROGERS",
+   105453.0,
+   "surname matches ['R000395', 'R000575', 'austinrogersflhouse'], no first name"
+  ],
+  "C00858373|2026": [
+   "GROW THE MAJORITY",
+   592906.15,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00946236|2026": [
+   "MICHIGAN VICTORY FUND",
+   65700.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00752519|2022": [
+   "MIKE GARCIA VICTORY FUND",
+   1000.0,
+   "surname matches ['G000587', 'G000598', 'johnnygarciatxhouse'], no first name"
+  ],
+  "C00766782|2022": [
+   "TAKE BACK THE HOUSE 2022",
+   60000.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00771246|2024": [
+   "JOHNSON LEADERSHIP FUND",
+   62042.98,
+   "surname matches ['J000288', 'J000293', 'J000299', 'J000301', 'J000310', 'jakejohnsonmnhouse'], no first name"
+  ],
+  "C00858373|2024": [
+   "GROW THE MAJORITY",
+   203500.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00850321|2024": [
+   "SAM BROWN VICTORY FUND",
+   61501.0,
+   "surname matches ['B000944', 'B001313'], no first name"
+  ],
+  "C00852012|2024": [
+   "TEAM MCCORMICK",
+   70000.0,
+   "surname matches ['M001218', 'M001243'], no first name"
+  ],
+  "C00852012|2026": [
+   "TEAM MCCORMICK",
+   1000.0,
+   "surname matches ['M001218', 'M001243'], no first name"
+  ],
+  "C00909648|2026": [
+   "SCOTT BROWN VICTORY COMMITTEE",
+   221.85,
+   "surname matches ['B000944', 'B001313', 'S000185', 'S001184', 'S001189', 'S001217'], no first name"
+  ],
+  "C00939876|2026": [
+   "PUT ALASKA FIRST",
+   25000.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00881292|2026": [
+   "GOLDMAN VICTORY FUND",
+   8000.0,
+   "surname matches ['G000599', 'G000601'], no first name"
+  ],
+  "C00692897|2026": [
+   "COLLINS VICTORY COMMITTEE",
+   80606.32,
+   "surname matches ['C001035', 'C001129'], no first name"
+  ],
+  "C00658476|2026": [
+   "DEMOCRATIC GRASSROOTS VICTORY FUND",
+   65600.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00916296|2026": [
+   "OHIO GRASSROOTS VICTORY FUND",
+   301734.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00933986|2026": [
+   "FISH FAMILY FREEDOM FUND",
+   32500.0,
+   "multi-candidate JFC: outflow split"
+  ],
+  "C00898015|2026": [
+   "VAN HOLLEN OSSOFF VICTORY FUND",
+   2550.0,
+   "surname matches ['O000174', 'V000128'], no first name"
+  ],
+  "C00878843|2024": [
+   "DELUZIO STELSON VICTORY FUND",
+   1000.0,
+   "surname matches ['D000530', 'janellestelsonpahouse'], no first name"
+  ]
+ },
+ "nonroster": {
+  "C00744946|2024": [
+   "BIDEN VICTORY FUND",
+   5357705.470000001,
+   "presidential JFC, not a Congress member"
+  ],
+  "C00947853|2026": [
+   "WOMEN ARE THE MAJORITY MAKERS",
+   2000.0,
+   "no roster member matches name"
+  ],
+  "C00897157|2026": [
+   "JFW FUND",
+   15000.0,
+   "no roster member matches name"
+  ],
+  "C00547679|2024": [
+   "TESTER VICTORY FUND",
+   91639.7,
+   "no roster member matches name"
+  ],
+  "C00652644|2024": [
+   "TEAM FITZ",
+   6000.0,
+   "no roster member matches name"
+  ],
+  "C00867937|2024": [
+   "TRUMP 47 COMMITTEE, INC.",
+   361500.0,
+   "presidential JFC, not a Congress member"
+  ],
+  "C00914176|2026": [
+   "WHATLEY VICTORY COMMITTEE",
+   147105.02,
+   "no roster member matches name"
+  ],
+  "C00903914|2026": [
+   "DESMOND VICTORY FUND",
+   24000.0,
+   "no roster member matches name"
+  ],
+  "C00698738|2022": [
+   "TEAM CHENEY",
+   28400.0,
+   "no roster member matches name"
+  ],
+  "C00659193|2022": [
+   "BUCK LEADERSHIP FUND",
+   30.8,
+   "no roster member matches name"
+  ],
+  "C00875583|2024": [
+   "HOVDE VICTORY COMMITTEE",
+   33400.0,
+   "no roster member matches name"
+  ],
+  "C00869024|2024": [
+   "HOGAN VICTORY FUND",
+   129896.66,
+   "no roster member matches name"
+  ],
+  "C00828152|2024": [
+   "TEAM STAND FOR AMERICA",
+   13300.0,
+   "no roster member matches name"
+  ],
+  "C00770941|2024": [
+   "TRUMP SAVE AMERICA JOINT FUNDRAISING COMMITTEE",
+   141510.09,
+   "presidential JFC, not a Congress member"
+  ],
+  "C00856120|2024": [
+   "KARI LAKE VICTORY FUND",
+   28300.0,
+   "no roster member matches name"
+  ],
+  "C00924217|2026": [
+   "SUNUNU VICTORY",
+   5336.0,
+   "no roster member matches name"
+  ],
+  "C00940742|2026": [
+   "BRINKER VICTORY FUND",
+   10.0,
+   "no roster member matches name"
+  ],
+  "C00952507|2026": [
+   "TEAM PAXTON",
+   33061.38,
+   "no roster member matches name"
+  ],
+  "C00912386|2026": [
+   "CONROY OHIO VICTORY",
+   3780.36,
+   "no roster member matches name"
+  ],
+  "C00822049|2022": [
+   "MANDELA BARNES VICTORY FUND",
+   47300.0,
+   "no roster member matches name"
+  ],
+  "C00751339|2022": [
+   "GEORGIA SENATE VICTORY FUND",
+   2900.0,
+   "no roster member matches name"
+  ],
+  "C00741553|2024": [
+   "CARTWRIGHT VICTORY FUND",
+   5000.0,
+   "no roster member matches name"
+  ],
+  "C00846303|2024": [
+   "CALIFORNIA HOUSE MAJORITY FUND",
+   3300.0,
+   "no roster member matches name"
+  ],
+  "C00849216|2024": [
+   "JONES VICTORY FUND",
+   1000.0,
+   "no roster member matches name"
+  ],
+  "C00794016|2024": [
+   "WILD FOR PA VICTORY FUND",
+   5000.0,
+   "no roster member matches name"
+  ],
+  "C00838912|2024": [
+   "HARRIS ACTION FUND",
+   5385.0,
+   "presidential JFC, not a Congress member"
+  ],
+  "C00545830|2024": [
+   "CASEY KEYSTONE VICTORY FUND",
+   84180.0,
+   "no roster member matches name"
+  ],
+  "C00862912|2024": [
+   "DMP VICTORY FUND",
+   10000.0,
+   "no roster member matches name"
+  ],
+  "C00821561|2024": [
+   "CARAVEO VICTORY FUND",
+   21568.0,
+   "no roster member matches name"
+  ],
+  "BIDEN ACTION FUND|2024": [
+   "BIDEN ACTION FUND",
+   277400.0,
+   "presidential JFC, not a Congress member"
+  ],
+  "C00880336|2024": [
+   "BACCAM VICTORY FUND",
+   17425.0,
+   "no roster member matches name"
+  ],
+  "C00929927|2026": [
+   "MCMORROW VICTORY FUND",
+   20000.0,
+   "no roster member matches name"
+  ],
+  "C00949149|2026": [
+   "STG VICTORY FUND",
+   6065.0,
+   "no roster member matches name"
+  ],
+  "C00715136|2026": [
+   "OREGON BLUE VICTORY FUND",
+   3500.0,
+   "no roster member matches name"
+  ],
+  "C00955807|2026": [
+   "MAINE VICTORY FUND 2026",
+   5000.0,
+   "no roster member matches name"
+  ],
+  "C00545830|2022": [
+   "CASEY KEYSTONE VICTORY FUND",
+   360.0,
+   "no roster member matches name"
+  ],
+  "C00881227|2024": [
+   "PA HOUSE VICTORY",
+   2100.0,
+   "no roster member matches name"
+  ],
+  "C00877928|2024": [
+   "FRISCH VICTORY FUND",
+   500.0,
+   "no roster member matches name"
+  ]
+ },
+ "unmapped": {
+  "C00851576|2024": [
+   "MONICA TRANEL VICTORY FUND",
+   1800.0,
+   "tokens ['MONICA', 'TRANEL'] ambiguous"
+  ]
+ },
+ "acc": {
+  "C00578609|2024": {
+   "name": "OHIO GRASSROOTS VICTORY FUND",
+   "total": 68300.0,
+   "spenders": {
+    "C00139659": 0.0,
+    "C00441949": 68300.0
+   }
+  },
+  "C00830687|2024": {
+   "name": "BALDWIN FOR WISCONSIN",
+   "total": 58879.7,
+   "spenders": {
+    "C00139659": 2500.0,
+    "C00441949": 56379.7
+   }
+  },
+  "C00744946|2024": {
+   "name": "BIDEN VICTORY FUND",
+   "total": 5357705.470000001,
+   "spenders": {
+    "C00139659": 10000.0,
+    "C00441949": 5345205.470000001,
+    "C00563254": 2500.0
+   }
+  },
+  "C00768200|2026": {
+   "name": "JEFFRIES VICTORY FUND",
+   "total": 263500.0,
+   "spenders": {
+    "C00139659": 5000.0,
+    "C00195024": 8500.0,
+    "C00797670": 250000.0
+   }
+  },
+  "C00947853|2026": {
+   "name": "WOMEN ARE THE MAJORITY MAKERS",
+   "total": 2000.0,
+   "spenders": {
+    "C00139659": 2000.0
+   }
+  },
+  "C00897157|2026": {
+   "name": "JFW FUND",
+   "total": 15000.0,
+   "spenders": {
+    "C00139659": 15000.0
+   }
+  },
+  "C00834549|2024": {
+   "name": "JEFFRIES MAJORITY FUND",
+   "total": 94650.0,
+   "spenders": {
+    "C00195024": 3300.0,
+    "C00797670": 91350.0
+   }
+  },
+  "C00771246|2026": {
+   "name": "JOHNSON LEADERSHIP FUND",
+   "total": 11611.73,
+   "spenders": {
+    "C00195024": 5500.0,
+    "C00345132": 6111.73
+   }
+  },
+  "C00547679|2024": {
+   "name": "TESTER VICTORY FUND",
+   "total": 91639.7,
+   "spenders": {
+    "C00247403": 17660.0,
+    "C00441949": 73979.7
+   }
+  },
+  "C00678367|2024": {
+   "name": "FISCHER VICTORY FUND",
+   "total": 25000.0,
+   "spenders": {
+    "C00247403": 25000.0
+   }
+  },
+  "C00867010|2024": {
+   "name": "TEAM MORENO",
+   "total": 201500.0,
+   "spenders": {
+    "C00247403": 169000.0,
+    "C00345132": 32500.0
+   }
+  },
+  "C00754598|2024": {
+   "name": "TORRES VICTORY FUND",
+   "total": 24800.0,
+   "spenders": {
+    "C00247403": 24800.0
+   }
+  },
+  "C00652644|2024": {
+   "name": "TEAM FITZ",
+   "total": 6000.0,
+   "spenders": {
+    "C00247403": 6000.0
+   }
+  },
+  "C00867937|2024": {
+   "name": "TRUMP 47 COMMITTEE, INC.",
+   "total": 361500.0,
+   "spenders": {
+    "C00247403": 65000.0,
+    "C00345132": 293500.0,
+    "C00492579": 3000.0
+   }
+  },
+  "C00630632|2024": {
+   "name": "ELISE VICTORY FUND",
+   "total": 158415.7,
+   "spenders": {
+    "C00247403": 110880.0,
+    "C00345132": 47535.7
+   }
+  },
+  "C00859058|2024": {
+   "name": "EMMER MAJORITY BUILDERS",
+   "total": 50070.0,
+   "spenders": {
+    "C00247403": 50070.0
+   }
+  },
+  "C00542423|2024": {
+   "name": "TED CRUZ VICTORY COMMITTEE",
+   "total": 103550.0,
+   "spenders": {
+    "C00247403": 103550.0
+   }
+  },
+  "C00632711|2024": {
+   "name": "TEAM ESTES",
+   "total": 4200.0,
+   "spenders": {
+    "C00247403": 4200.0
+   }
+  },
+  "C00699553|2026": {
+   "name": "CALVERT VICTORY FUND",
+   "total": 8500.0,
+   "spenders": {
+    "C00247403": 8500.0
+   }
+  },
+  "C00895821|2026": {
+   "name": "DEFEND OUR MAJORITY",
+   "total": 205000.0,
+   "spenders": {
+    "C00247403": 5000.0,
+    "C00345132": 200000.0
+   }
+  },
+  "C00859058|2026": {
+   "name": "EMMER MAJORITY BUILDERS",
+   "total": 42450.0,
+   "spenders": {
+    "C00247403": 42450.0
+   }
+  },
+  "C00718320|2026": {
+   "name": "FOXX VICTORY FEDERAL COMMITTEE",
+   "total": 2000.0,
+   "spenders": {
+    "C00247403": 2000.0
+   }
+  },
+  "C00690891|2026": {
+   "name": "GRAHAM MAJORITY FUND",
+   "total": 267686.19,
+   "spenders": {
+    "C00247403": 63618.0,
+    "C00345132": 204068.19
+   }
+  },
+  "C00914176|2026": {
+   "name": "WHATLEY VICTORY COMMITTEE",
+   "total": 147105.02,
+   "spenders": {
+    "C00247403": 121800.0,
+    "C00345132": 25305.02
+   }
+  },
+  "C00903914|2026": {
+   "name": "DESMOND VICTORY FUND",
+   "total": 24000.0,
+   "spenders": {
+    "C00247403": 24000.0
+   }
+  },
+  "C00894360|2026": {
+   "name": "TEAM FINE",
+   "total": 113840.48,
+   "spenders": {
+    "C00247403": 83900.0,
+    "C00345132": 29940.48
+   }
+  },
+  "C00786772|2026": {
+   "name": "KEAN VICTORY FUND",
+   "total": 46950.0,
+   "spenders": {
+    "C00247403": 46950.0
+   }
+  },
+  "C00836403|2026": {
+   "name": "TEAM EMMER",
+   "total": 30000.0,
+   "spenders": {
+    "C00247403": 30000.0
+   }
+  },
+  "C00632711|2026": {
+   "name": "TEAM ESTES",
+   "total": 2500.0,
+   "spenders": {
+    "C00247403": 2500.0
+   }
+  },
+  "C00779827|2026": {
+   "name": "MAX MILLER VICTORY",
+   "total": 4741.2,
+   "spenders": {
+    "C00247403": 2000.0,
+    "C00345132": 2741.2
+   }
+  },
+  "C00815134|2026": {
+   "name": "FETTERMAN VICTORY FUND",
+   "total": 25000.0,
+   "spenders": {
+    "C00247403": 25000.0
+   }
+  },
+  "C00689836|2026": {
+   "name": "RESCHENTHALER VICTORY FUND",
+   "total": 70300.0,
+   "spenders": {
+    "C00247403": 20300.0,
+    "C00345132": 50000.0
+   }
+  },
+  "C00633792|2026": {
+   "name": "FRIENDS OF ANDY BARR COMMITTEE",
+   "total": 5000.0,
+   "spenders": {
+    "C00247403": 5000.0
+   }
+  },
+  "C00754598|2026": {
+   "name": "TORRES VICTORY FUND",
+   "total": 21600.0,
+   "spenders": {
+    "C00247403": 21600.0
+   }
+  },
+  "C00884296|2026": {
+   "name": "TEAM ROGERS",
+   "total": 105453.0,
+   "spenders": {
+    "C00247403": 15500.0,
+    "C00345132": 89953.0
+   }
+  },
+  "C00858373|2026": {
+   "name": "GROW THE MAJORITY",
+   "total": 592906.15,
+   "spenders": {
+    "C00247403": 15750.0,
+    "C00309781": 5000.0,
+    "C00345132": 309656.15,
+    "C00797670": 262500.0
+   }
+  },
+  "C00609255|2026": {
+   "name": "SULLIVAN VICTORY",
+   "total": 58814.11,
+   "spenders": {
+    "C00247403": 5000.0,
+    "C00345132": 53814.11
+   }
+  },
+  "C00718221|2026": {
+   "name": "ASHLEY HINSON VICTORY COMMITTEE",
+   "total": 66548.67,
+   "spenders": {
+    "C00247403": 5000.0,
+    "C00345132": 61548.67
+   }
+  },
+  "C00630632|2026": {
+   "name": "ELISE VICTORY FUND",
+   "total": 26540.07,
+   "spenders": {
+    "C00247403": 25000.0,
+    "C00345132": 1540.07
+   }
+  },
+  "C00946236|2026": {
+   "name": "MICHIGAN VICTORY FUND",
+   "total": 65700.0,
+   "spenders": {
+    "C00247403": 65700.0
+   }
+  },
+  "C00825810|2026": {
+   "name": "CISCOMANI VICTORY FUND",
+   "total": 2500.0,
+   "spenders": {
+    "C00309781": 2500.0
+   }
+  },
+  "C00771543|2026": {
+   "name": "CASSIDY LEADERSHIP FUND",
+   "total": 8300.0,
+   "spenders": {
+    "C00309781": 5000.0,
+    "C00345132": 3300.0
+   }
+  },
+  "C00799817|2026": {
+   "name": "HAGEMAN VICTORY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00309781": 1000.0
+   }
+  },
+  "C00700260|2022": {
+   "name": "DUNN VICTORY FUND",
+   "total": 7.4,
+   "spenders": {
+    "C00345132": 7.4
+   }
+  },
+  "C00817379|2022": {
+   "name": "LAWLER VICTORY FUND",
+   "total": 3173.6,
+   "spenders": {
+    "C00345132": 3173.6
+   }
+  },
+  "C00698738|2022": {
+   "name": "TEAM CHENEY",
+   "total": 28400.0,
+   "spenders": {
+    "C00345132": 28400.0
+   }
+  },
+  "C00752519|2022": {
+   "name": "MIKE GARCIA VICTORY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00345132": 1000.0
+   }
+  },
+  "C00659193|2022": {
+   "name": "BUCK LEADERSHIP FUND",
+   "total": 30.8,
+   "spenders": {
+    "C00345132": 30.8
+   }
+  },
+  "C00766782|2022": {
+   "name": "TAKE BACK THE HOUSE 2022",
+   "total": 60000.0,
+   "spenders": {
+    "C00345132": 60000.0
+   }
+  },
+  "C00832949|2024": {
+   "name": "PETE RICKETTS VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00345132": 5000.0
+   }
+  },
+  "C00806612|2024": {
+   "name": "JOHN JAMES FOR MICHIGAN",
+   "total": 5800.0,
+   "spenders": {
+    "C00345132": 5800.0
+   }
+  },
+  "C00875583|2024": {
+   "name": "HOVDE VICTORY COMMITTEE",
+   "total": 33400.0,
+   "spenders": {
+    "C00345132": 33400.0
+   }
+  },
+  "C00849778|2024": {
+   "name": "TED CRUZ VICTORY FUND",
+   "total": 70000.0,
+   "spenders": {
+    "C00345132": 70000.0
+   }
+  },
+  "C00568162|2024": {
+   "name": "SCALISE LEADERSHIP FUND",
+   "total": 5001.0,
+   "spenders": {
+    "C00345132": 5001.0
+   }
+  },
+  "C00851170|2024": {
+   "name": "MIKE ROGERS VICTORY COMMITTEE",
+   "total": 25000.0,
+   "spenders": {
+    "C00345132": 25000.0
+   }
+  },
+  "C00817379|2024": {
+   "name": "LAWLER VICTORY FUND",
+   "total": 56395.88,
+   "spenders": {
+    "C00345132": 56395.88
+   }
+  },
+  "C00779827|2024": {
+   "name": "MAX MILLER VICTORY",
+   "total": 5500.0,
+   "spenders": {
+    "C00345132": 5500.0
+   }
+  },
+  "C00869024|2024": {
+   "name": "HOGAN VICTORY FUND",
+   "total": 129896.66,
+   "spenders": {
+    "C00345132": 129896.66
+   }
+  },
+  "C00845792|2024": {
+   "name": "SHEEHY VICTORY COMMITTEE",
+   "total": 38600.0,
+   "spenders": {
+    "C00345132": 38600.0
+   }
+  },
+  "C00771246|2024": {
+   "name": "JOHNSON LEADERSHIP FUND",
+   "total": 62042.98,
+   "spenders": {
+    "C00345132": 62042.98
+   }
+  },
+  "C00858373|2024": {
+   "name": "GROW THE MAJORITY",
+   "total": 203500.0,
+   "spenders": {
+    "C00345132": 203500.0
+   }
+  },
+  "C00850321|2024": {
+   "name": "SAM BROWN VICTORY FUND",
+   "total": 61501.0,
+   "spenders": {
+    "C00345132": 61501.0
+   }
+  },
+  "C00852012|2024": {
+   "name": "TEAM MCCORMICK",
+   "total": 70000.0,
+   "spenders": {
+    "C00345132": 70000.0,
+    "C00492579": 0.0
+   }
+  },
+  "C00828152|2024": {
+   "name": "TEAM STAND FOR AMERICA",
+   "total": 13300.0,
+   "spenders": {
+    "C00345132": 13300.0
+   }
+  },
+  "C00692343|2024": {
+   "name": "TEAM RICK SCOTT",
+   "total": 31600.0,
+   "spenders": {
+    "C00345132": 31600.0
+   }
+  },
+  "C00770941|2024": {
+   "name": "TRUMP SAVE AMERICA JOINT FUNDRAISING COMMITTEE",
+   "total": 141510.09,
+   "spenders": {
+    "C00345132": 141510.09
+   }
+  },
+  "C00872499|2024": {
+   "name": "TEAM BRIAN JACK",
+   "total": 10902.0,
+   "spenders": {
+    "C00345132": 10902.0
+   }
+  },
+  "C00700260|2024": {
+   "name": "DUNN VICTORY FUND",
+   "total": 35.2,
+   "spenders": {
+    "C00345132": 35.2
+   }
+  },
+  "C00856120|2024": {
+   "name": "KARI LAKE VICTORY FUND",
+   "total": 28300.0,
+   "spenders": {
+    "C00345132": 28300.0
+   }
+  },
+  "C00924217|2026": {
+   "name": "SUNUNU VICTORY",
+   "total": 5336.0,
+   "spenders": {
+    "C00345132": 5336.0
+   }
+  },
+  "C00940742|2026": {
+   "name": "BRINKER VICTORY FUND",
+   "total": 10.0,
+   "spenders": {
+    "C00345132": 10.0
+   }
+  },
+  "C00896332|2026": {
+   "name": "ASHLEY MOODY VICTORY FUND",
+   "total": 47079.8,
+   "spenders": {
+    "C00345132": 40079.8,
+    "C00378216": 7000.0
+   }
+  },
+  "C00952507|2026": {
+   "name": "TEAM PAXTON",
+   "total": 33061.38,
+   "spenders": {
+    "C00345132": 33061.38
+   }
+  },
+  "C00857615|2026": {
+   "name": "TEAM JORDAN",
+   "total": 1000.0,
+   "spenders": {
+    "C00345132": 1000.0
+   }
+  },
+  "C00912386|2026": {
+   "name": "CONROY OHIO VICTORY",
+   "total": 3780.36,
+   "spenders": {
+    "C00345132": 3780.36
+   }
+  },
+  "C00896928|2026": {
+   "name": "TEAM HUSTED",
+   "total": 25000.0,
+   "spenders": {
+    "C00345132": 25000.0
+   }
+  },
+  "C00817379|2026": {
+   "name": "LAWLER VICTORY FUND",
+   "total": 82765.4,
+   "spenders": {
+    "C00345132": 82765.4
+   }
+  },
+  "C00774703|2026": {
+   "name": "COTTON MAJORITY COMMITTEE",
+   "total": 42994.25,
+   "spenders": {
+    "C00345132": 42994.25
+   }
+  },
+  "C00852012|2026": {
+   "name": "TEAM MCCORMICK",
+   "total": 1000.0,
+   "spenders": {
+    "C00345132": 1000.0
+   }
+  },
+  "C00945154|2026": {
+   "name": "CLAY FULLER VICTORY FUND",
+   "total": 48.36,
+   "spenders": {
+    "C00345132": 48.36
+   }
+  },
+  "C00909648|2026": {
+   "name": "SCOTT BROWN VICTORY COMMITTEE",
+   "total": 221.85,
+   "spenders": {
+    "C00345132": 221.85
+   }
+  },
+  "C00731356|2026": {
+   "name": "MALLIOTAKIS VICTORY COMMITTEE",
+   "total": 3500.0,
+   "spenders": {
+    "C00345132": 3500.0
+   }
+  },
+  "C00942797|2026": {
+   "name": "TEAM ALME",
+   "total": 16866.3,
+   "spenders": {
+    "C00345132": 16866.3
+   }
+  },
+  "C00770180|2026": {
+   "name": "CORNYN VICTORY COMMITTEE",
+   "total": 27598.32,
+   "spenders": {
+    "C00345132": 27598.32
+   }
+  },
+  "C00939876|2026": {
+   "name": "PUT ALASKA FIRST",
+   "total": 25000.0,
+   "spenders": {
+    "C00345132": 25000.0
+   }
+  },
+  "C00881292|2026": {
+   "name": "GOLDMAN VICTORY FUND",
+   "total": 8000.0,
+   "spenders": {
+    "C00345132": 8000.0
+   }
+  },
+  "C00868091|2026": {
+   "name": "LISA MCCLAIN LEADERSHIP FUND",
+   "total": 41001.0,
+   "spenders": {
+    "C00345132": 41001.0
+   }
+  },
+  "C00817874|2026": {
+   "name": "BARRETT BRIGADE VICTORY FUND",
+   "total": 7000.0,
+   "spenders": {
+    "C00345132": 7000.0
+   }
+  },
+  "C00832949|2026": {
+   "name": "PETE RICKETTS VICTORY FUND",
+   "total": 7000.0,
+   "spenders": {
+    "C00345132": 7000.0
+   }
+  },
+  "C00692897|2026": {
+   "name": "COLLINS VICTORY COMMITTEE",
+   "total": 80606.32,
+   "spenders": {
+    "C00345132": 80606.32
+   }
+  },
+  "C00812941|2026": {
+   "name": "LUMMIS VICTORY COMMITTEE",
+   "total": 21.74,
+   "spenders": {
+    "C00345132": 21.74
+   }
+  },
+  "C00583161|2026": {
+   "name": "MAST VICTORY COMMITTEE",
+   "total": 5000.0,
+   "spenders": {
+    "C00345132": 5000.0
+   }
+  },
+  "C00872499|2026": {
+   "name": "TEAM BRIAN JACK",
+   "total": 18.0,
+   "spenders": {
+    "C00345132": 18.0
+   }
+  },
+  "C00768200|2024": {
+   "name": "JEFFRIES VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00378216": 5000.0
+   }
+  },
+  "C00784579|2022": {
+   "name": "CORTEZ MASTO VICTORY 2022",
+   "total": 10050.0,
+   "spenders": {
+    "C00441949": 10050.0
+   }
+  },
+  "C00636100|2022": {
+   "name": "DURBIN VICTORY FUND",
+   "total": 1610.0,
+   "spenders": {
+    "C00441949": 1610.0
+   }
+  },
+  "C00822049|2022": {
+   "name": "MANDELA BARNES VICTORY FUND",
+   "total": 47300.0,
+   "spenders": {
+    "C00441949": 47300.0
+   }
+  },
+  "C00751339|2022": {
+   "name": "GEORGIA SENATE VICTORY FUND",
+   "total": 2900.0,
+   "spenders": {
+    "C00441949": 2900.0
+   }
+  },
+  "C00876730|2024": {
+   "name": "BOHANNAN VICTORY FUND 2024",
+   "total": 16675.0,
+   "spenders": {
+    "C00441949": 16675.0
+   }
+  },
+  "C00741553|2024": {
+   "name": "CARTWRIGHT VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00846303|2024": {
+   "name": "CALIFORNIA HOUSE MAJORITY FUND",
+   "total": 3300.0,
+   "spenders": {
+    "C00441949": 3300.0
+   }
+  },
+  "C00876466|2024": {
+   "name": "VARGAS VICTORY FUND 2024",
+   "total": 23317.64,
+   "spenders": {
+    "C00441949": 23317.64
+   }
+  },
+  "C00822056|2024": {
+   "name": "ERIC SORENSEN VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00849216|2024": {
+   "name": "JONES VICTORY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00441949": 1000.0
+   }
+  },
+  "C00857136|2024": {
+   "name": "MARCY KAPTUR VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00822064|2024": {
+   "name": "CHRIS DELUZIO VICTORY FUND",
+   "total": 3300.0,
+   "spenders": {
+    "C00441949": 3300.0
+   }
+  },
+  "C00794016|2024": {
+   "name": "WILD FOR PA VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00838912|2024": {
+   "name": "HARRIS ACTION FUND",
+   "total": 5385.0,
+   "spenders": {
+    "C00441949": 5385.0
+   }
+  },
+  "C00873430|2024": {
+   "name": "VICTORY NOW FOR BALDWIN",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00865410|2024": {
+   "name": "SALINAS VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00873331|2024": {
+   "name": "HAYES VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00545830|2024": {
+   "name": "CASEY KEYSTONE VICTORY FUND",
+   "total": 84180.0,
+   "spenders": {
+    "C00441949": 78330.0,
+    "C00563254": 5850.0
+   }
+  },
+  "C00724237|2024": {
+   "name": "SHARICE DAVIDS VICTORY FUND 2024",
+   "total": 21217.64,
+   "spenders": {
+    "C00441949": 21217.64
+   }
+  },
+  "C00853598|2024": {
+   "name": "KIM SCHRIER VICTORY 2024",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00862995|2024": {
+   "name": "COLIN ALLRED VICTORY FUND",
+   "total": 51200.0,
+   "spenders": {
+    "C00441949": 51200.0
+   }
+  },
+  "C00819441|2024": {
+   "name": "BUDZINSKI VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00860288|2024": {
+   "name": "SCHOLTEN VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00862912|2024": {
+   "name": "DMP VICTORY FUND",
+   "total": 10000.0,
+   "spenders": {
+    "C00441949": 10000.0
+   }
+  },
+  "C00851576|2024": {
+   "name": "MONICA TRANEL VICTORY FUND",
+   "total": 1800.0,
+   "spenders": {
+    "C00441949": 1800.0
+   }
+  },
+  "C00817411|2024": {
+   "name": "GABE VASQUEZ VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00859553|2024": {
+   "name": "ALSOBROOKS VICTORY FUND",
+   "total": 41500.0,
+   "spenders": {
+    "C00441949": 41500.0
+   }
+  },
+  "C00821561|2024": {
+   "name": "CARAVEO VICTORY FUND",
+   "total": 21568.0,
+   "spenders": {
+    "C00441949": 21568.0
+   }
+  },
+  "BIDEN ACTION FUND|2024": {
+   "name": "BIDEN ACTION FUND",
+   "total": 277400.0,
+   "spenders": {
+    "C00441949": 277400.0
+   }
+  },
+  "C00880336|2024": {
+   "name": "BACCAM VICTORY FUND",
+   "total": 17425.0,
+   "spenders": {
+    "C00441949": 17425.0
+   }
+  },
+  "C00884007|2024": {
+   "name": "MANNION VICTORY FUND",
+   "total": 18217.64,
+   "spenders": {
+    "C00441949": 18217.64
+   }
+  },
+  "C00658476|2026": {
+   "name": "DEMOCRATIC GRASSROOTS VICTORY FUND",
+   "total": 65600.0,
+   "spenders": {
+    "C00441949": 65600.0
+   }
+  },
+  "C00929927|2026": {
+   "name": "MCMORROW VICTORY FUND",
+   "total": 20000.0,
+   "spenders": {
+    "C00441949": 20000.0
+   }
+  },
+  "C00952440|2026": {
+   "name": "JOSH TUREK VICTORY FUND",
+   "total": 60130.0,
+   "spenders": {
+    "C00441949": 60130.0
+   }
+  },
+  "C00936955|2026": {
+   "name": "MENDOZA VICTORY FUND",
+   "total": 10.0,
+   "spenders": {
+    "C00441949": 10.0
+   }
+  },
+  "C00884007|2026": {
+   "name": "MANNION VICTORY FUND",
+   "total": 100.0,
+   "spenders": {
+    "C00441949": 100.0
+   }
+  },
+  "C00820969|2026": {
+   "name": "MRVAN VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00916429|2026": {
+   "name": "JEFFRIES BATTLEGROUND PROTECTION FUND",
+   "total": 214800.0,
+   "spenders": {
+    "C00441949": 65500.0,
+    "C00797670": 149300.0
+   }
+  },
+  "C00949149|2026": {
+   "name": "STG VICTORY FUND",
+   "total": 6065.0,
+   "spenders": {
+    "C00441949": 6065.0
+   }
+  },
+  "C00949164|2026": {
+   "name": "BOHANNAN VICTORY FUND 2026",
+   "total": 19112.5,
+   "spenders": {
+    "C00441949": 19112.5
+   }
+  },
+  "C00715136|2026": {
+   "name": "OREGON BLUE VICTORY FUND",
+   "total": 3500.0,
+   "spenders": {
+    "C00441949": 3500.0
+   }
+  },
+  "C00831669|2026": {
+   "name": "KATHERINE CLARK MAJORITY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00441949": 1000.0
+   }
+  },
+  "C00913574|2026": {
+   "name": "COOPER VICTORY FUND",
+   "total": 172038.0,
+   "spenders": {
+    "C00441949": 171638.0,
+    "C00684969": 400.0
+   }
+  },
+  "C00878702|2026": {
+   "name": "CHRIS PAPPAS VICTORY FUND",
+   "total": 360.0,
+   "spenders": {
+    "C00441949": 360.0
+   }
+  },
+  "C00876524|2026": {
+   "name": "TRAN VICTORY FUND",
+   "total": 16750.0,
+   "spenders": {
+    "C00441949": 16750.0
+   }
+  },
+  "C00957894|2026": {
+   "name": "REBECCA BENNETT VICTORY FUND",
+   "total": 100.0,
+   "spenders": {
+    "C00441949": 100.0
+   }
+  },
+  "C00492421|2026": {
+   "name": "NANCY PELOSI VICTORY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00441949": 1000.0
+   }
+  },
+  "C00955781|2026": {
+   "name": "MANNY RUTINEL VICTORY FUND",
+   "total": 3600.0,
+   "spenders": {
+    "C00441949": 3600.0
+   }
+  },
+  "C00955831|2026": {
+   "name": "FLANAGAN VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00955039|2026": {
+   "name": "FORSTAG VICTORY FUND",
+   "total": 1825.0,
+   "spenders": {
+    "C00441949": 1825.0
+   }
+  },
+  "C00750919|2026": {
+   "name": "OSSOFF VICTORY FUND",
+   "total": 393224.23,
+   "spenders": {
+    "C00441949": 393224.23
+   }
+  },
+  "C00831917|2026": {
+   "name": "KATHERINE CLARK VICTORY FUND",
+   "total": 189750.0,
+   "spenders": {
+    "C00441949": 189750.0
+   }
+  },
+  "C00956334|2026": {
+   "name": "SHANNON TAYLOR VICTORY FUND",
+   "total": 1100.0,
+   "spenders": {
+    "C00441949": 1100.0
+   }
+  },
+  "C00916296|2026": {
+   "name": "OHIO GRASSROOTS VICTORY FUND",
+   "total": 301734.0,
+   "spenders": {
+    "C00441949": 301234.0,
+    "C00563254": 500.0
+   }
+  },
+  "C00955807|2026": {
+   "name": "MAINE VICTORY FUND 2026",
+   "total": 5000.0,
+   "spenders": {
+    "C00441949": 5000.0
+   }
+  },
+  "C00950329|2026": {
+   "name": "PULIDO VICTORY FUND",
+   "total": 15880.0,
+   "spenders": {
+    "C00441949": 15880.0
+   }
+  },
+  "C00933986|2026": {
+   "name": "FISH FAMILY FREEDOM FUND",
+   "total": 32500.0,
+   "spenders": {
+    "C00441949": 32500.0
+   }
+  },
+  "C00898015|2026": {
+   "name": "VAN HOLLEN OSSOFF VICTORY FUND",
+   "total": 2550.0,
+   "spenders": {
+    "C00441949": 2550.0
+   }
+  },
+  "C00558262|2024": {
+   "name": "SCHWEIKERT VICTORY COMMITTEE",
+   "total": 0.0,
+   "spenders": {
+    "C00473249": 0.0
+   }
+  },
+  "C00545830|2022": {
+   "name": "CASEY KEYSTONE VICTORY FUND",
+   "total": 360.0,
+   "spenders": {
+    "C00563254": 360.0
+   }
+  },
+  "RITCHIE TORRES VICTORY FUND|2024": {
+   "name": "RITCHIE TORRES VICTORY FUND",
+   "total": 250.0,
+   "spenders": {
+    "C00563254": 250.0
+   }
+  },
+  "C00881227|2024": {
+   "name": "PA HOUSE VICTORY",
+   "total": 2100.0,
+   "spenders": {
+    "C00563254": 2100.0
+   }
+  },
+  "C00734319|2024": {
+   "name": "BOOKER VICTORY FUND",
+   "total": 500.0,
+   "spenders": {
+    "C00563254": 500.0
+   }
+  },
+  "C00815134|2024": {
+   "name": "FETTERMAN VICTORY FUND",
+   "total": 500.0,
+   "spenders": {
+    "C00563254": 500.0
+   }
+  },
+  "C00878843|2024": {
+   "name": "DELUZIO STELSON VICTORY FUND",
+   "total": 1000.0,
+   "spenders": {
+    "C00563254": 1000.0
+   }
+  },
+  "C00877928|2024": {
+   "name": "FRISCH VICTORY FUND",
+   "total": 500.0,
+   "spenders": {
+    "C00563254": 500.0
+   }
+  },
+  "C00848317|2024": {
+   "name": "GALLEGO VICTORY FUND",
+   "total": 5000.0,
+   "spenders": {
+    "C00710848": 5000.0
+   }
+  },
+  "C00920389|2026": {
+   "name": "SUSAN COLLINS FOR MAINE",
+   "total": 10000.0,
+   "spenders": {
+    "C00797670": 10000.0
+   }
+  }
+ }
+}

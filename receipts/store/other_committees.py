@@ -11,6 +11,8 @@ from receipts.common.settings import load_double_count_records, load_roster, set
 from receipts.domain.ledger import Ledger
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster, candidate_ids
+from receipts.square_one.corrected import API_CYCLES
+from receipts.square_one.corrected import load as load_corrected
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.other_committees_report import (
     AIPAC,
@@ -53,7 +55,24 @@ def fill_ledger(rows):
     return ledger
 
 
-def cross_checks(ledger):
+def corrected_aipac_career(ledger, roster, corrected):
+    """The AIPAC career total with 2022-2026 replaced by the corrected figures.
+
+    Mirrors accepted_money's person rollup: each person's pas2 career
+    total, minus their 2022-2026 pas2, plus their corrected Variant A
+    figures for those cycles.
+    """
+    total = 0
+    for person in roster.people:
+        ids = candidate_ids(person)
+        total += ledger.total(ids, settings().cycles.career, AIPAC).cents
+        for cycle in API_CYCLES:
+            total -= ledger.total(ids, [cycle], AIPAC).cents
+            total += corrected.aipac_cents(person['person_key'], cycle) or 0
+    return Money(total)
+
+
+def cross_checks(ledger, roster, corrected):
     """Corporate and AIPAC re-derived here must match the store's accepted money to the cent."""
 
     def baseline_cents(column, recomputed):
@@ -63,7 +82,7 @@ def cross_checks(ledger):
     checked = {
         'corporate_pac_career': ledger.column_total(CORPORATE),
         'corporate_earmark_transmitted_career': ledger.column_total(earmark(CORPORATE)),
-        'aipac_pac_direct_career': ledger.column_total(AIPAC),
+        'aipac_pac_direct_career': corrected_aipac_career(ledger, roster, corrected),
         'aipac_earmark_transmitted_career': ledger.column_total(earmark(AIPAC)),
     }
     return {
@@ -251,7 +270,7 @@ def main():
     rows, ledger, diagnostics, reconciliation, lamb = read_store(
         roster_ids, load_double_count_records()
     )
-    checks = cross_checks(ledger)
+    checks = cross_checks(ledger, roster, load_corrected())
     check_cross_checks(checks)
     note = reconciliation_note(lamb, asdict(settings().verification.coverage_end))
     write(*committees_by_person(roster, ledger, note))

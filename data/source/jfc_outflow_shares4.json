@@ -1,0 +1,548 @@
+{
+ "C00578609|2024": {
+  "name": "OHIO GRASSROOTS VICTORY FUND",
+  "total_in": 68300.0,
+  "out_cand_roster": 10094580.2,
+  "out_cand_nonroster": 0.0,
+  "out_other": 8806717.33,
+  "denom": 10094580.2,
+  "shares": {
+   "B000944": 68290.06,
+   "C001088": 9.94
+  },
+  "nonroster_top": [],
+  "share_sum": 68300.0
+ },
+ "C00771246|2026": {
+  "name": "JOHNSON LEADERSHIP FUND",
+  "total_in": 11611.73,
+  "out_cand_roster": 2799165.72,
+  "out_cand_nonroster": 0.0,
+  "out_other": 16641409.35,
+  "denom": 2799165.72,
+  "shares": {
+   "J000299": 11611.73
+  },
+  "nonroster_top": [],
+  "share_sum": 11611.73
+ },
+ "C00754598|2024": {
+  "name": "TORRES VICTORY FUND",
+  "total_in": 24800.0,
+  "out_cand_roster": 1549870.84,
+  "out_cand_nonroster": 0.0,
+  "out_other": 966808.26,
+  "denom": 1549870.84,
+  "shares": {
+   "T000486": 24800.0
+  },
+  "nonroster_top": [],
+  "share_sum": 24800.0
+ },
+ "C00895821|2026": {
+  "name": "DEFEND OUR MAJORITY",
+  "total_in": 205000.0,
+  "out_cand_roster": 8301220.38,
+  "out_cand_nonroster": 464221.42,
+  "out_other": 10458427.44,
+  "denom": 8765441.8,
+  "shares": {
+   "S001183": 3841.08,
+   "B001323": 8766.59,
+   "C001133": 8594.68,
+   "H001058": 621.94,
+   "paullepagemehouse": 2215.41,
+   "K000399": 8129.21,
+   "V000129": 8330.38,
+   "L000598": 6601.59,
+   "K000398": 7891.07,
+   "M001230": 8011.37,
+   "N000193": 8163.51,
+   "L000599": 7970.88,
+   "B001321": 8525.43,
+   "P000605": 4108.56,
+   "C000059": 6621.82,
+   "K000397": 3522.99,
+   "Z000018": 5629.44,
+   "M001215": 9132.0,
+   "S001213": 6257.34,
+   "J000307": 2359.2,
+   "F000466": 426.47,
+   "B001327": 8690.17,
+   "C001137": 792.86,
+   "S001176": 30530.61,
+   "B001298": 3687.36,
+   "E000300": 7844.66,
+   "D000594": 240.77,
+   "H001100": 8328.6,
+   "V000135": 8307.14
+  },
+  "nonroster_top": [
+   [
+    "FEELY FOR CONGRESS",
+    89047.38
+   ],
+   [
+    "KEVIN LINCOLN FOR CONGRESS",
+    82272.11
+   ],
+   [
+    "MIKE LIPETRI FOR CONGRESS",
+    75578.0
+   ],
+   [
+    "ERIC FLORES FOR CONGRESS",
+    47994.84
+   ]
+  ],
+  "share_sum": 194143.13
+ },
+ "C00754598|2026": {
+  "name": "TORRES VICTORY FUND",
+  "total_in": 21600.0,
+  "out_cand_roster": 2846067.94,
+  "out_cand_nonroster": 0.0,
+  "out_other": 4587691.37,
+  "denom": 2846067.94,
+  "shares": {
+   "T000486": 21600.0
+  },
+  "nonroster_top": [],
+  "share_sum": 21600.0
+ },
+ "C00884296|2026": {
+  "name": "TEAM ROGERS",
+  "total_in": 105453.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 4659937.23,
+  "out_other": 2142483.83,
+  "denom": 4659937.23,
+  "shares": {},
+  "nonroster_top": [
+   [
+    "ROGERS FOR SENATE",
+    4659937.23
+   ]
+  ],
+  "share_sum": 0
+ },
+ "C00858373|2026": {
+  "name": "GROW THE MAJORITY",
+  "total_in": 592906.15,
+  "out_cand_roster": 26199509.81,
+  "out_cand_nonroster": 4903026.25,
+  "out_other": 76758376.64,
+  "denom": 31102536.06,
+  "shares": {
+   "M001230": 15883.5,
+   "K000399": 15870.41,
+   "V000135": 15339.22,
+   "paullepagemehouse": 7180.64,
+   "B001327": 14380.92,
+   "K000401": 11780.27,
+   "C001132": 10602.47,
+   "J000307": 2541.94,
+   "H001100": 11541.94,
+   "S001213": 11399.68,
+   "I000056": 412.16,
+   "J000299": 107697.62,
+   "C001133": 17342.02,
+   "H001058": 13815.67,
+   "L000596": 9265.83,
+   "M001215": 15870.42,
+   "S001183": 6254.86,
+   "F000466": 16105.62,
+   "B001321": 17150.11,
+   "P000605": 14798.22,
+   "K000398": 15154.11,
+   "N000193": 15593.69,
+   "E000300": 16586.59,
+   "B001323": 16738.99,
+   "B001298": 4806.23,
+   "Z000018": 8368.72,
+   "L000598": 11772.18,
+   "C000059": 9040.4,
+   "K000397": 10168.49,
+   "V000129": 16579.48,
+   "W000804": 12046.06,
+   "D000594": 11090.4,
+   "L000599": 16261.13
+  },
+  "nonroster_top": [
+   [
+    "FEELY FOR CONGRESS",
+    480977.56
+   ],
+   [
+    "KEVIN LINCOLN FOR CONGRESS",
+    438195.75
+   ],
+   [
+    "PETER FOR NY INC.",
+    291313.36
+   ],
+   [
+    "LAURIE BUCKHOUT FOR CONGRESS",
+    278644.24
+   ]
+  ],
+  "share_sum": 499439.99
+ },
+ "C00946236|2026": {
+  "name": "MICHIGAN VICTORY FUND",
+  "total_in": 65700.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 0.0,
+  "out_other": 422232.48,
+  "denom": 0.0,
+  "shares": {},
+  "nonroster_top": [],
+  "share_sum": 0
+ },
+ "C00752519|2022": {
+  "name": "MIKE GARCIA VICTORY FUND",
+  "total_in": 1000.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 337104.7,
+  "out_other": 492623.92,
+  "denom": 337104.7,
+  "shares": {},
+  "nonroster_top": [
+   [
+    "MIKE GARCIA FOR CONGRESS",
+    337104.7
+   ]
+  ],
+  "share_sum": 0
+ },
+ "C00766782|2022": {
+  "name": "TAKE BACK THE HOUSE 2022",
+  "total_in": 60000.0,
+  "out_cand_roster": 9101157.86,
+  "out_cand_nonroster": 11854695.04,
+  "out_other": 67912214.62,
+  "denom": 20955852.9,
+  "shares": {
+   "M000317": 477.22,
+   "H001095": 386.52,
+   "K000398": 671.05,
+   "L000599": 48.99,
+   "S001213": 296.59,
+   "L000596": 90.59,
+   "K000399": 410.64,
+   "R000579": 8.3,
+   "H001091": 540.44,
+   "A000375": 96.63,
+   "B001282": 493.5,
+   "R000614": 467.99,
+   "S001183": 531.62,
+   "H001101": 48.99,
+   "J000307": 356.58,
+   "M001215": 482.64,
+   "M001177": 497.29,
+   "W000812": 495.06,
+   "V000135": 706.84,
+   "C000059": 690.24,
+   "H001052": 507.79,
+   "L000597": 100.61,
+   "B001306": 447.65,
+   "J000311": 16.65,
+   "M001157": 519.68,
+   "H001072": 493.91,
+   "P000605": 450.19,
+   "D000594": 540.51,
+   "C001132": 362.73,
+   "N000026": 486.72,
+   "C001133": 455.24,
+   "B001314": 85.58,
+   "O000086": 491.79,
+   "B001321": 335.38,
+   "B001298": 533.8,
+   "V000133": 426.66,
+   "O000175": 94.91,
+   "G000593": 486.26,
+   "M001216": 95.6,
+   "K000397": 587.87,
+   "F000466": 534.16,
+   "F000472": 440.65,
+   "F000470": 463.22,
+   "M000194": 502.07,
+   "T000478": 477.22,
+   "N000193": 350.01,
+   "Z000018": 604.87,
+   "L000598": 100.61,
+   "V000129": 529.33,
+   "M001218": 205.81,
+   "T000463": 694.76,
+   "T000467": 6.87,
+   "G000597": 489.64,
+   "S000929": 482.64,
+   "I000056": 477.88,
+   "B000825": 429.07,
+   "B000740": 462.67,
+   "C001051": 474.18,
+   "V000134": 503.62,
+   "W000816": 479.01,
+   "K000401": 102.44,
+   "S001212": 458.92,
+   "C001120": 507.64,
+   "H001067": 463.5,
+   "S000168": 500.01
+  },
+  "nonroster_top": [
+   [
+    "KEVIN MCCARTHY FOR CONGRESS",
+    4224756.64
+   ],
+   [
+    "GEORGIA REPUBLICAN PARTY",
+    410589.91
+   ],
+   [
+    "MICHELLE STEEL FOR CONGRESS",
+    195261.96
+   ],
+   [
+    "TONY GONZALES FOR CONGRESS",
+    182500.6
+   ]
+  ],
+  "share_sum": 26058.05
+ },
+ "C00771246|2024": {
+  "name": "JOHNSON LEADERSHIP FUND",
+  "total_in": 62042.98,
+  "out_cand_roster": 4148073.0,
+  "out_cand_nonroster": 0.0,
+  "out_other": 11086234.46,
+  "denom": 4148073.0,
+  "shares": {
+   "J000299": 62042.98
+  },
+  "nonroster_top": [],
+  "share_sum": 62042.98
+ },
+ "C00858373|2024": {
+  "name": "GROW THE MAJORITY",
+  "total_in": 203500.0,
+  "out_cand_roster": 5933801.41,
+  "out_cand_nonroster": 5579141.73,
+  "out_other": 28191461.42,
+  "denom": 11512943.14,
+  "shares": {
+   "B001321": 6478.07,
+   "B000825": 2.78,
+   "J000299": 38819.95,
+   "L000598": 3664.86,
+   "J000307": 2704.93,
+   "N000193": 2141.44,
+   "L000599": 3054.2,
+   "E000300": 5607.31,
+   "K000398": 2222.72,
+   "C001133": 3012.82,
+   "K000399": 2339.46,
+   "C000059": 2038.27,
+   "B001323": 1857.56,
+   "M001230": 2663.66,
+   "K000397": 2917.44,
+   "F000466": 2018.33,
+   "S001183": 2634.38,
+   "B001298": 2143.74,
+   "V000129": 2164.12,
+   "S000168": 3675.36,
+   "D000594": 2384.38,
+   "B001327": 5431.4,
+   "V000135": 2398.02,
+   "Z000018": 2509.23
+  },
+  "nonroster_top": [
+   [
+    "THERIAULT FOR CONGRESS",
+    349816.74
+   ],
+   [
+    "JOE TEIRAB FOR CONGRESS",
+    344253.45
+   ],
+   [
+    "YVETTE4CONGRESS",
+    340292.12
+   ],
+   [
+    "REDDY FOR KANSAS",
+    329901.22
+   ]
+  ],
+  "share_sum": 104884.43
+ },
+ "C00850321|2024": {
+  "name": "SAM BROWN VICTORY FUND",
+  "total_in": 61501.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 1008820.89,
+  "out_other": 1602622.8,
+  "denom": 1008820.89,
+  "shares": {},
+  "nonroster_top": [
+   [
+    "SAM BROWN FOR NEVADA",
+    1008820.89
+   ]
+  ],
+  "share_sum": 0
+ },
+ "C00852012|2024": {
+  "name": "TEAM MCCORMICK",
+  "total_in": 70000.0,
+  "out_cand_roster": 4605690.58,
+  "out_cand_nonroster": 0.0,
+  "out_other": 6193846.67,
+  "denom": 4605690.58,
+  "shares": {
+   "M001243": 69962.0,
+   "S001227": 38.0
+  },
+  "nonroster_top": [],
+  "share_sum": 70000.0
+ },
+ "C00852012|2026": {
+  "name": "TEAM MCCORMICK",
+  "total_in": 1000.0,
+  "out_cand_roster": 1924652.82,
+  "out_cand_nonroster": 0.0,
+  "out_other": 2365941.59,
+  "denom": 1924652.82,
+  "shares": {
+   "M001243": 1000.0
+  },
+  "nonroster_top": [],
+  "share_sum": 1000.0
+ },
+ "C00909648|2026": {
+  "name": "SCOTT BROWN VICTORY COMMITTEE",
+  "total_in": 221.85,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 628338.22,
+  "out_other": 381305.79,
+  "denom": 628338.22,
+  "shares": {},
+  "nonroster_top": [
+   [
+    "SCOTT BROWN FOR NEW HAMPSHIRE",
+    491479.01
+   ],
+   [
+    "SCOTT BROWN FOR NEW HAMPSHIRE, INC.",
+    136859.21
+   ]
+  ],
+  "share_sum": 0
+ },
+ "C00939876|2026": {
+  "name": "PUT ALASKA FIRST",
+  "total_in": 25000.0,
+  "out_cand_roster": 120.0,
+  "out_cand_nonroster": 0.0,
+  "out_other": 1860993.93,
+  "denom": 120.0,
+  "shares": {
+   "S001198": 25000.0
+  },
+  "nonroster_top": [],
+  "share_sum": 25000.0
+ },
+ "C00881292|2026": {
+  "name": "GOLDMAN VICTORY FUND",
+  "total_in": 8000.0,
+  "out_cand_roster": 776120.5,
+  "out_cand_nonroster": 0.0,
+  "out_other": 327541.45,
+  "denom": 776120.5,
+  "shares": {
+   "G000601": 8000.0
+  },
+  "nonroster_top": [],
+  "share_sum": 8000.0
+ },
+ "C00692897|2026": {
+  "name": "COLLINS VICTORY COMMITTEE",
+  "total_in": 80606.32,
+  "out_cand_roster": 3927289.71,
+  "out_cand_nonroster": 0.0,
+  "out_other": 2594370.74,
+  "denom": 3927289.71,
+  "shares": {
+   "C001035": 80606.32
+  },
+  "nonroster_top": [],
+  "share_sum": 80606.32
+ },
+ "C00658476|2026": {
+  "name": "DEMOCRATIC GRASSROOTS VICTORY FUND",
+  "total_in": 65600.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 0.0,
+  "out_other": 18385870.24,
+  "denom": 0.0,
+  "shares": {},
+  "nonroster_top": [],
+  "share_sum": 0
+ },
+ "C00916296|2026": {
+  "name": "OHIO GRASSROOTS VICTORY FUND",
+  "total_in": 301734.0,
+  "out_cand_roster": 7860600.0,
+  "out_cand_nonroster": 0.0,
+  "out_other": 5368591.47,
+  "denom": 7860600.0,
+  "shares": {
+   "B000944": 301734.0
+  },
+  "nonroster_top": [],
+  "share_sum": 301734.0
+ },
+ "C00933986|2026": {
+  "name": "FISH FAMILY FREEDOM FUND",
+  "total_in": 32500.0,
+  "out_cand_roster": 0,
+  "out_cand_nonroster": 1876500.0,
+  "out_other": 1269426.03,
+  "denom": 1876500.0,
+  "shares": {},
+  "nonroster_top": [
+   [
+    "ALASKANS FOR MARY",
+    1876500.0
+   ]
+  ],
+  "share_sum": 0
+ },
+ "C00898015|2026": {
+  "name": "VAN HOLLEN OSSOFF VICTORY FUND",
+  "total_in": 2550.0,
+  "out_cand_roster": 236515.26,
+  "out_cand_nonroster": 0.0,
+  "out_other": 29887.55,
+  "denom": 236515.26,
+  "shares": {
+   "O000174": 1350.91,
+   "V000128": 1199.09
+  },
+  "nonroster_top": [],
+  "share_sum": 2550.0
+ },
+ "C00878843|2024": {
+  "name": "DELUZIO STELSON VICTORY FUND",
+  "total_in": 1000.0,
+  "out_cand_roster": 102194.43,
+  "out_cand_nonroster": 0.0,
+  "out_other": 5166.07,
+  "denom": 102194.43,
+  "shares": {
+   "janellestelsonpahouse": 502.79,
+   "D000530": 497.21
+  },
+  "nonroster_top": [],
+  "share_sum": 1000.0
+ }
+}

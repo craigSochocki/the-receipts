@@ -58,8 +58,8 @@ and research notes in `research/`.
 | `in_119th`, `in_120th` | `yes` / `no`; `in_120th` is `unknown` for uncalled seats. The site derives an election-outcome label from `in_120th` alone (§8 item 21). |
 | `fec_candidate_ids` | Every FEC candidate ID for the person, semicolon-joined in the CSV, a list in the JSON. Money is summed across all of them and all cycles in the career range (`config.yaml` `cycles`). A person with no FEC candidate ID has every money column `unknown` (§5). |
 | `individual_contribution_total_career` | **Career total of individual contributions** (itemized + unitemized), summed across the person's candidate IDs and all cycles. Source: `TTL_INDIV_CONTRIB` (col 18) of the FEC all-candidates file (`weball`). **De-duplicated (§8 item 15):** where weball repeats the identical `TTL_INDIV_CONTRIB` under two of a person's candidate IDs in the same cycle, it is counted **once** per (person, cycle). Same-cycle amounts that *differ* across IDs are different money and are summed in full. |
-| `aipac_pac_direct_career` | **Headline AIPAC column — total Schedule B disbursements from the AIPAC PAC (committee ID in `config.yaml`) to the person's campaign(s).** The sum of *all* `24K`/`24P` pas2 rows from that committee: the PAC's own money **plus** earmarked individual checks transmitted through it. See the AIPAC decision below. |
-| `aipac_earmark_transmitted_career` | **Breakout (subset of the headline):** the part of `aipac_pac_direct_career` that is individual donors' earmarked money transmitted through the PAC as a conduit (pas2 rows whose memo text names a donor, e.g. `EARMARK OF <donor>. TRANSMITTED BY CHECK/EFT`). **PAC own-money = headline − this column.** |
+| `aipac_pac_direct_career` | **Headline AIPAC column — total Schedule B disbursements from the AIPAC PAC (committee ID in `config.yaml`) to the person's campaign(s).** For cycles 2022–2026 the source is the FEC API Schedule B merge (§8 item 23), not the pas2 bulk file: the merge recovers earmarked individual checks the bulk file drops. Earlier cycles keep the pas2 source. The sum of *all* `24K`/`24P` rows from that committee: the PAC's own money **plus** earmarked individual checks transmitted through it. See the AIPAC decision below. |
+| `aipac_earmark_transmitted_career` | **Breakout (subset of the headline as the pas2 bulk file identifies it):** the part of `aipac_pac_direct_career` that is individual donors' earmarked money transmitted through the PAC as a conduit (pas2 rows whose memo text names a donor, e.g. `EARMARK OF <donor>. TRANSMITTED BY CHECK/EFT`). **This column is the pas2-identified subset only.** The API merge that now supplies the headline for cycles 2022–2026 does not split earmark from own money, so under the corrected headline this column understates transmitted earmarks, and headline minus this column no longer gives PAC own-money. |
 | `corporate_pac_career` | Career total of direct contributions from **corporate-connected PACs**. A committee is corporate if, in the same cycle's committee-master file, `CMTE_TP IN ('Q','N')` **and** `ORG_TP IN ('C','W')`. Trade associations (`T`), labor (`L`), membership orgs (`M`, including the AIPAC PAC), cooperatives (`V`) and hybrid PACs (`CMTE_TP` V/W) are excluded. A blank `ORG_TP` is unclassified, never corporate. A reviewed override in `config.yaml` `committees.class_overrides` beats the filed code (§4). |
 | `corporate_earmark_transmitted_career` | Breakout (subset of `corporate_pac_career`): earmarked transmissions through corporate PACs, on the AIPAC earmark definition. Corporate own-money = corporate − this column. |
 | `udp_ie_support_career` | **United Democracy Project (UDP; committee ID in `config.yaml`) independent expenditures SUPPORTING the person's race.** Money UDP spent *about* the race (ads, mail, phones), legally uncoordinated with the campaign. **It is not money given to the campaign and must never be described as a contribution.** Support only (see below). |
@@ -69,19 +69,19 @@ and research notes in `research/`.
 | `debts_owed_by_career` | Debts owed BY the committee, career = the **latest cycle's** value (a stock, not a sum across cycles). |
 | `debts_owed_to_career` | Debts owed TO the committee — **null for every person**: no weball column carries it. The FEC API candidate-totals field `last_debts_owed_to_committee` is the follow-up route (§16). |
 | `total_receipts_career`, `total_disbursements_career` | Total receipts (`TTL_RECEIPTS`, weball col 6) and total disbursements (`TTL_DISB`, col 8), career sums. |
-| `transfers_from_auth_career`, `transfers_to_auth_career` | Transfers from / to other authorized committees of the same candidate (weball cols 7 / 9), career sums. |
+| `transfers_from_auth_career`, `transfers_to_auth_career` | Transfers from / to other authorized committees of the same candidate (weball cols 7 / 9), career sums. **De-duplicated (§8 item 25):** where two candidate IDs share one principal committee, the transfer fields are counted once, on the kept view. |
 | `cash_on_hand_career` | Cash on hand (`COH_COP`, weball col 11), career = the **latest cycle's** value (a stock, not a sum). |
 | `party_committees_career`, `leadership_pacs_career`, `labor_pacs_career`, `trade_pacs_career`, `membership_pacs_career`, `cooperative_pacs_career`, `other_unclassified_career` | **Other-committee contributions, career** — direct contributions from committees that are NOT corporate PACs and NOT the AIPAC PAC, classified from the same-cycle committee-master file: party = `CMTE_TP IN ('X','Y')`; leadership = `CMTE_DSGN == 'D'`; labor = `CMTE_TP IN ('Q','N')` + `ORG_TP == 'L'`; trade = Q/N + `T`; membership = Q/N + `M`; cooperative = Q/N + `V`; other_unclassified = everything else (§4). |
 | `other_committees_total_career` | Sum of the seven other-committee classes. It EXCLUDES corporate PAC and AIPAC direct money, which stay in their own columns — the three families are disjoint by construction. |
 | `*_earmark_transmitted_career` (7 columns) | Career-only earmark-transmitted breakouts, one per other-committee class, on the AIPAC/corporate earmark definition. |
 | `all_ie_support_career`, `all_ie_oppose_career`, `all_ie_total_career` | **All independent expenditures about the person's race, staged IE cycles only** (`config.yaml` `cycles.udp`; earlier IE files are not staged — §8 item 20). Support and oppose from every registered committee, not just UDP. `all_ie_total = support + oppose + blank-direction rows`. Like UDP, this is spending *about* the race, never money given to the campaign. |
-| `pro_israel_pac_career`, `pro_israel_ie_support_career`, `pro_israel_opp_credit_career` | **Pro-Israel PAC money, career — shown separately, never part of `total_accepted` or dirty money.** `pro_israel_pac_career`: counted direct contributions (the same rows and rules as the AIPAC and corporate columns) from any committee on the pro-Israel PAC list (`data/source/pro_israel_pacs.csv`, Track AIPAC's published list; `research/pro-israel-pacs.md`). `pro_israel_ie_support_career`: support-direction independent expenditures by listed committees about the person, staged IE cycles only, read spender by spender with blank candidate IDs resolved by the UDP name rule (§4). `pro_israel_opp_credit_career`: each listed spender's opposition spending in a race where it backed exactly one candidate, credited to that candidate by the UDP opposition-credit rule (§4), spender by spender. The list includes the AIPAC PAC and UDP, so these columns contain `aipac_pac_direct_career`, `udp_ie_support_career` and `udp_ie_opposing_opponents_career` — never add them together. **Bundled (conduit) checks are not covered**: a listed PAC forwarding individuals' earmarked checks reports them without a candidate ID, which neither the pas2 nor the committee-transfer bulk file carries (§8). |
+| `pro_israel_pac_career`, `pro_israel_ie_support_career`, `pro_israel_opp_credit_career` | **Pro-Israel PAC money, career — shown separately, never part of `total_accepted` or dirty money.** `pro_israel_pac_career`: counted direct contributions (the same rows and rules as the AIPAC and corporate columns) from any committee on the pro-Israel PAC list (`data/source/pro_israel_pacs.csv`, Track AIPAC's published list; `research/pro-israel-pacs.md`). For cycles 2022–2026 the direct figures come from the FEC API Schedule B merge (§8 item 23), which covers bundled conduit checks the bulk files drop; earlier cycles keep the pas2 source and still do not cover bundling. `pro_israel_ie_support_career`: support-direction independent expenditures by listed committees about the person, staged IE cycles only, read spender by spender with blank candidate IDs resolved by the UDP name rule (§4). `pro_israel_opp_credit_career`: each listed spender's opposition spending in a race where it backed exactly one candidate, credited to that candidate by the UDP opposition-credit rule (§4), spender by spender. The list includes the AIPAC PAC and UDP, so these columns contain `aipac_pac_direct_career`, `udp_ie_support_career` and `udp_ie_opposing_opponents_career` — never add them together. **Bundled (conduit) checks before 2022 are not covered**: a listed PAC forwarding individuals' earmarked checks reports them without a candidate ID, which neither the pas2 nor the committee-transfer bulk file carries (§8). |
 | `self_funding_per_cycle`, `other_committees_per_cycle`, `all_ie_per_cycle` (JSON only; repr strings in the CSV) | Per-person, per-cycle breakdowns of those three families. `self_funding_per_cycle` carries the weball flow columns plus `coverage_end_date` per (candidate, cycle); `other_committees_per_cycle` carries the seven classes plus an `earmark_transmitted` sub-dict; `all_ie_per_cycle` carries support/oppose/total. Only cycles with a nonzero value are listed. Each sums to its career columns exactly (audited). |
 | `pro_israel_per_cycle` (JSON; repr string in the CSV) | Per-person, per-cycle `pro_israel_pac`, `pro_israel_ie_support` and `pro_israel_opp_credit`; cycles with none are omitted. They sum to the three career columns. |
 | `all_ie_top_committees` (JSON only) | The top five committees per person by career all-IE total, with the support/oppose split; the committee name is taken from its largest single (candidate, cycle) total. Null for a person with no FEC ID; `[]` for people with no IE spending. |
 | `data_as_of` | The snapshot date from `config.yaml`, on every row. |
 | `data_notes` | Per-person notes carried from the money pulls (search outcome, multi-ID summation, oppose spending, name-attributed UDP rows, data gaps, special cases). See §5. |
-| `per_cycle` (JSON only) | Per-person, per-cycle, per-candidate-ID breakdown of the five pas2/weball columns (`individual`, `aipac_pac_direct`, `aipac_earmark_transmitted`, `corporate_pac`, `corporate_earmark_transmitted`). Only nonzero cycles are listed. Sums to the career columns exactly (audited). |
+| `per_cycle` (JSON only) | Per-person, per-cycle, per-candidate-ID breakdown of the five pas2/weball columns (`individual`, `aipac_pac_direct`, `aipac_earmark_transmitted`, `corporate_pac`, `corporate_earmark_transmitted`). Only nonzero cycles are listed. Sums to the career columns exactly (audited). For cycles 2022–2026 the `aipac_pac_direct` values are the corrected API-merge figures (§8 item 23), carried on the kept candidate ID where a person has several (§8 item 25); the per-ID split of a corrected total is an accounting carry, not a traced committee figure. |
 | `udp_per_cycle` (JSON only) | Per-person, per-cycle UDP support (`udp_ie_support`) with `candidate_id`. Only cycles with nonzero support are listed. Sums to `udp_ie_support_career` exactly. A name-attributed entry (§4) carries `"attribution": "name_state_district_office_match; cand_id blank in FEC file"`, and its `candidate_id` is the person's roster FEC ID for that race. |
 
 ### AIPAC headline decision (read this before quoting any AIPAC figure)
@@ -90,17 +90,26 @@ The headline column `aipac_pac_direct_career` is the **total of the raw Schedule
 from the AIPAC PAC — PAC own-money **plus** earmarked individual checks transmitted
 through it. This was a deliberate, coordinator-approved choice: the raw-rows approach
 captures bundled checks that FEC summary aggregates drop, and for some recipients the
-summary understates what flowed through the PAC by orders of magnitude.
+summary understates what flowed through the PAC by orders of magnitude. For cycles
+2022–2026 the raw rows come from the FEC API Schedule B merge (§8 item 23), because
+the pas2 bulk file drops nearly all of the earmarked checks; earlier cycles keep the
+pas2 source. The source changed; the definition did not.
 
-The headline figure is therefore **not** "the PAC's own money." Subtract
-`aipac_earmark_transmitted_career` to get PAC own-money, and **always state which of the
-two figures you are quoting.** The earmarked money is also inside the candidate's
+The headline figure is therefore **not** "the PAC's own money." Under the pas2 source
+the earmark column could be subtracted to get PAC own-money; under the corrected
+headline it cannot, because the API merge does not split earmark from own money and
+`aipac_earmark_transmitted_career` is now the pas2-identified subset only — it
+understates transmitted earmarks. **Always state which figure you are quoting**, and
+never present headline minus earmark as PAC own-money for the merged cycles. The
+earmarked money is also inside the candidate's
 `individual_contribution_total_career` (weball), because it is individuals' money — it
 is counted in both columns by design, and the two must never be added together.
 
 Related rules (`research/pull-log-a.md` §4): **negative earmark rows (voided or refunded
-conduit earmarks) are excluded from every total**, because their originals are not in
-pas2 and netting them creates phantom negatives. **Positive earmark rows are kept in the
+conduit earmarks) are excluded from the pas2 totals**, because their originals are not
+in pas2 and netting them creates phantom negatives. **The merged figures net them
+instead**: the API totals include voided earmarks, so a corrected per-cycle figure can
+be negative where voids exceed new earmarks. **Positive earmark rows are kept in the
 headline** and broken out. Re-reported earmark rows (`ERMK:` memo text, amended filings
 pointing at an earlier cycle's originals) are counted in the earmark column; they may
 re-attribute money already counted under the originals, which cannot be matched reliably
@@ -117,19 +126,21 @@ candidate's *opponent* is credited separately under §13.
 
 ## 3. Sources
 
-**FEC bulk files are the source of truth for every figure.** The FEC API is used for
-spot-checks and the freshness overlay only; OpenSecrets is a cross-check only (§6).
+**FEC bulk files are the source of truth for every figure, except the conduit-money
+columns (§8 item 23), which the bulk files undercount and the FEC API Schedule B merge
+supplies for cycles 2022–2026.** The FEC API is otherwise used for spot-checks and the
+freshness overlay only; OpenSecrets is a cross-check only (§6).
 
 | Data | Source file(s) (staged under `data/raw/`) | Method |
 |---|---|---|
 | Individual contributions | `weball/weballYY.txt`, every career cycle | `TTL_INDIV_CONTRIB`, col 18, per (candidate, cycle), then across the person's candidate IDs — **exact-equal copies under two IDs in the same cycle counted once** (§8 item 15). Amounts summed as integer cents. |
-| AIPAC PAC direct + earmarks | `pas2/<cycle>/itpas2.txt`, the PAC's active cycles | Rows from the AIPAC PAC with `TRANSACTION_TP IN ('24K','24P')`. Earmark rows: memo text containing `EARMARK` or starting `ERMK:`. |
+| AIPAC PAC direct + earmarks | `pas2/<cycle>/itpas2.txt`, the PAC's active cycles, for cycles before 2022; the FEC API Schedule B merge (§8 item 23) for cycles 2022–2026 | Rows from the AIPAC PAC with `TRANSACTION_TP IN ('24K','24P')`. Earmark rows: memo text containing `EARMARK` or starting `ERMK:`. The merge nets voided earmarks; the pas2 earmark column excludes negative rows. |
 | Corporate PAC | `pas2/<cycle>/itpas2.txt` joined to `cm/<cycle>/cm.txt`, every career cycle | pas2 `24K`/`24P` rows whose contributing committee satisfies `CMTE_TP IN ('Q','N')` and `ORG_TP IN ('C','W')` in the **same-cycle** committee master, unless a reviewed override (§4) classes it otherwise. |
 | UDP independent expenditures | `ie/<cycle>/independent_expenditure_<cycle>.csv`, staged IE cycles | UDP rows with `sup_opp = 'S'`, summed by `cand_id` after dedup by `tran_id` (keep latest `receipt_dat`, tie-break highest `file_num`). See §4. |
-| Self-funding + topline | `weball/weballYY.txt`, every career cycle | Weball cols (1-indexed): 6 `TTL_RECEIPTS`, 7 `TRANS_FROM_AUTH`, 8 `TTL_DISB`, 9 `TRANS_TO_AUTH`, 11 `COH_COP`, 12 `CAND_CONTRIB`, 13 `CAND_LOANS`, 15+16 loan repayments, 17 `DEBTS_OWED_BY`, 28 `CVG_END_DT`. Career flows are sums; cash on hand and debts owed by are the latest cycle's value (stocks). No weball column carries debts owed *to* the committee. The §8 item 15 correction also zeroes a dropped copy's cols 6–9 where they are a strict subset of the kept copy. |
+| Self-funding + topline | `weball/weballYY.txt`, every career cycle | Weball cols (1-indexed): 6 `TTL_RECEIPTS`, 7 `TRANS_FROM_AUTH`, 8 `TTL_DISB`, 9 `TRANS_TO_AUTH`, 11 `COH_COP`, 12 `CAND_CONTRIB`, 13 `CAND_LOANS`, 15+16 loan repayments, 17 `DEBTS_OWED_BY`, 28 `CVG_END_DT`. Career flows are sums; cash on hand and debts owed by are the latest cycle's value (stocks). No weball column carries debts owed *to* the committee. The §8 item 15 correction also zeroes a dropped copy's cols 6–9 where they are a strict subset of the kept copy. Transfer fields are de-duplicated across shared-committee views (§8 item 25). |
 | Other-committee contributions | `pas2/<cycle>/itpas2.txt` joined to the same-cycle `cm/<cycle>/cm.txt`, every career cycle | pas2 `24K`/`24P` rows whose contributing committee is NOT corporate and NOT the AIPAC PAC, classified by `CMTE_TP` / `ORG_TP` / `CMTE_DSGN` as in §2. The step re-derives the corporate and AIPAC totals and must match them to the cent. Diagnostics in `data/intermediate/other_committees_diagnostics.json`. |
 | All independent expenditures | `ie/<cycle>/independent_expenditure_<cycle>.csv`, staged IE cycles | Every row whose spender is a **registered committee** (`spe_id` in the same-cycle `cm` file) and whose candidate is **identified** (`cand_id` non-blank), summed by (candidate, cycle) after dedup on (`spe_id`, `tran_id`) — NOT `tran_id` alone. Blank-`cand_id` rows are excluded from the published totals (§8 item 19). |
-| Pro-Israel PAC money | `pas2/<cycle>/itpas2.txt` and the staged IE files, filtered to the committee IDs in `data/source/pro_israel_pacs.csv` | Direct: the counted committee contributions (§4) from listed committees. IE: each listed spender's rows as UDP's are read (re-reports dropped, blank candidate IDs resolved by name); support rows (`sup_opp = 'S'`) sum to support, and oppose rows are credited by the UDP race rule. |
+| Pro-Israel PAC money | `pas2/<cycle>/itpas2.txt` and the staged IE files, filtered to the committee IDs in `data/source/pro_israel_pacs.csv`; the FEC API Schedule B merge (§8 item 23) for the direct figures in cycles 2022–2026 | Direct: the counted committee contributions (§4) from listed committees. IE: each listed spender's rows as UDP's are read (re-reports dropped, blank candidate IDs resolved by name); support rows (`sup_opp = 'S'`) sum to support, and oppose rows are credited by the UDP race rule. |
 
 **Committee IDs** (AIPAC PAC, UDP, WinRed) are set in `config.yaml` (`committees`) and were
 verified against the OpenFEC API (`research/fec-sources.md` §1). The AIPAC PAC and UDP
@@ -293,8 +304,10 @@ loudly if the two rows' money ever differs (§4).
 2. **120th results are media calls, uncertified** (§1); uncalled seats are `unknown`.
 3. **AIPAC PAC and UDP first filed in the 2022 cycle.** Earlier cycles are $0 by
    construction, not missing data.
-4. **Earmark treatment.** Negative (void) earmark rows are excluded (§2); positive
-   earmarks are kept in the headline and broken out. Re-reported earmark rows may
+4. **Earmark treatment.** Negative (void) earmark rows are excluded from the pas2
+   totals (§2); positive earmarks are kept in the headline and broken out. The API
+   merge nets voided earmarks instead, so a corrected per-cycle figure can be negative
+   where voids exceed new earmarks. Re-reported earmark rows may
    double-count originals from an earlier cycle; they cannot be matched reliably.
 5. **The AIPAC total does not reconcile to the dollar with OpenSecrets.** The small
    residual is most likely snapshot and amendment timing, or the treatment of in-kind
@@ -386,8 +399,9 @@ loudly if the two rows' money ever differs (§4).
     earmarked checks on line 23 with no candidate ID, so neither bulk file carries them;
     the FEC API does (each PAC's Schedule B by recipient committee). The square-one
     derivation merges the API figures for cycles 2022–2026 (see the conduit-merge item
-    below); until the full roster-wide API run lands, the 2022 figures cover only AIPAC
-    and the main conduits, and ambiguous recipient names stay unattributed. Track AIPAC
+    below) and the merge is live in the dataset; the 2022 figures still cover only AIPAC
+    and the main conduits, and ambiguous recipient names stay unattributed, until the
+    December row-level pull. Track AIPAC
     also adds individual donors with a history of giving to listed PACs, a donor-matching
     model the tracker does not reproduce. Both gaps make these columns a lower bound of
     Track AIPAC's totals. The list is theirs, as published; whether a listed committee
@@ -403,7 +417,12 @@ loudly if the two rows' money ever differs (§4).
     with different candidate IDs are ambiguous and stay unattributed rather than guessed;
     the December row-level pull resolves them by recipient committee ID. The full
     roster-wide pull needs a registered API key and is the December run; until then the
-    2022 figures cover AIPAC and the main conduits only.
+    2022 figures cover AIPAC and the main conduits only. The merge is applied as a build
+    step: the derivation regenerates its figures from the pinned snapshot and the
+    committed evidence on every rebuild, and the store steps substitute the corrected
+    figures for the six affected fields (AIPAC direct, pro-Israel direct, transfers
+    from/to, career and per-cycle) before the per-person rollup. Everything else must
+    reproduce exactly; any other figure that moves is a bug.
 24. **Joint-fundraising variants.** Whether money a conduit sends to a joint
     fundraising committee counts as money from that conduit is decided: variant A is the
     headline — JFC shares count as direct. The reason is that the money is earmarked by
@@ -433,6 +452,11 @@ loudly if the two rows' money ever differs (§4).
     committee's API total can sit unattributed when its candidate ID is unlinked, and a
     person's current committee can be invisible when its ID is unlinked. Linking an ID
     is a roster change, never something the derivation does unilaterally.
+29. **Corrected money counts as filed.** A (candidate, cycle) pair that carries
+    corrected money counts as filed that cycle even when the store has no filing row for
+    it — otherwise the per-cycle records would drop the row and the money would vanish
+    from the dataset. The same kept-view rule (§8 item 25) decides which candidate ID
+    carries a corrected total.
 
 ---
 
@@ -445,7 +469,8 @@ loudly if the two rows' money ever differs (§4).
   `python3 receipts/rebuild.py` and is gitignored.
 - **Merge rule:** join on `person_key`; collapse as in §7; a person with no FEC ID reads
   `unknown`; every other figure comes from the money steps unchanged, except the
-  recorded de-duplication of §8 item 15.
+  recorded de-duplication of §8 item 15, the transfer dedup of §8 item 25, and the
+  conduit-merge substitution of §8 item 23.
 - **To refresh:** publish a new pinned snapshot ("FEC snapshot" workflow), stage it with
   `./fetch_snapshot.sh <tag>`, set `data_as_of`, run `python3 receipts/rebuild.py
   --rebaseline`, and review the diff of `data/source/baseline.json` (README, "Pinned
@@ -562,10 +587,13 @@ head-to-head with full cycles.
   way from their per-cycle lists. A person with no 2026 entry in a family reads an
   integer 0 in that family's 2026 columns (except `cash_on_hand_2026`, which reads null).
   `dirty_2026` never includes self-funding, other-committee money or all-IE spending.
-- `clean_2026` — true when the member took no NET dirty money in 2026: `dirty_2026 <= 0`.
-  A cycle test, not a career test. The rule is net because `dirty_2026` is the defined
-  net total: a member whose 2026 refunds exceed their 2026 contributions reads clean, not
-  dirty on a negative total. **Verification rule:** a person in the 120th is
+- `clean_2026` — true when the member took no NET dirty money in 2026: `dirty_2026 <= 0`,
+  AND took no AIPAC direct or UDP benefit dollar. The flag takes precedence over the
+  net: corporate refunds cannot cancel AIPAC/UDP money, so a flagged member is never
+  clean even when refunds elsewhere make the net negative. A cycle test, not a career
+  test. The rule is net because `dirty_2026` is the defined net total: a member whose
+  2026 refunds exceed their 2026 contributions reads clean, not dirty on a negative
+  total — as long as no flagged money is among them. **Verification rule:** a person in the 120th is
   *unverified* (`clean_2026 = null`) when they have NO 2026 linkage evidence in ANY money
   source — no `per_cycle` / `udp_per_cycle` 2026 entry, and no `self_funding_per_cycle`
   2026 entry whose `coverage_end_date` falls in calendar 2026. Other-committee and all-IE

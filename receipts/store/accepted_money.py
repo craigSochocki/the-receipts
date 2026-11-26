@@ -2,9 +2,11 @@
 """Write the accepted-money gold tables from the silver store."""
 
 from receipts.common.log import run
-from receipts.common.settings import settings
+from receipts.common.settings import load_double_count_records, load_roster, settings
 from receipts.domain.money import Money
 from receipts.domain.roster import Roster
+from receipts.square_one.corrected import load as load_corrected
+from receipts.square_one.corrected import substitute_aipac
 from receipts.store.gold import per_cycle_rows, write_gold
 from receipts.store.read import connect
 
@@ -127,6 +129,9 @@ def write(rows, per_cycle):
 
 def main():
     people, counted, filed, on_file = read_store()
+    counted, filed = substitute_aipac(
+        counted, filed, load_roster(), load_double_count_records(), load_corrected(), COLUMNS
+    )
     write(*accepted_by_person(people, counted, filed, on_file, settings().cycles.career))
 
 

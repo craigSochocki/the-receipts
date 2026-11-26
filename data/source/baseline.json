@@ -18,16 +18,16 @@
  "all_ie_top_spenders_2026.4.total": 112153741.9,
  "all_ie_top_spenders_2026.5.committee_id": "C00836221",
  "all_ie_top_spenders_2026.5.total": 90387313.5,
- "clean_2026.false_total": 563,
+ "clean_2026.false_total": 569,
  "clean_2026.house_120th_career_clean": 58,
  "clean_2026.house_120th_career_clean_democrat": 55,
  "clean_2026.house_120th_career_clean_republican": 3,
- "clean_2026.house_120th_clean_2026_not_career_clean": 13,
- "clean_2026.house_120th_verified_clean": 70,
- "clean_2026.house_120th_verified_clean_democrat": 67,
+ "clean_2026.house_120th_clean_2026_not_career_clean": 12,
+ "clean_2026.house_120th_verified_clean": 69,
+ "clean_2026.house_120th_verified_clean_democrat": 66,
  "clean_2026.house_120th_verified_clean_republican": 3,
  "clean_2026.null_total": 4,
- "clean_2026.true_total": 97,
+ "clean_2026.true_total": 91,
  "cycles.headline_by_cycle": {
   "2022": [
    0,
@@ -40,8 +40,8 @@
    0
   ],
   "2026": [
-   91,
-   502,
+   85,
+   508,
    4
   ],
   "None": [
@@ -183,18 +183,18 @@
    0
   ],
   "2022": [
-   30,
-   435,
+   29,
+   436,
    3
   ],
   "2024": [
-   34,
-   504,
+   31,
+   507,
    1
   ],
   "2026": [
-   97,
-   563,
+   91,
+   569,
    4
   ]
  },
@@ -203,7 +203,7 @@
   "cents": 45177601534
  },
  "methodology_totals.aipac_earmark_transmitted_career": 191573.0,
- "methodology_totals.aipac_pac_direct_career": 7567773.0,
+ "methodology_totals.aipac_pac_direct_career": 109040065.96,
  "methodology_totals.all_ie_oppose_career": 2351873836.64,
  "methodology_totals.all_ie_support_career": 1490831511.35,
  "methodology_totals.all_ie_total_career": 3842726579.42,
@@ -215,7 +215,7 @@
  "methodology_totals.corporate_earmark_transmitted_career": 26850.0,
  "methodology_totals.corporate_pac_career": 973650339.0,
  "methodology_totals.debts_owed_by_career": 191691118.19,
- "methodology_totals.dirty_career": 1072055002.2,
+ "methodology_totals.dirty_career": 1173527295.16,
  "methodology_totals.individual_contribution_total_career": 8763842034.25,
  "methodology_totals.labor_pacs_career": 295554986.0,
  "methodology_totals.labor_pacs_earmark_transmitted_career": 790.0,
@@ -234,14 +234,14 @@
  "methodology_totals.total_receipts_career": 13123766432.28,
  "methodology_totals.trade_pacs_career": 478598851.0,
  "methodology_totals.trade_pacs_earmark_transmitted_career": 456352.0,
- "methodology_totals.transfers_from_auth_career": 1084116950.9,
- "methodology_totals.transfers_to_auth_career": 196548621.7,
+ "methodology_totals.transfers_from_auth_career": 1063335318.41,
+ "methodology_totals.transfers_to_auth_career": 192913118.13,
  "methodology_totals.udp_ie_opposing_opponents_career": 48421886.44,
  "methodology_totals.udp_ie_support_career": 42415003.76,
  "methodology_totals.udp_ie_total_benefit_career": 90836890.2,
  "pro_israel.pro_israel_ie_support_career_total": 66975874.44,
  "pro_israel.pro_israel_opp_credit_career_total": 54174442.51,
- "pro_israel.pro_israel_pac_career_total": 25417511.0,
+ "pro_israel.pro_israel_pac_career_total": 147959436.3,
  "rows.count": 664,
  "senate_class.class3_democrats_120th": 16,
  "senate_class.counts_120th": {
@@ -250,16 +250,16 @@
   "3": 34
  },
  "site.career_dirty": {
-  "total_compact": "$1.07B",
+  "total_compact": "$1.17B",
   "top3": [
    "Haley M. Stevens",
-   "Steny H. Hoyer",
+   "Wesley Bell",
    "George Latimer"
   ],
-  "top1_exact": "$36,854,643.88"
+  "top1_exact": "$38,002,927.24"
  },
  "site.clean": {
-  "true_total": 92,
+  "true_total": 86,
   "null_unopposed": [
    "Aumua Amata Coleman Radewagen",
    "Ayanna Pressley",
@@ -270,11 +270,11 @@
    "Elaine Luria"
   ],
   "unopposed_total": 10,
-  "house_120": 70,
-  "house_120_democrat": 67,
+  "house_120": 69,
+  "house_120_democrat": 66,
   "house_120_republican": 3,
-  "senate_120": 9,
-  "all_120": 79,
+  "senate_120": 8,
+  "all_120": 77,
   "career_clean_house_120": 58
  },
  "site.composition.delegates": 6,
@@ -311,33 +311,33 @@
   "top5": [
    [
     "Haley M. Stevens",
-    31025889.44
+    31402235.87
    ],
    [
     "Adrian Boafo",
     5745013.28
    ],
    [
-    "Ed Gallrein",
-    4161286.7
-   ],
-   [
     "Wesley Bell",
-    3447667.69
+    5734631.11
    ],
    [
-    "John Thune",
-    2519540.0
+    "Susan M. Collins",
+    4501383.18
+   ],
+   [
+    "Ed Gallrein",
+    4162286.7
    ]
   ],
   "top1_key": "S001215",
-  "top1_compact": "$31.03M",
-  "top1_exact": "$31,025,889.44",
+  "top1_compact": "$31.40M",
+  "top1_exact": "$31,402,235.87",
   "top1_returning": false,
-  "next_four_total": 15873507.67,
-  "next_four_compact": "$15.87M",
+  "next_four_total": 20143314.27,
+  "next_four_compact": "$20.14M",
   "exceeds_next_four": true,
-  "ratio": "1.95"
+  "ratio": "1.56"
  },
  "site.outcomes": {
   "yes": 535,
@@ -352,8 +352,8 @@
  "site.targets": {
   "balanced_top3": [
    "Adrian Boafo",
-   "Ed Gallrein",
-   "Wesley Bell"
+   "Wesley Bell",
+   "Ed Gallrein"
   ],
   "balanced_top_dirty_exact": "$5,745,013.28",
   "balanced_house_top": [
@@ -363,33 +363,33 @@
    "John Thune"
   ],
   "balanced_parties": {
-   "D": 147,
-   "R": 164
+   "D": 149,
+   "R": 171
   }
  },
  "site.tiers": {
   "balanced": {
-   "clean": 79,
-   "below_threshold": 104,
-   "dirty": 348,
+   "clean": 77,
+   "below_threshold": 93,
+   "dirty": 361,
    "null": 4
   },
   "lenient": {
-   "clean": 79,
-   "below_threshold": 145,
-   "dirty": 307,
+   "clean": 77,
+   "below_threshold": 126,
+   "dirty": 328,
    "null": 4
   },
   "not_dirty_120": {
-   "balanced": 183,
-   "lenient": 224
+   "balanced": 170,
+   "lenient": 203
   },
   "house_not_dirty_balanced": [
-   148,
+   139,
    436
   ],
-  "flag_120": 270,
-  "flag_all": 330,
+  "flag_120": 299,
+  "flag_all": 390,
   "incoming_total": 535
  },
  "spot.all_ie_blank_direction_gap": 21231.43,
@@ -427,7 +427,7 @@
  "spot.constantino.total_receipts_career": 17064951.19,
  "spot.dirty_career_top": [
   "S001215",
-  36854643.88
+  38002927.24
  ],
  "spot.elsayed.all_ie_oppose_career": 107400660.67,
  "spot.elsayed.all_ie_support_career": 41093505.97,
@@ -473,13 +473,13 @@
   "tier_lenient_2026": "below_threshold"
  },
  "spot.tier.ryan": {
-  "clean_2026": true,
+  "clean_2026": false,
   "corp_2026": 0.0,
-  "aipac_direct_2026": -15000.0,
-  "dirty_2026": -15000.0,
-  "aipac_udp_flag_2026": false,
-  "tier_balanced_2026": "clean",
-  "tier_lenient_2026": "clean"
+  "aipac_direct_2026": 138538.15,
+  "dirty_2026": 138538.15,
+  "aipac_udp_flag_2026": true,
+  "tier_balanced_2026": "dirty",
+  "tier_lenient_2026": "dirty"
  },
  "spot.unopposed_2026": [
   "B001281",
@@ -493,33 +493,33 @@
   "R000600"
  ],
  "targets.balanced": [
-  284,
+  293,
   27
  ],
  "targets.lenient": [
-  251,
+  265,
   26
  ],
  "targets.strict": [
-  362,
+  363,
   34
  ],
- "tiered_2026.aipac_udp_flag_120th": 231,
- "tiered_2026.aipac_udp_flag_all": 291,
- "tiered_2026.balanced.below_threshold": 118,
- "tiered_2026.balanced.clean": 83,
- "tiered_2026.balanced.dirty": 330,
- "tiered_2026.balanced.not_dirty": 201,
+ "tiered_2026.aipac_udp_flag_120th": 258,
+ "tiered_2026.aipac_udp_flag_all": 349,
+ "tiered_2026.balanced.below_threshold": 108,
+ "tiered_2026.balanced.clean": 81,
+ "tiered_2026.balanced.dirty": 342,
+ "tiered_2026.balanced.not_dirty": 189,
  "tiered_2026.balanced.null": 4,
- "tiered_2026.corp_only_2026_120th": 212,
- "tiered_2026.corp_only_below_balanced": 117,
- "tiered_2026.corp_only_below_lenient": 168,
- "tiered_2026.corp_only_staying_dirty_balanced": 95,
- "tiered_2026.corp_only_staying_dirty_lenient": 44,
- "tiered_2026.lenient.below_threshold": 170,
- "tiered_2026.lenient.clean": 83,
- "tiered_2026.lenient.dirty": 278,
- "tiered_2026.lenient.not_dirty": 253,
+ "tiered_2026.corp_only_2026_120th": 188,
+ "tiered_2026.corp_only_below_balanced": 107,
+ "tiered_2026.corp_only_below_lenient": 151,
+ "tiered_2026.corp_only_staying_dirty_balanced": 81,
+ "tiered_2026.corp_only_staying_dirty_lenient": 37,
+ "tiered_2026.lenient.below_threshold": 153,
+ "tiered_2026.lenient.clean": 81,
+ "tiered_2026.lenient.dirty": 297,
+ "tiered_2026.lenient.not_dirty": 234,
  "tiered_2026.lenient.null": 4,
  "udp_prior_cycle_totals.2022": 26107515.77,
  "udp_prior_cycle_totals.2024": 38044932.69,

@@ -66,3 +66,45 @@ def test_notes_flag_a_shared_id_and_a_net_negative_aipac_total():
     )
     assert 'duplicate roster entry: FEC ID shared with second' in rows['first']['data_notes']
     assert 'net-negative AIPAC total' in rows['first']['data_notes']
+
+
+def test_substituted_aipac_flows_into_the_career_total():
+    from receipts.square_one.corrected import Corrected, substitute_aipac
+
+    corrected = Corrected(
+        {
+            'snapshot': '2026-11-22',
+            'counts': {'A': {}},
+            'corrected_per_cycle': {
+                'barr|2026': {
+                    'aipac_a_cents': 5235943,
+                    'aipac_b_cents': 5235943,
+                    'pro_israel_a_cents': 9624746,
+                    'pro_israel_b_cents': 9124746,
+                    'jfc_aipac_cents': 0,
+                    'jfc_other_cents': 0,
+                }
+            },
+            'transfers_from_corrected': {},
+            'transfers_to_corrected': {},
+        }
+    )
+    barr = {
+        'person_key': 'barr',
+        'full_name': 'Barr',
+        'fec_candidate_ids': ['H1', 'S1'],
+        'chamber_120': 'Senate',
+        'chamber_119': 'House',
+    }
+    counted = {
+        ('H1', 2026): amounts(individual=100_00, aipac_pac_direct=500_00),
+        ('S1', 2026): amounts(aipac_pac_direct=0),
+    }
+    filed = {('H1', 2026), ('S1', 2026)}
+    counted, filed = substitute_aipac(
+        counted, filed, [barr], [], corrected, COLUMNS, {'H1': 'H', 'S1': 'S'}
+    )
+    rows, per_cycle = run([person('barr', 'H1', 'S1')], counted, filed, {'H1', 'S1'})
+    assert rows['barr']['aipac_pac_direct_career'] == '52359.43'
+    assert rows['barr']['individual_contribution_total_career'] == '100.00'
+    assert [e['aipac_pac_direct'] for e in per_cycle['barr']['per_cycle']] == ['0.00', '52359.43']
