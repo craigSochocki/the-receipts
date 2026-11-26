@@ -1,6 +1,8 @@
 """The tiered dirty rule: flag and tier counts, corp-only splits, next-cycle targets, spot cases."""
 
 from collections import Counter
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from receipts.common.settings import settings
 from receipts.domain.clean_2026 import corporate_money_material
@@ -24,16 +26,38 @@ TIER_SPOT_CASES = (
 )
 
 
-def flag_counts(audit, records, r120):
+def tier_count_values(records: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    """The flag and tier counts, keyed by baseline key; the audits pin these, the build checks them."""
+    r120 = [r for r in records if r['in_120th'] == 'yes']
+    found = {
+        'tiered_2026.aipac_udp_flag_all': sum(
+            1 for r in records if r['aipac_udp_flag_2026'] is True
+        ),
+        'tiered_2026.aipac_udp_flag_120th': sum(
+            1 for r in r120 if r['aipac_udp_flag_2026'] is True
+        ),
+    }
+    for preset in PRESETS:
+        tiers = Counter(r[f'tier_{preset}_2026'] for r in r120)
+        for name in ('clean', 'below_threshold', 'dirty'):
+            found[f'tiered_2026.{preset}.{name}'] = tiers.get(name, 0)
+        found[f'tiered_2026.{preset}.null'] = tiers.get(None, 0)
+        found[f'tiered_2026.{preset}.not_dirty'] = tiers.get('clean', 0) + tiers.get(
+            'below_threshold', 0
+        )
+    return found
+
+
+def flag_counts(audit, records, r120, values):
     audit.pin(
         'aipac_udp_flag_2026 120th',
         'tiered_2026.aipac_udp_flag_120th',
-        sum(1 for r in r120 if r['aipac_udp_flag_2026'] is True),
+        values['tiered_2026.aipac_udp_flag_120th'],
     )
     audit.pin(
         'aipac_udp_flag_2026 roster-wide',
         'tiered_2026.aipac_udp_flag_all',
-        sum(1 for r in records if r['aipac_udp_flag_2026'] is True),
+        values['tiered_2026.aipac_udp_flag_all'],
     )
     audit.check(
         'aipac_udp_flag_2026 is a boolean on every row',
@@ -41,18 +65,23 @@ def flag_counts(audit, records, r120):
     )
 
 
-def preset_tiers(audit, records, r120, preset):
+def preset_tiers(audit, records, r120, preset, values):
     column = f'tier_{preset}_2026'
-    got = Counter(r[column] for r in r120)
     for tier_name in ('clean', 'below_threshold', 'dirty'):
         audit.pin(
-            f'{column} {tier_name}', f'tiered_2026.{preset}.{tier_name}', got.get(tier_name, 0)
+            f'{column} {tier_name}',
+            f'tiered_2026.{preset}.{tier_name}',
+            values[f'tiered_2026.{preset}.{tier_name}'],
         )
-    audit.pin(f'{column} null', f'tiered_2026.{preset}.null', got.get(None, 0))
+    audit.pin(
+        f'{column} null',
+        f'tiered_2026.{preset}.null',
+        values[f'tiered_2026.{preset}.null'],
+    )
     audit.pin(
         f'{column} not-dirty (clean + below_threshold)',
         f'tiered_2026.{preset}.not_dirty',
-        got.get('clean', 0) + got.get('below_threshold', 0),
+        values[f'tiered_2026.{preset}.not_dirty'],
     )
     audit.check(
         f'{column} is null exactly where clean_2026 is null',
@@ -126,9 +155,10 @@ def tiered_rule(audit, dataset):
     """(o) tiered dirty rule: flag, tiers, corp-only splits, targets."""
     records = dataset.records
     r120 = [r for r in records if r['in_120th'] == 'yes']
-    flag_counts(audit, records, r120)
+    values = tier_count_values(records)
+    flag_counts(audit, records, r120, values)
     for preset in PRESETS:
-        preset_tiers(audit, records, r120, preset)
+        preset_tiers(audit, records, r120, preset, values)
     corp_only_split(audit, r120)
     targets_next(audit, r120)
     tier_spot_cases(audit, records)
