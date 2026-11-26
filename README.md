@@ -207,6 +207,15 @@ inside the page in headless Chromium by Playwright — renders the table and
 every tab, opens a drill-down, exercises the CSV path), and checks the generator is deterministic apart
 from the generation timestamp. Any failure exits non-zero.
 
+The JS rule mirrors (`termRecord`, `tierOf`, `dirtyUnderPreset`, the cycle
+picker) have direct unit tests in `receipts/site/tests/`, run with Node's
+built-in runner and no dependencies — they load the shipped template files
+in a `vm` context with a stubbed document:
+
+```sh
+node --test "receipts/site/tests/*.test.mjs"
+```
+
 To preview locally: `python3 -m http.server --directory docs 8000`, then
 open http://localhost:8000. The site is live on GitHub Pages (publishing
 source `docs/` on `master`). The page carries a visible "Data as of" stamp
