@@ -85,7 +85,7 @@ def _assemble():
     udp_by_candidate = ie.per_candidate_cycle(udp_rows)
     opp_credits, _nonroster, _uncredited = opposition.opposition_credits(udp_rows, person_of)
     udp_support: dict[tuple, int] = {}
-    all_ie: dict[tuple, int] = {}
+    all_ie: dict[tuple, tuple[int, int, int]] = {}
     for person in people:
         key = person['person_key']
         ids = set(person['fec_candidate_ids'])
@@ -105,7 +105,12 @@ def _assemble():
                 for (cid, cy), cents in ie_by_candidate.items()
                 if cy == cycle and cid in ids
             )
-            all_ie[(key, cycle)] = (support, oppose)
+            total = sum(
+                cents[2]
+                for (cid, cy), cents in ie_by_candidate.items()
+                if cy == cycle and cid in ids
+            )
+            all_ie[(key, cycle)] = (support, oppose, total)
     filed = counts.build_filed(BULK)
     races_for = counts.build_races_getter(BULK)
     return {

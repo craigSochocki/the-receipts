@@ -164,14 +164,14 @@ def build_person_lists(
         buckets = {field: dollars(entry.get(kind, 0)) for kind, field in BUCKET_MAP.items()}
         if any(buckets.values()):
             other.append({'cycle': cycle, **buckets})
-        support_ie, oppose_ie = all_ie.get((person_key, cycle), (0, 0))
-        if support_ie or oppose_ie:
+        support_ie, oppose_ie, total_ie = all_ie.get((person_key, cycle), (0, 0, 0))
+        if support_ie or oppose_ie or total_ie:
             all_ie_list.append(
                 {
                     'cycle': cycle,
                     'all_ie_support': dollars(support_ie),
                     'all_ie_oppose': dollars(oppose_ie),
-                    'all_ie_total': dollars(support_ie + oppose_ie),
+                    'all_ie_total': dollars(total_ie),
                 }
             )
     return {

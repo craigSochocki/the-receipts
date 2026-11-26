@@ -126,3 +126,9 @@ def test_full_ie_derivation_matches_baseline():
     assert sum(
         c[0] for (cid, _), c in by_cycle.items() if cid in boafo['fec_candidate_ids']
     ) == round(boafo['all_ie_support_career'] * 100)
+    # Blank-direction rows count in the total, not in support or oppose:
+    # Tran's 2024 total exceeds his support + oppose by the blank rows.
+    tran = [r for r in dataset if r['full_name'].startswith('Derek Tran')][0]
+    assert by_cycle[('H4CA45170', 2024)][2] == round(
+        sum(c['all_ie_total'] for c in tran['cycles'] if c['cycle'] == 2024) * 100
+    )
