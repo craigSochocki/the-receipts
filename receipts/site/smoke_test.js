@@ -239,11 +239,11 @@ window.smoke = {
           "Stevens drill-down header has the D chip and Not returning");
         closeDetail();
 
-        /* ---- U4: clicking a story dot opens the drill-down ---- */
-        document.querySelector("#dotfield circle[data-key]").dispatchEvent("click");
+        /* ---- U4: clicking a story cell opens the drill-down ---- */
+        document.querySelector("#story-plot rect[data-key]").dispatchEvent("click");
         assert.ok(
           document.getElementById("detail-sheet").innerHTML.includes("Dirty latest"),
-          "U4: clicking a story dot opens the drill-down");
+          "U4: clicking a story cell opens the drill-down");
         closeDetail();
 
         downloadCsv(); // must not throw (Blob + object URL path)
@@ -401,6 +401,7 @@ window.smoke = {
           document.querySelectorAll(".tabs button").every(hasClick),
           "every tab button has a click listener");
         assert.ok(hasClick(document.getElementById("dotfield")), "the story's dot field has a click listener");
+        assert.ok(hasClick(document.getElementById("story-plot")), "the story's plot has a click listener");
         assert.ok(
           document.querySelectorAll("#targets-table tbody tr").every(hasClick),
           "every targets row has a click listener");
@@ -455,20 +456,43 @@ window.smoke = {
           document.querySelector("#main-table thead").innerHTML.includes("Outcome"),
           "view button switches back to the core columns");
 
-        /* ---- the front-door story: one dot per incoming member, every count computed ---- */
-        const storyDots = document.querySelectorAll("#dotfield circle");
-        assert.strictEqual(storyDots.length, EXP.tiers.incoming_total, "the story draws one dot per incoming member");
+        /* ---- the front-door story: one Plot cell per incoming member, every count computed ----
+           Static mode (no IntersectionObserver in the smoke prelude) lands
+           on the status waffle; each step re-renders its Plot chart. */
+        const storyCells = document.querySelectorAll("#story-plot svg rect");
+        assert.strictEqual(storyCells.length, EXP.tiers.incoming_total, "the status waffle draws one cell per incoming member");
+        assert.ok(document.getElementById("story-plot").getAttribute("aria-label").includes(String(EXP.tiers.balanced.dirty)),
+          "the plot carries a text summary counting the dirty members");
         assert.ok(document.getElementById("story").classList.contains("static"),
           "without IntersectionObserver every story card shows");
         assert.ok(document.getElementById("step-status").innerHTML.includes("<b>" + EXP.tiers.balanced.dirty + "</b>"),
           "the status step counts the Balanced dirty members");
+        setStoryStep("all");
+        assert.strictEqual(document.querySelectorAll("#story-plot svg rect").length, EXP.tiers.incoming_total,
+          "the all waffle draws one cell per incoming member");
+        setStoryStep("status");
         setStoryStep("party");
-        assert.ok(document.querySelector("#dotfield .labels").innerHTML.includes("Democrats"),
-          "the party step labels its groups");
-        assert.strictEqual(document.querySelectorAll("#dotfield circle.dot-dirty").length, EXP.tiers.balanced.dirty,
-          "the party step colors every dirty member");
+        const partyPlot = document.getElementById("story-plot");
+        assert.ok(partyPlot.textContent.includes("Democrats"), "the party step labels the Democrats bar");
+        assert.ok(partyPlot.textContent.includes("Republicans"), "the party step labels the Republicans bar");
+        const demDirty = incoming120.filter((p) => (p.party_120 || p.party_119) === "Democrat" && p.tier_balanced === "dirty").length;
+        const partyTexts = [...document.querySelectorAll("#story-plot svg text")].map((t) => t.textContent);
+        assert.ok(partyTexts.includes(String(demDirty)), "the party step labels the Democrats' dirty count");
+        assert.strictEqual(document.getElementById("dotfield").style.display, "none",
+          "a Plot step hides the dot field");
+        setStoryStep("ranked");
+        assert.ok(document.getElementById("story-plot").textContent.includes("log scale — each step is 10×"),
+          "the ranked step labels its log scale");
+        assert.strictEqual(document.querySelectorAll("#story-plot svg circle").length, EXP.tiers.incoming_total,
+          "the ranked step plots every incoming member");
+        assert.ok(document.getElementById("story-plot").textContent.includes("median"),
+          "the ranked step marks the median");
         const incomingHouse = PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "House");
         setStoryStep("house");
+        assert.strictEqual(document.getElementById("story-plot").style.display, "none",
+          "a bespoke step hides the plot");
+        assert.strictEqual(document.getElementById("dotfield").style.display, "",
+          "a bespoke step shows the dot field");
         assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-hidden)").length, incomingHouse.length,
           "the House step seats every incoming House member in the arc");
         assert.ok(document.querySelector("#dotfield .arc-count").textContent === String(incomingHouse.length),
@@ -486,8 +510,13 @@ window.smoke = {
           PEOPLE.filter((p) => p.in_120th === "yes" && p.chamber_120 === "Senate").length,
           "the Senate step puts every incoming senator on their state");
         setStoryStep("targets");
-        assert.strictEqual(document.querySelectorAll("#dotfield circle:not(.dot-faded)").length,
-          TGT.balanced[0] + TGT.balanced[1], "the targets step lights exactly the primary targets");
+        assert.strictEqual(document.querySelectorAll('#story-plot svg rect[data-target="1"]').length,
+          TGT.balanced[0] + TGT.balanced[1], "the targets step marks exactly the primary targets");
+        setStoryStep("find");
+        pickInStory(elSayedKey);
+        assert.strictEqual(document.querySelectorAll('#story-plot svg rect[data-picked="1"]').length, 1,
+          "the find step outlines the picked member");
+        pickInStory(null);
         setStoryStep("status");
 
         /* ---- the cycle picker re-reads every surface from the picked cycle ---- */
