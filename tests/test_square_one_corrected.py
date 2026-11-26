@@ -48,6 +48,14 @@ def fake_output():
                 'jfc_aipac_cents': 0,
                 'jfc_other_cents': 0,
             },
+            'M001212|2022': {
+                'aipac_a_cents': 2215000,
+                'aipac_b_cents': 2215000,
+                'pro_israel_a_cents': 2215000,
+                'pro_israel_b_cents': 2215000,
+                'jfc_aipac_cents': 0,
+                'jfc_other_cents': 0,
+            },
         },
         'transfers_from_corrected': {'B001282|2026': 282810951, 'B001282|2024': 48586314},
         'transfers_to_corrected': {'B001282|2026': 5681782, 'B001282|2024': 0},
@@ -158,6 +166,32 @@ def test_substitute_aipac_adds_a_missing_cycle_entry():
     assert new_counted[('S6OK04247', 2026)]['aipac_pac_direct'] == Money(1000000)
     assert new_counted[('S6OK04247', 2026)]['individual'] == Money(0)
     assert ('S6OK04247', 2026) in new_filed
+
+
+def test_substitute_aipac_files_the_kept_id_when_it_carries_corrected_money():
+    # Barry Moore, 2022: the kept Senate ID has a counted row but no
+    # filing row, so without this the corrected money is dropped by
+    # accepted_by_person and vanishes from the dataset.
+    corrected = Corrected(fake_output())
+    moore = person('M001212', ['H8AL02171', 'S6AL00476'])
+    counted = _counted(
+        {
+            ('H8AL02171', 2022): {'aipac_pac_direct': 790000},
+            ('S6AL00476', 2022): {},
+        }
+    )
+    new_counted, new_filed = substitute_aipac(
+        counted,
+        {('H8AL02171', 2022)},
+        [moore],
+        [],
+        corrected,
+        COLUMNS,
+        {'H8AL02171': 'H', 'S6AL00476': 'S'},
+    )
+    assert new_counted[('S6AL00476', 2022)]['aipac_pac_direct'] == Money(2215000)
+    assert new_counted[('H8AL02171', 2022)]['aipac_pac_direct'] == Money(0)
+    assert ('S6AL00476', 2022) in new_filed
 
 
 def _finances(entries):

@@ -187,6 +187,12 @@ def substitute_aipac(counted, filed, people, dedup_records, corrected, columns, 
                 continue
             kept = kept_candidate_id(person, cycle, dedup_records, offices)
             target = kept if kept in present else present[0]
+            if cents != 0:
+                # The kept ID carries corrected money, so it counts as
+                # filed this cycle even when the store has no filing row
+                # for it — otherwise accepted_by_person drops the row
+                # and the money vanishes from the dataset.
+                filed.add((target, cycle))
             for cid in present:
                 row = dict(counted[(cid, cycle)])
                 row['aipac_pac_direct'] = Money(cents if cid == target else 0)
