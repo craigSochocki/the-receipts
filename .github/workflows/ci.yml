@@ -47,11 +47,13 @@ jobs:
       - name: Type check
         run: mypy
 
+      - name: Stage the pinned FEC snapshot
+        # Before the tests: the square-one tests read the raw bulk files
+        # from data/raw/, which only exist once the snapshot is staged.
+        run: ./fetch_snapshot.sh
+
       - name: Unit tests, complexity limits and coverage floor
         run: python3 -m pytest -q --cov=receipts tests
-
-      - name: Stage the pinned FEC snapshot
-        run: ./fetch_snapshot.sh
 
       - name: Rebuild dataset
         run: python3 receipts/rebuild.py
