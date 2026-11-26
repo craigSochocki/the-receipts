@@ -31,6 +31,17 @@ def test_shared_committee_groups():
     assert hageman['committee'] == 'C00788943'
     # Collins has one candidate ID and one committee: no group, no double-count.
     assert 'C001035' not in by_person
+    # The kept view follows the person's current chamber, not roster
+    # order: Bell is House, so his House ID is kept even though the
+    # Senate ID sorts last.
+    bell = by_person['B001324']
+    assert bell['committee'] == 'C00842336'
+    assert bell['kept_id'] == 'H4MO01134'
+    # Same-office pairs keep the first ID in roster order.
+    harris = by_person['H001102']
+    assert harris['kept_id'] == 'H6NC09200'
+    onder = by_person['O000177']
+    assert onder['kept_id'] == 'H8MO09146'
 
 
 def test_barr_transfer_dedup():
@@ -55,8 +66,49 @@ def test_barr_transfer_dedup():
     pappas_2026 = [r for r in report if r['person_key'] == 'P000614' and r['cycle'] == 2026][0]
     assert pappas_2026['kept']['transfers_from_auth'] == 119607997
     assert pappas_2026['dropped']['transfers_from_auth'] == 119607997
+    # Bell: both views carry the same $88,850 (identical copies, like
+    # Pappas/Hageman); the House view is kept and the Senate copy zeroed.
+    bell_2026 = [r for r in report if r['person_key'] == 'B001324' and r['cycle'] == 2026][0]
+    assert bell_2026['kept_id'] == 'H4MO01134'
+    assert bell_2026['kept']['transfers_from_auth'] == 8885000
+    assert bell_2026['dropped']['transfers_from_auth'] == 8885000
+    assert adjusted[('H4MO01134', 2026)]['transfers_from_auth'] == 8885000
+    assert adjusted[('S4MO00250', 2026)]['transfers_from_auth'] == 0
     # Collins has no group: her single weball row stands as filed.
     assert weball[('S6ME00159', 2026)]['transfers_from_auth'] == 537181134
+
+
+def test_transfer_dedup_defers_to_section8_kept_choice():
+    """Where §8 and the transfer rule pick different views, §8 wins.
+
+    Without the deferral the two passes zero each other's kept view and
+    real money is deleted: Carter, Hunt, Marshall and Moulton each have
+    identical views whose §8 kept ID differs from the current-chamber
+    pick. The §8-adjusted weball plus the deferral keeps one copy.
+    """
+    people = roster.load_roster(ROOT / 'congress-money-tracker.json')
+    principal = transfers.principal_committees(BULK, [2022, 2024, 2026])
+    offices = transfers.candidate_offices(BULK, [2022, 2024, 2026])
+    groups = transfers.shared_committee_groups(people, principal, offices)
+    weball = money.derive_weball(BULK, [2022, 2024, 2026])
+    records = roster.load_dedup_applied(ROOT / 'data' / 'source' / 'dedup-applied.json')
+    adjusted, _differing = money.apply_dedup(weball, records)
+    transferred, report = transfers.apply_transfer_dedup(adjusted, groups, records)
+    by_key = {(r['person_key'], r['cycle']): r for r in report}
+    # Carter 2026: identical $635,277.18 views; §8 keeps the Senate ID.
+    carter = by_key[('C001103', 2026)]
+    assert carter['kept_id'] == 'S6GA00374'
+    assert carter['kept']['transfers_from_auth'] == 63527718
+    assert transferred[('S6GA00374', 2026)]['transfers_from_auth'] == 63527718
+    # Marshall 2026: identical $771,560.73 views; §8 keeps the Senate ID.
+    marshall = by_key[('M001198', 2026)]
+    assert marshall['kept_id'] == 'S0KS00315'
+    assert marshall['kept']['transfers_from_auth'] == 77156073
+    assert transferred[('S0KS00315', 2026)]['transfers_from_auth'] == 77156073
+    # Moulton 2026: identical $1,469.16 views; §8 keeps the Senate ID.
+    moulton = by_key[('M001196', 2026)]
+    assert moulton['kept_id'] == 'S6MA00296'
+    assert moulton['kept']['transfers_from_auth'] == 146916
 
 
 def test_ryan_election_attributed_refunds():

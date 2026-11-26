@@ -50,7 +50,13 @@ def candidate_offices(bulk_dir: Path, cycles: list[int]) -> dict[str, str]:
 def shared_committee_groups(
     people: list[dict], principal: dict[str, str], offices: dict[str, str]
 ) -> list[dict]:
-    """People with two candidate IDs sharing one principal committee."""
+    """People with two candidate IDs sharing one principal committee.
+
+    The kept view is the ID whose office matches the person's current
+    chamber (offices are single letters, chambers are words). When two
+    IDs share the current office, the first in roster order is kept.
+    """
+    office_letters = {'House': 'H', 'Senate': 'S'}
     groups = []
     for person in people:
         by_committee: dict[str, list] = {}
@@ -64,7 +70,7 @@ def shared_committee_groups(
             current = person.get('chamber_120') or person.get('chamber_119')
             kept = None
             for cid in ids:
-                if offices.get(cid) == current:
+                if offices.get(cid) == office_letters.get(current or ''):
                     kept = cid
                     break
             kept = kept or ids[-1]
@@ -80,19 +86,33 @@ def shared_committee_groups(
     return groups
 
 
-def apply_transfer_dedup(weball: dict, groups: list[dict]) -> tuple[dict, list[dict]]:
-    """Zero the dropped view's transfer fields; returns (adjusted, report)."""
+def apply_transfer_dedup(
+    weball: dict, groups: list[dict], dedup_records: list[dict] | None = None
+) -> tuple[dict, list[dict]]:
+    """Zero the dropped view's transfer fields; returns (adjusted, report).
+
+    The kept view for a (person, cycle) is the §8 item 15 record's kept
+    ID where one exists for that cycle — the two dedups must agree on
+    which copy survives, or the §8 pass zeroes one view and this pass
+    zeroes the other and real money is deleted. Where no §8 record
+    exists the group's kept ID (current chamber) decides.
+    """
+    dedup_kept = {
+        (record['person_key'], record['cycle']): record['kept_id'] for record in dedup_records or []
+    }
     adjusted = {key: dict(entry) for key, entry in weball.items()}
     report = []
     for group in groups:
         for cycle in sorted({cycle for (_cid, cycle) in weball}):
+            kept_id = dedup_kept.get((group['person_key'], cycle), group['kept_id'])
+            dropped_ids = [cid for cid in group['ids'] if cid != kept_id]
             dropped_amounts = {}
             kept_amounts = {}
             for field in TRANSFER_FIELDS:
-                kept_row = adjusted.get((group['kept_id'], cycle))
+                kept_row = adjusted.get((kept_id, cycle))
                 kept_amounts[field] = kept_row[field] if kept_row else 0
                 dropped_amounts[field] = 0
-                for dropped_id in group['dropped_ids']:
+                for dropped_id in dropped_ids:
                     row = adjusted.get((dropped_id, cycle))
                     if row is None:
                         continue
@@ -104,8 +124,8 @@ def apply_transfer_dedup(weball: dict, groups: list[dict]) -> tuple[dict, list[d
                         'person_key': group['person_key'],
                         'cycle': cycle,
                         'committee': group['committee'],
-                        'kept_id': group['kept_id'],
-                        'dropped_ids': group['dropped_ids'],
+                        'kept_id': kept_id,
+                        'dropped_ids': dropped_ids,
                         'kept': kept_amounts,
                         'dropped': dropped_amounts,
                     }
