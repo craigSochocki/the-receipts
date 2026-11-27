@@ -13,8 +13,8 @@ the site.
 The finished dataset is already here: `congress-money-tracker.csv` /
 `.json` — one row per person in the 119th Congress plus the incoming 120th, career
 money, rankings, and 2026-cycle clean/dirty flags. You don't need to build
-anything to explore it. The static site (`docs/index.html`) is generated from that dataset — see
-"Static site" below — and is live at https://craigsochocki.github.io/the-receipts/ (GitHub Pages, publishing source `docs/` on `master`, enabled by Craig).
+anything to explore it. The static site (three pages under `docs/` — the Story, Explore, and Methodology — see
+"Static site" below) is generated from that dataset and is live at https://craigsochocki.github.io/the-receipts/ (GitHub Pages, publishing source `docs/` on `master`, enabled by Craig).
 
 ## Quick start
 
@@ -187,27 +187,34 @@ set as the `FEC_API_KEY` repository secret (added by Craig).
 
 ## Static site
 
-`docs/index.html` is the tracker page as a static site, for GitHub Pages.
-It is **generated, never hand-edited**: `receipts/site/build_site.py` reads
-`congress-money-tracker.json` and emits the page with the dataset embedded
-in a compact positional encoding (a column list plus an array of
-arrays). Every view on the page (search, filters, sorting,
-leaderboards, clean view, party breakdown, primary targets, CSV download)
-is computed from that embedded data at runtime, so the page cannot drift
-from the dataset. A data refresh regenerates the site with one command:
+Three pages, one build, for GitHub Pages. The Story (`docs/index.html`) is the
+front door: findings only, with precomputed aggregates embedded. Explore
+(`docs/explore/index.html`) is the data tool: search, filters, the full table
+and member drill-downs, with the full dataset embedded. Methodology
+(`docs/methodology/index.html`) is the nerd box: the flag rules, sources,
+definitions, limitations and corrections. All three are **generated, never
+hand-edited**: `receipts/site/build_site.py` fills the shared shell
+(`shell.html`) and the three page templates (`story.html`, `explore.html`,
+`method.html`, with their styles) from `congress-money-tracker.json` and emits
+the pages. The Story embeds precomputed aggregates computed from the same
+dataset; Explore embeds the full dataset in a compact positional encoding (a
+column list plus an array of arrays), so the pages cannot drift from the
+dataset. The old single-page artefacts — `page.html`, `tracker.js`,
+`views.js` — are removed; their views live in the Story and Explore pages now.
+A data refresh regenerates the site with one command:
 
 ```sh
-python3 receipts/site/build_site.py     # regenerate docs/index.html
-python3 receipts/site/verify_site.py    # verify it against the dataset
+python3 receipts/site/build_site.py     # regenerate docs/index.html, docs/explore/index.html, docs/methodology/index.html
+python3 receipts/site/verify_site.py    # verify them against the dataset
 ```
 
-`verify_site.py` decodes the embedded payload and checks it field-by-field
+`verify_site.py` decodes each embedded payload and checks it field-by-field
 against the JSON, recomputes the headline figures and checks them
 against `data/source/baseline.json` (row count, clean counts, top
-total accepted, primary targets, career-clean), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks it
-returns 200, runs the runtime smoke test (`receipts/site/smoke_test.js`, run
-inside the page in headless Chromium by Playwright — renders the table and
-every tab, opens a drill-down, exercises the CSV path), and checks the generator is deterministic apart
+total accepted, primary targets, career-clean), syntax-checks the page JavaScript with `node --check`, serves `docs/` locally and checks the pages
+return 200, runs the runtime smoke test (`receipts/site/smoke_test.js`, run
+inside the pages in headless Chromium by Playwright — renders the Story and
+Explore, opens a drill-down, exercises the CSV path), and checks the generator is deterministic apart
 from the generation timestamp. Any failure exits non-zero.
 
 The JS rule mirrors (`termRecord`, `tierOf`, `dirtyUnderPreset`, the cycle
@@ -221,7 +228,7 @@ node --test "receipts/site/tests/*.test.mjs"
 
 To preview locally: `python3 -m http.server --directory docs 8000`, then
 open http://localhost:8000. The site is live on GitHub Pages (publishing
-source `docs/` on `master`). The page carries a visible "Data as of" stamp
+source `docs/` on `master`). Each page carries a visible "Data as of" stamp
 — coverage end dates from `config.yaml` plus the build time — checked by
 `verify_site.py`.
 
@@ -235,7 +242,8 @@ Three workflows in `.github/workflows/`:
   `python3 receipts/rebuild.py`, then **fails unless the rebuild reproduces
   the committed dataset byte-identically** (`git diff --exit-code` on
   `congress-money-tracker.csv` / `.json`), builds the site, **fails if
-  the committed `docs/index.html` is not the rebuilt page** (timestamp
+  any committed page (`docs/index.html`, `docs/explore/index.html`,
+  `docs/methodology/index.html`) is not the rebuilt page** (timestamp
   aside), and runs `python3 receipts/site/verify_site.py`. No deploy step —
   GitHub Pages serves `docs/` on `master` automatically. The JS unit tests
   run in their own step after the type check
@@ -318,10 +326,14 @@ to the repo, so a checkout works from any directory on any machine.
 - `research/` — pull logs, verification notes, source research
 - `data/raw/` — staged FEC bulk data, **not committed** (gitignored, ~6 GB,
   re-downloadable from fec.gov — see `research/bulk-inventory.md`)
-- `docs/` — the generated static site (`index.html`, from
+- `docs/` — the generated static site (three pages: `index.html`,
+  `explore/index.html`, `methodology/index.html`, from
   `receipts/site/build_site.py`; never hand-edited)
 - `receipts/site/` — site generator (`build_site.py`), verifier
-  (`verify_site.py`), runtime smoke test (`smoke_test.js`)
+  (`verify_site.py`), runtime smoke test (`smoke_test.js`); page
+  templates (`shell.html`, `story.html`, `explore.html`, `method.html`),
+  page styles (`explore.css`, `method.css`) and page data builders
+  (`story_data.py`, `explore_data.py`, `static_explore.py`)
 
 ## Ground rules
 
