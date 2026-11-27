@@ -1,0 +1,138 @@
+<!-- Explore page — body fragment for the shared shell's %%BODY%% slot.
+     The shell (Story worker) provides the document, nav, %%STYLE%%,
+     %%PAGE_STYLE%%, %%VENDOR_SCRIPTS%% and %%PAGE_SCRIPTS%% slots.
+     This fragment needs, from the build wiring:
+       - the embedded payloads (same shape as the old page):
+         <script id="receipts-cols" type="application/json">, #receipts-data,
+         #opp-data — explore.js decodes them exactly as tracker.js did.
+       - %%EXPLORE_OVERVIEW%% replaced by the static overview strip
+         (receipts/site/static_explore.py: render_overview_slot),
+         %%EXPLORE_THEAD%% / %%EXPLORE_TBODY%% by the static first page
+         of the table (render_table_slots).
+       - %%DATA_AS_OF%% and %%DATASET_MD5%% as in the old page.
+       - %%PAGE_STYLE%% filled with explore.css; %%PAGE_SCRIPTS%% with
+         explore.js. No d3 / Plot / Scrollama needed on this page:
+         the waffles and hemicycles are hand-built SVG/DOM from the
+         embedded data, and the geometry embeds (us-states /
+         us-districts) are NOT needed here — the district map stays
+         in the Story.
+     Element ids below are the contract explore.js binds to; renaming
+     one means renaming it in explore.js and static_explore.py too.
+-->
+<main id="explore" class="explore">
+  <p class="explore-kicker">Explore the data</p>
+  <h1>Every member, every dollar — find yours first.</h1>
+  <p class="explore-lede">The whole tracker, searchable. Start with your member of Congress, then filter, sort, and open any row for the full breakdown.</p>
+  <p class="explore-stamp">Source: FEC filings. Data as of %%DATA_AS_OF%%. Dataset md5: <code>%%DATASET_MD5%%</code></p>
+
+  <!-- Step 1 · Overview: one panel per chamber, never combined. -->
+  <section id="explore-overview" aria-label="Overview by chamber">
+    %%EXPLORE_OVERVIEW%%
+  </section>
+
+  <!-- Step 2 · Search first: the hero, then the quick filters. -->
+  <section class="explore-search" aria-label="Find your member of Congress">
+    <label for="q">Find your member of Congress…</label>
+    <input type="search" id="q" placeholder="Name, state, or district — e.g. Stevens, MI, or MI-11" aria-label="Search by name, state, or district" autocomplete="off">
+    <p class="search-hint">Try a name, a state (“Michigan”), or a seat (“MI-11”). The table below updates as you type.</p>
+    <div class="controls controls-rows">
+      <div class="controls-row"><span class="controls-label">Filter</span>
+        <select id="f-congress" aria-label="Congress"><option value="all">Everyone</option><option value="119">119th only</option><option value="120">120th only</option><option value="both">In both</option></select>
+        <select id="f-chamber" aria-label="Chamber"><option value="all">House + Senate</option><option value="House">House</option><option value="Senate">Senate</option></select>
+        <select id="f-party" aria-label="Party"><option value="all">All parties</option><option value="Democrat">Democrat</option><option value="Republican">Republican</option><option value="Independent">Independent</option><option value="PPD">PPD</option></select>
+        <select id="f-flag" aria-label="Flagged or clean"><option value="all">Flagged + clean</option><option value="flagged">Flagged only</option><option value="clean">Not dirty only</option></select>
+        <select id="f-source" aria-label="Funding source"><option value="all">Any funding source</option><option value="aipac">Took AIPAC direct money</option><option value="corporate">Took corporate PAC money</option><option value="udp">Took UDP benefit money</option><option value="individual">Individual money only</option></select>
+        <select id="f-state" aria-label="State"><option value="all">All states</option></select>
+      </div>
+      <div class="controls-row"><span class="controls-label">Show as</span>
+        <label for="f-cycle">Cycle:</label>
+        <select id="f-cycle" aria-label="Election cycle"></select>
+        <label for="f-tolerance">Corporate PAC tolerance:</label>
+        <select id="f-tolerance" aria-label="Corporate PAC tolerance preset"><option value="strict">Strict — any dirty dollar</option><option value="balanced" selected>Balanced — over $100k and 5% of receipts</option><option value="lenient">Lenient — over $250k and 10% of receipts</option></select>
+        <span class="tol-note" id="tolerance-note"></span>
+        <label for="f-money">Money:</label>
+        <select id="f-money" aria-label="Money format"><option value="compact" selected>Compact ($1.23M)</option><option value="exact">Exact ($1,234,567.89)</option></select>
+        <button class="btn ghost" id="filters-reset" type="button">Clear all</button>
+      </div>
+    </div>
+    <div class="chips" id="filter-chips"></div>
+  </section>
+
+  <nav class="tabs explore-tabs" id="explore-tabs" role="tablist" aria-label="Explore views" tabindex="-1">
+    <button role="tab" aria-selected="true" data-view="table">Table</button>
+    <button role="tab" aria-selected="false" data-view="leaders">Leaderboards</button>
+    <button role="tab" aria-selected="false" data-view="clean">Clean money</button>
+    <button role="tab" aria-selected="false" data-view="breakdown">Party breakdown</button>
+    <button role="tab" aria-selected="false" data-view="targets">Primary targets</button>
+    <button role="tab" aria-selected="false" data-view="hemicycle">Hemicycle</button>
+  </nav>
+
+  <!-- Step 2 · Zoom & filter: the table, five default columns. -->
+  <section id="view-table" tabindex="-1">
+    <div class="totals" id="totals"></div>
+    <details class="column-chooser" id="column-chooser">
+      <summary>More columns</summary>
+      <p>Five columns are shown by default. Add any of these — they apply to this table only.</p>
+      <div id="column-chooser-list"></div>
+    </details>
+    <div class="tablewrap"><table id="explore-table"><thead>%%EXPLORE_THEAD%%</thead><tbody>%%EXPLORE_TBODY%%</tbody></table></div>
+    <div class="table-empty" id="table-empty" hidden>
+      <p><strong>No members match.</strong> <span id="table-empty-what">The table shows the members matching your search and filters.</span></p>
+      <p>Try a different spelling, a state, or a district — or <button type="button" class="linklike" id="empty-clear">clear all filters</button> to see everyone again.</p>
+    </div>
+    <p id="showing" aria-live="polite"></p>
+    <div class="pagination" id="pagination">
+      <button class="btn ghost" id="page-prev" type="button">← Previous</button>
+      <span id="page-list" role="group" aria-label="Pages"></span>
+      <button class="btn ghost" id="page-next" type="button">Next →</button>
+      <label for="page-size">Rows per page:</label>
+      <select id="page-size" aria-label="Rows per page"><option value="25" selected>25</option><option value="50">50</option><option value="100">100</option></select>
+      <button class="btn" id="csv-btn" type="button">Download CSV</button>
+    </div>
+    <p class="foot-totals" id="foot-totals"></p>
+  </section>
+
+  <section id="view-leaders" hidden tabindex="-1">
+    <h2 class="sec">Leaderboards</h2>
+    <p class="view-intro">Dirty money leads: the first two lists are the dirtiness measure — corporate PAC + AIPAC PAC direct + UDP benefit, since the last election and career. Individual contributions are not dirty money. “Total accepted” (individual + corporate PAC + AIPAC direct) measures fundraising scale, not dirtiness. Outside spending is never part of total accepted — it is money spent <i>about</i> a race, never given to the campaign.</p>
+    <div id="leaders"></div>
+  </section>
+
+  <section id="view-clean" hidden tabindex="-1">
+    <h2 class="sec">Clean money</h2>
+    <div id="clean-stats"></div>
+    <div class="callout" id="clean-callout"></div>
+    <div class="tablewrap"><table id="clean-table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="view-breakdown" hidden tabindex="-1">
+    <h2 class="sec">Party-by-chamber breakdown — 120th Congress</h2>
+    <p class="view-intro" id="breakdown-intro"></p>
+    <div class="tablewrap"><table id="breakdown-table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="view-targets" hidden tabindex="-1">
+    <h2 class="sec">Primary targets</h2>
+    <p class="view-intro" id="targets-intro"></p>
+    <div class="tablewrap"><table id="targets-table"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="view-hemicycle" hidden tabindex="-1">
+    <h2 class="sec">The chambers, seat by seat</h2>
+    <p class="view-intro">Two hemicycles — one per chamber, never combined. Inside each arc, seats are grouped by party (Democrats, then others, then Republicans), with each party’s flagged seats first. Select a seat to open that member.</p>
+    <div class="hemicycles">
+      <figure class="hemicycle-panel">
+        <figcaption>House</figcaption>
+        <svg id="hemi-house" class="hemicycle" viewBox="0 0 600 340" role="img" aria-label="House seats in a hemicycle, grouped by party"></svg>
+      </figure>
+      <figure class="hemicycle-panel">
+        <figcaption>Senate</figcaption>
+        <svg id="hemi-senate" class="hemicycle" viewBox="0 0 600 340" role="img" aria-label="Senate seats in a hemicycle, grouped by party"></svg>
+      </figure>
+    </div>
+    <p class="view-intro" id="hemicycle-note"></p>
+  </section>
+</main>
+
+<!-- Step 3 · Details on demand: the member drawer. -->
+<div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
