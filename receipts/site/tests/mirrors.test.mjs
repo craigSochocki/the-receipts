@@ -3,7 +3,9 @@
 // (receipts/domain/clean_2026.py), and the cycle picker (applyCycle /
 // setCycle / cycleRecord). The Playwright smoke test only asserts rendered
 // DOM; these tests pin the logic itself, on the shipped template files
-// loaded through ./load_page.mjs.
+// loaded through ./load_page.mjs. They also cover the story's pure
+// helpers: the party-chart label plan (partyLabelPlan) and the
+// scroll-step derivation (stepAtScroll).
 //
 // Run: node --test "receipts/site/tests/*.test.mjs"
 
@@ -213,5 +215,50 @@ test('decode maps scalars and cycle records to named objects', () => {
   assert.equal(
     page.eval("decodeNested(BY_KEY['alice']).per_cycle[0].individual"),
     50000,
+  );
+});
+
+// Fixture story statuses (latest cycle = each member's term): Alice
+// clean, Carol clean, Eve dirty, Bob unjudged, Dave below threshold.
+// Democrats total 3, Republicans 2, so the plan's domain leaves room
+// past the longest bar.
+test('partyLabelPlan keeps fitting counts inside and lists small ones past the bar', () => {
+  const page = loadPage();
+  const plan = page.json('partyLabelPlan(partyGroups(PEOPLE))');
+  assert.equal(plan.domainMax, 63);
+  assert.deepEqual(plan.inside, [
+    { party: 'Democrats', status: 'clean', n: 2 },
+  ]);
+  assert.deepEqual(
+    plan.outside.map((o) => ({ party: o.party, text: o.text })),
+    [
+      { party: 'Democrats', text: '1 dirty' },
+      { party: 'Republicans', text: '1 below threshold, 1 not judged' },
+    ],
+  );
+  // Past each party's bar end (3 and 2 in data units), inside the plot.
+  assert.ok(plan.outside[0].x > 3 && plan.outside[0].x < 4);
+  assert.ok(plan.outside[1].x > 2 && plan.outside[1].x < 3);
+});
+
+test('stepAtScroll is the last step at or above the middle, else the first', () => {
+  const page = loadPage();
+  assert.equal(
+    page.eval("stepAtScroll([{step:'all',top:100},{step:'status',top:500},{step:'ranked',top:900}], 400)"),
+    'all',
+  );
+  assert.equal(
+    page.eval("stepAtScroll([{step:'all',top:-100},{step:'status',top:300},{step:'ranked',top:800}], 400)"),
+    'status',
+  );
+  // Instant jump to the top: no step has crossed the middle yet.
+  assert.equal(
+    page.eval("stepAtScroll([{step:'all',top:500},{step:'status',top:900},{step:'ranked',top:1300}], 400)"),
+    'all',
+  );
+  // Instant jump to the bottom: every step has crossed it.
+  assert.equal(
+    page.eval("stepAtScroll([{step:'all',top:-1000},{step:'status',top:-900},{step:'ranked',top:-800},{step:'party',top:-700},{step:'house',top:-600},{step:'districts',top:-500},{step:'senate',top:-400},{step:'targets',top:-300},{step:'find',top:-200}], 400)"),
+    'find',
   );
 });
