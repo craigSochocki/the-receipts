@@ -45,6 +45,8 @@ def test_round_money():
     assert round_money(5_745_013.28) == '$5.7M'
     assert round_money(30_200) == '$30K'
     assert round_money(842) == '$842'
+    assert round_money(2_136_269_273.39) == '$2.1B'
+    assert round_money(1_000_000_000) == '$1B'
     assert round_money(0) == '$0'
     assert round_money(None) == '—'
 

@@ -26,9 +26,10 @@ Aggregate payload (JSON shape, as returned by build_story_data):
                             "members": [{"key", "name", "party": "D"|"R"|"I"|"O",
                                          "flagged": bool, "uncalled": bool},
                                         ... in layout order ...],
-                            "counts": {"dem": 261, "rep": 173, "other": 0,
+                            "counts": {"dem": 261, "rep": 173, "ind": 0, "other": 0,
                                        "flagged_dem": 87, "flagged_rep": 152,
-                                       "flagged_other": 0, "flagged": 241}},
+                                       "flagged_ind": 0, "flagged_other": 0,
+                                       "flagged": 241}},
                  "senate": {... same shape, 100 seats ...}},
       "ranked": {"house": [{"key", "name", "party", "seat", "dirty",
                              "rounded", "flagged"}, ... top 10 ...],
@@ -122,7 +123,9 @@ def round_money(value):
         return str(value)
     neg = value < 0
     size = abs(value)
-    if size >= 1e6:
+    if size >= 1e9:
+        text = f'${size / 1e9:.1f}B'.replace('.0B', 'B')
+    elif size >= 1e6:
         text = f'${size / 1e6:.1f}M'.replace('.0M', 'M')
     elif size >= 1e3:
         text = f'${size / 1e3:.0f}K'
@@ -180,14 +183,16 @@ def waffle_members(people):
 
 def waffle_counts(members):
     """Per-party and flagged counts for one plotted chamber."""
-    group = {'D': 'dem', 'R': 'rep'}.get
+    group = {'D': 'dem', 'R': 'rep', 'I': 'ind'}.get
     counts = {
         'dem': 0,
         'rep': 0,
+        'ind': 0,
         'other': 0,
         'flagged': 0,
         'flagged_dem': 0,
         'flagged_rep': 0,
+        'flagged_ind': 0,
         'flagged_other': 0,
     }
     for m in members:
