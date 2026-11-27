@@ -482,12 +482,12 @@ function renderOverview(){
    hemicycles, one per chamber; party seats grouped in their arc.
    Uncalled seats are hollow placeholders at the arc's end. */
 const HEMI_W = 600, HEMI_H = 340;
-const PARTY_SIDE = {Democrat:0, Republican:2};
-function partySide(p){ return PARTY_SIDE[party(p)] ?? 1; }
-const STATUS_ORDER = {dirty:0, below_threshold:1, clean:2, unjudged:3};
+const EXPLORE_PARTY_SIDE = {Democrat:0, Republican:2};
+function explorePartySide(p){ return EXPLORE_PARTY_SIDE[party(p)] ?? 1; }
+const EXPLORE_STATUS_ORDER = {dirty:0, below_threshold:1, clean:2, unjudged:3};
 function hemiStatus(p){ return tierOf(p) || 'unjudged'; }
 function hemiByStatus(a, b){
-  return STATUS_ORDER[hemiStatus(a)]-STATUS_ORDER[hemiStatus(b)] || num(b.cy_dirty)-num(a.cy_dirty);
+  return EXPLORE_STATUS_ORDER[hemiStatus(a)]-EXPLORE_STATUS_ORDER[hemiStatus(b)] || num(b.cy_dirty)-num(a.cy_dirty);
 }
 function hemicycleLayout(people, cx, cy, inner, outer, rows){
   const radii = Array.from({length: rows}, (_, i)=>inner+(outer-inner)*i/(rows-1));
@@ -504,13 +504,13 @@ function hemicycleLayout(people, cx, cy, inner, outer, rows){
   seats.sort((s, t)=>t.a-s.a || s.y-t.y);
   // Uncalled placeholder seats sort last, at the arc's end.
   const order = people.slice().sort((a, b)=>
-    ((a.uncalled?1:0)-(b.uncalled?1:0)) || partySide(a)-partySide(b) || hemiByStatus(a, b));
+    ((a.uncalled?1:0)-(b.uncalled?1:0)) || explorePartySide(a)-explorePartySide(b) || hemiByStatus(a, b));
   const at = {};
   order.forEach((p, i)=>{ at[p.person_key] = seats[i]; });
   return {at, order};
 }
 function hemiDotClass(p){
-  const side = partySide(p)===0 ? 'party-d' : partySide(p)===2 ? 'party-r' : 'party-o';
+  const side = explorePartySide(p)===0 ? 'party-d' : explorePartySide(p)===2 ? 'party-r' : 'party-o';
   return 'hemi-dot dot-'+hemiStatus(p)+' '+side+(p.cy_aipac_udp_flag===true ? ' flagged' : '');
 }
 function renderHemicycle(){
