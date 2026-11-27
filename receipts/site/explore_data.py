@@ -155,6 +155,20 @@ def is_voting_house_member(person):
     return chamber_of(person) == 'House' and person['state'] not in TERRITORIES
 
 
+# ---- the overview waffle: party blocks, flagged first ----
+def _judged(members):
+    return [p for p in members if headline(p)['tier_balanced'] is not None]
+
+
+def _party_waffle_blocks(members, party):
+    judged = _judged([p for p in members if party_of(p) == party])
+    flagged = sum(1 for p in judged if is_flagged(headline(p)))
+    return [
+        {'party': party, 'flagged': True, 'count': flagged},
+        {'party': party, 'flagged': False, 'count': len(judged) - flagged},
+    ]
+
+
 def waffle_blocks(members):
     """The waffle blocks for named members, in display order.
 
@@ -162,15 +176,8 @@ def waffle_blocks(members):
     with no verdict form the unjudged block at the end.
     """
     parties = sorted({party_of(p) for p in members}, key=lambda name: PARTY_ORDER.get(name, 3))
-    blocks = []
-    for party in parties:
-        group = [p for p in members if party_of(p) == party]
-        judged = [p for p in group if headline(p)['tier_balanced'] is not None]
-        flagged = [p for p in judged if is_flagged(headline(p))]
-        blocks.append({'party': party, 'flagged': True, 'count': len(flagged)})
-        blocks.append({'party': party, 'flagged': False, 'count': len(judged) - len(flagged)})
-    unjudged = [p for p in members if headline(p)['tier_balanced'] is None]
-    blocks.append({'party': None, 'flagged': False, 'count': len(unjudged)})
+    blocks = [block for party in parties for block in _party_waffle_blocks(members, party)]
+    blocks.append({'party': None, 'flagged': False, 'count': len(members) - len(_judged(members))})
     return [b for b in blocks if b['count']]
 
 
@@ -212,6 +219,7 @@ def overview(people):
     }
 
 
+# ---- leaderboards ----
 def leaderboard_entry(person, amount):
     """One leaderboard row: who, where, and how much."""
     return {
@@ -257,31 +265,53 @@ def leaderboards(people, preset):
     }
 
 
+# ---- clean figures ----
+def _member_is_not_dirty(person, preset, tier_key):
+    record = headline(person)
+    if preset == 'strict':
+        return record['clean'] is True
+    return is_not_dirty(record[tier_key])
+
+
+def _count_by_chamber(people):
+    return {
+        chamber: sum(1 for p in people if chamber_of(p) == chamber)
+        for chamber in ('House', 'Senate')
+    }
+
+
+def _not_judged(people):
+    return [p for p in people if headline(p)['clean'] is None]
+
+
+def _unopposed_names(people):
+    return sorted(p['full_name'] for p in people if headline(p)['unopposed'] is True)
+
+
+def _unverified_names(people):
+    return sorted(p['full_name'] for p in people if headline(p)['unopposed'] is not True)
+
+
+def _career_clean_house(incoming):
+    return sum(1 for p in incoming if chamber_of(p) == 'House' and is_career_clean(p))
+
+
 def clean_figures(people, preset):
     """Who is not dirty under the preset, and who was not judged."""
     incoming = [p for p in people if p['in_120th'] == 'yes']
     tier_key = 'tier_balanced' if preset == 'balanced' else 'tier_lenient'
-    if preset == 'strict':
-        not_dirty = [p for p in incoming if headline(p)['clean'] is True]
-    else:
-        not_dirty = [p for p in incoming if is_not_dirty(headline(p)[tier_key])]
-    not_judged = [p for p in people if headline(p)['clean'] is None]
-    unopposed = [p for p in not_judged if headline(p)['unopposed'] is True]
-    unverified = [p for p in not_judged if headline(p)['unopposed'] is not True]
+    not_dirty = [p for p in incoming if _member_is_not_dirty(p, preset, tier_key)]
+    not_judged = _not_judged(people)
     return {
         'incoming_not_dirty': len(not_dirty),
-        'by_chamber': {
-            chamber: sum(1 for p in not_dirty if chamber_of(p) == chamber)
-            for chamber in ('House', 'Senate')
-        },
-        'career_clean_house': sum(
-            1 for p in incoming if chamber_of(p) == 'House' and is_career_clean(p)
-        ),
-        'unopposed': sorted(p['full_name'] for p in unopposed),
-        'unverified': sorted(p['full_name'] for p in unverified),
+        'by_chamber': _count_by_chamber(not_dirty),
+        'career_clean_house': _career_clean_house(incoming),
+        'unopposed': _unopposed_names(not_judged),
+        'unverified': _unverified_names(not_judged),
     }
 
 
+# ---- party breakdown ----
 def party_breakdown(people, preset):
     """Career money and not-dirty counts, grouped by party and chamber."""
     incoming = [p for p in people if p['in_120th'] == 'yes']
@@ -327,6 +357,7 @@ def party_breakdown(people, preset):
     return rows
 
 
+# ---- primary targets ----
 def primary_targets_list(people, preset, next_cycle):
     """The watchlist rows: seat up next cycle, dirty in the latest election."""
     incoming = [p for p in people if p['in_120th'] == 'yes']
@@ -351,6 +382,7 @@ def primary_targets_list(people, preset, next_cycle):
     return rows
 
 
+# ---- the grouped default order and pagination ----
 def grouped_order(people):
     """The table's default order: chamber sections, party blocks, flagged first.
 
@@ -388,6 +420,7 @@ def page_label(total, page, page_size):
     return f'Showing {first}–{last} of {total}'
 
 
+# ---- the drawer's plain-English verdict reason ----
 def verdict_reason(record, preset, preset_short):
     """The plain-English rule behind one member's verdict.
 
@@ -426,6 +459,7 @@ def verdict_reason(record, preset, preset_short):
     )
 
 
+# ---- the whole payload ----
 def explore_aggregates(people, preset, next_cycle):
     """The whole Explore payload, in the shape the docstring states."""
     return {
