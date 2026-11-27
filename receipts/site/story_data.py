@@ -12,6 +12,7 @@ Aggregate payload (JSON shape, as returned by build_story_data):
     {
       "meta": {"current_cycle": 2026, "next_cycle": 2028,
                "incoming_total": 535},
+      "preset": {"balanced_short": "corporate PAC over $100k and over 5% of receipts"},
       "hero": {"dirty_total": 226639152.48,
                "dirty_total_rounded": "$226.6M",
                "flagged": 299, "members": 535},
@@ -405,7 +406,7 @@ def headline_counts(dataset):
     }
 
 
-def build_story_data(dataset, current_cycle, next_cycle):
+def build_story_data(dataset, current_cycle, next_cycle, balanced_short=None):
     """Every aggregate the Story front door needs, from the dataset."""
     incoming = incoming_members(dataset)
     house = [p for p in incoming if p['chamber_120'] == 'House']
@@ -419,6 +420,7 @@ def build_story_data(dataset, current_cycle, next_cycle):
             'next_cycle': next_cycle,
             'incoming_total': len(incoming),
         },
+        'preset': {'balanced_short': balanced_short},
         'hero': {
             'dirty_total': dirty_total,
             'dirty_total_rounded': round_money(dirty_total),

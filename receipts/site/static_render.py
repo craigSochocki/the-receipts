@@ -84,7 +84,8 @@ def party_of(person):
 def story_data(dataset):
     """The Story aggregates, from the dataset and the configured cycles."""
     cycles = settings().cycles
-    return build_story_data(dataset, cycles.current, cycles.next)
+    preset = settings().verification.tolerance_presets['balanced']
+    return build_story_data(dataset, cycles.current, cycles.next, preset_short(preset))
 
 
 def story_steps():
@@ -132,7 +133,9 @@ def story_texts(dataset):
         primary_targets(incoming_members(dataset), 'balanced', settings().cycles.next)
     )
     stacked = data['stacked']
-    preset = settings().verification.tolerance_presets['balanced']
+    short = data['preset']['balanced_short'] or preset_short(
+        settings().verification.tolerance_presets['balanced']
+    )
     return {
         'waffle_all': (
             f'These are the <b>{data["meta"]["incoming_total"]}</b> seats of the incoming '
@@ -151,7 +154,7 @@ def story_texts(dataset):
             f'{house["seats"]}</b> seats. Senate: <b>{senate["counts"]["flagged"]} of '
             f"{senate['seats']}</b>. Flagged members sit at the head of their party's "
             "block, in the lighter tint of their own party's colour. Under the Balanced "
-            f'tolerance ({esc_html(preset_short(preset))}), '
+            f'tolerance ({esc_html(short)}), '
             f'<b>{data["counts"]["balanced_dirty"]}</b> of the incoming '
             f'{data["meta"]["incoming_total"]} count as dirty. '
             '<a href="methodology/">How we flagged members</a>.'
@@ -193,20 +196,22 @@ def story_texts(dataset):
             f'<b>{member["split"]["rounded"]["dirty"]}</b> in dirty money in '
             f'{member["trend"][-1]["cycle"]} — the most of anyone in the dataset — '
             'almost all of it UDP benefit: '
-            f'<b>{member["split"]["rounded"]["udp_benefit"]}</b> spent for her Senate '
-            f'race, against <b>{member["split"]["rounded"]["individual"]}</b> raised '
-            'from individuals. She is not returning to Congress.'
+            f'<b>{member["split"]["rounded"]["udp_benefit"]}</b> spent on the '
+            f'{member["trend"][-1]["cycle"]} Senate race, against '
+            f'<b>{member["split"]["rounded"]["individual"]}</b> raised '
+            'from individuals.'
+            + (' She is not returning to Congress.' if not member['returning'] else '')
         ),
         'member_trend': (
-            'It was not always like this. Her dirty money by election: '
+            'It was not always like this. Dirty money by election: '
             + ', '.join(f'<b>{t["rounded"]}</b> in {t["cycle"]}' for t in member['trend'])
-            + ', when she ran for the Senate.'
+            + f', the {member["race_chamber"]} race.'
         ),
         'member_zoom': (
-            'Zoom back out, to the Senate she ran for. The incoming senator who took '
+            f'Zoom back out to the {member["race_chamber"]}. The incoming member who took '
             f'the most dirty money, <b>{esc_html(zoom["top"][0]["name"])}</b>, took '
-            f'<b>{zoom["top"][0]["rounded"]}</b> — Stevens took more than '
-            f'<b>{int(ratio)} times</b> that. The Senate median is '
+            f'<b>{zoom["top"][0]["rounded"]}</b> — {esc_html(member["name"].split()[-1])} took more than '
+            f'<b>{int(ratio)} times</b> that. The {member["race_chamber"]} median is '
             f'<b>{zoom["median_rounded"]}</b>.'
         ),
         'map': (

@@ -192,6 +192,12 @@ def test_district_map_keys_and_tiers():
         assert district['party'] in ('D', 'R', 'I', 'O')
 
 
+def test_preset_label_travels_in_the_payload():
+    data = build_story_data(DATASET, 2026, 2028, 'corporate PAC over $100k and over 5% of receipts')
+    assert data['preset']['balanced_short'] == 'corporate PAC over $100k and over 5% of receipts'
+    assert build_story_data(DATASET, 2026, 2028)['preset'] == {'balanced_short': None}
+
+
 def test_hero_and_targets():
     data = build_story_data(DATASET, 2026, 2028)
     people = incoming()
