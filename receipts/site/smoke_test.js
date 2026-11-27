@@ -103,8 +103,8 @@ window.smoke = {
     const sheet = document.getElementById("detail-sheet");
     assert.ok(sheet.textContent.includes("Stevens"), "the drawer opens for the dirtiest member");
     assert.ok(
-      sheet.textContent.includes(EXP.headline.top1_compact),
-      "the drawer shows the dirtiest member's figure " + EXP.headline.top1_compact);
+      sheet.textContent.includes(EXP.headline.top1_exact),
+      "the drawer shows the dirtiest member's exact figure " + EXP.headline.top1_exact);
     closeDetail();
 
     downloadCsv(); // must not throw (Blob + object URL path)
@@ -139,8 +139,11 @@ window.smoke = {
     assert.strictEqual(data.waffle.house.seats, 435, "the House waffle plots seats, not members");
     assert.strictEqual(data.waffle.senate.seats, 100, "the Senate waffle plots seats, not members");
     assert.strictEqual(
-      data.targets.length, data.targets_total,
-      "the targets list matches its stated total");
+      data.targets_total, EXP.targets.balanced[0] + EXP.targets.balanced[1],
+      "the targets total is the dataset's Balanced watchlist size");
+    assert.ok(
+      data.targets.length > 0 && data.targets.length <= data.targets_total,
+      "the story shows the head of the targets list");
     assert.ok(
       document.body.textContent.includes(data.hero.dirty_total_rounded),
       "the hero shows the computed dirty total " + data.hero.dirty_total_rounded);
