@@ -58,7 +58,8 @@ Aggregate payload (JSON shape, as returned by build_story_data):
                               "tier": "dirty"|"below_threshold"|"clean"|None,
                               "flagged": bool}, ...]},
       "targets": [{"key", "name", "party", "chamber", "seat", "dirty",
-                   "rounded"}, ... top 8 ...]
+                   "rounded"}, ... top 8 ...],
+      "targets_total": 320
     }
 
 Definitions (methodology.md wins on every one):
@@ -413,7 +414,8 @@ def build_story_data(dataset, current_cycle, next_cycle, balanced_short=None):
     senate = [p for p in incoming if p['chamber_120'] == 'Senate']
     counts = headline_counts(dataset)
     dirty_total = sum(dollars(latest(p)['dirty']) for p in incoming)
-    targets = primary_targets(incoming, 'balanced', next_cycle)[:8]
+    all_targets = primary_targets(incoming, 'balanced', next_cycle)
+    targets = all_targets[:8]
     return {
         'meta': {
             'current_cycle': current_cycle,
@@ -442,6 +444,7 @@ def build_story_data(dataset, current_cycle, next_cycle, balanced_short=None):
         },
         'member': member_story(dataset),
         'map': {'districts': district_map(dataset)},
+        'targets_total': len(all_targets),
         'targets': [
             {
                 'key': p['person_key'],

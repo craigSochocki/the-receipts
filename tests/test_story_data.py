@@ -210,6 +210,7 @@ def test_hero_and_targets():
         'incoming_total': 535,
     }
     assert len(data['targets']) == 8
+    assert data['targets_total'] == 320
     assert data['targets'][0]['name'] == 'Adrian Boafo'
     assert data['targets'][0]['dirty'] == 5_745_013.28
     assert [t['dirty'] for t in data['targets']] == sorted(

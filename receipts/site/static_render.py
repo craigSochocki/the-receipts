@@ -12,7 +12,6 @@ from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 from receipts.common.settings import settings
-from receipts.domain.targets import primary_targets
 from receipts.site.expectations import latest
 from receipts.site.story_data import build_story_data, round_money
 
@@ -96,11 +95,6 @@ def story_steps():
     return re.findall(r"'(\w+)'", match.group(1))
 
 
-def incoming_members(dataset):
-    """The members of the incoming Congress."""
-    return [r for r in dataset if r['in_120th'] == 'yes']
-
-
 def _party_counts(counts):
     """'261 Democrats, 173 Republicans' from one waffle panel's counts."""
     parts = []
@@ -129,9 +123,7 @@ def story_texts(dataset):
     zoom = member['zoom']
     ratio = zoom['member_dirty'] / zoom['top'][0]['dirty']
     tiers = Counter(d['tier'] for d in data['map']['districts'])
-    targets_total = len(
-        primary_targets(incoming_members(dataset), 'balanced', settings().cycles.next)
-    )
+    targets_total = data['targets_total']
     stacked = data['stacked']
     short = data['preset']['balanced_short'] or preset_short(
         settings().verification.tolerance_presets['balanced']
