@@ -7,59 +7,67 @@ the static renderer formats these aggregates into HTML, and the
 browser script renders the same aggregates into the same pictures,
 so the two can never disagree about a number.
 
-Aggregate payload (JSON shape, as returned by build_story_data):
+Aggregate payload (JSON shape, as returned by build_story_data;
+values shown as types — the figures themselves live in the dataset):
 
     {
-      "meta": {"current_cycle": 2026, "next_cycle": 2028,
-               "incoming_total": 535},
-      "preset": {"balanced_short": "corporate PAC over $100k and over 5% of receipts"},
-      "hero": {"dirty_total": 226639152.48,
-               "dirty_total_rounded": "$226.6M",
-               "flagged": 299, "members": 535},
-      "counts": {"flag_120": 299, "strict_clean": 77,
-                 "balanced_not_dirty": 170, "lenient_not_dirty": 203,
-                 "balanced_dirty": 361, "dirty_positive": 454,
-                 "aipac_direct_career": 109040065.96,
-                 "pro_israel_career": 147959436.30},
-      "waffle": {"house": {"seats": 435, "named": 434,
-                            "uncalled_seats": 5,
-                            "delegates": ["..."],   # non-voting, listed not plotted
+      "meta": {"current_cycle": <cycle>, "next_cycle": <cycle>,
+               "incoming_total": <count>},
+      "preset": {"balanced_short": <the Balanced tolerance label>},
+      "hero": {"dirty_total": <float>,
+               "dirty_total_rounded": <rounded money string>,
+               "flagged": <count>, "members": <count>},
+      "counts": {"flag_120": <count>, "strict_clean": <count>,
+                 "balanced_not_dirty": <count>,
+                 "lenient_not_dirty": <count>,
+                 "balanced_dirty": <count>, "dirty_positive": <count>,
+                 "aipac_direct_career": <float>,
+                 "pro_israel_career": <float>},
+      "waffle": {"house": {"seats": <count>, "named": <count>,
+                            "uncalled_seats": <count>,
+                            "delegates": [<name>, ...],   # non-voting, listed not plotted
                             "members": [{"key", "name", "party": "D"|"R"|"I"|"O",
                                          "flagged": bool, "uncalled": bool},
                                         ... in layout order ...],
-                            "counts": {"dem": 261, "rep": 173, "ind": 0, "other": 0,
-                                       "flagged_dem": 87, "flagged_rep": 152,
-                                       "flagged_ind": 0, "flagged_other": 0,
-                                       "flagged": 241}},
-                 "senate": {... same shape, 100 seats ...}},
+                            "counts": {"dem": <count>, "rep": <count>,
+                                       "ind": <count>, "other": <count>,
+                                       "flagged_dem": <count>,
+                                       "flagged_rep": <count>,
+                                       "flagged_ind": <count>,
+                                       "flagged_other": <count>,
+                                       "flagged": <count>}},
+                 "senate": {... same shape ...}},
       "ranked": {"house": [{"key", "name", "party", "seat", "dirty",
                              "rounded", "flagged"}, ... top 10 ...],
                  "senate": [... top 10 ...]},
-      "stacked": {"house": {"aipac": ..., "corp": ..., "individual": ...,
-                             "total": ...,   # total accepted: the three summed
-                             "shares": {"aipac": 0.03, "corp": 0.11,
-                                        "individual": 0.86}},
+      "stacked": {"house": {"aipac": <float>, "corp": <float>,
+                             "individual": <float>,
+                             "total": <float>,   # total accepted: the three summed
+                             "shares": {"aipac": <share>, "corp": <share>,
+                                        "individual": <share>}},
                   "senate": {...}},
-      "member": {"key", "name", "party", "seat", "race_chamber": "Senate",
-                 "returning": false,
-                 "split": {"corp": ..., "aipac": ..., "individual": ...,
-                           "udp_benefit": ..., "dirty": ...,
-                           "rounded": {"corp": "$382K", ...}},
-                 "trend": [{"cycle": 2018, "dirty": 30200.0,
-                            "rounded": "$30K"}, ...],
-                 "zoom": {"chamber": "Senate",
+      "member": {"key", "name", "party", "seat", "race_chamber": <chamber>,
+                 "returning": bool,
+                 "split": {"corp": <float>, "aipac_direct": <float>,
+                           "individual": <float>, "udp_benefit": <float>,
+                           "dirty": <float>,
+                           "rounded": {"corp": <rounded money string>, ...}},
+                 "trend": [{"cycle": <cycle>, "dirty": <float>,
+                            "rounded": <rounded money string>}, ...],
+                 "zoom": {"chamber": <chamber>,
                           "top": [{"key", "name", "party", "dirty",
                                    "rounded"}, ... top 10 incoming ...],
-                          "median": 663000.0, "median_rounded": "$663K",
-                          "member_dirty": 31402235.87,
-                          "member_rounded": "$31.4M"}},
-      "map": {"districts": [{"key": "CA-04", "member_key", "name",
+                          "median": <float>,
+                          "median_rounded": <rounded money string>,
+                          "member_dirty": <float>,
+                          "member_rounded": <rounded money string>}},
+      "map": {"districts": [{"key": <district key>, "member_key", "name",
                               "party": "D"|"R"|"I"|"O",
                               "tier": "dirty"|"below_threshold"|"clean"|None,
                               "flagged": bool}, ...]},
       "targets": [{"key", "name", "party", "chamber", "seat", "dirty",
                    "rounded"}, ... top 8 ...],
-      "targets_total": 320
+      "targets_total": <count>
     }
 
 Definitions (methodology.md wins on every one):
@@ -99,6 +107,8 @@ Definitions (methodology.md wins on every one):
   members of that chamber only.
 """
 
+from collections import Counter
+
 from receipts.domain.targets import primary_targets
 from receipts.site.expectations import dollars, latest
 
@@ -116,7 +126,7 @@ PARTY_LETTER = {'Democrat': 'D', 'Republican': 'R', 'Independent': 'I'}
 
 
 def round_money(value):
-    """A story-round figure: $31.4M, $5.7M, $30K, $842 — never cents."""
+    """A story-round figure in compact form — never cents."""
     if value is None:
         return '—'
     if value == 'unknown':
@@ -205,26 +215,22 @@ def waffle_counts(members):
     return counts
 
 
+def uncalled_seats(dataset, chamber):
+    """Named people whose race for this chamber is still uncalled."""
+    return [r for r in dataset if r['in_120th'] == 'unknown' and r['chamber_119'] == chamber]
+
+
 def waffle_panel(dataset, chamber, seats):
     """One chamber's waffle: plotted members, placeholders, delegates."""
     incoming = [r for r in incoming_members(dataset) if r['chamber_120'] == chamber]
     if chamber == 'House':
         plotted = [r for r in incoming if r['state'] not in TERRITORIES]
         delegates = sorted(r['full_name'] for r in incoming if r['state'] in TERRITORIES)
-        # Seats whose race is uncalled: the named person where one
-        # exists (their 119th chamber names the seat).
-        uncalled = [
-            r for r in dataset if r['in_120th'] == 'unknown' and r['chamber_119'] == 'House'
-        ]
-        plotted = plotted + uncalled
     else:
         plotted = list(incoming)
         delegates = []
-        uncalled = [
-            r for r in dataset if r['in_120th'] == 'unknown' and r['chamber_119'] == 'Senate'
-        ]
-        plotted = plotted + uncalled
-    members = waffle_members(plotted)
+    uncalled = uncalled_seats(dataset, chamber)
+    members = waffle_members(plotted + uncalled)
     placeholders = seats - len(members)
     if placeholders < 0:
         raise ValueError(f'{chamber} waffle: {len(members)} plotted over {seats} seats')
@@ -391,17 +397,21 @@ def district_map(dataset):
 def headline_counts(dataset):
     """The headline counts, all over incoming members on the term."""
     incoming = incoming_members(dataset)
+    records = [latest(p) for p in incoming]
+    balanced = Counter(r['tier_balanced'] for r in records)
+    lenient = Counter(r['tier_lenient'] for r in records)
+    flagged = clean = dirty_positive = 0
+    for r in records:
+        flagged += r['aipac_udp_flag'] is True
+        clean += r['clean'] is True
+        dirty_positive += dollars(r['dirty']) > 0
     return {
-        'flag_120': sum(1 for p in incoming if is_flagged(p)),
-        'strict_clean': sum(1 for p in incoming if latest(p)['clean'] is True),
-        'balanced_not_dirty': sum(
-            1 for p in incoming if latest(p)['tier_balanced'] in ('clean', 'below_threshold')
-        ),
-        'lenient_not_dirty': sum(
-            1 for p in incoming if latest(p)['tier_lenient'] in ('clean', 'below_threshold')
-        ),
-        'balanced_dirty': sum(1 for p in incoming if latest(p)['tier_balanced'] == 'dirty'),
-        'dirty_positive': sum(1 for p in incoming if dollars(latest(p)['dirty']) > 0),
+        'flag_120': flagged,
+        'strict_clean': clean,
+        'balanced_not_dirty': balanced['clean'] + balanced['below_threshold'],
+        'lenient_not_dirty': lenient['clean'] + lenient['below_threshold'],
+        'balanced_dirty': balanced['dirty'],
+        'dirty_positive': dirty_positive,
         'aipac_direct_career': sum(dollars(p['aipac_pac_direct_career']) for p in dataset),
         'pro_israel_career': sum(dollars(p['pro_israel_pac_career']) for p in dataset),
     }

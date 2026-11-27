@@ -24,9 +24,11 @@ def _template(name):
 
 # ---- server-rendered story text (the no-JS fallback) ----
 # The step cards' text, computed here from the dataset exactly as
-# story.js storyTexts() computes it in the browser: default preset
-# (Balanced) and the latest election. The script re-renders on preset
-# or cycle change, so this static text is the default-view fallback.
+# story.js storyStepText() computes it in the browser, from the same
+# aggregates (receipts/site/story_data.py). The story has no controls
+# — no cycle picker, no tolerance preset — so the static text and
+# the script's text are the same text, and the build check compares
+# the cards against this function.
 
 
 def esc_html(value):
@@ -231,6 +233,9 @@ def story_texts(dataset):
 
 def waffle_dots(panel):
     """One <i> per plotted seat, in layout order, plus placeholders."""
+    # The waffle plots seats, not members (methodology §17): a seat
+    # with no member named yet is an open placeholder dot, and a seat
+    # whose race is uncalled keeps its named person's dot, dashed.
     dots = []
     for m in panel['members']:
         cls = m['party'].lower() + (' flagged' if m['flagged'] else '')
@@ -271,32 +276,40 @@ def ranked_html(entries, lead=None):
     return ''.join(rows)
 
 
-def stacked_html(stacked):
-    """One stacked bar: AIPAC, then corporate PACs, then individuals."""
-    parts = [
-        ('aipac', 'AIPAC PAC direct'),
-        ('corp', 'Corporate PACs'),
-        ('individual', 'Individuals'),
-    ]
+def _stacked_bar(parts, foot_lines):
+    """One stacked bar and its legend, from (key, label, amount, share)."""
     segments = []
     legend = []
-    for key, label in parts:
-        share = stacked['shares'][key] or 0
+    for key, label, amount, share in parts:
         segments.append(
             f'<span class="seg seg-{key}" style="width:{100 * share:.1f}%">'
-            f'<span class="seg-label">{label} · {round_money(stacked[key])}</span></span>'
+            f'<span class="seg-label">{label} · {amount}</span></span>'
         )
         legend.append(
             f'<li><span class="swatch seg-{key}"></span>{label} — '
-            f'<b>{round_money(stacked[key])}</b> ({share:.0%})</li>'
+            f'<b>{amount}</b> ({share:.0%})</li>'
         )
     return (
         '<div class="stacked" data-state="3">'
         + ''.join(segments)
         + '</div><ul class="stack-legend">'
         + ''.join(legend)
-        + f'<li>Total accepted — <b>{round_money(stacked["total"])}</b></li></ul>'
+        + ''.join(f'<li>{line}</li>' for line in foot_lines)
+        + '</ul>'
     )
+
+
+def stacked_html(stacked):
+    """One chamber's stacked bar: AIPAC, then corporate PACs, then individuals."""
+    parts = [
+        (key, label, round_money(stacked[key]), stacked['shares'][key] or 0)
+        for key, label in (
+            ('aipac', 'AIPAC PAC direct'),
+            ('corp', 'Corporate PACs'),
+            ('individual', 'Individuals'),
+        )
+    ]
+    return _stacked_bar(parts, [f'Total accepted — <b>{round_money(stacked["total"])}</b>'])
 
 
 def member_split_html(member):
@@ -304,30 +317,19 @@ def member_split_html(member):
     split = member['split']
     dirty = split['dirty']
     parts = [
-        ('udp_benefit', 'UDP benefit'),
-        ('aipac_direct', 'AIPAC PAC direct'),
-        ('corp', 'Corporate PACs'),
+        (key, label, split['rounded'][key], split[key] / dirty if dirty else 0)
+        for key, label in (
+            ('udp_benefit', 'UDP benefit'),
+            ('aipac_direct', 'AIPAC PAC direct'),
+            ('corp', 'Corporate PACs'),
+        )
     ]
-    segments = []
-    legend = []
-    for key, label in parts:
-        share = split[key] / dirty if dirty else 0
-        segments.append(
-            f'<span class="seg seg-{key}" style="width:{100 * share:.1f}%">'
-            f'<span class="seg-label">{label} · {split["rounded"][key]}</span></span>'
-        )
-        legend.append(
-            f'<li><span class="swatch seg-{key}"></span>{label} — '
-            f'<b>{split["rounded"][key]}</b> ({share:.0%})</li>'
-        )
-    return (
-        '<div class="stacked" data-state="3">'
-        + ''.join(segments)
-        + '</div><ul class="stack-legend">'
-        + ''.join(legend)
-        + f'<li>Dirty money — <b>{split["rounded"]["dirty"]}</b></li>'
-        f'<li>Individuals, for scale — <b>{split["rounded"]["individual"]}</b> '
-        '(not dirty money)</li></ul>'
+    return _stacked_bar(
+        parts,
+        [
+            f'Dirty money — <b>{split["rounded"]["dirty"]}</b>',
+            f'Individuals, for scale — <b>{split["rounded"]["individual"]}</b> (not dirty money)',
+        ],
     )
 
 
@@ -356,6 +358,9 @@ TIER_LABELS = {
 
 def district_map_svg(dataset):
     """The district map, coloured by verdict — never by raw dollars."""
+    # The geometry is the existing Albers embed (states and districts
+    # share the 975 x 610 frame). A district with no incoming member
+    # named stays open; delegates have no district and are not drawn.
     geometry = json.loads(settings().paths.us_districts_geometry.read_text())
     states = json.loads(settings().paths.us_states_geometry.read_text())
     data = story_data(dataset)
@@ -439,11 +444,15 @@ def story_slots(dataset):
         ),
         '%%STORY_MAP_SVG%%': district_map_svg(dataset),
         '%%STORY_TARGETS_LIST%%': targets_html(data['targets']),
+        '%%STORY_DATA_JSON%%': json.dumps(data),
     }
 
 
 def render_story_slots(html, dataset):
     """Fill each story slot with its computed text or figure."""
+    # A %%STORY_*%% token left over after the fills is a build error,
+    # not a blank: the template and this renderer must agree on the
+    # slot list, and the leftover check is what keeps them agreeing.
     texts = story_texts(dataset)
     for step in story_steps():
         if step not in texts:
