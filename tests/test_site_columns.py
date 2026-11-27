@@ -82,7 +82,7 @@ def test_nested_column_lists_match_dataset_entries():
 
 
 def _presets_src():
-    src = template('tracker.js')
+    src = template('explore.js')
     start = src.index('const PRESETS = {')
     return src[start : src.index('\n};', start)]
 
