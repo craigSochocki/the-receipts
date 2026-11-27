@@ -470,37 +470,7 @@ def render_story_slots(html, dataset):
     return html
 
 
-# ---- server-rendered main table (the no-JS fallback) ----
-# The default column view (core) and default sort, rendered from the
-# dataset as tracker.js renderTable() renders them in the browser.
-# The script re-renders on first entry into Explore, so these rows
-# are the fallback for a reader with no script.
-CORE_COLS = [
-    ('full_name', 'Name', 'name'),
-    ('place', 'State / Dist.', 'place'),
-    ('party', 'Party', 'party'),
-    ('outcome', 'Outcome', 'outcome'),
-    ('chamber', 'Chamber', 'chamber'),
-    ('congress', 'Congress', 'congress'),
-    ('individual_contribution_total_career', 'Individual (career)', 'money'),
-    ('corporate_pac_career', 'Corp PAC (career)', 'money'),
-    ('aipac_pac_direct_career', 'AIPAC direct (career)', 'money'),
-    ('total_accepted_career', 'Total accepted', 'money'),
-    ('rank_total_accepted', 'Rank', 'rank'),
-    ('cy_dirty', 'Dirty latest', 'money'),
-    ('cy_clean', 'Tier latest', 'clean'),
-]
-CORE_SORTABLE = frozenset(
-    [
-        'full_name',
-        'individual_contribution_total_career',
-        'corporate_pac_career',
-        'aipac_pac_direct_career',
-        'total_accepted_career',
-        'rank_total_accepted',
-        'cy_dirty',
-    ]
-)
+# ---- cell formatting shared with the Explore static render ----
 
 
 def fmt_money(value):
@@ -512,10 +482,6 @@ def fmt_money(value):
     if not isinstance(value, (int, float)):
         return str(value)
     return ('\u2212$' if value < 0 else '$') + f'{abs(value):,.2f}'
-
-
-def fmt_rank(value):
-    return '—' if value is None else f'#{value}'
 
 
 def place_of(person):
@@ -541,43 +507,6 @@ def party_chip(person):
     return f'<span class="pchip {cls}" title="{esc_html(name)}">{esc_html(letter)}</span>'
 
 
-def outcome_of(person):
-    if person['in_120th'] == 'yes':
-        return 'Won'
-    if person['in_120th'] == 'unknown':
-        return 'Uncalled'
-    return 'Not returning'
-
-
-def chamber_of(person):
-    return person['chamber_120'] or person['chamber_119'] or '—'
-
-
-def congress_of(person):
-    if person['in_119th'] == 'yes' and person['in_120th'] == 'yes':
-        return '119th + 120th'
-    if person['in_120th'] == 'yes':
-        return '120th'
-    if person['in_119th'] == 'yes':
-        return '119th'
-    return 'TBD'
-
-
-def table_value(person, key):
-    """The cell value, as the page's getVal reads it."""
-    if key == 'place':
-        return place_of(person)
-    if key == 'party':
-        return party_of(person)
-    if key == 'chamber':
-        return chamber_of(person)
-    if key == 'congress':
-        return congress_of(person)
-    if key == 'cy_dirty':
-        return latest(person)['dirty']
-    return person[key]
-
-
 def fmt_tier_badge(person):
     """The tier badge for the latest election, as the page renders it."""
     record = latest(person)
@@ -597,75 +526,3 @@ def fmt_tier_badge(person):
         else ''
     )
     return f'<span class="badge dirty">Dirty</span>{flag}'
-
-
-def table_cell(person, key, kind):
-    """One cell's HTML, as the page's cellHtml renders it."""
-    if kind == 'name':
-        return (
-            '<button type="button" class="name-btn" data-key="'
-            f'{esc_html(person["person_key"])}">{esc_html(person["full_name"])}</button>'
-        )
-    if kind == 'party':
-        return party_chip(person) or '—'
-    if kind == 'outcome':
-        return outcome_of(person)
-    if kind == 'money':
-        value = table_value(person, key)
-        return f'<span title="{esc_html(fmt_money(value))}">{fmt_compact(value)}</span>'
-    if kind == 'rank':
-        return fmt_rank(table_value(person, key))
-    if kind == 'clean':
-        return fmt_tier_badge(person)
-    return esc_html(table_value(person, key) or '—')
-
-
-def table_thead():
-    """The default view's header row, with the default sort marked."""
-    cells = []
-    for key, label, kind in CORE_COLS:
-        sortable = key in CORE_SORTABLE
-        cls = ' class="num"' if kind in ('money', 'pct', 'rank') else ''
-        sort = f' data-sort="{key}"' if sortable else ''
-        if key == 'cy_dirty':
-            aria, arrow = ' aria-sort="descending"', ' ▼'
-        elif sortable:
-            aria, arrow = ' aria-sort="none"', ''
-        else:
-            aria, arrow = '', ''
-        cells.append(f'<th{cls}{sort}{aria}>{esc_html(label)}{arrow}</th>')
-    return '<tr>' + ''.join(cells) + '</tr>'
-
-
-def table_row(person):
-    """One row in the default view."""
-    cells = []
-    for key, _label, kind in CORE_COLS:
-        cls = (
-            ' class="name"'
-            if kind == 'name'
-            else ' class="num"'
-            if kind in ('money', 'pct', 'rank')
-            else ''
-        )
-        cells.append(f'<td{cls}>{table_cell(person, key, kind)}</td>')
-    return f'<tr data-key="{esc_html(person["person_key"])}">' + ''.join(cells) + '</tr>'
-
-
-def table_rows(dataset):
-    """Every person, in the default sort: dirtiest latest first, unknowns last."""
-
-    def sort_key(person):
-        dirty = latest(person)['dirty']
-        if dirty is None:
-            return (1, 0, person['full_name'].casefold())
-        return (0, -dirty, person['full_name'].casefold())
-
-    return sorted(dataset, key=sort_key)
-
-
-def render_table_slots(html, dataset):
-    """Fill the main table's head and body with the default view."""
-    rows = table_rows(dataset)
-    html = html.replace('%%MAIN_THEAD%%', table_thead())
-    return html.replace('%%MAIN_TBODY%%', ''.join(table_row(p) for p in rows))
