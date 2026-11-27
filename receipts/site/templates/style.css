@@ -201,10 +201,11 @@ html.js .chapter{opacity:1 !important;transform:none !important;transition:none 
 .scrolly-steps{position:relative;z-index:1;pointer-events:none}
 .scrolly-step{min-height:60svh;display:flex;align-items:center;justify-content:center}
 .scrolly-step:last-child{min-height:45svh}
-/* Inactive cards are hidden once the script runs, so the outgoing card
-   never lingers visibly beside the incoming one; without JS every card
-   stays visible (the base opacity below), as does static mode. */
-.scrolly-step .card{pointer-events:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-width:38ch;margin:0;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:1;transition:opacity .4s ease}
+/* Inactive cards are hidden once the script runs, and the switch is
+   instant — no opacity crossfade — so exactly one card is ever
+   visible, even mid-transition; without JS every card stays visible
+   (the base opacity below), as does static mode. */
+.scrolly-step .card{pointer-events:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-width:38ch;margin:0;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:1}
 html.js .scrolly-step .card{opacity:0;pointer-events:none}
 html.js .scrolly-step.active .card{opacity:1;border-color:var(--ink);pointer-events:auto}
 .scrolly.static .scrolly-step{min-height:0;margin:10px 0}
