@@ -79,10 +79,10 @@ jobs:
       - name: Build static site
         run: python3 receipts/site/build_site.py
 
-      - name: Fail if the committed page is not the rebuilt page
+      - name: Fail if the committed pages are not the rebuilt pages
         run: |
-          if ! git diff --exit-code -I'Generated [0-9-]+ [0-9:]+ UTC' -- docs/index.html > /dev/null; then
-            echo "::error::docs/index.html differs from the page built from the committed dataset. Rebuild it (python3 receipts/site/build_site.py) and commit — never hand-edit it."
+          if ! git diff --exit-code -I'Generated [0-9-]+ [0-9:]+ UTC' -- docs/index.html docs/explore/index.html docs/methodology/index.html > /dev/null; then
+            echo "::error::A committed page differs from the page built from the committed dataset. Rebuild it (python3 receipts/site/build_site.py) and commit — never hand-edit it."
             exit 1
           fi
 
