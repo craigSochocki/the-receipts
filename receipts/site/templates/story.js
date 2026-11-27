@@ -383,6 +383,37 @@ function setStoryStep(step){
 }
 function pickInStory(personKey){ storyPick = personKey || null; if(storyStep==='find') drawStory(); }
 
+/* The step whose card holds the viewport middle, from the step tops:
+   the last step at or above the middle, else the first step. */
+function stepAtScroll(tops, mid){
+  let current = STORY_STEPS[0];
+  tops.forEach(t=>{ if(t.top <= mid) current = t.step; });
+  return current;
+}
+function storyStepFromScroll(){
+  if(typeof window === 'undefined' || !window.innerHeight) return storyStep;
+  const mid = window.innerHeight * 0.5;
+  const tops = [];
+  document.querySelectorAll('.scrolly-step').forEach(el=>{
+    const step = el.getAttribute('data-step');
+    const r = step && el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+    if(r) tops.push({step, top: r.top});
+  });
+  return stepAtScroll(tops, mid);
+}
+/* Scrollama (and the IO fallback below) fire per step crossing; an
+   instant jump — Home, End, a scrollbar drag — can cross several steps
+   at once and leave the chart on a stale step. After scrolling settles,
+   re-derive the active step from the scroll position. */
+let storyScrollTimer = null;
+function initStoryScrollCheck(){
+  if(typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+  window.addEventListener('scroll', ()=>{
+    if(storyScrollTimer) clearTimeout(storyScrollTimer);
+    storyScrollTimer = setTimeout(()=>{ setStoryStep(storyStepFromScroll()); }, 120);
+  }, {passive: true});
+}
+
 /* ---- the stepper: the reduced-motion / static fallback control ----
    Shown only in static mode; prev/next move to the neighbouring step
    card and set the step. Wiring is defensive: the template may not
@@ -439,6 +470,7 @@ function initStory(){
     showStaticStory();
     return;
   }
+  initStoryScrollCheck();
   /* Scrollama is the step logic; plain IntersectionObserver is only the
      fallback when its script failed to load. Never both at once. */
   if(typeof scrollama !== 'undefined' && typeof IntersectionObserver !== 'undefined'){
@@ -448,7 +480,7 @@ function initStory(){
       if(resp && resp.element) setStoryStep(resp.element.getAttribute('data-step'));
     });
     if(typeof window !== 'undefined' && typeof window.addEventListener === 'function'){
-      window.addEventListener('resize', ()=>{ try{ scroller.resize(); }catch(e){} });
+      window.addEventListener('resize', ()=>{ try{ scroller.resize(); }catch(e){} setStoryStep(storyStepFromScroll()); });
     }
     return;
   }
