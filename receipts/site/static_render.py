@@ -440,8 +440,8 @@ def story_slots(dataset):
                 'rounded': member['zoom']['member_rounded'],
             },
         ),
-        '%%STORY_MAP%%': district_map_svg(dataset),
-        '%%STORY_TARGETS%%': targets_html(data['targets']),
+        '%%STORY_MAP_SVG%%': district_map_svg(dataset),
+        '%%STORY_TARGETS_LIST%%': targets_html(data['targets']),
     }
 
 
