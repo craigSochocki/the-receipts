@@ -108,10 +108,16 @@ the-receipts/
 │   │                          # pull_f6, pull_f24, pull_freshness
 │   ├── transform/             # build_roster, fec_lookup, apply_fec_lookup,
 │   │                          # assemble, compute_2026, build_dataset
-│   ├── site/                  # build_site.py fills templates/ (page.html,
-│   │                          # style.css, tracker.js, views.js, story.js,
-│   │                          # method.html)
-│   │                          # into docs/index.html; verify_site.py checks it
+│   ├── site/                  # build_site.py fills the shared shell
+│   │                          # (shell.html) and the page templates
+│   │                          # (story.html, explore.html, method.html,
+│   │                          # style.css, explore.css, method.css,
+│   │                          # story.js) plus the page data builders
+│   │                          # (story_data.py, explore_data.py,
+│   │                          # static_explore.py) into docs/index.html,
+│   │                          # docs/explore/index.html and
+│   │                          # docs/methodology/index.html;
+│   │                          # verify_site.py checks all three
 │   ├── validate/              # verify_dataset.py — the standing audits;
 │   │                          # run_history.py — the FEC input checks
 │   └── rebuild.py             # the one command that runs the whole pipeline
@@ -137,6 +143,7 @@ the-receipts/
 │                              # never under docs/ (GitHub Pages serves docs/)
 ├── tests/                     # unit tests for domain/ and fec/ (pytest)
 └── docs/                      # the generated static site (index.html,
+                               # explore/index.html, methodology/index.html,
                                # from receipts/site/build_site.py; never hand-edited)
                                # — live on GitHub Pages
 ```
@@ -313,8 +320,9 @@ Three workflows in `.github/workflows/` (see `README.md`, "Automation
   snapshot, sha256-verified), `python3 receipts/rebuild.py`, then **fail
   unless the rebuild reproduces the committed dataset byte-identically**
   (`git diff --exit-code` on `congress-money-tracker.csv` / `.json`),
-  then `build_site.py`, **fail if the committed `docs/index.html` is not
-  the rebuilt page** (timestamp aside), then `verify_site.py`. No deploy
+  then `build_site.py`, **fail if any committed page is not the rebuilt
+  page** (`docs/index.html`, `docs/explore/index.html`,
+  `docs/methodology/index.html`, timestamp aside), then `verify_site.py`. No deploy
   step — GitHub Pages serves `docs/` on `master` automatically. The JS
   unit tests run in their own step after the type check
   (`node --test "receipts/site/tests/*.test.mjs"`, Node's built-in runner,
