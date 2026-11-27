@@ -199,7 +199,12 @@ html.js .chapter{opacity:1 !important;transform:none !important;transition:none 
 .scrolly-key .k.party-d{background:#1e40af;border-color:#1e40af}
 .scrolly-key .k.party-r{background:#b91c1c;border-color:#b91c1c}
 .scrolly-steps{position:relative;z-index:1;pointer-events:none}
-.scrolly-step{min-height:60svh;display:flex;align-items:center;justify-content:center}
+/* The card sits at the top of its step, not centred in it: a step
+   activates when its top crosses the viewport middle (Scrollama
+   offset 0.5), so a centred card only arrives near the viewport
+   bottom, leaving a long white stretch below the pinned graphic.
+   Top-aligned, the card appears at the middle on activation. */
+.scrolly-step{min-height:60svh;display:flex;align-items:flex-start;justify-content:center}
 .scrolly-step:last-child{min-height:45svh}
 /* Inactive cards are hidden once the script runs, and the switch is
    instant — no opacity crossfade — so exactly one card is ever
