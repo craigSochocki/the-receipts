@@ -432,8 +432,8 @@ def story_slots(dataset):
         '%%STORY_STACKED_HOUSE%%': stacked_html(data['stacked']['house']),
         '%%STORY_STACKED_SENATE%%': stacked_html(data['stacked']['senate']),
         '%%STORY_MEMBER_SPLIT%%': member_split_html(member),
-        '%%STORY_MEMBER_TREND%%': member_trend_html(member),
-        '%%STORY_MEMBER_ZOOM%%': ranked_html(
+        '%%STORY_TREND_HTML%%': member_trend_html(member),
+        '%%STORY_ZOOM_HTML%%': ranked_html(
             member['zoom']['top'],
             lead={
                 'key': member['key'],
@@ -454,11 +454,15 @@ def render_story_slots(html, dataset):
     # not a blank: the template and this renderer must agree on the
     # slot list, and the leftover check is what keeps them agreeing.
     texts = story_texts(dataset)
+    slots = story_slots(dataset)
     for step in story_steps():
         if step not in texts:
             raise SystemExit(f'no server-rendered text for story step: {step}')
-        html = html.replace(f'%%STORY_{step.upper()}%%', texts[step])
-    for token, value in story_slots(dataset).items():
+        token = f'%%STORY_{step.upper()}%%'
+        if token in slots:
+            raise SystemExit(f'story slot {token} collides with the step text token')
+        html = html.replace(token, texts[step])
+    for token, value in slots.items():
         html = html.replace(token, value)
     left = sorted(set(re.findall(r'%%STORY_[A-Z_]+%%', html)))
     if left:
