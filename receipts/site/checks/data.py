@@ -11,24 +11,29 @@ from receipts.site.build_site import SCALARS, build_opp_payload
 from receipts.site.checks.page import values_equal
 
 
-def coverage_stamp(audit, page):
-    """The data-as-of stamp shows config.yaml's coverage end dates."""
+def coverage_stamp(audit, site):
+    """Every page's stamp shows config.yaml's coverage end dates."""
     cov = asdict(settings().verification.coverage_end)
     cov_dates = [
         datetime.strptime(cov[k], '%Y-%m-%d').strftime('%b %d, %Y')
         for k in ('committee_money_pas2', 'weball', 'independent_expenditures')
     ]
-    audit.check(
-        'stamp shows config coverage end dates',
-        all(d in page.html for d in cov_dates),
-        f'looking for {cov_dates}',
-    )
     current = settings().cycles.current
-    audit.check('stamp says the current cycle is partial', f'{current} is partial' in page.html)
+    for page in site.pages():
+        audit.check(
+            f'stamp shows config coverage end dates ({page.kind})',
+            all(d in page.html for d in cov_dates),
+            f'looking for {cov_dates}',
+        )
+        audit.check(
+            f'stamp says the current cycle is partial ({page.kind})',
+            f'{current} is partial' in page.html,
+        )
 
 
-def data_round_trip(audit, page):
+def data_round_trip(audit, site):
     """The embedded rows decode to exactly the published dataset."""
+    page = site.explore
     dataset = json.loads(settings().paths.dataset_json.read_text())
     audit.pin('embedded row count', 'rows.count', len(page.rows))
     audit.check(
@@ -60,8 +65,9 @@ def data_round_trip(audit, page):
     )
 
 
-def opposition_detail(audit, page):
+def opposition_detail(audit, site):
     """opposition-credit detail payload (race-phase level)"""
+    page = site.explore
     opp_expected = build_opp_payload()
     audit.check(
         'embedded opposition detail matches opposition-computed.json',
@@ -90,8 +96,9 @@ def opposition_detail(audit, page):
     c = page.expected['clean']
     audit.check(
         'methodology clean paragraph is computed, not stale',
-        f'{c["all_120"]} verified clean in the incoming 120th' in page.html
-        and f'{c["house_120"]} House ({c["house_120_democrat"]} D, {c["house_120_republican"]} R)'
-        in page.html,
+        f'{c["all_120"]} are verified clean' in site.methodology.html
+        and f'{c["house_120"]} in the House ({c["house_120_democrat"]} D, '
+        f'{c["house_120_republican"]} R)'
+        in site.methodology.html,
         'the methodology paragraph does not state the computed clean counts',
     )
