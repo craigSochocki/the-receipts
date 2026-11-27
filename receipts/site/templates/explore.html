@@ -1,21 +1,22 @@
-<!-- Explore page — body fragment for the shared shell's %%BODY%% slot.
-     The shell (Story worker) provides the document, nav, %%STYLE%%,
-     %%PAGE_STYLE%%, %%VENDOR_SCRIPTS%% and %%PAGE_SCRIPTS%% slots.
+<!-- Explore page — body fragment for the shared shell's BODY slot.
+     The shell provides the document, nav, and the STYLE, PAGE_STYLE,
+     VENDOR_SCRIPTS and PAGE_SCRIPTS slots. (Slot names are written
+     bare here: the built page must contain no raw slot markers.)
      This fragment needs, from the build wiring:
        - the embedded payloads (same shape as the old page):
          <script id="receipts-cols" type="application/json">, #receipts-data,
          #opp-data — explore.js decodes them exactly as tracker.js did.
-       - %%EXPLORE_OVERVIEW%%, %%EXPLORE_THEAD%%, %%EXPLORE_TBODY%%
-         and %%EXPLORE_SHOWING%% replaced by the static overview strip
+       - the EXPLORE_OVERVIEW, EXPLORE_THEAD, EXPLORE_TBODY and
+         EXPLORE_SHOWING slots replaced by the static overview strip
          and the static first page of the table
          (receipts/site/static_explore.py: render_explore_slots).
-       - %%DATA_AS_OF%% and %%DATASET_MD5%% as in the old page.
-       - %%PAGE_STYLE%% filled with explore.css; %%PAGE_SCRIPTS%% with
-         explore.js. No d3 / Plot / Scrollama needed on this page:
-         the waffles and hemicycles are hand-built SVG/DOM from the
-         embedded data, and the geometry embeds (us-states /
-         us-districts) are NOT needed here — the district map stays
-         in the Story.
+       - DATA_AS_OF and DATASET_MD5 filled as on every page.
+       - PAGE_STYLE filled with explore.css; PAGE_SCRIPTS with the
+         payload tags and explore.js. No d3 / Plot / Scrollama needed
+         on this page: the waffles and hemicycles are hand-built
+         SVG/DOM from the embedded data, and the geometry embeds
+         (us-states / us-districts) are NOT needed here — the district
+         map stays in the Story.
      Element ids below are the contract explore.js binds to; renaming
      one means renaming it in explore.js and static_explore.py too.
 -->
