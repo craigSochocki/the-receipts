@@ -165,6 +165,10 @@ verification:
     lenient:
       corp_amount: 250000
       corp_share: 0.10
+  # The next FEC filing deadline that moves the data: the post-general
+  # reports for the current cycle. The site stamp names it as the next
+  # update; the December re-pull follows it.
+  next_repull: "2026-12-03"
 
 
 # The dataset's column order (CSV) and key order (JSON). The two differ

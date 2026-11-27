@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify docs/index.html against the dataset and the baseline."""
+"""Verify the three built pages against the dataset and the baseline."""
 
 import hashlib
 import sys
@@ -9,7 +9,7 @@ from receipts.common.settings import settings
 from receipts.site.checks.counts import composition, outcomes
 from receipts.site.checks.data import coverage_stamp, data_round_trip, opposition_detail
 from receipts.site.checks.figures import no_typed_figures
-from receipts.site.checks.page import BuiltPage
+from receipts.site.checks.page import Site
 from receipts.site.checks.runtime import (
     deterministic,
     javascript_parses,
@@ -36,16 +36,23 @@ SECTIONS = [
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
-    path = settings().paths.site / 'index.html'
-    if not path.exists():
-        raise SystemExit('FAIL docs/index.html does not exist: run build_site.py')
+    site_dir = settings().paths.site
+    paths = [
+        site_dir / 'index.html',
+        site_dir / 'explore' / 'index.html',
+        site_dir / 'methodology' / 'index.html',
+    ]
+    for path in paths:
+        if not path.exists():
+            raise SystemExit(f'FAIL {path} does not exist: run build_site.py')
     audit = Audit()
-    page = BuiltPage(path)
-    audit.check('no unreplaced placeholders', '%%' not in page.html)
+    site = Site(site_dir)
+    for page in site.pages():
+        audit.check(f'no unreplaced placeholders ({page.kind})', '%%' not in page.html)
     skipped = {served_page} if '--skip-serve' in argv else set()
     for section in SECTIONS:
         if section not in skipped:
-            section(audit, page)
+            section(audit, site)
     audit.finish(
         'All site checks passed.\n'
         f'dataset md5: {hashlib.md5(settings().paths.dataset_json.read_bytes()).hexdigest()}'

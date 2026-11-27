@@ -251,10 +251,11 @@ test('stepAtScroll is the last step at or above the middle, else the first', () 
     page.eval("stepAtScroll([{step:'all',top:-100},{step:'status',top:300},{step:'ranked',top:800}], 400)"),
     'status',
   );
-  // Instant jump to the top: no step has crossed the middle yet.
+  // Instant jump to the top: no step has crossed the middle yet, so
+  // the seed — the first of the real STORY_STEPS — stands.
   assert.equal(
     page.eval("stepAtScroll([{step:'all',top:500},{step:'status',top:900},{step:'ranked',top:1300}], 400)"),
-    'all',
+    'waffle_all',
   );
   // Instant jump to the bottom: every step has crossed it.
   assert.equal(

@@ -6,7 +6,8 @@ HOUSE_SEATS, SENATE_SEATS, STATES = 435, 100, 50
 TERRITORIES = {'AS', 'GU', 'MP', 'PR', 'VI', 'DC'}
 
 
-def composition(audit, page):
+def composition(audit, site):
+    page = site.explore
     house = [r for r in page.incoming if r['chamber_120'] == 'House']
     voting = [r for r in house if r['state'] not in TERRITORIES]
     senate = [r for r in page.incoming if r['chamber_120'] == 'Senate']
@@ -27,7 +28,8 @@ def composition(audit, page):
     audit.pin('non-voting delegates', 'site.composition.delegates', len(house) - len(voting))
 
 
-def outcomes(audit, page):
+def outcomes(audit, site):
+    page = site.explore
     audit.check(
         'every row has a party (party_120 else party_119)',
         all(r['party_120'] or r['party_119'] for r in page.rows),

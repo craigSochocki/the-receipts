@@ -133,6 +133,7 @@ class CoverageEnd:
 class Verification:
     coverage_end: CoverageEnd
     tolerance_presets: Mapping[str, TolerancePreset]
+    next_repull: str
 
 
 @dataclass(frozen=True)

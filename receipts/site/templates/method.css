@@ -1,0 +1,286 @@
+/* Methodology page (/methodology). Body fragment styles for method.html.
+   Lives inside the shared shell; every colour comes from the wireframe
+   tokens with a fallback, so the page still renders if the shell's
+   style.css has not defined a token yet. No scripts on this page. */
+
+.method-page {
+  max-width: var(--measure, 660px);
+  margin: 0 auto;
+  padding: 0 20px 64px;
+  color: var(--ink, #1c1a16);
+  background: var(--paper, transparent);
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+.method-page a {
+  color: var(--accent, #a35a00);
+  text-underline-offset: 3px;
+}
+
+.method-page a:focus-visible {
+  outline: 2px solid var(--accent, #a35a00);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.method-kicker {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent, #a35a00);
+  margin: 0 0 18px;
+}
+
+.method-page h1 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(38px, 6.4vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 22px;
+}
+
+.method-lede {
+  font-size: clamp(18px, 2.4vw, 21px);
+  line-height: 1.55;
+  color: var(--ink-soft, #4c473e);
+  margin: 0 0 26px;
+}
+
+.method-lede strong {
+  color: var(--ink, #1c1a16);
+}
+
+.method-stamp {
+  font-size: 13.5px;
+  color: var(--ink-faint, #7d7668);
+  border-top: 1px solid var(--hairline, #d9d2c2);
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+  padding: 12px 0;
+  margin: 0 0 26px;
+}
+
+/* In-page contents: a plain row of honest labels, wrapping on mobile. */
+.method-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.method-toc a {
+  color: var(--ink-soft, #4c473e);
+  text-decoration: none;
+  padding: 6px 0;
+}
+
+.method-toc a:hover {
+  color: var(--ink, #1c1a16);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.method-section {
+  padding: 48px 0 0;
+}
+
+.method-section > h2 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(27px, 4vw, 34px);
+  line-height: 1.12;
+  border-top: 2px solid var(--ink, #1c1a16);
+  padding-top: 14px;
+  margin: 0 0 16px;
+}
+
+.method-section h3 {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 28px 0 8px;
+}
+
+.method-section p {
+  margin: 0 0 16px;
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-section p strong,
+.method-section li strong {
+  color: var(--ink, #1c1a16);
+}
+
+.method-section ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-section li {
+  margin-bottom: 10px;
+}
+
+.method-section li::marker {
+  color: var(--accent, #a35a00);
+}
+
+.method-section code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--paper-2, #f2eee4);
+  border: 1px solid var(--hairline, #d9d2c2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+
+/* The formal rule list: each rule gets a hairline, no card chrome. */
+.method-rules {
+  list-style: none;
+  padding-left: 0;
+}
+
+.method-rules li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+}
+
+.method-rules li:first-child {
+  border-top: 1px solid var(--hairline, #d9d2c2);
+}
+
+/* Definitions: term on its own line, definition below it. */
+.method-defs {
+  margin: 0 0 16px;
+}
+
+.method-defs dt {
+  font-weight: 700;
+  color: var(--ink, #1c1a16);
+  margin-top: 18px;
+}
+
+.method-defs dd {
+  margin: 4px 0 0;
+  color: var(--ink-soft, #4c473e);
+}
+
+/* Source / coverage tables: hairlines only, tabular figures. */
+.method-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14.5px;
+  margin: 0 0 16px;
+  border-top: 2px solid var(--ink, #1c1a16);
+}
+
+.method-table th,
+.method-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 14px 12px 0;
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-table th {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint, #7d7668);
+  font-weight: 700;
+}
+
+.method-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .method-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Chart legend: one dot per swatch, flag + word beside the tint. */
+.method-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 13.5px;
+  color: var(--ink-soft, #4c473e);
+  border-top: 1px solid var(--hairline, #d9d2c2);
+  padding-top: 14px;
+  margin: 20px 0 0;
+}
+
+.method-swatches span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.method-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+
+.method-dot-dem {
+  background: var(--dem-full, #3d5a80);
+}
+
+.method-dot-dem-flagged {
+  background: var(--dem-flagged, #a7bedd);
+  box-shadow: 0 0 0 1px var(--dem-full, #3d5a80);
+}
+
+.method-dot-rep {
+  background: var(--rep-full, #a63d40);
+}
+
+.method-dot-rep-flagged {
+  background: var(--rep-flagged, #e2aca6);
+  box-shadow: 0 0 0 1px var(--rep-full, #a63d40);
+}
+
+.method-dot-judged {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint, #7d7668);
+}
+
+.method-dot-uncalled {
+  background: transparent;
+  border: 1.5px dashed var(--ink-faint, #7d7668);
+  box-shadow: none;
+}
+
+.method-footer {
+  border-top: 2px solid var(--ink, #1c1a16);
+  margin-top: 48px;
+  padding-top: 18px;
+  font-size: 13.5px;
+  color: var(--ink-faint, #7d7668);
+}
+
+.method-footer p {
+  margin: 0 0 10px;
+}
+
+.method-source {
+  font-size: 12.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .method-page * {
+    transition: none;
+  }
+}

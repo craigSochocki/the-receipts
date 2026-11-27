@@ -26,11 +26,16 @@ def typed_figures(prose, figures):
     return [f for f in figures if f in prose] + [p for p in COUNT_PHRASES if re.search(p, prose)]
 
 
-def no_typed_figures(audit, page):
-    figures = literals(page)
-    found = typed_figures(page.prose, figures)
-    audit.check('no result figure is typed into the page', not found, f'found {found}')
+def no_typed_figures(audit, site):
+    figures = literals(site.explore)
+    for page in site.pages():
+        found = typed_figures(page.prose, figures)
+        audit.check(
+            f'no result figure is typed into the page ({page.kind})',
+            not found,
+            f'found {found}',
+        )
     audit.check(
         'negative test: a typed figure and a typed count trip the check',
-        len(typed_figures(page.prose + figures[0] + ' 999 House + 9 Senate', figures)) == 2,
+        len(typed_figures(site.explore.prose + figures[0] + ' 999 House + 9 Senate', figures)) == 2,
     )

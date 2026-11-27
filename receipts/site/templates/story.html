@@ -1,0 +1,181 @@
+<!-- The Story — the front door. All figures arrive through STORY slots
+     filled by receipts/site/static_render.py from the dataset; no result
+     figure is typed into this template. (Slot names are written bare
+     here: the built page must contain no raw slot markers.) The browser
+     script only rewinds the pictures to earlier steps as the reader
+     scrolls. -->
+<div class="story-progress" id="story-progress"><span id="progress-label">The story — six beats</span></div>
+
+<header class="hero" id="story">
+<p class="kicker">The Receipts · A story in six beats</p>
+<h1>Who funds Congress?</h1>
+<p class="hero-number" aria-label="Dirty money taken by the incoming Congress since their last election">%%HERO_NUMBER%%</p>
+<p class="hero-number-label">in dirty money — corporate PAC, AIPAC PAC direct, and UDP benefit — taken by the incoming 120th Congress since their last election.</p>
+<p class="hero-flagged">%%HERO_FLAGGED%%</p>
+<div class="byline">
+<span><b>The Receipts</b></span>
+<span>Data as of %%DATA_AS_OF%%</span>
+<span>Source: FEC filings</span>
+<span>%%CYCLE%% is partial</span>
+</div>
+<p class="scroll-cue"><a href="#beat-waffle">Scroll ↓</a> <span class="scroll-quiet">or <a href="explore/">skip to the data →</a></span></p>
+</header>
+
+<!-- Beat 1 — each chamber, separately -->
+<section class="beat" id="beat-waffle" data-beat="1" data-beat-label="Each chamber, separately">
+<div class="sec-head"><span class="sec-num">Beat 1 / 6</span>
+<h2>How much of each chamber the rules flag</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" id="waffle-graphic" data-state="2">
+<h3 class="graphic-title" id="waffle-title">Who the rules flag, on top of the party split.</h3>
+<p class="graphic-sub" id="waffle-sub">Flagged members sit at the head of their own party’s block, in the lighter tint of their party’s colour.</p>
+<div class="waffles">
+<div class="chamber">
+<div class="chamber-head"><span class="ch-name">House</span><span class="ch-count">435 seats</span></div>
+<div class="waffle-grid house" role="img" aria-label="House waffle: 435 seats, grouped by party, flagged members in the lighter tint of their party colour">%%STORY_WAFFLE_HOUSE%%</div>
+</div>
+<div class="chamber">
+<div class="chamber-head"><span class="ch-name">Senate</span><span class="ch-count">100 seats</span></div>
+<div class="waffle-grid senate" role="img" aria-label="Senate waffle: 100 seats, grouped by party, flagged members in the lighter tint of their party colour">%%STORY_WAFFLE_SENATE%%</div>
+</div>
+</div>
+<div class="legend" id="waffle-legend"><span><b class="dot dem-full"></b>Democrat, not flagged</span><span><b class="dot dem-flagged"></b>Democrat, flagged</span><span><b class="dot rep-full"></b>Republican, not flagged</span><span><b class="dot rep-flagged"></b>Republican, flagged</span><span><b class="dot open"></b>Seat uncalled — no member named</span></div>
+<p class="delegates-note">%%STORY_DELEGATES%%</p>
+<p class="rule-line">Flagged: any AIPAC PAC direct dollar or UDP benefit dollar since their last election. The flag takes precedence over the net — corporate refunds cannot cancel AIPAC or UDP money. Full rule: <a href="methodology/">Methodology</a>.</p>
+<p class="src">Source: FEC filings, via the tracker dataset. Data as of %%DATA_AS_OF%%.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="waffle-steps">
+<div class="scrolly-step" data-step="waffle_all"><p class="card" id="step-waffle_all">%%STORY_WAFFLE_ALL%%</p></div>
+<div class="scrolly-step" data-step="waffle_party"><p class="card" id="step-waffle_party">%%STORY_WAFFLE_PARTY%%</p></div>
+<div class="scrolly-step" data-step="waffle_flag"><p class="card" id="step-waffle_flag">%%STORY_WAFFLE_FLAG%%</p></div>
+</div>
+</div>
+</section>
+
+<!-- Beat 2 — who takes the most -->
+<section class="beat" id="beat-ranked" data-beat="2" data-beat-label="Who takes the most">
+<div class="sec-head"><span class="sec-num">Beat 2 / 6</span>
+<h2>Who takes the most — in each chamber</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" data-state="ranked">
+<div class="rank-panel">
+<div class="chamber-head"><span class="ch-name">House — top 10</span><span class="ch-count">Dirty money, latest election</span></div>
+%%STORY_RANKED_HOUSE%%
+</div>
+<div class="rank-panel">
+<div class="chamber-head"><span class="ch-name">Senate — top 10</span><span class="ch-count">Dirty money, latest election</span></div>
+%%STORY_RANKED_SENATE%%
+</div>
+<p class="rule-line">Party is a small dot and a letter, never the bar colour. Names link to the member in Explore.</p>
+<p class="src">Source: FEC filings, via the tracker dataset. Data as of %%DATA_AS_OF%%.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="ranked-steps">
+<div class="scrolly-step" data-step="ranked"><p class="card" id="step-ranked">%%STORY_RANKED%%</p></div>
+</div>
+</div>
+</section>
+
+<!-- Beat 3 — where the money comes from -->
+<section class="beat" id="beat-stacked" data-beat="3" data-beat-label="Where the money comes from">
+<div class="sec-head"><span class="sec-num">Beat 3 / 6</span>
+<h2>Where the money comes from</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" data-state="3">
+<div class="stack-panel">
+<div class="chamber-head"><span class="ch-name">House — total accepted</span><span class="ch-count">Latest election</span></div>
+%%STORY_STACKED_HOUSE%%
+</div>
+<div class="stack-panel">
+<div class="chamber-head"><span class="ch-name">Senate — total accepted</span><span class="ch-count">Latest election</span></div>
+%%STORY_STACKED_SENATE%%
+</div>
+<p class="rule-line">Total accepted is individual contributions + corporate PAC + AIPAC direct. UDP benefit is spending about a race, never money given to the campaign, so it is not in these bars.</p>
+<p class="src">Source: FEC filings, via the tracker dataset. Data as of %%DATA_AS_OF%%.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="stacked-steps">
+<div class="scrolly-step long" data-step="stacked_aipac"><p class="card" id="step-stacked_aipac">%%STORY_STACKED_AIPAC%%</p></div>
+<div class="scrolly-step long" data-step="stacked_corp"><p class="card" id="step-stacked_corp">%%STORY_STACKED_CORP%%</p></div>
+<div class="scrolly-step long" data-step="stacked_individual"><p class="card" id="step-stacked_individual">%%STORY_STACKED_INDIVIDUAL%%</p></div>
+</div>
+</div>
+</section>
+
+<!-- Rest beat -->
+<section class="rest-beat" aria-label="A pause">
+<div class="scrolly-step" data-step="rest"><p class="card" id="step-rest">%%STORY_REST%%</p></div>
+</section>
+
+<!-- Beat 4 — one member, then the whole -->
+<section class="beat" id="beat-member" data-beat="4" data-beat-label="One member, then the whole">
+<div class="sec-head"><span class="sec-num">Beat 4 / 6</span>
+<h2>One member’s money, up close</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" data-state="member">
+<div class="member-view" data-view="member">
+<div class="chamber-head"><span class="ch-name">Dirty money, by source</span><span class="ch-count">%%CYCLE%%</span></div>
+%%STORY_MEMBER_SPLIT%%
+</div>
+<div class="member-view" data-view="member_trend">
+<div class="chamber-head"><span class="ch-name">Dirty money, by election</span><span class="ch-count">2018 – %%CYCLE%%</span></div>
+%%STORY_TREND_HTML%%
+</div>
+<div class="member-view" data-view="member_zoom">
+<div class="chamber-head"><span class="ch-name">The chamber the member ran for — top 10</span><span class="ch-count">Dirty money, latest election</span></div>
+%%STORY_ZOOM_HTML%%
+</div>
+<p class="rule-line">The zoom-out shows incoming members of the chamber the member ran for only. The subject’s bar sits above theirs, in the accent colour, because the subject is not one of them.</p>
+<p class="src">Source: FEC filings, via the tracker dataset. Data as of %%DATA_AS_OF%%.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="member-steps">
+<div class="scrolly-step" data-step="member"><p class="card" id="step-member">%%STORY_MEMBER%%</p></div>
+<div class="scrolly-step" data-step="member_trend"><p class="card" id="step-member_trend">%%STORY_MEMBER_TREND%%</p></div>
+<div class="scrolly-step" data-step="member_zoom"><p class="card" id="step-member_zoom">%%STORY_MEMBER_ZOOM%%</p></div>
+</div>
+</div>
+</section>
+
+<!-- Beat 5 — geography -->
+<section class="beat" id="beat-map" data-beat="5" data-beat-label="Geography">
+<div class="sec-head"><span class="sec-num">Beat 5 / 6</span>
+<h2>Where the money lands</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" data-state="map">
+%%STORY_MAP_SVG%%
+<div class="legend"><span><b class="dot dem-flagged"></b>Dirty</span><span><b class="dot below"></b>Below threshold</span><span><b class="dot clean"></b>Clean</span><span><b class="dot open"></b>Not judged / no member named</span></div>
+<form class="find-district" id="find-district" action="explore/" method="get">
+<label for="map-state">Find your district</label>
+<select id="map-state" aria-label="Your state"><option value="">Choose your state…</option></select>
+<select id="map-district" aria-label="District" disabled><option value="">Choose a district…</option></select>
+<p class="find-result" id="map-result">Or <a href="explore/#search">find your member in Explore →</a></p>
+</form>
+<p class="rule-line">Coloured by verdict — dirty, below threshold, clean — never by raw dollars. A raw-dollar map is mostly a population map.</p>
+<p class="src">Source: FEC filings, via the tracker dataset. Data as of %%DATA_AS_OF%%.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="map-steps">
+<div class="scrolly-step" data-step="map"><p class="card" id="step-map">%%STORY_MAP%%</p></div>
+</div>
+</div>
+</section>
+
+<!-- Beat 6 — what's next -->
+<section class="beat close-beat" id="beat-targets" data-beat="6" data-beat-label="What’s next — 2028">
+<div class="sec-head"><span class="sec-num">Beat 6 / 6</span>
+<h2>The 2028 targets</h2></div>
+<div class="beat-grid">
+<div class="beat-graphic" data-state="targets">
+%%STORY_TARGETS_LIST%%
+<p class="rule-line">A watchlist, not a prediction: incoming members of any party whose seat is on the ballot in %%NEXT_CYCLE%% and who took dirty money since their last election. Retirements are unknown and %%NEXT_CYCLE%% filings are barely open.</p>
+</div>
+<div class="beat-steps scrolly-steps" id="targets-steps">
+<div class="scrolly-step" data-step="targets"><p class="card" id="step-targets">%%STORY_TARGETS%%</p></div>
+</div>
+</div>
+<div class="handoff">
+<p><a class="handoff-link" href="explore/#search">Find your member →</a></p>
+<p><a class="handoff-link" href="methodology/">How we flagged members →</a></p>
+</div>
+</section>
+
+<script id="story-data" type="application/json">%%STORY_DATA_JSON%%</script>
+<script id="us-states" type="application/json">%%US_STATES_JSON%%</script>
+<script id="us-districts" type="application/json">%%US_DISTRICTS_JSON%%</script>

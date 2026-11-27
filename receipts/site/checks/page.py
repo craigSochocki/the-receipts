@@ -1,9 +1,15 @@
-"""The built page as the checks read it: its embedded payloads, decoded, and shared helpers."""
+"""The built pages as the checks read them: their embedded payloads, decoded, and shared helpers."""
 
 import json
 import re
 
 from receipts.site.expectations import site_expectations
+
+PAYLOAD_IDS = {
+    'story': ('story-data', 'us-states', 'us-districts'),
+    'explore': ('receipts-cols', 'receipts-data', 'opp-data'),
+    'methodology': (),
+}
 
 
 def extract_payload(html, script_id):
@@ -60,35 +66,55 @@ def values_equal(a, b, path=''):
 
 
 class BuiltPage:
-    """docs/index.html as the site checks read it: the HTML, its prose and its embedded data."""
+    """One built page: its HTML and its prose (the HTML minus what the build computes).
 
-    def __init__(self, path):
+    The JSON payloads and the server-rendered regions are generated at
+    build time from the dataset, not typed, so they are out of the
+    typed-figures scan; separate checks pin them to the computed values.
+    Only the Explore page carries the dataset payload, so only it
+    decodes rows and expectations.
+    """
+
+    def __init__(self, path, kind):
         self.path = path
+        self.kind = kind
         self.html = path.read_text(encoding='utf-8')
-        # The page without its JSON payloads, so raw data numbers cannot trip
-        # the checks for typed-in figures.
-        self.prose = re.sub(
-            r'<script id="(receipts-cols|receipts-data|opp-data|us-states|us-districts)" '
-            r'type="application/json">.*?</script>',
-            '',
-            self.html,
-            flags=re.DOTALL,
-        )
-        # The story step cards and the main table are generated at build
-        # time from the dataset, not typed: their figures are computed,
-        # so they are out of the typed-figures scan too. A separate
-        # check (static_story_and_table) pins them to the computed values.
-        self.prose = re.sub(
-            r'<p class="card" id="step-[^"]+">.*?</p>', '', self.prose, flags=re.DOTALL
-        )
-        self.prose = re.sub(r'<table id="main-table">.*?</table>', '', self.prose, flags=re.DOTALL)
-        self.cols = extract_payload(self.html, 'receipts-cols')
-        self.rows = [
-            decode_row(self.cols, arr) for arr in extract_payload(self.html, 'receipts-data')
-        ]
-        self.incoming = [r for r in self.rows if r['in_120th'] == 'yes']
-        self.opposition = extract_payload(self.html, 'opp-data')
-        self.expected = site_expectations(self.rows, self.opposition)
+        self.prose = self.html
+        ids = '|'.join(PAYLOAD_IDS[kind])
+        if ids:
+            self.prose = re.sub(
+                rf'<script id="({ids})" type="application/json">.*?</script>',
+                '',
+                self.prose,
+                flags=re.DOTALL,
+            )
+        if kind == 'story':
+            self.prose = re.sub(
+                r'<p class="card" id="step-[^"]+">.*?</p>', '', self.prose, flags=re.DOTALL
+            )
+        if kind == 'explore':
+            self.prose = re.sub(
+                r'<table id="explore-table">.*?</table>', '', self.prose, flags=re.DOTALL
+            )
+            self.cols = extract_payload(self.html, 'receipts-cols')
+            self.rows = [
+                decode_row(self.cols, arr) for arr in extract_payload(self.html, 'receipts-data')
+            ]
+            self.incoming = [r for r in self.rows if r['in_120th'] == 'yes']
+            self.opposition = extract_payload(self.html, 'opp-data')
+            self.expected = site_expectations(self.rows, self.opposition)
+
+
+class Site:
+    """The three built pages under docs/: Story, Explore, Methodology."""
+
+    def __init__(self, site_dir):
+        self.story = BuiltPage(site_dir / 'index.html', 'story')
+        self.explore = BuiltPage(site_dir / 'explore' / 'index.html', 'explore')
+        self.methodology = BuiltPage(site_dir / 'methodology' / 'index.html', 'methodology')
+
+    def pages(self):
+        return (self.story, self.explore, self.methodology)
 
 
 def num(v):

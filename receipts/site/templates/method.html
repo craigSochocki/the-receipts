@@ -1,40 +1,159 @@
+<article class="method-page">
+<p class="method-kicker">Methodology — the nerd box</p>
+<h1>How we flagged members</h1>
+<p class="method-lede">Every verdict on this site comes from a written rule applied to FEC filings — nothing is judged by eye. This page states the rules in plain English first and in formal form second, names the sources, shows the cleaning steps, and lists what the data cannot show. The full, authoritative version is <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a> in the repository; if this page and that document ever disagree, methodology.md wins.</p>
+<p class="method-stamp">%%STAMP%% · Next FEC update %%NEXT_FEC_UPDATE%%</p>
+<nav class="method-toc" aria-label="On this page">
+<a href="#flag-rules">The flag rules</a>
+<a href="#sources">Sources &amp; cleaning</a>
+<a href="#definitions">Definitions</a>
+<a href="#charts">How to read the chamber charts</a>
+<a href="#limitations">Exclusions &amp; limitations</a>
+<a href="#updates">Updates &amp; corrections</a>
+</nav>
 
-<h3>How to read this page</h3>
-<p>One row per person — 664 people, the union of the 119th Congress (540 served) and the incoming 120th (535 named). Career columns cover FEC cycles %%CAREER_START%%–%%CAREER_END%%. “Total accepted” is the headline career figure: <b>individual contributions + corporate PAC money + AIPAC PAC direct</b>. Everything else is shown separately and never added into it.</p>
-<h3>Definitions</h3>
-<ul>
-<li><b>Individual contributions</b> — itemized + unitemized contributions from individuals to the person’s campaign(s) (FEC weball <code>TTL_INDIV_CONTRIB</code>).</li>
-<li><b>Corporate PAC</b> — direct contributions from corporate-connected PACs: committee type Q/N and org type C/W in the same cycle’s committee-master file. Trade, labor, membership, cooperative and hybrid PACs are excluded; they live in the “Other committees” view.</li>
-<li><b>AIPAC PAC direct (headline)</b> — total Schedule B disbursements from the AIPAC PAC (C00797670), %%IE_SPAN%%: the PAC’s own money <i>plus</i> earmarked individual checks transmitted through it. The earmark part is broken out separately — subtract it to get PAC own-money ($7,376,200 career vs $7,567,773 headline). Earmarked money is also inside the individual-contributions column (it is individuals’ money); never add the two columns together.</li>
-<li><b>UDP support / benefit</b> — United Democracy Project (C00799031) independent expenditures, %%IE_SPAN%%. Support is spending <i>for</i> the candidate; benefit adds opposition credit — UDP spending <i>against</i> a candidate’s opponent, credited only when UDP backed exactly one candidate in that race. This is money spent <i>about</i> a race, never given to the campaign, and it is never part of total accepted. UDP spending <i>against</i> a person is never netted; it is noted on their row.</li>
-<li><b>Self-funding</b> — candidate contributions + candidate loans (weball). Top: Rick Scott $89.99M, Darrell Issa $27.88M, David McCormick $22.09M, Pete Ricketts $19.44M, Shri Thanedar $17.46M, Anthony Constantino $17.00M.</li>
-<li><b>Topline</b> — total receipts and disbursements (career sums), cash on hand and debts owed (latest cycle’s value — a stock, not a sum). Debts <i>owed to</i> the committee are null for everyone: no weball column carries them.</li>
-<li><b>Other committees</b> — contributions from committees that are not corporate PACs and not the AIPAC PAC, classified by committee type: party, leadership, labor, trade, membership, cooperative, unclassified. Career total $1,568,735,747.</li>
-<li><b>All independent expenditures</b> — every registered committee’s spending for/against the person, %%IE_SPAN%% only (the 2010–2020 IE files are not staged). Career total $3,842,257,481 (support $1.49B / oppose $2.35B). Filtered to registered committees + identified candidates: IE files contain tens of billions in bogus filings, and the excluded amounts are documented in methodology.md §4/§8.</li>
+<section id="flag-rules" class="method-section">
+<h2>1. The flag rules, in plain English first</h2>
+<p><strong>In plain English:</strong> a member is <strong>flagged</strong> if they took any money at all from the AIPAC PAC, or benefited from any UDP spending, in the term being judged. That flag is not tolerance-based — it applies under every preset, and a flagged member is never called clean, even if refunds elsewhere make their net dirty money zero or negative. Corporate PAC money is judged separately, under a tolerance preset: a little of it may leave a member below the threshold, but a lot of it counts as dirty.</p>
+<p><strong>The one-line reason, repeated on every flagged member wherever a verdict appears:</strong> “Flagged — took AIPAC PAC money or benefited from UDP spending.” The rule travels with the verdict so it never reads as an accusation without its reason.</p>
+
+<h3>The formal form</h3>
+<ul class="method-rules">
+<li><strong>Flagged</strong> — any AIPAC PAC direct dollar (<code>aipac_direct</code> &gt; 0) <em>or</em> any UDP benefit dollar (<code>udp_benefit</code> &gt; 0) in the term being judged. The flag takes precedence over the net: corporate refunds cannot cancel AIPAC or UDP money.</li>
+<li><strong>Strict</strong> — dirty when flagged, or when net dirty money is above zero. Clean is the same as the headline clean verdict: net dirty money at or below zero <em>and</em> not flagged.</li>
+<li><strong>Balanced (the default)</strong> — dirty when flagged, or when corporate PAC money is over %%BALANCED_CORP_AMOUNT%% <em>and</em> over %%BALANCED_CORP_SHARE%% of the term’s total receipts. Otherwise the member is clean, or below threshold (below).</li>
+<li><strong>Lenient</strong> — dirty when flagged, or when corporate PAC money is over %%LENIENT_CORP_AMOUNT%% <em>and</em> over %%LENIENT_CORP_SHARE%% of the term’s total receipts. Otherwise the member is clean, or below threshold (below).</li>
+<li><strong>Below threshold</strong> — the middle tier. The member took corporate PAC money below the preset’s thresholds. It is never called clean, and the dollar amount is always shown next to it.</li>
 </ul>
-<h3>Clean since their last election</h3>
-<p>Zero corporate PAC money, zero AIPAC PAC direct money, and zero UDP benefit from the member’s last election on: that election’s cycle — the current cycle (%%CYCLE%%) if their seat is up in it, else the last cycle it was — plus every cycle since, so money raised for the next race counts. The cycle picker shows any single cycle instead. <b>%%CLEAN_TOTAL_120%% verified clean in the incoming 120th: %%HOUSE_CLEAN%% House (%%HOUSE_CLEAN_D%% D, %%HOUSE_CLEAN_R%% R) + %%SEN_CLEAN%% Senate (%%SEN_CLEAN_D%% D, %%SEN_CLEAN_I%% I, %%SEN_CLEAN_R%% R).</b> %%CLEAN_HOUSE_R_SENTENCE%% A member is <b>unverified</b> only if they have no entries for that cycle in <i>any</i> money source — %%UNVERIFIED_SENTENCE%% %%UNOPPOSED_SENTENCE%% %%CAREER_CLEAN_HOUSE%% incoming House members are career-clean (no corporate PAC, AIPAC direct, UDP support, or UDP opposition credit in any cycle).</p>
-<h3>Corporate PAC tolerance presets</h3>
-<p>Dirty money always includes any AIPAC PAC direct dollar and any UDP benefit dollar — that flag (%%FLAG_120%% of the incoming 120th) is not tolerance-based and is always on. Corporate PAC money counts as dirty under a tolerance preset: <b>Strict</b> — any net dirty dollar above $0 is dirty (the verified-clean count is in the paragraph above); <b>Balanced (default)</b> — corporate PAC over $100,000 and over 5% of the cycle’s receipts (%%BALANCED_NOT_DIRTY%% of 535 not dirty); <b>Lenient</b> — corporate PAC over $250,000 and over 10% of the cycle’s receipts (%%LENIENT_NOT_DIRTY%% of 535 not dirty). The middle tier — “Below threshold” — took corporate PAC money below the preset’s thresholds; it is never called clean, and the dollar amount is always shown. The full definitions are in methodology.md §14, which wins if this page ever disagrees.</p>
-<h3>Coverage end dates</h3>
-<table><thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead><tbody>
+<p>The share test compares corporate PAC money (committee filings) with total receipts (candidate summary filings), so the two must run through the same coverage end date or the share is skewed; when total receipts are not positive the share is undefined and the share test cannot pass. A count is never shown without its preset: every clean or not-dirty figure on this site is labelled Strict, Balanced or Lenient, and the default presentation is Balanced.</p>
+
+<h3>The headline term — “since last election”</h3>
+<p>The headline verdict judges a member on their last election’s cycle <em>and every cycle since</em>, summed as one term — so money raised between elections, toward the next race, counts. A member whose seat is up in the current cycle is judged on the current cycle onward; otherwise on their latest cycle up. The cycle picker in Explore judges one cycle at a time instead; the primary-target list always reads the headline verdict.</p>
+<p>Under the headline term, <b>%%FLAG_120%% of the incoming Congress are flagged</b>, and <b>%%CLEAN_TOTAL_120%% are verified clean: %%HOUSE_CLEAN%% in the House (%%HOUSE_CLEAN_D%% D, %%HOUSE_CLEAN_R%% R) + %%SEN_CLEAN%% in the Senate (%%SEN_CLEAN_D%% D, %%SEN_CLEAN_I%% I, %%SEN_CLEAN_R%% R).</b> %%CLEAN_HOUSE_R_SENTENCE%% Under Balanced, %%BALANCED_NOT_DIRTY%% of the incoming Congress are not dirty; under Lenient, %%LENIENT_NOT_DIRTY%%. %%CAREER_CLEAN_HOUSE%% incoming House members are career-clean — no corporate PAC, AIPAC direct, UDP support or UDP opposition credit in any cycle. All of these figures are computed from the dataset at build time, never typed.</p>
+
+<h3>What “clean” means — and what it does not</h3>
+<ul>
+<li><strong>Clean</strong> means the member took no net dirty money in the term being judged and no flagged dollar: no corporate PAC money on net, no AIPAC PAC direct money, no UDP benefit. It is a statement about the money sources this tracker covers, not a character judgement.</li>
+<li><strong>Unverified</strong> means there is no linked filing for the member in the term being judged — no entry in any money source. Missing data is never read as clean. %%UNVERIFIED_SENTENCE%%</li>
+<li><strong>Unopposed</strong> means the member ran with no opponent who filed receipts over $0. Zero dirty money in a race with no opponent is a structural zero, not a verified-clean campaign, so an unopposed member with no net dirty money is unverified, not clean. %%UNOPPOSED_SENTENCE%% A dirty unopposed member stays dirty.</li>
+<li><strong>Individual contributions are never dirty money.</strong> They are the normal way campaigns are funded, from real people giving their own money — a candidate can raise millions from individuals and still be verified clean. Self-funding (the candidate’s own money) and other-committee money (party, labor, trade, leadership PACs) are also not dirty under this definition.</li>
+<li><strong>“Total accepted” measures scale, not dirtiness.</strong> It is individual contributions + corporate PAC money + AIPAC PAC direct — most of it individual money. That is why the site’s leaderboards and default sort lead with dirty money, not with total accepted.</li>
+</ul>
+</section>
+
+<section id="sources" class="method-section">
+<h2>2. Sources &amp; cleaning</h2>
+<p>FEC filings are the source of truth for every figure. OpenSecrets is a cross-check only, never a primary source. Every number traces to a filing, and the pipeline that builds the dataset is scripted (<code>python3 receipts/rebuild.py</code>) and reproduces the committed dataset byte-identically; this site is generated from that dataset by <code>receipts/site/build_site.py</code> — never hand-edited.</p>
+<h3>Which files</h3>
+<table class="method-table">
+<thead><tr><th>Money</th><th>Source file</th><th>How it is read</th></tr></thead>
+<tbody>
+<tr><td>Individual contributions, self-funding, topline</td><td>FEC all-candidates file (<code>weball</code>), every career cycle</td><td>Summary totals per candidate per cycle</td></tr>
+<tr><td>Corporate PAC, AIPAC direct, other-committee money</td><td>Schedule B committee-to-candidate file (<code>pas2</code>) joined to the committee-master file (<code>cm</code>), same cycle</td><td>Itemized contributions, classified by the contributing committee’s filed codes</td></tr>
+<tr><td>UDP and all independent expenditures</td><td>FEC independent-expenditure bulk files, %%IE_SPAN%%</td><td>Spending for or against a candidate, filtered to registered committees and identified candidates</td></tr>
+<tr><td>AIPAC and pro-Israel direct money, %%IE_SPAN%%</td><td>FEC API Schedule B merge (the bulk file drops nearly all earmarked checks)</td><td>Each conduit’s disbursements by recipient, deduplicated on the FEC sub-ID</td></tr>
+</tbody>
+</table>
+<p>Career money covers FEC cycles %%CAREER_START%%–%%CAREER_END%%. The AIPAC PAC and UDP first filed in the first cycle of the %%IE_SPAN%% span, so earlier cycles are legitimately zero for those columns, not missing data.</p>
+<h3>How AIPAC money is identified in FEC data</h3>
+<p>AIPAC money is the Schedule B disbursements of the AIPAC PAC (committee ID set in <code>config.yaml</code>, verified against the OpenFEC API): transaction types <code>24K</code>/<code>24P</code>. The headline column is the total of the raw rows — the PAC’s own money <em>plus</em> earmarked individual checks transmitted through it as a conduit. Earmarked checks are identified by memo text naming a donor; the earmark part is broken out as its own column, but that column is the bulk-file-identified subset only — under the corrected headline, headline minus earmark does <em>not</em> give PAC own-money, because the API merge does not split earmark from own money. The earmarked money is also inside the individual-contributions column, because it is individuals’ money; the two columns must never be added together.</p>
+<h3>Cleaning steps</h3>
+<ul>
+<li><strong>Amended-filing dedup.</strong> Contributions are deduplicated on committee, transaction ID, candidate, amount, date and election — transaction ID alone is unsound, because some filers reuse line-number-style IDs across reports. Memo rows are kept, not blanket-excluded; the dedup rule removes the true duplicates instead.</li>
+<li><strong>Weball double-count correction.</strong> Where the candidate-summary file repeats one committee’s identical individual-contribution total under a person’s House and Senate IDs in the same cycle, it is counted once; the decision is recorded as data and applied, never re-derived. Transfer fields between two views of one shared committee are counted once the same way.</li>
+<li><strong>Blank candidate IDs resolved by name — only where the match is unique.</strong> Where a filer left the candidate ID blank and the name plus state, district and office match exactly one roster person, the spending is attributed to that person and flagged in their notes. Ambiguous names stay unattributed rather than guessed.</li>
+<li><strong>Independent-expenditure filter.</strong> The IE files contain large amounts of bogus filings, so only rows from a registered committee about an identified candidate are published; the excluded amounts per bucket are reported in the build, not silently dropped.</li>
+<li><strong>Refund netting.</strong> Negative rows are included in the sums, so the committee-money columns are net of refunds and voids as recorded — except voided earmark rows in the bulk file, which are excluded because their originals are not in the file and netting them creates phantom negatives. The API merge nets them instead, so a corrected per-cycle figure can be negative where voids exceed new earmarks.</li>
+<li><strong>Opposition credit is conservative.</strong> UDP spending against a candidate’s opponent is credited to the backed candidate only when UDP backed exactly one candidate in that race-phase (cycle + office + state + district + election phase, from the filing’s election type). Spending against the backed candidate themself is never credited.</li>
+</ul>
+<h3>The exact analysis</h3>
+<p>Per person, per cycle: money summed across all of the person’s FEC candidate IDs; the headline term sums the election cycle and every cycle since; the dependence share and the AIPAC/UDP flag are recomputed from those sums; tiers are applied from the thresholds in <code>config.yaml</code>. The standing audits re-derive every per-cycle sum, every rank, every clean count and every tier from the staged files and fail the build on any mismatch. The full method, with every reconciliation, is in methodology.md (§2–§4, §12–§14).</p>
+</section>
+
+<section id="definitions" class="method-section">
+<h2>3. Definitions</h2>
+<dl class="method-defs">
+<dt>Corporate PAC</dt>
+<dd>Direct contributions from corporate-connected PACs: a committee whose filed type is Q or N <em>and</em> whose organization type is C or W in the same cycle’s committee-master file. Trade associations, labor unions, membership organizations, cooperatives and hybrid PACs are excluded — they live in the other-committee columns. A blank organization type is unclassified, never corporate. A reviewed override in <code>config.yaml</code> beats the filed code; a conduit that forwards individuals’ earmarked contributions is overridden to unclassified, never corporate, because the money comes from individuals.</dd>
+<dt>Cycle</dt>
+<dd>A two-year election period named for its election year. Career money covers %%CAREER_START%%–%%CAREER_END%%; the current cycle (%%CYCLE%%) is partial. All independent-expenditure “career” figures cover %%IE_SPAN%% only — earlier IE files are not staged — and must never be described as lifetime totals.</dd>
+<dt>Flagged</dt>
+<dd>Any AIPAC PAC direct dollar or any UDP benefit dollar in the term being judged, under every preset. The flag is a money fact, not a verdict — it is carried on every row, including unverified ones.</dd>
+<dt>Clean</dt>
+<dd>Under Strict, no net dirty money and no flagged dollar in the term being judged, with linkage evidence (see §1). Under Balanced and Lenient, “not dirty” additionally includes members below the preset’s corporate PAC thresholds — clean or below threshold, never just “clean”.</dd>
+<dt>Below threshold</dt>
+<dd>Took corporate PAC money below the preset’s amount and share thresholds. Never called clean; the dollar amount is always shown.</dd>
+<dt>Dirty money</dt>
+<dd>Corporate PAC money + AIPAC PAC direct money + UDP benefit (UDP support + opposition credit). Individual contributions, self-funding and other-committee money are never dirty money.</dd>
+<dt>Total accepted</dt>
+<dd>Individual contributions + corporate PAC money + AIPAC PAC direct money. UDP spending is never accepted — it was never given to the campaign — and earmark columns are subsets of their parents, never added again.</dd>
+<dt>UDP benefit</dt>
+<dd>UDP independent expenditures supporting the candidate, plus UDP spending against their opponent credited under the exactly-one-backed-candidate rule. Spending <em>about</em> a race, legally uncoordinated with the campaign — never a contribution.</dd>
+<dt>Self-funding</dt>
+<dd>Candidate contributions + candidate loans. The candidate’s own money; a self-funded campaign with nothing in the tracked columns raised nothing <em>from others</em>, not nothing at all.</dd>
+<dt>Other committees</dt>
+<dd>Direct contributions from committees that are not corporate PACs and not the AIPAC PAC, classified by committee type: party, leadership, labor, trade, membership, cooperative, unclassified. Shown separately, never in total accepted or dirty money.</dd>
+<dt>Leadership PACs</dt>
+<dd>A leader’s leadership PAC is one of the other-committee classes, tracked in its own column — not folded into the leader’s total accepted or dirty money. See §5 for what that leaves out.</dd>
+<dt>Joint fundraising committees (JFCs)</dt>
+<dd>Money a conduit sends to a joint fundraising committee counts as money from that conduit under the headline rule, because it is earmarked by individual donors, transmitted by the conduit, and lands in the candidate’s own fundraising vehicle before reaching their committee. The excluded variant is carried as a parallel column for comparison; the split of a multi-candidate JFC’s outflows is a pro-rata allocation, stated as such, because the FEC record does not tag a JFC’s outflows by funding source.</dd>
+<dt>Unverified / unopposed</dt>
+<dd>Unverified: no linked filing in the term — a data gap, not a race fact. Unopposed: ran with no opponent who filed receipts over $0 — a race fact, not a data gap. The site renders them as distinct labels.</dd>
+</dl>
+</section>
+
+<section id="charts" class="method-section">
+<h2>4. How to read the chamber charts</h2>
+<p>The Story’s first beat and the Explore overview each show the same two charts — one per chamber, never one combined field. Each chart is a waffle: one dot per voting seat, House first, then Senate. The counts are computed from the dataset at render time, never typed.</p>
+<ul>
+<li><strong>The party split is drawn first.</strong> Inside each chamber, Democrats sit in one contiguous block and Republicans in one contiguous block — never interleaved, never dispersed across all members.</li>
+<li><strong>Flagged is overlaid on top of that split, never instead of it.</strong> Flagged members sit at the head of their own party’s block. Unflagged members keep their usual party colour at full strength — blue for Democrats, red for Republicans. Flagged members switch to the lighter tint of their own party’s colour — lighter blue for a flagged Democrat, lighter red for a flagged Republican — and are ringed in the full party colour. No third “flagged” colour appears anywhere; there is no amber.</li>
+<li><strong>The verdict is never carried by colour alone.</strong> Position at the head of the party block, the flag mark and the word “Flagged” back the tint up, so the chart still reads in greyscale and to a reader who cannot see the tint.</li>
+<li><strong>Not judged is not clean.</strong> Unopposed and unverified seats are grey hollow rings — zero dirty money there is not a clean verdict. Uncalled seats are dashed grey rings. Non-voting delegates are not plotted — they have no vote — and are listed under the chart, so the chart’s House clean counts can differ from the verified-clean counts in §1, which include delegates.</li>
+</ul>
+<p class="method-swatches" aria-label="Chart legend">
+<span><i class="method-dot method-dot-dem"></i> Democrat, not flagged</span>
+<span><i class="method-dot method-dot-dem-flagged"></i> Democrat, flagged — lighter blue</span>
+<span><i class="method-dot method-dot-rep"></i> Republican, not flagged</span>
+<span><i class="method-dot method-dot-rep-flagged"></i> Republican, flagged — lighter red</span>
+<span><i class="method-dot method-dot-judged"></i> Not judged (unopposed / unverified)</span>
+<span><i class="method-dot method-dot-uncalled"></i> Uncalled</span>
+</p>
+</section>
+
+<section id="limitations" class="method-section">
+<h2>5. Exclusions &amp; limitations — stated, not buried</h2>
+<table class="method-table">
+<thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead>
+<tbody>
 <tr><td>Individual, self-funding, topline</td><td>weball</td><td>%%COV_WEBALL%%</td></tr>
 <tr><td>Corporate PAC, AIPAC, other committees</td><td>pas2</td><td>%%COV_PAS2%%</td></tr>
 <tr><td>UDP + all independent expenditures</td><td>IE bulk files</td><td>%%COV_IE%%</td></tr>
-</tbody></table>
-<p>%%CYCLE%% is partial. Re-pull plan: mid-Dec 2026 (after the Dec 3 post-general deadline) and Feb 2027 (after the Jan 31 year-end deadline). A freshness layer reports late money (Form 6 48-Hour Notices, F24 24/48-hour IE) between pulls; it is never merged into these totals.</p>
-<h3>Known limitations — read before quoting a number</h3>
+</tbody>
+</table>
+<p>%%CYCLE%% is partial, and the cutoff differs by column family — figures from different families are not directly comparable, and current-cycle totals rise and get amended at each re-pull. Do not compare %%CYCLE%% figures head-to-head with full cycles.</p>
 <ul>
-<li><b>%%CYCLE%% is partial</b> (see cutoffs above). Do not compare %%CYCLE%% figures head-to-head with full cycles.</li>
-<li><b>Elaine Luria is unverified, not clean and not dirty</b> — her real %%CYCLE%% campaign (H6VA02198, $8.04M receipts) is unlinked; linking it is a roster change.</li>
-<li><b>Melissa Bean and Hilda Solis</b> show $0 individual contributions in %%CYCLE%% alongside real corporate PAC money — a missing-committee-linkage gap, not a real zero.</li>
-<li><b>Alan Armstrong</b> (appointed senator, never ran) has no FEC record: all money cells read “unknown,” not zero, and he is unranked.</li>
-<li><b>All-IE “career” means %%IE_SPAN%% only.</b> The 2010–2020 IE files are not staged.</li>
-<li><b>Weball is a lower bound where the FEC API runs ahead</b> (Constantino: weball loans $14.4M vs API $17M). The freshness layer closes that gap for late money.</li>
-<li><b>Weball double-count corrected:</b> where weball repeats an identical individual-contribution total under a chamber-switcher’s House and Senate IDs in the same cycle, it is counted once ($451,776,015.34 across 32 persons).</li>
-<li><b>UDP reconciliation:</b> the deduped 2024 UDP total is $38,044,932.69 vs OpenSecrets’ $37,860,200 (+0.49%, unresolved).</li>
-<li><b>16 people who served in the 119th but left before Nov 2026 are excluded</b> (Vance, Rubio, Graham, D. Scott, Turner, Grijalva, Connolly, Green, Sherrill, Greene, LaMalfa, Gonzales, Swalwell, Cherfilus-McCormick, Mullin, Waltz). 5 seats are TBD/uncalled; 120th results are media calls, uncertified; 120th leadership is TBD (elections Nov 18–19, 2026).</li>
-<li><b>Opposition credit is conservative:</b> race = cycle + office + state + district + election phase (primary / general / other, from the filing's ele_type — expenditure dates are blank on UDP rows, so no date split is possible); credit only when UDP backed exactly one candidate in that phase of the race.</li>
+<li><strong>Leadership PACs and joint fundraising committees are partly out of the headline.</strong> A leader’s leadership-PAC money is tracked in its own other-committee column, not in their total accepted or dirty money — so, as OpenSecrets’ own reporting warns for candidate pages, the headline understates what a leader’s network raises. Joint fundraising shares from conduits count as direct under the headline rule (§3); the excluded variant is carried in parallel.</li>
+<li><strong>The FEC amends filings and files late.</strong> Totals move at each re-pull as reports arrive and corrections land. The summary file is a lower bound where the FEC API runs ahead of the bulk files; a freshness layer reports late money (48-hour notices, 24/48-hour independent expenditures) between pulls and is never merged into these totals.</li>
+<li><strong>Some spenders cannot be attributed by ID.</strong> A few large spenders file the candidate ID blank throughout, so their spending is excluded from the published all-IE totals; their name-resolvable amounts are reported as a diagnostic, never added to a published total.</li>
+<li><strong>Pro-Israel PAC money undercounts bundling.</strong> A listed PAC acting as a conduit forwards individuals’ earmarked checks with no candidate ID, which neither bulk file carries; the API merge covers the main conduits for recent cycles, and ambiguous recipient names stay unattributed. The list is Track AIPAC’s, as published; whether a listed committee belongs on it is their judgement, and their donor-matching layer is not reproduced here — so these columns are a lower bound of Track AIPAC’s totals.</li>
+<li><strong>Roster-linkage gaps are not derivation errors.</strong> Money filed under a candidate ID the roster does not link does not attach to the person, in either direction. Elaine Luria is unverified, not clean and not dirty — her real %%CYCLE%% campaign runs under a candidate ID the roster does not link, and linking it is a roster change. Two members show $0 individual contributions alongside real corporate PAC money — a missing-committee-linkage gap, not a real zero. An appointed senator who never ran has no FEC record: all money cells read “unknown,” not zero, and they are unranked.</li>
+<li><strong>120th results are media calls, uncertified;</strong> uncalled seats read as unknown. Members who left before the roster was crawled are not included — the roster is current members plus the incoming Congress, not everyone who served in the 119th.</li>
+<li><strong>All-IE “career” means %%IE_SPAN%% only.</strong> The earlier IE files are not staged. A negative career total is kept as computed — it arises when a later filing voids contributions whose originals are not in the file — and ranks as filed.</li>
+<li><strong>Reconciliation gaps stay open, not adjusted.</strong> The AIPAC and UDP totals do not reconcile to the dollar with OpenSecrets, and a few other-committee reconciliations carry unexplained residuals. No figure is ever adjusted to force a match; the gaps are documented in methodology.md §8.</li>
 </ul>
-<h3>Sources &amp; reproducibility</h3>
-<p>FEC bulk files are the source of truth for every figure; the FEC API was used for spot-checks; OpenSecrets is a cross-check only. The full method, reconciliation tables, and every limitation are in <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>. The pipeline that builds this dataset is scripted (<code>python3 receipts/rebuild.py</code>) and reproduces the committed dataset byte-identically; this page is generated from that dataset (plus the race-level opposition-credit record in <code>data/intermediate/opposition-computed.json</code>, shown in the drill-down) by <code>receipts/site/build_site.py</code> — never hand-edited.</p>
+</section>
+
+<section id="updates" class="method-section">
+<h2>6. Updates &amp; corrections</h2>
+<p>%%STAMP%%</p>
+<p><strong>Re-pull plan.</strong> After each FEC filing deadline that closes the cycle — the post-general report, then the year-end report — a new pinned snapshot is published and the dataset is rebaselined: every figure that moved is reviewed, old next to new, before it reaches the site. The freshness layer covers the gap between the bulk coverage end and each re-pull; after each re-pull it starts fresh — freshness figures are never carried forward into the dataset.</p>
+<p><strong>Corrections.</strong> When a figure is corrected, the correction note goes on every page that showed the wrong figure — the Story, Explore and this page — not only on the page where the error was found. A rule change lands in methodology.md in the same change as the data, and the counts on this page are recomputed from the dataset at build time, so a corrected dataset corrects every surface at once.</p>
+<p><strong>How to check our work.</strong> The dataset (<code>congress-money-tracker.csv</code> / <code>.json</code>), the per-cycle records and the full method are public in <a href="https://github.com/craigSochocki/the-receipts">the repository</a>. Every figure on this site traces to an FEC filing; if a number looks wrong, the filing — not this page — is the place to check it.</p>
+</section>
+
+<footer class="method-footer">
+<p>This page is condensed from <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>, which is authoritative. Back to the <a href="../">Story</a> · <a href="../explore/">Explore the data</a></p>
+<p class="method-source">Source: FEC filings, via the pinned bulk snapshot named in <code>data/source/baseline.json</code>. OpenSecrets is a cross-check only.</p>
+</footer>
+</article>

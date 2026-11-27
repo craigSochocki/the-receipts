@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate docs/index.html from templates/ and the dataset; never hand-edit the output."""
+"""Generate the three site pages from templates/ and the dataset; never hand-edit the output."""
 
 import csv
 import hashlib
@@ -14,7 +14,8 @@ from receipts.common.settings import settings
 from receipts.domain.clean_2026 import is_career_clean, is_not_dirty
 from receipts.domain.seats import regular_senate_class
 from receipts.site.expectations import latest
-from receipts.site.static_render import render_story_slots, render_table_slots
+from receipts.site.static_explore import render_explore_slots
+from receipts.site.static_render import render_story_slots
 from receipts.store.read import connect
 from receipts.transform.compute_2026 import cycle_fields
 
@@ -260,27 +261,54 @@ def vendor_script(name):
     return path.read_text(encoding='utf-8')
 
 
-def page_template():
-    """templates/page.html with its stylesheet and scripts inlined: the page is one file.
+def script_tag(src):
+    return f'<script>{src}</script>'
 
-    The vendored libraries come first (d3, then Plot on the d3 global,
-    then scrollama), then the tracker's own scripts.
+
+def json_tag(script_id, payload):
+    return f'<script id="{script_id}" type="application/json">{safe_json(payload)}</script>'
+
+
+# Nav hrefs per page: the site is served from the docs/ root, the Story
+# at the root and Explore / Methodology one level down.
+NAV = {
+    'story': {
+        '%%NAV_STORY%%': './',
+        '%%NAV_EXPLORE%%': 'explore/',
+        '%%NAV_METHOD%%': 'methodology/',
+        '%%NAV_SEARCH%%': 'explore/#search',
+    },
+    'explore': {
+        '%%NAV_STORY%%': '../',
+        '%%NAV_EXPLORE%%': './',
+        '%%NAV_METHOD%%': '../methodology/',
+        '%%NAV_SEARCH%%': '#search',
+    },
+    'methodology': {
+        '%%NAV_STORY%%': '../',
+        '%%NAV_EXPLORE%%': '../explore/',
+        '%%NAV_METHOD%%': './',
+        '%%NAV_SEARCH%%': '../explore/#search',
+    },
+}
+
+
+def assemble(body, page_style, vendor_scripts, page_scripts, nav):
+    """The shared shell around one page's body fragment.
+
+    The shell's own slots are filled before the body goes in, so slot
+    names mentioned inside a fragment (its wiring comments) are never
+    expanded by mistake.
     """
-    page = template('page.html')
-    for slot, name in (
-        ('%%D3_JS%%', 'd3.min.js'),
-        ('%%PLOT_JS%%', 'plot.umd.min.js'),
-        ('%%SCROLLAMA_JS%%', 'scrollama.min.js'),
-    ):
-        page = page.replace(slot, vendor_script(name))
-    for slot, name in (
-        ('%%STYLE%%', 'style.css'),
-        ('%%TRACKER_JS%%', 'tracker.js'),
-        ('%%VIEWS_JS%%', 'views.js'),
-        ('%%STORY_JS%%', 'story.js'),
-    ):
-        page = page.replace(slot, template(name))
-    return page
+    html = template('shell.html')
+    html = html.replace('%%STYLE%%', template('style.css'))
+    html = html.replace('%%PAGE_STYLE%%', page_style)
+    html = html.replace('%%VENDOR_SCRIPTS%%', vendor_scripts)
+    html = html.replace('%%PAGE_SCRIPTS%%', page_scripts)
+    html = html.replace('%%BODY%%', body)
+    for token, href in nav.items():
+        html = html.replace(token, href)
+    return html
 
 
 def human_list(names):
@@ -367,6 +395,22 @@ def preset_tokens(incoming, house):
     }
 
 
+def fmt_date(iso):
+    return datetime.strptime(iso, '%Y-%m-%d').strftime('%b %d, %Y')
+
+
+def preset_value_tokens():
+    """The tolerance thresholds and the next FEC update, as the methodology page states them."""
+    presets = settings().verification.tolerance_presets
+    return {
+        '%%BALANCED_CORP_AMOUNT%%': f'${presets["balanced"].corp_amount:,}',
+        '%%BALANCED_CORP_SHARE%%': f'{presets["balanced"].corp_share * 100:g}%',
+        '%%LENIENT_CORP_AMOUNT%%': f'${presets["lenient"].corp_amount:,}',
+        '%%LENIENT_CORP_SHARE%%': f'{presets["lenient"].corp_share * 100:g}%',
+        '%%NEXT_FEC_UPDATE%%': fmt_date(settings().verification.next_repull),
+    }
+
+
 def method_tokens(dataset):
     """Every figure and sentence the methodology clean paragraph shows."""
     incoming = [r for r in dataset if r['in_120th'] == 'yes']
@@ -380,10 +424,10 @@ def method_tokens(dataset):
     }
 
 
-def clean_method_html(dataset):
-    """The methodology clean paragraph, every figure computed from the dataset."""
+def method_html(dataset):
+    """The Methodology page body: the fragment with every token computed."""
     html = template('method.html')
-    for token, value in method_tokens(dataset).items():
+    for token, value in {**method_tokens(dataset), **preset_value_tokens()}.items():
         html = html.replace(token, value)
     return html
 
@@ -397,6 +441,57 @@ def cycle_tokens():
         '%%CAREER_END%%': str(cycles.career_end),
         '%%IE_SPAN%%': f'{cycles.ie[0]}–{cycles.ie[-1]}',
     }
+
+
+def shared_tokens(dataset_md5, data_as_of, generated_at):
+    """Tokens every page carries: the stamp, the freshness line, the cycle labels.
+
+    Coverage end dates come from config.yaml verification.coverage_end —
+    never hardcoded here. The stamp reuses the exact "Generated <ts>"
+    string, so the verifier's strip_ts regex normalizes every
+    occurrence and the generator stays deterministic apart from that
+    timestamp.
+    """
+    coverage = asdict(settings().verification.coverage_end)
+    stamp = (
+        'Data as of \u2014 committee money through '
+        f'{fmt_date(coverage["committee_money_pas2"])}; '
+        'individual / self-funding / topline through '
+        f'{fmt_date(coverage["weball"])}; '
+        'independent expenditures through '
+        f'{fmt_date(coverage["independent_expenditures"])}. '
+        f'{settings().cycles.current} is partial. Generated {generated_at}.'
+    )
+    # Freshness line: one line, from the same config dates — the latest
+    # coverage end across families, never a typed date.
+    fresh_line = (
+        'Data through '
+        f'{fmt_date(max(coverage.values()))}'
+        f' \u2014 {settings().cycles.current} is partial. Full coverage dates in the methodology.'
+    )
+    return {
+        **cycle_tokens(),
+        '%%DATASET_MD5%%': dataset_md5,
+        '%%DATA_AS_OF%%': data_as_of,
+        '%%STAMP%%': stamp,
+        '%%COV_PAS2%%': fmt_date(coverage['committee_money_pas2']),
+        '%%COV_WEBALL%%': fmt_date(coverage['weball']),
+        '%%COV_IE%%': fmt_date(coverage['independent_expenditures']),
+        '%%FRESH_LINE%%': fresh_line,
+        '%%GENERATED_AT%%': generated_at,
+    }
+
+
+def finish(html, shared):
+    for token, value in shared.items():
+        html = html.replace(token, value)
+    return html
+
+
+def write_page(path, html):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(html, encoding='utf-8')
+    log.info(f'wrote {path} ({path.stat().st_size} bytes)')
 
 
 def main():
@@ -428,60 +523,48 @@ def main():
         'csv': csv_cols,
     }
     dataset_md5 = hashlib.md5(settings().paths.dataset_json.read_bytes()).hexdigest()
-    data_as_of = sorted({r.get('data_as_of', '') for r in dataset})
-    # Visible data-as-of stamp (header). Coverage end dates come from
-    # config.yaml verification.coverage_end — never hardcoded here.
-    # The build time reuses the exact "Generated <ts>" string the footer
-    # uses, so the verifier's strip_ts regex normalizes both occurrences
-    # and the generator stays deterministic apart from that timestamp.
-    coverage = asdict(settings().verification.coverage_end)
-
-    def fmt_cov(iso):
-        return datetime.strptime(iso, '%Y-%m-%d').strftime('%b %d, %Y')
-
+    data_as_of = ', '.join(sorted({r.get('data_as_of', '') for r in dataset}))
     generated_at = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
-    stamp = (
-        'Data as of \u2014 committee money through '
-        f'{fmt_cov(coverage["committee_money_pas2"])}; '
-        'individual / self-funding / topline through '
-        f'{fmt_cov(coverage["weball"])}; '
-        'independent expenditures through '
-        f'{fmt_cov(coverage["independent_expenditures"])}. '
-        f'{settings().cycles.current} is partial. Generated {generated_at}.'
+    shared = shared_tokens(dataset_md5, data_as_of, generated_at)
+    site_dir = settings().paths.site
+
+    vendor = ''.join(
+        script_tag(vendor_script(name))
+        for name in ('d3.min.js', 'plot.umd.min.js', 'scrollama.min.js')
     )
-    # Front-door freshness line: one line, from the same config dates —
-    # the latest coverage end across families, never a typed date.
-    fresh_line = (
-        'Data through '
-        f'{fmt_cov(max(coverage.values()))}'
-        f' \u2014 {settings().cycles.current} is partial. Full coverage dates in the methodology.'
+    story = assemble(
+        render_story_slots(template('story.html'), dataset),
+        '',
+        vendor,
+        script_tag(template('story.js')),
+        NAV['story'],
     )
-    html = page_template()
-    html = html.replace('%%METHOD_HTML%%', clean_method_html(dataset))
-    html = render_story_slots(html, dataset)
-    html = render_table_slots(html, dataset)
-    for token, value in cycle_tokens().items():
-        html = html.replace(token, value)
-    html = html.replace('%%COLS_JSON%%', safe_json(cols_payload))
-    html = html.replace('%%DATA_JSON%%', safe_json(rows))
-    html = html.replace('%%OPP_JSON%%', safe_json(opp_payload))
-    html = html.replace(
+    story = story.replace(
         '%%US_STATES_JSON%%', settings().paths.us_states_geometry.read_text().strip()
     )
-    html = html.replace(
+    story = story.replace(
         '%%US_DISTRICTS_JSON%%', settings().paths.us_districts_geometry.read_text().strip()
     )
-    html = html.replace('%%DATASET_MD5%%', dataset_md5)
-    html = html.replace('%%DATA_AS_OF%%', ', '.join(data_as_of))
-    html = html.replace('%%STAMP%%', stamp)
-    html = html.replace('%%COV_PAS2%%', fmt_cov(coverage['committee_money_pas2']))
-    html = html.replace('%%COV_WEBALL%%', fmt_cov(coverage['weball']))
-    html = html.replace('%%COV_IE%%', fmt_cov(coverage['independent_expenditures']))
-    html = html.replace('%%FRESH_LINE%%', fresh_line)
-    html = html.replace('%%GENERATED_AT%%', generated_at)
-    settings().paths.site.mkdir(parents=True, exist_ok=True)
-    out = settings().paths.site / 'index.html'
-    out.write_text(html, encoding='utf-8')
+    write_page(site_dir / 'index.html', finish(story, shared))
+
+    explore_scripts = (
+        json_tag('receipts-cols', cols_payload)
+        + json_tag('receipts-data', rows)
+        + json_tag('opp-data', opp_payload)
+        + script_tag(template('explore.js'))
+    )
+    explore = assemble(
+        render_explore_slots(template('explore.html'), dataset),
+        template('explore.css'),
+        '',
+        explore_scripts,
+        NAV['explore'],
+    )
+    write_page(site_dir / 'explore' / 'index.html', finish(explore, shared))
+
+    methodology = assemble(method_html(dataset), template('method.css'), '', '', NAV['methodology'])
+    write_page(site_dir / 'methodology' / 'index.html', finish(methodology, shared))
+
     log.info(f'rows: {len(rows)}')
     log.info(f'dataset md5: {dataset_md5}')
     log.info(f'embedded payload bytes: {len(safe_json(rows))}')
@@ -489,7 +572,6 @@ def main():
         f'opposition detail: {len(opp_payload)} persons, '
         f'{sum(len(v) for v in opp_payload.values())} race-phases'
     )
-    log.info(f'wrote {out} ({out.stat().st_size} bytes)')
 
 
 if __name__ == '__main__':

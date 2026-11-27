@@ -1,6 +1,8 @@
-// Loads the shipped site scripts (receipts/site/templates/tracker.js,
-// views.js, story.js) in a Node vm context with a stubbed document, so the
+// Loads the shipped site scripts (receipts/site/templates/explore.js,
+// story.js) in a Node vm context with a stubbed document, so the
 // JS unit tests exercise the exact code the page embeds — never a copy.
+// explore.js loads first: story.js reads tierOf / primaryTargets from
+// it, and explore.js ends with init().
 //
 // Run: node --test "receipts/site/tests/*.test.mjs"
 // (the bare directory form does not work on this Node build: it tries to
@@ -33,7 +35,22 @@ export const SCALARS = [
   'person_key', 'full_name', 'state', 'district_119', 'district_120',
   'chamber_119', 'chamber_120', 'party_119', 'party_120', 'leadership_119',
   'leadership_120', 'in_119th', 'in_120th', 'fec_candidate_ids', 'senate_class',
-  'verdict_cycle', 'clean', 'dirty', 'tier_balanced', 'tier_lenient',
+  'individual_contribution_total_career', 'aipac_pac_direct_career',
+  'aipac_earmark_transmitted_career', 'corporate_pac_career',
+  'corporate_earmark_transmitted_career', 'udp_ie_support_career',
+  'udp_ie_opposing_opponents_career', 'udp_ie_total_benefit_career',
+  'cand_contrib_career', 'cand_loans_career', 'self_funding_career',
+  'loan_repayments_career', 'debts_owed_by_career', 'total_receipts_career',
+  'total_disbursements_career', 'cash_on_hand_career',
+  'other_committees_total_career', 'all_ie_support_career',
+  'all_ie_oppose_career', 'all_ie_total_career', 'pro_israel_pac_career',
+  'pro_israel_ie_support_career', 'pro_israel_opp_credit_career',
+  'total_accepted_career', 'rank_total_accepted', 'rank_individual',
+  'rank_corporate_pac', 'rank_aipac_direct', 'rank_udp_support',
+  'rank_udp_opposing_opponents', 'rank_udp_total_benefit', 'rank_self_funding',
+  'rank_all_ie_support', 'rank_all_ie_oppose', 'rank_all_ie_total',
+  'rank_other_committees_total', 'dirty_career', 'verdict_cycle', 'clean',
+  'dirty', 'tier_balanced', 'tier_lenient', 'data_notes', 'data_as_of',
 ];
 const PC = [
   'cycle', 'candidate_id', 'individual', 'aipac_pac_direct',
@@ -83,6 +100,10 @@ const ALICE = person(
     leadership_120: null, in_119th: 'yes', in_120th: 'yes',
     fec_candidate_ids: ['H4MI08123'], senate_class: null, verdict_cycle: 2024,
     clean: true, dirty: 14700, tier_balanced: 'clean', tier_lenient: 'clean',
+    individual_contribution_total_career: 500000, aipac_pac_direct_career: 2000,
+    corporate_pac_career: 12000, udp_ie_total_benefit_career: 700,
+    total_accepted_career: 514000, dirty_career: 14700,
+    rank_total_accepted: 1, rank_aipac_direct: 1,
   },
   [
     cycleRow(2022, { corp: 100, individual: 1000, dirty: 100, clean: false,
@@ -121,6 +142,9 @@ const CAROL = person(
     leadership_120: null, in_119th: 'yes', in_120th: 'yes',
     fec_candidate_ids: ['S4CA00123'], senate_class: 2, verdict_cycle: 2026,
     clean: true, dirty: 0, tier_balanced: 'clean', tier_lenient: 'clean',
+    individual_contribution_total_career: 200000, aipac_pac_direct_career: 0,
+    corporate_pac_career: 0, udp_ie_total_benefit_career: 0,
+    total_accepted_career: 200000, dirty_career: 0, rank_total_accepted: 3,
   },
   [cycleRow(2026, { individual: 200000, dirty: 0, clean: true,
     tier_balanced: 'clean', tier_lenient: 'clean', dep_share: 0,
@@ -135,6 +159,9 @@ const DAVE = person(
     fec_candidate_ids: ['H4TX03123'], senate_class: null, verdict_cycle: 2024,
     clean: false, dirty: 60000, tier_balanced: 'below_threshold',
     tier_lenient: 'clean',
+    individual_contribution_total_career: 400000, aipac_pac_direct_career: 0,
+    corporate_pac_career: 60000, udp_ie_total_benefit_career: 0,
+    total_accepted_career: 460000, dirty_career: 60000, rank_total_accepted: 2,
   },
   [cycleRow(2024, { corp: 60000, individual: 400000, dirty: 60000, clean: false,
     tier_balanced: 'below_threshold', tier_lenient: 'clean', dep_share: 0.12,
@@ -148,6 +175,9 @@ const EVE = person(
     leadership_120: null, in_119th: 'yes', in_120th: 'yes',
     fec_candidate_ids: ['S4NY00123'], senate_class: 1, verdict_cycle: 2026,
     clean: false, dirty: 9000, tier_balanced: 'dirty', tier_lenient: 'dirty',
+    individual_contribution_total_career: 100000, aipac_pac_direct_career: 0,
+    corporate_pac_career: 9000, udp_ie_total_benefit_career: 0,
+    total_accepted_career: 109000, dirty_career: 9000, rank_total_accepted: 4,
   },
   [cycleRow(2026, { corp: 9000, individual: 100000, dirty: 9000, clean: false,
     tier_balanced: 'dirty', tier_lenient: 'dirty', dep_share: 0.075,
@@ -203,8 +233,10 @@ function makeElement() {
   };
 }
 
-/** Load the shipped scripts into a fresh vm context and run init(). */
-export function loadPage() {
+/** Load the shipped scripts into a fresh vm context and run init().
+ *  `options.search` / `options.hash` set the page URL before init, so
+ *  tests can pin URL-driven behaviour (?member=, #search). */
+export function loadPage(options = {}) {
   const byId = new Map();
   const payloads = {
     'receipts-cols': COLS,
@@ -229,13 +261,21 @@ export function loadPage() {
     documentElement: makeElement(),
     body: makeElement(),
   };
-  const locationStub = { hash: '', pathname: '/' };
+  const locationStub = { hash: options.hash || '', search: options.search || '', pathname: '/explore/' };
   const historyStub = {
     replaceState(_state, _title, url) {
-      if (typeof url === 'string') locationStub.hash = url === '#' ? '' : url;
+      if (typeof url === 'string') {
+        const q = url.indexOf('?');
+        locationStub.search = q >= 0 ? url.slice(q) : '';
+        locationStub.hash = '';
+      }
     },
     pushState(_state, _title, url) {
-      if (typeof url === 'string') locationStub.hash = url === '#' ? '' : url;
+      if (typeof url === 'string') {
+        const q = url.indexOf('?');
+        locationStub.search = q >= 0 ? url.slice(q) : '';
+        locationStub.hash = '';
+      }
     },
   };
   const sandbox = {
@@ -248,11 +288,10 @@ export function loadPage() {
   };
   sandbox.window = sandbox;
   const ctx = vm.createContext(sandbox);
-  // Page order (templates/page.html): tracker.js, then story.js, then
-  // views.js — views.js ends with init(), which calls initStory().
-  vm.runInContext(read('tracker.js'), ctx, { filename: 'tracker.js' });
+  // Page order: explore.js first (it ends with init()), then story.js
+  // for the mirrors of its pure helpers (partyLabelPlan, stepAtScroll).
+  vm.runInContext(read('explore.js'), ctx, { filename: 'explore.js' });
   vm.runInContext(read('story.js'), ctx, { filename: 'story.js' });
-  vm.runInContext(read('views.js'), ctx, { filename: 'views.js' });
   return {
     ctx,
     /** Evaluate an expression inside the page context. */

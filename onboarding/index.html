@@ -415,9 +415,9 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
     </li>
     <li class="l-site">
       <div class="body">
-        <span class="tag">Website · docs/index.html</span>
-        <h3>The page embeds the dataset and draws it</h3>
-        <p><code>site/build_site.py</code> fills the HTML templates and embeds all 664 rows, so the page needs no server. <code>verify_site.py</code> then decodes the embedded copy and checks that it matches the dataset field by field. A reader who opens Soto's row sees the same $310,236.17, and can follow it back through every step above.</p>
+        <span class="tag">Website · docs/ (three pages)</span>
+        <h3>The pages embed the dataset and draw it</h3>
+        <p><code>site/build_site.py</code> fills the shared shell and the three page templates — the Story, Explore and Methodology — so the site needs no server. Explore embeds all 664 rows; the Story embeds precomputed aggregates computed from the same dataset. <code>verify_site.py</code> then decodes the embedded copies and checks that they match the dataset field by field. A reader who opens Soto's row in Explore sees the same $310,236.17, and can follow it back through every step above.</p>
       </div>
     </li>
   </ol>
@@ -526,7 +526,7 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
 │  ├─ <span class="dot" style="background:var(--silver)"></span><span class="d">store/</span>              <span class="n">builds the DuckDB store; one script per money type</span>
 │  ├─ <span class="dot" style="background:var(--data)"></span><span class="d">transform/</span>          <span class="n">roster, 2026 columns, writes the dataset</span>
 │  ├─ <span class="dot" style="background:var(--clean)"></span><span class="d">validate/</span>           <span class="n">run checks and the standing audits</span>
-│  ├─ <span class="dot" style="background:var(--site)"></span><span class="d">site/</span>               <span class="n">templates, build_site.py, verify_site.py</span>
+│  ├─ <span class="dot" style="background:var(--site)"></span><span class="d">site/</span>               <span class="n">shell + story, explore and method templates and their styles; build_site.py, verify_site.py</span>
 │  ├─ <span class="dot" style="background:var(--raw)"></span><span class="d">ingest/</span>             <span class="n">"freshness": late money from the live API, never merged in</span>
 │  └─ rebuild.py          <span class="n">the one command that runs everything</span>
 ├─ <span class="d">dbt/</span>                     <span class="n">SQL models and tests over the store</span>
@@ -536,7 +536,7 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
 │  ├─ intermediate/       <span class="n">regenerated scratch files, not in git</span>
 │  └─ snapshots/          <span class="n">local backups of the dataset (not in git)</span>
 ├─ <span class="dot" style="background:var(--data)"></span>congress-money-tracker.json / .csv   <span class="n">the dataset</span>
-├─ <span class="dot" style="background:var(--site)"></span><span class="d">docs/</span>index.html          <span class="n">the live site (generated)</span>
+├─ <span class="dot" style="background:var(--site)"></span><span class="d">docs/</span>index.html, explore/index.html, methodology/index.html   <span class="n">the live site, three pages (generated)</span>
 ├─ <span class="d">tests/</span>                   <span class="n">unit tests, plus the complexity and settings guards</span>
 ├─ config.yaml              <span class="n">every shared value, in one place</span>
 └─ AGENTS.md · methodology.md · STATUS.md   <span class="n">the rules · the definitions · where things stand</span></div>
@@ -580,7 +580,7 @@ Money.parse(<span class="s">'5000'</span>)   <span class="c"># -&gt; Money(cents
   <h2>House rules</h2>
   <p class="col">The full contract is <code>AGENTS.md</code>. These are the ones people trip on in their first week.</p>
   <ul class="rules">
-    <li><b>Never hand-edit generated files</b><span>The dataset, <code>data/intermediate/</code> and <code>docs/index.html</code> are rebuilt from code. Change the code instead.</span></li>
+    <li><b>Never hand-edit generated files</b><span>The dataset, <code>data/intermediate/</code> and the generated pages under <code>docs/</code> (<code>index.html</code>, <code>explore/index.html</code>, <code>methodology/index.html</code>) are rebuilt from code. Change the code instead.</span></li>
     <li><b>Never invent a figure</b><span>If a value isn't in a source you can cite, say you don't have it. If a route is blocked, write down the blocker.</span></li>
     <li><b>One change per commit</b><span>Each commit does one thing and names it (<code>fix(dedup): …</code>), so the history stays auditable.</span></li>
     <li><b>New rule, same change, in the docs</b><span>A new column or definition lands in <code>methodology.md</code> in the same change as the data.</span></li>
