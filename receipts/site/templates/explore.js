@@ -362,7 +362,7 @@ function groupedCmp(a, b){
   if(pa!==pb) return pa-pb;
   const fa = a.cy_aipac_udp_flag===true ? 0 : 1, fb = b.cy_aipac_udp_flag===true ? 0 : 1;
   if(fa!==fb) return fa-fb;
-  const d = cmpVal(b.cy_dirty, a.cy_dirty, 'desc');
+  const d = cmpVal(a.cy_dirty, b.cy_dirty, 'desc');
   return d!==0 ? d : a.full_name.localeCompare(b.full_name);
 }
 function groupedOrder(rows){
