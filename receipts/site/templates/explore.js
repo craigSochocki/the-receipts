@@ -1434,10 +1434,11 @@ function init(){
   const stateSel = document.getElementById('f-state');
   if(stateSel) stateSel.innerHTML = '<option value="all">All states</option>'
     + states.map(s=>'<option value="'+esc(s)+'">'+esc(s)+'</option>').join('');
-  renderOverview(); renderColumnChooser(); renderTable();
   // The URL is the state — restore view, filters, preset, page and
-  // the open drawer from it on load; #search focuses the field.
+  // the open drawer from it BEFORE the first render, so renderTable's
+  // URL sync cannot wipe ?member= / filters before they are read.
   applyUrl();
+  renderOverview(); renderColumnChooser(); renderTable();
   if(typeof window!=='undefined' && typeof window.addEventListener==='function'){
     window.addEventListener('popstate', ()=>applyUrl());
   }
