@@ -1,225 +1,346 @@
-
-:root{--ink:#1a1a1a;--muted:#5b5b5b;--line:#d8d8d8;--bg:#fff;--soft:#f4f4f2;--accent:#14532d;--accent-soft:#e8f3ec;--chip:#eef2f7}
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45}
-/* Skip links: hidden above the viewport until focused, then a row at
-   the top. The first link jumps to the data workspace; the others to
-   the story and the table. (The data link's href names the workspace
-   element; the script still routes it into Explore mode.) */
-.skip-links{position:absolute;left:16px;top:-60px;z-index:100;display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100vw - 32px)}
-.skip-links:focus-within{top:0}
-.skip-link{background:var(--ink);color:#fff;padding:10px 14px;border-radius:0 0 8px 8px;text-decoration:none;font-size:.95rem}
-header{padding:20px 16px 12px;max-width:1120px;margin:0 auto}
-h1{font-size:1.15rem;margin:0 0 4px;letter-spacing:-.01em}
-h1 a{color:inherit;text-decoration:none}
-h1 a:hover{text-decoration:underline}
-.sub{color:var(--muted);margin:0 0 12px;max-width:60ch}
-.stamp{font-size:.9rem;background:var(--soft);border-left:4px solid var(--ink);border-radius:0 8px 8px 0;padding:8px 12px;margin:0 0 10px}
-.stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.stat{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
-.stat b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
-.cutoffs{font-size:.82rem;color:var(--muted);margin:6px 0 0}
-.cutoffs b{color:var(--ink)}
-details.cutoffs summary{cursor:pointer;font-weight:600}
-details.cutoffs p{margin:6px 0 0}
-/* U1 (leftovers): the tab bar sticks in Explore only — the tabs are
-   hidden in front-door mode anyway, so there is nothing to stick
-   there. The background keeps table rows from showing through the
-   strip's gaps while it sticks. */
-.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;max-width:1120px;margin:0 auto;padding:0 16px;scrollbar-width:thin;position:sticky;top:0;z-index:10;background:var(--bg)}
-.tabs button{flex:none;border:1px solid var(--line);background:var(--bg);border-radius:8px 8px 0 0;border-bottom:none;padding:10px 14px;font-size:.95rem;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
-main{max-width:1120px;margin:0 auto;padding:16px}
-section[hidden]{display:none}
-#front-door[hidden],#explore-head[hidden],#tabs-nav[hidden],main[hidden],footer[hidden]{display:none}
-.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
-.controls-rows{flex-direction:column;align-items:stretch}
-.controls-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.controls-label{font-size:.9rem;font-weight:700}
-.controls input[type="search"],.controls select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px}
-.controls input[type="search"]{flex:1 1 200px}
-.controls label{font-size:.9rem;display:flex;align-items:center;gap:5px}
-.btn{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;min-height:40px}
-.btn.ghost{background:#fff;color:var(--ink)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-.chips:empty{display:none}
-.chip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:5px 11px;font-size:.85rem;cursor:pointer}
-.chip.reset{background:#fff;border-color:var(--ink);font-weight:600}
-.viewbtns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
-.viewbtns button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:.88rem;cursor:pointer}
-.viewbtns button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
-.totals{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
-.totals .t{background:var(--chip);border-radius:8px;padding:7px 11px;font-size:.88rem}
-.totals .t b{display:block;font-size:1rem;font-variant-numeric:tabular-nums}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
-table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px;font-variant-numeric:tabular-nums}
-th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-th{position:sticky;top:0;background:var(--soft);cursor:pointer;user-select:none}
-:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
-tbody tr{cursor:pointer}
-tbody tr:hover{background:#f7f9f7}
-td.name{font-weight:600;white-space:normal;min-width:150px}
-.name-btn{background:none;border:none;padding:0;font:inherit;font-weight:600;text-align:left;cursor:pointer;color:inherit}
-.name-btn:hover{text-decoration:underline}
-.badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.8rem;font-weight:600}
-.badge.clean{background:var(--accent-soft);color:var(--accent)}
-.badge.dirty{background:var(--ink);color:#fff}
-.badge.unver{background:#f3f3f3;color:var(--muted)}
-.badge.unopp{background:#fff3d6;color:#7a5b00}
-.badge.below{background:#fef3c7;color:#92400e}
-.badge.flag{background:#ede9fe;color:#5b21b6}
-.tol-note{font-size:.88rem;color:var(--muted)}
-.pchip{display:inline-block;min-width:1.35em;text-align:center;padding:0 6px;border-radius:999px;font-size:.8rem;font-weight:700;line-height:1.55;vertical-align:1px}
-.pchip.d{background:#dbeafe;color:#1e40af}
-.pchip.r{background:#fee2e2;color:#991b1b}
-.pchip.o{background:#e5e7eb;color:#374151}
-footer{max-width:1120px;margin:24px auto;padding:0 16px 32px;color:var(--muted);font-size:.85rem}
-.foot-totals{font-size:.9rem;color:var(--ink);margin-bottom:8px}
-.detail{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:50}
-.detail.open{display:block}
-.detail .sheet{position:absolute;inset:auto 0 0 0;max-height:92vh;overflow-y:auto;background:#fff;border-radius:14px 14px 0 0;padding:20px 16px 32px;max-width:900px;margin:0 auto}
-@media(min-width:700px){.detail .sheet{inset:5vh 0;max-height:90vh;border-radius:14px}}
-.detail h2{margin:0 0 2px}
-.detail .meta{color:var(--muted);margin:0 0 14px}
-.detail .detail-head{font-size:.95rem;margin:0 0 4px}
-.detail h3{margin:18px 0 6px;font-size:1.05rem}
-.detail .cycle summary{font-weight:600;font-size:1.05rem;margin:18px 0 6px;cursor:pointer}
-.detail table{min-width:0}
-.detail th{cursor:default}
-/* U10: one combined sticky header row in the sheet — name + prev/next
-   + Close — with the anchor nav under it. The sheet is the scroll
-   container, so sticky works here (unlike the table header, FE10). */
-.detail-top{position:sticky;top:0;background:#fff;display:flex;align-items:center;gap:8px;padding:10px 0 8px;z-index:2}
-.detail-top h2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
-.detail-actions{display:flex;gap:6px;flex:none}
-.detail-actions .btn{padding:4px 8px;font-size:.85rem}
-.detail-nav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 4px}
-.detail-nav .btn{padding:4px 8px;font-size:.85rem}
-.kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:.92rem}
-.kv div{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:4px 0}
-.kv span:first-child{color:var(--muted)}
-.notes{background:var(--soft);border-radius:8px;padding:10px 12px;font-size:.9rem}
-.leader{list-style:none;margin:0 0 20px;padding:0}
-.leader li{border-bottom:1px solid var(--line)}
-.leader-row{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;background:none;border:none;padding:8px 4px;font:inherit;cursor:pointer;color:inherit}
-.leader-row:hover{background:#f7f9f7}
-.leader li b{font-weight:600}
-.leader .amt{font-variant-numeric:tabular-nums;white-space:nowrap}
-.leader .who{color:var(--muted);font-size:.85rem}
-h2.sec{font-size:1.25rem;margin:4px 0 10px}
-.method h3{margin:16px 0 4px}
-.method p,.method li{font-size:.95rem}
-.method ul{padding-left:20px}
-.method table{min-width:0}
-.method th{cursor:default}
-.callout{background:var(--accent-soft);border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
-.frontdoor{max-width:680px;margin:0 auto;padding:4px 16px 40px}
-.frontdoor h2{font-size:1.3rem;letter-spacing:.02em;margin:32px 0 6px}
-.frontdoor .kicker{display:block;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
-.frontfoot{border-top:1px solid var(--line);padding-top:12px;margin-top:8px;color:var(--muted);font-size:.85rem}
-.frontdoor h2:first-child{margin-top:12px}
-/* Scrollytelling chapters: one chapter per beat of the story, revealed
-   as the reader scrolls (see initReveals). Chapters are visible by
-   default; the hidden-before-reveal state lives under html.js only,
-   so no-JS (or a failed observer) still shows every chapter. */
-.frontdoor .chapter{margin:0 0 48px}
-.frontdoor .chapter:first-child{margin-top:8px}
-html.js .chapter{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
-html.js .chapter.in{opacity:1;transform:none}
-@media (prefers-reduced-motion: reduce){
-html.js .chapter{opacity:1 !important;transform:none !important;transition:none !important}
+/* The Receipts — shared tokens and the Story front door.
+   Tokens and the story's look come from the wireframe proposal
+   (new-site-wireframe-proposal.html): flat paper, hairlines,
+   whitespace, no cards or shadows. Amber is the proposal's own
+   accent, never a data colour. Flagged is always the lighter tint
+   of the member's own party colour — never a third colour. */
+:root{
+  --paper:#faf8f3;
+  --paper-2:#f2eee4;
+  --ink:#1c1a16;
+  --ink-soft:#4c473e;
+  --ink-faint:#7d7668;
+  --hairline:#d9d2c2;
+  --hairline-strong:#b9b09a;
+  --accent:#a35a00;
+  --accent-soft:#f3e3c8;
+  --dem:#7d8aa5;
+  --dem-full:#3d5a80;
+  --dem-flagged:#a7bedd;
+  --rep:#c08a84;
+  --rep-full:#a63d40;
+  --rep-flagged:#e2aca6;
+  --grey-dot:#c9c2b2;
+  --good:#3f6b4f;
+  --radius:4px;
+  --measure:660px;
 }
-@media(max-width:560px){.hook{font-size:1.9rem}.detail .kv{grid-template-columns:1fr}}
-.hook{font-size:1.85rem;line-height:1.35;margin:8px 0 4px;font-weight:600;font-variant-numeric:tabular-nums}
-.fine{color:var(--muted);font-size:.88rem;margin:10px 0 0}
-.fresh{color:var(--muted);font-size:.88rem;margin:28px 0 12px}
-#explore-btn{width:100%}
-.linklike{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font:inherit;padding:2px 6px;margin:-2px -6px}
-.finder{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.finder-slot{margin:0 0 12px}
-.finder-slot summary{cursor:pointer;font-weight:600}
-.finder label{font-weight:600;font-size:.95rem}
-.finder select{padding:9px 10px;font-size:1rem;border:1px solid var(--line);border-radius:8px;background:#fff;min-height:40px;flex:1 1 160px}
-.finder .person-btn{white-space:normal;text-align:left}
-@media(max-width:560px){.finder select{flex:1 1 100%}.finder label{flex:1 1 100%}}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#171512;
+    --paper-2:#201d18;
+    --ink:#ece7da;
+    --ink-soft:#c4bda9;
+    --ink-faint:#948b78;
+    --hairline:#3a352b;
+    --hairline-strong:#57503f;
+    --accent:#e09a3c;
+    --accent-soft:#3a2d16;
+    --dem:#8fa3c4;
+    --dem-full:#7d9cc4;
+    --dem-flagged:#c3d5ee;
+    --rep:#d29a94;
+    --rep-full:#cf7a72;
+    --rep-flagged:#eec4be;
+    --grey-dot:#4a453a;
+    --good:#8fc09e;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *, *::before, *::after{transition:none !important; animation:none !important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-soft)}
+a{color:var(--accent); text-underline-offset:3px}
+a:focus-visible, button:focus-visible, select:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace}
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+main{display:block}
 
-/* The front-door story: a pinned graphic with text steps scrolling past it.
-   Pinned heights use svh, so mobile chrome toggling does not resize the
-   pin mid-scroll; no section spans the full viewport height and nothing hijacks the scroll. */
-.scrolly{position:relative}
-.scrolly-graphic{position:sticky;top:0;z-index:0;background:var(--bg);padding:8px 0}
-#story-plot svg{display:block;max-width:100%;height:auto;margin:0 auto}
-#story-plot p{font-size:.8rem;color:var(--muted);margin:4px 0 0}
-.dotfield{display:block;width:100%;height:auto;max-height:56svh;margin:0 auto}
-.dotfield circle{transition:transform .9s cubic-bezier(.3,.7,.3,1),opacity .5s ease,fill .5s ease}
-.dotfield text{font-size:13px;font-weight:600;fill:var(--ink)}
-.dot-plain{fill:#9ca3af}
-.party-d{color:#1e40af}
-.party-r{color:#b91c1c}
-.party-o{color:#4b5563}
-.dot-dirty{fill:currentColor}
-.dot-below_threshold{fill:currentColor;fill-opacity:.35}
-.dot-clean{fill:#fff;stroke:currentColor;stroke-width:1.8}
-.dot-unjudged{fill:#fff;stroke:currentColor;stroke-width:1.2;stroke-dasharray:2 2}
-.dot-faded{opacity:.12}
-.dot-hidden{opacity:0}
-/* The hemicycle: clean seats solid in party colour; dirty seats black with a party-coloured centre. */
-.dotfield.hemi circle.dot-clean{fill:currentColor;stroke:none}
-.dotfield.hemi circle.dot-dirty{fill:currentColor;stroke:#111827;stroke-width:4.5}
-.dotfield .states{opacity:0;transition:opacity .6s ease;pointer-events:none}
-.dotfield .states.shown{opacity:1;pointer-events:auto}
-.dotfield .states path{stroke:#fff;stroke-width:1.5}
-.state-d{fill:#c7d2fe}
-.state-r{fill:#fecaca}
-.state-split{fill:#e9d5ff}
-.state-other,.state-none{fill:#e5e7eb}
-.dotfield .districts,.dotfield .district-states{opacity:0;transition:opacity .6s ease;pointer-events:none}
-.dotfield .districts.shown,.dotfield .district-states.shown{opacity:1}
-.dotfield .districts.shown{pointer-events:auto}
-.dotfield .district{stroke:#fff;stroke-width:.6;cursor:pointer}
-.dotfield path.dot-clean{stroke:currentColor;stroke-width:1;fill:#fff}
-.dotfield path.dot-unjudged{fill:#f3f4f6;stroke:#9ca3af;stroke-width:.6;stroke-dasharray:none}
-.dotfield .district-open{fill:#e5e7eb}
-.dotfield .district-states path{fill:none;stroke:#111827;stroke-width:1;stroke-opacity:.55}
-.dotfield .arc-count{font-size:44px;font-weight:800}
-.dot-picked{stroke:#111827;stroke-width:3.5}
-.scrolly-key{font-size:.8rem;color:var(--muted);margin:4px 0 0;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
-.scrolly-key .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #4b5563}
-.scrolly-key .k.dot-dirty{background:#4b5563}
-.scrolly-key .k.dot-below_threshold{background:rgba(75,85,99,.35);border-color:transparent}
-.scrolly-key .k.dot-clean{background:#fff}
-.scrolly-key .k.dot-unjudged{background:#fff;border-style:dashed;border-width:1px}
-/* Plot waffle legend: same swatches as the story key, coloured per status. */
-.plot-legend .k{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #4b5563}
-.plot-legend .k.dot-dirty{background:#4b5563}
-.plot-legend .k.dot-below_threshold{background:#9ca3af}
-.plot-legend .k.dot-clean{background:#fff}
-.plot-legend .k.dot-unjudged{background:#e5e7eb}
-.scrolly-key .k.party-d{background:#1e40af;border-color:#1e40af}
-.scrolly-key .k.party-r{background:#b91c1c;border-color:#b91c1c}
-.scrolly-steps{position:relative;z-index:1;pointer-events:none}
-/* The card sits at the top of its step, not centred in it: a step
-   activates when its top crosses the viewport middle (Scrollama
-   offset 0.5), so a centred card only arrives near the viewport
-   bottom, leaving a long white stretch below the pinned graphic.
-   Top-aligned, the card appears at the middle on activation. */
-.scrolly-step{min-height:60svh;display:flex;align-items:flex-start;justify-content:center}
-.scrolly-step:last-child{min-height:45svh}
-/* Inactive cards are hidden once the script runs, and the switch is
-   instant — no opacity crossfade — so exactly one card is ever
-   visible, even mid-transition; without JS every card stays visible
-   (the base opacity below), as does static mode. */
-.scrolly-step .card{pointer-events:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;max-width:38ch;margin:0;box-shadow:0 4px 16px rgba(0,0,0,.08);opacity:1}
-html.js .scrolly-step .card{opacity:0;pointer-events:none}
-html.js .scrolly-step.active .card{opacity:1;border-color:var(--ink);pointer-events:auto}
-.scrolly.static .scrolly-step{min-height:0;margin:10px 0}
-.scrolly.static .scrolly-step .card{opacity:1;pointer-events:auto}
-/* The stepper: the reduced-motion / static fallback control, shown only
-   when the script unhides it. Buttons meet the 44px tap target. */
-.story-stepper{display:flex;gap:8px;align-items:center;justify-content:center;margin:12px 0}
-.story-stepper[hidden]{display:none}
-.story-stepper button{padding:9px 14px;font-size:.95rem;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer;min-height:44px}
-.story-stepper button:disabled{opacity:.45;cursor:default}
-.story-stepper .stepper-label{font-size:.9rem;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.dotfield circle{transition:none}.scrolly-step .card{transition:none}#story-plot svg *{transition:none}}
+/* ---------- skip links ---------- */
+.skip-links{position:absolute; left:16px; top:-60px; z-index:100; display:flex; gap:8px}
+.skip-links:focus-within{top:0}
+.skip-link{background:var(--ink); color:var(--paper); padding:10px 14px; border-radius:0 0 8px 8px; text-decoration:none; font-size:.95rem}
+
+/* ---------- top bar ---------- */
+.topbar{border-bottom:1px solid var(--hairline-strong); position:sticky; top:0; z-index:40; background:var(--paper)}
+.topbar-in{display:flex; align-items:center; gap:18px; padding:10px 0; flex-wrap:wrap}
+.brand{font-family:"Newsreader", Georgia, serif; font-weight:700; font-size:20px; letter-spacing:.01em}
+.brand a{color:var(--ink); text-decoration:none}
+.topbar nav{display:flex; gap:4px; flex-wrap:wrap; margin-left:auto}
+.topbar nav a{color:var(--ink-soft); text-decoration:none; font-size:13.5px; font-weight:600; padding:9px 10px; min-height:36px; display:inline-flex; align-items:center}
+.topbar nav a:hover{color:var(--ink); text-decoration:underline; text-underline-offset:4px}
+
+/* ---------- footer ---------- */
+footer{margin-top:80px; border-top:2px solid var(--ink); padding:26px 0 60px}
+footer p{font-size:13.5px; color:var(--ink-soft); max-width:720px}
+footer a{color:var(--ink-soft)}
+.foot-coverage{font-size:13px; color:var(--ink-faint); margin:0 0 12px; max-width:720px}
+.foot-coverage summary{cursor:pointer; font-weight:600; color:var(--ink-soft)}
+.foot-coverage p{margin:8px 0 0}
+
+/* ---------- story progress ---------- */
+.story-progress{
+  position:sticky; top:57px; z-index:30; background:var(--paper);
+  border-bottom:1px solid var(--hairline);
+  font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12px; color:var(--ink-faint);
+  padding:7px 0; letter-spacing:.04em;
+}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 8px; max-width:1080px; margin:0 auto; padding-left:20px; padding-right:20px}
+.kicker{font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 18px}
+h1{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(38px, 6.4vw, 64px); line-height:1.04; letter-spacing:-.01em;
+  margin:0 0 22px; max-width:15ch;
+}
+.hero-number{
+  font-family:"Newsreader", Georgia, serif; font-weight:700;
+  font-size:clamp(56px, 11vw, 110px); line-height:1; letter-spacing:-.02em;
+  margin:0 0 10px; font-variant-numeric:tabular-nums;
+}
+.hero-number-label{font-size:clamp(18px, 2.4vw, 21.5px); line-height:1.55; color:var(--ink-soft); max-width:620px; margin:0 0 12px}
+.hero-flagged{color:var(--ink-soft); max-width:var(--measure); margin:0 0 26px}
+.hero-flagged b{color:var(--ink)}
+.byline{
+  border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+  padding:12px 0; font-size:13.5px; color:var(--ink-faint);
+  display:flex; gap:8px 26px; flex-wrap:wrap;
+}
+.byline b{color:var(--ink-soft); font-weight:600}
+.scroll-cue{margin:26px 0 0; font-size:15px}
+.scroll-quiet{color:var(--ink-faint); margin-left:14px}
+
+/* ---------- beats ---------- */
+.beat{padding:64px 0 0; max-width:1080px; margin:0 auto; padding-left:20px; padding-right:20px}
+.sec-head{border-top:2px solid var(--ink); padding-top:14px; margin-bottom:8px}
+.sec-num{font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--accent); font-weight:600; letter-spacing:.08em}
+h2{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(27px, 4vw, 38px); line-height:1.12; margin:6px 0 10px;
+}
+h3{font-family:"Newsreader", Georgia, serif; font-size:22px; font-weight:600; margin:0 0 8px; line-height:1.25}
+.src{font-size:12.5px; color:var(--ink-faint); margin-top:10px}
+.src a{color:var(--ink-faint)}
+.rule-line{font-size:13.5px; color:var(--ink-soft); margin:16px 0 0; max-width:var(--measure)}
+.delegates-note{font-size:13.5px; color:var(--ink-faint); margin:14px 0 0; max-width:var(--measure)}
+
+/* Two columns on desktop: pinned graphic left, steps right. */
+.beat-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:0 44px; align-items:start}
+.beat-graphic{position:sticky; top:104px; padding:18px 0 26px}
+.graphic-title{font-family:"Newsreader", Georgia, serif; font-size:clamp(20px, 2.6vw, 26px); font-weight:600; line-height:1.2; margin:0 0 6px}
+.graphic-sub{font-size:14px; color:var(--ink-soft); margin:0 0 18px}
+.beat-steps{padding:6px 0 10px}
+
+/* Steps: one idea per step. The card sits at the top of its step:
+   a step activates when its top crosses the viewport middle, so a
+   top-aligned card appears at the middle on activation instead of
+   arriving near the bottom and leaving a white stretch. The switch
+   is instant — no opacity transition on the card — so exactly one
+   card is ever visible, even mid-transition; without JS (or without
+   scrolly) every card stays visible. */
+.scrolly-step{
+  min-height:var(--step-min, 520px);
+  display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start;
+  padding-top:8px;
+}
+.scrolly-step.long{min-height:calc(var(--step-min, 520px) * 1.5)}
+.scrolly-step .card{
+  font-size:17.5px; margin:0; max-width:34ch;
+  border-top:2px solid var(--ink); padding-top:14px;
+  opacity:1;
+}
+.scrolly-step .card b{font-weight:700}
+html.js.scrolly .scrolly-step .card{opacity:0}
+html.js.scrolly .scrolly-step{opacity:.28; transition:opacity .4s cubic-bezier(.4,0,.2,1)}
+html.js.scrolly .scrolly-step.active{opacity:1}
+html.js.scrolly .scrolly-step.active .card{opacity:1}
+
+/* ---------- waffles ---------- */
+.waffles{display:flex; flex-direction:column; gap:20px}
+.chamber-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; border-bottom:1px solid var(--hairline-strong); padding-bottom:5px; margin-bottom:9px}
+.ch-name{font-family:"IBM Plex Mono", monospace; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink)}
+.ch-count{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-faint)}
+.waffle-grid{display:grid; gap:3px}
+.waffle-grid.house{grid-template-columns:repeat(29, 1fr); max-width:464px}
+.waffle-grid.senate{grid-template-columns:repeat(20, 1fr); max-width:320px}
+.waffle-grid i{
+  display:block; aspect-ratio:1; border-radius:50%; background:var(--grey-dot);
+  transition:background-color .4s cubic-bezier(.4,0,.2,1), box-shadow .4s cubic-bezier(.4,0,.2,1);
+}
+.waffle-grid i.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong); border-radius:50%}
+.waffle-grid i.uncalled{outline:1px dashed var(--ink-faint); outline-offset:1px}
+/* State 1 is the party split, grouped: Democrats in one block,
+   Republicans in one block, independents last. State 2 overlays the
+   flag on top of that split — no dot moves, unflagged members keep
+   their usual full blue / red, and flagged members switch to the
+   lighter tint of their own party's colour, ringed in the full
+   party colour. No amber, no third colour, anywhere. */
+.waffles[data-state="1"] .waffle-grid i.d,
+.waffles[data-state="2"] .waffle-grid i.d{background:var(--dem-full)}
+.waffles[data-state="1"] .waffle-grid i.r,
+.waffles[data-state="2"] .waffle-grid i.r{background:var(--rep-full)}
+.waffles[data-state="1"] .waffle-grid i.i,
+.waffles[data-state="1"] .waffle-grid i.o,
+.waffles[data-state="2"] .waffle-grid i.i,
+.waffles[data-state="2"] .waffle-grid i.o{background:var(--ink-faint)}
+.waffles[data-state="2"] .waffle-grid i.d.flagged{background:var(--dem-flagged); box-shadow:0 0 0 1px var(--dem-full)}
+.waffles[data-state="2"] .waffle-grid i.r.flagged{background:var(--rep-flagged); box-shadow:0 0 0 1px var(--rep-full)}
+.waffles[data-state="2"] .waffle-grid i.i.flagged,
+.waffles[data-state="2"] .waffle-grid i.o.flagged{background:var(--grey-dot); box-shadow:0 0 0 1px var(--ink-faint)}
+.waffles[data-state="0"] .waffle-grid i.open,
+.waffles[data-state="1"] .waffle-grid i.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong)}
+
+/* ---------- legend dots ---------- */
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-top:16px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.dot{width:10px; height:10px; border-radius:50%; display:inline-block; flex:none}
+.dot.dem-full{background:var(--dem-full)}
+.dot.dem-flagged{background:var(--dem-flagged); box-shadow:0 0 0 1px var(--dem-full)}
+.dot.rep-full{background:var(--rep-full)}
+.dot.rep-flagged{background:var(--rep-flagged); box-shadow:0 0 0 1px var(--rep-full)}
+.dot.below{background:var(--dem-full); opacity:.55}
+.dot.clean{background:var(--dem-full)}
+.dot.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong)}
+
+/* ---------- ranked bars ---------- */
+.rank-panel{margin-bottom:28px}
+.rank-row{display:grid; grid-template-columns:minmax(0, 1.1fr) 1fr auto; gap:4px 12px; align-items:center; padding:5px 0; border-bottom:1px solid var(--hairline)}
+.rank-row:last-child{border-bottom:0}
+.rank-name{font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rank-name a{color:var(--ink); text-decoration:none}
+.rank-name a:hover{text-decoration:underline}
+.rank-seat{color:var(--ink-faint); font-size:12.5px; font-family:"IBM Plex Mono", monospace}
+.rank-note{color:var(--accent); font-size:12.5px}
+.rank-bar{display:block; height:14px}
+.rank-fill{
+  display:block; height:100%; background:var(--ink-soft);
+  transform:scaleX(1); transform-origin:left;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.rank-fill.lead{background:var(--accent)}
+html.js.scrolly .rank-fill{transform:scaleX(0)}
+html.js.scrolly .beat.active .rank-fill{transform:scaleX(1)}
+.rank-amt{font-family:"IBM Plex Mono", monospace; font-size:13px; text-align:right; white-space:nowrap}
+.pdot{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:18px; height:18px; border-radius:50%;
+  font-size:11px; font-weight:700; color:#fff; vertical-align:-4px; margin-right:2px;
+}
+.pdot.d{background:var(--dem-full)}
+.pdot.r{background:var(--rep-full)}
+.pdot.i, .pdot.o{background:var(--ink-faint)}
+
+/* ---------- stacked bars ---------- */
+.stack-panel{margin-bottom:28px}
+.stacked{display:flex; height:44px; border:1px solid var(--hairline-strong); border-radius:var(--radius); overflow:hidden}
+.seg{display:block; height:100%; transform:scaleX(1); transform-origin:left; transition:transform .4s cubic-bezier(.4,0,.2,1), opacity .4s cubic-bezier(.4,0,.2,1)}
+.seg-aipac{background:var(--dem-full)}
+.seg-corp{background:var(--rep-full)}
+.seg-individual{background:var(--grey-dot)}
+.seg-udp_benefit{background:var(--accent)}
+.seg-aipac_direct{background:var(--dem-full)}
+.seg-label{display:none}
+html.js.scrolly .stacked .seg{transform:scaleX(0); opacity:0}
+html.js.scrolly .stacked[data-state="1"] .seg-aipac,
+html.js.scrolly .stacked[data-state="1"] .seg-aipac_direct{transform:scaleX(1); opacity:1}
+html.js.scrolly .stacked[data-state="2"] .seg-aipac,
+html.js.scrolly .stacked[data-state="2"] .seg-aipac_direct,
+html.js.scrolly .stacked[data-state="2"] .seg-corp{transform:scaleX(1); opacity:1}
+html.js.scrolly .stacked[data-state="3"] .seg{transform:scaleX(1); opacity:1}
+.stack-legend{list-style:none; margin:12px 0 0; padding:0; font-size:13.5px; color:var(--ink-soft)}
+.stack-legend li{margin-bottom:5px}
+.stack-legend b{color:var(--ink)}
+.swatch{display:inline-block; width:12px; height:12px; border-radius:2px; margin-right:8px; vertical-align:-1px}
+.swatch.seg-aipac, .swatch.seg-aipac_direct{background:var(--dem-full)}
+.swatch.seg-corp{background:var(--rep-full)}
+.swatch.seg-individual{background:var(--grey-dot)}
+.swatch.seg-udp_benefit{background:var(--accent)}
+
+/* ---------- member trend ---------- */
+.trend{display:flex; gap:14px; align-items:flex-end; height:220px; padding-top:26px}
+.trend-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%}
+.trend-amt{font-family:"IBM Plex Mono", monospace; font-size:12px; margin-bottom:6px; white-space:nowrap}
+.trend-bar{width:100%; max-width:56px; background:var(--ink-soft)}
+.trend-col:last-child .trend-bar{background:var(--accent)}
+.trend-cycle{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-faint); margin-top:8px}
+.member-view{margin-bottom:28px}
+html.js.scrolly .member-view{display:none}
+html.js.scrolly [data-state="member"] .member-view[data-view="member"],
+html.js.scrolly [data-state="member_trend"] .member-view[data-view="member_trend"],
+html.js.scrolly [data-state="member_zoom"] .member-view[data-view="member_zoom"]{display:block}
+
+/* ---------- district map ---------- */
+.district-map{width:100%; height:auto; display:block}
+.district-map .districts path{stroke:var(--paper); stroke-width:.6}
+.district-map .state-lines path{fill:none; stroke:var(--ink); stroke-width:.9; opacity:.55}
+.map-dirty-D{fill:var(--dem-flagged); stroke:var(--dem-full)}
+.map-dirty-R{fill:var(--rep-flagged); stroke:var(--rep-full)}
+.map-dirty-I, .map-dirty-O{fill:var(--grey-dot); stroke:var(--ink-faint)}
+.map-below_threshold-D{fill:var(--dem-full); fill-opacity:.55}
+.map-below_threshold-R{fill:var(--rep-full); fill-opacity:.55}
+.map-below_threshold-I, .map-below_threshold-O{fill:var(--ink-faint); fill-opacity:.55}
+.map-clean-D{fill:var(--dem-full)}
+.map-clean-R{fill:var(--rep-full)}
+.map-clean-I, .map-clean-O{fill:var(--ink-faint)}
+.map-unjudged-D, .map-unjudged-R, .map-unjudged-I, .map-unjudged-O{fill:var(--paper); stroke:var(--hairline-strong)}
+.map-open{fill:var(--paper-2); stroke:var(--hairline-strong); stroke-dasharray:3 2}
+.district-map path.picked{stroke:var(--accent); stroke-width:2.5}
+.find-district{margin-top:18px; border-top:1px solid var(--hairline); padding-top:14px}
+.find-district label{display:block; font-weight:700; font-size:14.5px; margin-bottom:8px}
+.find-district select{
+  padding:9px 10px; font-size:1rem; border:1px solid var(--hairline-strong);
+  border-radius:var(--radius); background:var(--paper); color:var(--ink);
+  min-height:40px; margin:0 8px 8px 0; max-width:100%;
+}
+.find-result{font-size:14px; color:var(--ink-soft); margin:6px 0 0}
+
+/* ---------- targets / close ---------- */
+.target-list{list-style:none; margin:0 0 8px; padding:0}
+.target-list li{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  padding:13px 0; border-bottom:1px solid var(--hairline); font-size:15.5px;
+}
+.target-list li:first-child{border-top:1px solid var(--hairline)}
+.target-rank{font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--ink-faint); width:18px; flex:none}
+.target-list a{color:var(--ink); text-decoration:none; font-weight:600}
+.target-list a:hover{text-decoration:underline}
+.target-seat{color:var(--ink-faint); font-size:13px}
+.target-amt{margin-left:auto; font-family:"IBM Plex Mono", monospace; font-size:13.5px; white-space:nowrap}
+.handoff{margin-top:44px; border-top:2px solid var(--ink); padding-top:22px}
+.handoff p{margin:0 0 14px}
+.handoff-link{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(24px, 3.4vw, 32px);
+  font-weight:600; color:var(--ink); text-decoration:none; line-height:1.2;
+}
+.handoff-link:hover{color:var(--accent); text-decoration:underline; text-underline-offset:4px}
+
+/* ---------- rest beat ---------- */
+.rest-beat{padding:160px 20px; text-align:center}
+.rest-beat p{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(24px, 3.6vw, 34px);
+  font-weight:500; line-height:1.3; max-width:640px; margin:0 auto;
+}
+
+/* ---------- mobile: stack, never pin ---------- */
+@media (max-width:760px){
+  .beat-grid{grid-template-columns:1fr}
+  .beat-graphic{position:static; top:auto; padding-bottom:8px}
+  .waffle-grid{gap:2px}
+  .waffle-grid.house{max-width:340px}
+  .waffle-grid.senate{max-width:240px}
+  .scrolly-step{min-height:calc(var(--step-min, 520px) * .8)}
+  .scrolly-step.long{min-height:calc(var(--step-min, 520px) * 1.2)}
+  .hero{padding-top:48px}
+  .story-progress{top:0}
+  .rank-row{grid-template-columns:minmax(0, 1.2fr) 1fr auto}
+}
