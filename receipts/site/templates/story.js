@@ -234,23 +234,56 @@ function rankedPlot(people){
     ],
   });
 }
+/* The party chart's counts sit inside their stacked segment when the
+   segment is wide enough to hold the label; a count too small for its
+   segment is listed just past the bar's end instead, so no count is
+   clipped, detached, or colliding with its neighbour. The y labels need
+   a wider left margin than Plot's default, or the long party names clip. */
+const PARTY_MARGIN_LEFT = 80, PARTY_MARGIN_RIGHT = 20;
+function partyLabelPlan(groups){
+  const innerWidth = STORY_W - PARTY_MARGIN_LEFT - PARTY_MARGIN_RIGHT;
+  const maxTotal = Math.max(1, ...groups.map(g=>g.people.length));
+  const domainMax = maxTotal + 60;
+  const pxPerMember = innerWidth / domainMax;
+  const inside = [], outside = [];
+  groups.forEach(g=>{
+    const total = g.people.length, notes = [];
+    STATUS_KEYS.forEach(st=>{
+      const n = g.people.filter(p=>storyStatus(p)===st).length;
+      if(n <= 0) return;
+      if(n * pxPerMember >= String(n).length * 6 + 4) inside.push({party: g.label, status: st, n});
+      else notes.push(n + ' ' + STATUS_LABELS[st].toLowerCase());
+    });
+    if(!notes.length) return;
+    const text = notes.join(', ');
+    let startPx = PARTY_MARGIN_LEFT + total * pxPerMember + 6;
+    if(startPx + text.length * 5.5 > STORY_W - 4) startPx = STORY_W - 4 - text.length * 5.5;
+    outside.push({party: g.label, text, x: (startPx - PARTY_MARGIN_LEFT) / pxPerMember});
+  });
+  return {inside, outside, domainMax};
+}
 function partyPlot(people){
   const groups = partyGroups(people);
+  const plan = partyLabelPlan(groups);
   const rows = [];
   STATUS_KEYS.forEach(st=>groups.forEach(g=>{
     rows.push({party: g.label, status: st, n: g.people.filter(p=>storyStatus(p)===st).length});
   }));
+  const insideKeys = new Set(plan.inside.map(r=>r.party+'|'+r.status));
   return Plot.plot({
     width: STORY_W, height: 260,
-    x: {label: 'Members'},
+    x: {label: 'Members', domain: [0, plan.domainMax]},
     y: {label: null, domain: groups.map(g=>g.label)},
+    marginLeft: PARTY_MARGIN_LEFT,
     color: {domain: STATUS_KEYS, range: STATUS_KEYS.map(k=>STATUS_FILL[k])},
     marks: [
       Plot.barX(rows, {x: 'n', y: 'party', fill: 'status'}),
       Plot.text(rows, Plot.stackX({
-        x: 'n', y: 'party', text: d=>d.n>0 ? String(d.n) : '',
+        x: 'n', y: 'party',
+        text: d=>insideKeys.has(d.party+'|'+d.status) ? String(d.n) : '',
         fill: d=>d.status==='dirty' ? '#fff' : '#111827', fontWeight: 'bold',
       })),
+      Plot.text(plan.outside, {x: 'x', y: 'party', text: 'text', textAnchor: 'start', fill: '#111827', fontWeight: 'bold'}),
     ],
   });
 }
