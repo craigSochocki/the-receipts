@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>The Receipts — Who funds Congress</title>
+<meta name="description" content="Every person in Congress and the money behind them, from FEC filings. A story first, then the data to check it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&family=Libre+Franklin:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>/* The Receipts — shared tokens and the Story front door.
+   Tokens and the story's look come from the wireframe proposal
+   (new-site-wireframe-proposal.html): flat paper, hairlines,
+   whitespace, no cards or shadows. Amber is the proposal's own
+   accent, never a data colour. Flagged is always the lighter tint
+   of the member's own party colour — never a third colour. */
+:root{
+  --paper:#faf8f3;
+  --paper-2:#f2eee4;
+  --ink:#1c1a16;
+  --ink-soft:#4c473e;
+  --ink-faint:#7d7668;
+  --hairline:#d9d2c2;
+  --hairline-strong:#b9b09a;
+  --accent:#a35a00;
+  --accent-soft:#f3e3c8;
+  --dem:#7d8aa5;
+  --dem-full:#3d5a80;
+  --dem-flagged:#a7bedd;
+  --rep:#c08a84;
+  --rep-full:#a63d40;
+  --rep-flagged:#e2aca6;
+  --grey-dot:#c9c2b2;
+  --good:#3f6b4f;
+  --radius:4px;
+  --measure:660px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#171512;
+    --paper-2:#201d18;
+    --ink:#ece7da;
+    --ink-soft:#c4bda9;
+    --ink-faint:#948b78;
+    --hairline:#3a352b;
+    --hairline-strong:#57503f;
+    --accent:#e09a3c;
+    --accent-soft:#3a2d16;
+    --dem:#8fa3c4;
+    --dem-full:#7d9cc4;
+    --dem-flagged:#c3d5ee;
+    --rep:#d29a94;
+    --rep-full:#cf7a72;
+    --rep-flagged:#eec4be;
+    --grey-dot:#4a453a;
+    --good:#8fc09e;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *, *::before, *::after{transition:none !important; animation:none !important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-soft)}
+a{color:var(--accent); text-underline-offset:3px}
+a:focus-visible, button:focus-visible, select:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+.mono{font-family:"IBM Plex Mono", ui-monospace, monospace}
+.wrap{max-width:1080px; margin:0 auto; padding:0 20px}
+main{display:block}
+
+/* ---------- skip links ---------- */
+.skip-links{position:absolute; left:16px; top:-60px; z-index:100; display:flex; gap:8px}
+.skip-links:focus-within{top:0}
+.skip-link{background:var(--ink); color:var(--paper); padding:10px 14px; border-radius:0 0 8px 8px; text-decoration:none; font-size:.95rem}
+
+/* ---------- top bar ---------- */
+.topbar{border-bottom:1px solid var(--hairline-strong); position:sticky; top:0; z-index:40; background:var(--paper)}
+.topbar-in{display:flex; align-items:center; gap:18px; padding:10px 0; flex-wrap:wrap}
+.brand{font-family:"Newsreader", Georgia, serif; font-weight:700; font-size:20px; letter-spacing:.01em}
+.brand a{color:var(--ink); text-decoration:none}
+.topbar nav{display:flex; gap:4px; flex-wrap:wrap; margin-left:auto}
+.topbar nav a{color:var(--ink-soft); text-decoration:none; font-size:13.5px; font-weight:600; padding:9px 10px; min-height:36px; display:inline-flex; align-items:center}
+.topbar nav a:hover{color:var(--ink); text-decoration:underline; text-underline-offset:4px}
+
+/* ---------- footer ---------- */
+footer{margin-top:80px; border-top:2px solid var(--ink); padding:26px 0 60px}
+footer p{font-size:13.5px; color:var(--ink-soft); max-width:720px}
+footer a{color:var(--ink-soft)}
+.foot-coverage{font-size:13px; color:var(--ink-faint); margin:0 0 12px; max-width:720px}
+.foot-coverage summary{cursor:pointer; font-weight:600; color:var(--ink-soft)}
+.foot-coverage p{margin:8px 0 0}
+
+/* ---------- story progress ---------- */
+.story-progress{
+  position:sticky; top:57px; z-index:30; background:var(--paper);
+  border-bottom:1px solid var(--hairline);
+  font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:12px; color:var(--ink-faint);
+  padding:7px 0; letter-spacing:.04em;
+}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 8px; max-width:1080px; margin:0 auto; padding-left:20px; padding-right:20px}
+.kicker{font-size:12.5px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 18px}
+h1{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(38px, 6.4vw, 64px); line-height:1.04; letter-spacing:-.01em;
+  margin:0 0 22px; max-width:15ch;
+}
+.hero-number{
+  font-family:"Newsreader", Georgia, serif; font-weight:700;
+  font-size:clamp(56px, 11vw, 110px); line-height:1; letter-spacing:-.02em;
+  margin:0 0 10px; font-variant-numeric:tabular-nums;
+}
+.hero-number-label{font-size:clamp(18px, 2.4vw, 21.5px); line-height:1.55; color:var(--ink-soft); max-width:620px; margin:0 0 12px}
+.hero-flagged{color:var(--ink-soft); max-width:var(--measure); margin:0 0 26px}
+.hero-flagged b{color:var(--ink)}
+.byline{
+  border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline);
+  padding:12px 0; font-size:13.5px; color:var(--ink-faint);
+  display:flex; gap:8px 26px; flex-wrap:wrap;
+}
+.byline b{color:var(--ink-soft); font-weight:600}
+.scroll-cue{margin:26px 0 0; font-size:15px}
+.scroll-quiet{color:var(--ink-faint); margin-left:14px}
+
+/* ---------- beats ---------- */
+.beat{padding:64px 0 0; max-width:1080px; margin:0 auto; padding-left:20px; padding-right:20px}
+.sec-head{border-top:2px solid var(--ink); padding-top:14px; margin-bottom:8px}
+.sec-num{font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--accent); font-weight:600; letter-spacing:.08em}
+h2{
+  font-family:"Newsreader", Georgia, serif; font-weight:600;
+  font-size:clamp(27px, 4vw, 38px); line-height:1.12; margin:6px 0 10px;
+}
+h3{font-family:"Newsreader", Georgia, serif; font-size:22px; font-weight:600; margin:0 0 8px; line-height:1.25}
+.src{font-size:12.5px; color:var(--ink-faint); margin-top:10px}
+.src a{color:var(--ink-faint)}
+.rule-line{font-size:13.5px; color:var(--ink-soft); margin:16px 0 0; max-width:var(--measure)}
+.delegates-note{font-size:13.5px; color:var(--ink-faint); margin:14px 0 0; max-width:var(--measure)}
+
+/* Two columns on desktop: pinned graphic left, steps right. */
+.beat-grid{display:grid; grid-template-columns:1.15fr .85fr; gap:0 44px; align-items:start}
+.beat-graphic{position:sticky; top:104px; padding:18px 0 26px}
+.graphic-title{font-family:"Newsreader", Georgia, serif; font-size:clamp(20px, 2.6vw, 26px); font-weight:600; line-height:1.2; margin:0 0 6px}
+.graphic-sub{font-size:14px; color:var(--ink-soft); margin:0 0 18px}
+.beat-steps{padding:6px 0 10px}
+
+/* Steps: one idea per step. The card sits at the top of its step:
+   a step activates when its top crosses the viewport middle, so a
+   top-aligned card appears at the middle on activation instead of
+   arriving near the bottom and leaving a white stretch. The switch
+   is instant — no opacity transition on the card — so exactly one
+   card is ever visible, even mid-transition; without JS (or without
+   scrolly) every card stays visible. */
+.scrolly-step{
+  min-height:var(--step-min, 520px);
+  display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start;
+  padding-top:8px;
+}
+.scrolly-step.long{min-height:calc(var(--step-min, 520px) * 1.5)}
+.scrolly-step .card{
+  font-size:17.5px; margin:0; max-width:34ch;
+  border-top:2px solid var(--ink); padding-top:14px;
+  opacity:1;
+}
+.scrolly-step .card b{font-weight:700}
+html.js.scrolly .scrolly-step .card{opacity:0}
+html.js.scrolly .scrolly-step{opacity:.28; transition:opacity .4s cubic-bezier(.4,0,.2,1)}
+html.js.scrolly .scrolly-step.active{opacity:1}
+html.js.scrolly .scrolly-step.active .card{opacity:1}
+
+/* ---------- waffles ---------- */
+.waffles{display:flex; flex-direction:column; gap:20px}
+.chamber-head{display:flex; justify-content:space-between; align-items:baseline; gap:12px; border-bottom:1px solid var(--hairline-strong); padding-bottom:5px; margin-bottom:9px}
+.ch-name{font-family:"IBM Plex Mono", monospace; font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink)}
+.ch-count{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-faint)}
+.waffle-grid{display:grid; gap:3px}
+.waffle-grid.house{grid-template-columns:repeat(29, 1fr); max-width:464px}
+.waffle-grid.senate{grid-template-columns:repeat(20, 1fr); max-width:320px}
+.waffle-grid i{
+  display:block; aspect-ratio:1; border-radius:50%; background:var(--grey-dot);
+  transition:background-color .4s cubic-bezier(.4,0,.2,1), box-shadow .4s cubic-bezier(.4,0,.2,1);
+}
+.waffle-grid i.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong); border-radius:50%}
+.waffle-grid i.uncalled{outline:1px dashed var(--ink-faint); outline-offset:1px}
+/* State 1 is the party split, grouped: Democrats in one block,
+   Republicans in one block, independents last. State 2 overlays the
+   flag on top of that split — no dot moves, unflagged members keep
+   their usual full blue / red, and flagged members switch to the
+   lighter tint of their own party's colour, ringed in the full
+   party colour. No amber, no third colour, anywhere. */
+.waffles[data-state="1"] .waffle-grid i.d,
+.waffles[data-state="2"] .waffle-grid i.d{background:var(--dem-full)}
+.waffles[data-state="1"] .waffle-grid i.r,
+.waffles[data-state="2"] .waffle-grid i.r{background:var(--rep-full)}
+.waffles[data-state="1"] .waffle-grid i.i,
+.waffles[data-state="1"] .waffle-grid i.o,
+.waffles[data-state="2"] .waffle-grid i.i,
+.waffles[data-state="2"] .waffle-grid i.o{background:var(--ink-faint)}
+.waffles[data-state="2"] .waffle-grid i.d.flagged{background:var(--dem-flagged); box-shadow:0 0 0 1px var(--dem-full)}
+.waffles[data-state="2"] .waffle-grid i.r.flagged{background:var(--rep-flagged); box-shadow:0 0 0 1px var(--rep-full)}
+.waffles[data-state="2"] .waffle-grid i.i.flagged,
+.waffles[data-state="2"] .waffle-grid i.o.flagged{background:var(--grey-dot); box-shadow:0 0 0 1px var(--ink-faint)}
+.waffles[data-state="0"] .waffle-grid i.open,
+.waffles[data-state="1"] .waffle-grid i.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong)}
+
+/* ---------- legend dots ---------- */
+.legend{display:flex; gap:16px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-top:16px}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.dot{width:10px; height:10px; border-radius:50%; display:inline-block; flex:none}
+.dot.dem-full{background:var(--dem-full)}
+.dot.dem-flagged{background:var(--dem-flagged); box-shadow:0 0 0 1px var(--dem-full)}
+.dot.rep-full{background:var(--rep-full)}
+.dot.rep-flagged{background:var(--rep-flagged); box-shadow:0 0 0 1px var(--rep-full)}
+.dot.below{background:var(--dem-full); opacity:.55}
+.dot.clean{background:var(--dem-full)}
+.dot.open{background:transparent; box-shadow:inset 0 0 0 1px var(--hairline-strong)}
+
+/* ---------- ranked bars ---------- */
+.rank-panel{margin-bottom:28px}
+.rank-row{display:grid; grid-template-columns:minmax(0, 1.1fr) 1fr auto; gap:4px 12px; align-items:center; padding:5px 0; border-bottom:1px solid var(--hairline)}
+.rank-row:last-child{border-bottom:0}
+.rank-name{font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.rank-name a{color:var(--ink); text-decoration:none}
+.rank-name a:hover{text-decoration:underline}
+.rank-seat{color:var(--ink-faint); font-size:12.5px; font-family:"IBM Plex Mono", monospace}
+.rank-note{color:var(--accent); font-size:12.5px}
+.rank-bar{display:block; height:14px}
+.rank-fill{
+  display:block; height:100%; background:var(--ink-soft);
+  transform:scaleX(1); transform-origin:left;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.rank-fill.lead{background:var(--accent)}
+html.js.scrolly .rank-fill{transform:scaleX(0)}
+html.js.scrolly .beat.active .rank-fill{transform:scaleX(1)}
+.rank-amt{font-family:"IBM Plex Mono", monospace; font-size:13px; text-align:right; white-space:nowrap}
+.pdot{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:18px; height:18px; border-radius:50%;
+  font-size:11px; font-weight:700; color:#fff; vertical-align:-4px; margin-right:2px;
+}
+.pdot.d{background:var(--dem-full)}
+.pdot.r{background:var(--rep-full)}
+.pdot.i, .pdot.o{background:var(--ink-faint)}
+
+/* ---------- stacked bars ---------- */
+.stack-panel{margin-bottom:28px}
+.stacked{display:flex; height:44px; border:1px solid var(--hairline-strong); border-radius:var(--radius); overflow:hidden}
+.seg{display:block; height:100%; transform:scaleX(1); transform-origin:left; transition:transform .4s cubic-bezier(.4,0,.2,1), opacity .4s cubic-bezier(.4,0,.2,1)}
+.seg-aipac{background:var(--dem-full)}
+.seg-corp{background:var(--rep-full)}
+.seg-individual{background:var(--grey-dot)}
+.seg-udp_benefit{background:var(--accent)}
+.seg-aipac_direct{background:var(--dem-full)}
+.seg-label{display:none}
+html.js.scrolly .stacked .seg{transform:scaleX(0); opacity:0}
+html.js.scrolly .stacked[data-state="1"] .seg-aipac,
+html.js.scrolly .stacked[data-state="1"] .seg-aipac_direct{transform:scaleX(1); opacity:1}
+html.js.scrolly .stacked[data-state="2"] .seg-aipac,
+html.js.scrolly .stacked[data-state="2"] .seg-aipac_direct,
+html.js.scrolly .stacked[data-state="2"] .seg-corp{transform:scaleX(1); opacity:1}
+html.js.scrolly .stacked[data-state="3"] .seg{transform:scaleX(1); opacity:1}
+.stack-legend{list-style:none; margin:12px 0 0; padding:0; font-size:13.5px; color:var(--ink-soft)}
+.stack-legend li{margin-bottom:5px}
+.stack-legend b{color:var(--ink)}
+.swatch{display:inline-block; width:12px; height:12px; border-radius:2px; margin-right:8px; vertical-align:-1px}
+.swatch.seg-aipac, .swatch.seg-aipac_direct{background:var(--dem-full)}
+.swatch.seg-corp{background:var(--rep-full)}
+.swatch.seg-individual{background:var(--grey-dot)}
+.swatch.seg-udp_benefit{background:var(--accent)}
+
+/* ---------- member trend ---------- */
+.trend{display:flex; gap:14px; align-items:flex-end; height:220px; padding-top:26px}
+.trend-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%}
+.trend-amt{font-family:"IBM Plex Mono", monospace; font-size:12px; margin-bottom:6px; white-space:nowrap}
+.trend-bar{width:100%; max-width:56px; background:var(--ink-soft)}
+.trend-col:last-child .trend-bar{background:var(--accent)}
+.trend-cycle{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-faint); margin-top:8px}
+.member-view{margin-bottom:28px}
+html.js.scrolly .member-view{display:none}
+html.js.scrolly [data-state="member"] .member-view[data-view="member"],
+html.js.scrolly [data-state="member_trend"] .member-view[data-view="member_trend"],
+html.js.scrolly [data-state="member_zoom"] .member-view[data-view="member_zoom"]{display:block}
+
+/* ---------- district map ---------- */
+.district-map{width:100%; height:auto; display:block}
+.district-map .districts path{stroke:var(--paper); stroke-width:.6}
+.district-map .state-lines path{fill:none; stroke:var(--ink); stroke-width:.9; opacity:.55}
+.map-dirty-D{fill:var(--dem-flagged); stroke:var(--dem-full)}
+.map-dirty-R{fill:var(--rep-flagged); stroke:var(--rep-full)}
+.map-dirty-I, .map-dirty-O{fill:var(--grey-dot); stroke:var(--ink-faint)}
+.map-below_threshold-D{fill:var(--dem-full); fill-opacity:.55}
+.map-below_threshold-R{fill:var(--rep-full); fill-opacity:.55}
+.map-below_threshold-I, .map-below_threshold-O{fill:var(--ink-faint); fill-opacity:.55}
+.map-clean-D{fill:var(--dem-full)}
+.map-clean-R{fill:var(--rep-full)}
+.map-clean-I, .map-clean-O{fill:var(--ink-faint)}
+.map-unjudged-D, .map-unjudged-R, .map-unjudged-I, .map-unjudged-O{fill:var(--paper); stroke:var(--hairline-strong)}
+.map-open{fill:var(--paper-2); stroke:var(--hairline-strong); stroke-dasharray:3 2}
+.district-map path.picked{stroke:var(--accent); stroke-width:2.5}
+.find-district{margin-top:18px; border-top:1px solid var(--hairline); padding-top:14px}
+.find-district label{display:block; font-weight:700; font-size:14.5px; margin-bottom:8px}
+.find-district select{
+  padding:9px 10px; font-size:1rem; border:1px solid var(--hairline-strong);
+  border-radius:var(--radius); background:var(--paper); color:var(--ink);
+  min-height:40px; margin:0 8px 8px 0; max-width:100%;
+}
+.find-result{font-size:14px; color:var(--ink-soft); margin:6px 0 0}
+
+/* ---------- targets / close ---------- */
+.target-list{list-style:none; margin:0 0 8px; padding:0}
+.target-list li{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  padding:13px 0; border-bottom:1px solid var(--hairline); font-size:15.5px;
+}
+.target-list li:first-child{border-top:1px solid var(--hairline)}
+.target-rank{font-family:"IBM Plex Mono", monospace; font-size:12.5px; color:var(--ink-faint); width:18px; flex:none}
+.target-list a{color:var(--ink); text-decoration:none; font-weight:600}
+.target-list a:hover{text-decoration:underline}
+.target-seat{color:var(--ink-faint); font-size:13px}
+.target-amt{margin-left:auto; font-family:"IBM Plex Mono", monospace; font-size:13.5px; white-space:nowrap}
+.handoff{margin-top:44px; border-top:2px solid var(--ink); padding-top:22px}
+.handoff p{margin:0 0 14px}
+.handoff-link{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(24px, 3.4vw, 32px);
+  font-weight:600; color:var(--ink); text-decoration:none; line-height:1.2;
+}
+.handoff-link:hover{color:var(--accent); text-decoration:underline; text-underline-offset:4px}
+
+/* ---------- rest beat ---------- */
+.rest-beat{padding:160px 20px; text-align:center}
+.rest-beat p{
+  font-family:"Newsreader", Georgia, serif; font-size:clamp(24px, 3.6vw, 34px);
+  font-weight:500; line-height:1.3; max-width:640px; margin:0 auto;
+}
+
+/* ---------- mobile: stack, never pin ---------- */
+@media (max-width:760px){
+  .beat-grid{grid-template-columns:1fr}
+  .beat-graphic{position:static; top:auto; padding-bottom:8px}
+  .waffle-grid{gap:2px}
+  .waffle-grid.house{max-width:340px}
+  .waffle-grid.senate{max-width:240px}
+  .scrolly-step{min-height:calc(var(--step-min, 520px) * .8)}
+  .scrolly-step.long{min-height:calc(var(--step-min, 520px) * 1.2)}
+  .hero{padding-top:48px}
+  .story-progress{top:0}
+  .rank-row{grid-template-columns:minmax(0, 1.2fr) 1fr auto}
+}
+</style>
+<style>/* Methodology page (/methodology). Body fragment styles for method.html.
+   Lives inside the shared shell; every colour comes from the wireframe
+   tokens with a fallback, so the page still renders if the shell's
+   style.css has not defined a token yet. No scripts on this page. */
+
+.method-page {
+  max-width: var(--measure, 660px);
+  margin: 0 auto;
+  padding: 0 20px 64px;
+  color: var(--ink, #1c1a16);
+  background: var(--paper, transparent);
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+.method-page a {
+  color: var(--accent, #a35a00);
+  text-underline-offset: 3px;
+}
+
+.method-page a:focus-visible {
+  outline: 2px solid var(--accent, #a35a00);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.method-kicker {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent, #a35a00);
+  margin: 0 0 18px;
+}
+
+.method-page h1 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(38px, 6.4vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0 0 22px;
+}
+
+.method-lede {
+  font-size: clamp(18px, 2.4vw, 21px);
+  line-height: 1.55;
+  color: var(--ink-soft, #4c473e);
+  margin: 0 0 26px;
+}
+
+.method-lede strong {
+  color: var(--ink, #1c1a16);
+}
+
+.method-stamp {
+  font-size: 13.5px;
+  color: var(--ink-faint, #7d7668);
+  border-top: 1px solid var(--hairline, #d9d2c2);
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+  padding: 12px 0;
+  margin: 0 0 26px;
+}
+
+/* In-page contents: a plain row of honest labels, wrapping on mobile. */
+.method-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.method-toc a {
+  color: var(--ink-soft, #4c473e);
+  text-decoration: none;
+  padding: 6px 0;
+}
+
+.method-toc a:hover {
+  color: var(--ink, #1c1a16);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.method-section {
+  padding: 48px 0 0;
+}
+
+.method-section > h2 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(27px, 4vw, 34px);
+  line-height: 1.12;
+  border-top: 2px solid var(--ink, #1c1a16);
+  padding-top: 14px;
+  margin: 0 0 16px;
+}
+
+.method-section h3 {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 28px 0 8px;
+}
+
+.method-section p {
+  margin: 0 0 16px;
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-section p strong,
+.method-section li strong {
+  color: var(--ink, #1c1a16);
+}
+
+.method-section ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-section li {
+  margin-bottom: 10px;
+}
+
+.method-section li::marker {
+  color: var(--accent, #a35a00);
+}
+
+.method-section code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--paper-2, #f2eee4);
+  border: 1px solid var(--hairline, #d9d2c2);
+  border-radius: 3px;
+  padding: 1px 5px;
+  overflow-wrap: anywhere;
+}
+
+/* The formal rule list: each rule gets a hairline, no card chrome. */
+.method-rules {
+  list-style: none;
+  padding-left: 0;
+}
+
+.method-rules li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+}
+
+.method-rules li:first-child {
+  border-top: 1px solid var(--hairline, #d9d2c2);
+}
+
+/* Definitions: term on its own line, definition below it. */
+.method-defs {
+  margin: 0 0 16px;
+}
+
+.method-defs dt {
+  font-weight: 700;
+  color: var(--ink, #1c1a16);
+  margin-top: 18px;
+}
+
+.method-defs dd {
+  margin: 4px 0 0;
+  color: var(--ink-soft, #4c473e);
+}
+
+/* Source / coverage tables: hairlines only, tabular figures. */
+.method-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14.5px;
+  margin: 0 0 16px;
+  border-top: 2px solid var(--ink, #1c1a16);
+}
+
+.method-table th,
+.method-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 12px 14px 12px 0;
+  border-bottom: 1px solid var(--hairline, #d9d2c2);
+  color: var(--ink-soft, #4c473e);
+}
+
+.method-table th {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint, #7d7668);
+  font-weight: 700;
+}
+
+.method-table td {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .method-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Chart legend: one dot per swatch, flag + word beside the tint. */
+.method-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 13.5px;
+  color: var(--ink-soft, #4c473e);
+  border-top: 1px solid var(--hairline, #d9d2c2);
+  padding-top: 14px;
+  margin: 20px 0 0;
+}
+
+.method-swatches span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.method-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+
+.method-dot-dem {
+  background: var(--dem-full, #3d5a80);
+}
+
+.method-dot-dem-flagged {
+  background: var(--dem-flagged, #a7bedd);
+  box-shadow: 0 0 0 1px var(--dem-full, #3d5a80);
+}
+
+.method-dot-rep {
+  background: var(--rep-full, #a63d40);
+}
+
+.method-dot-rep-flagged {
+  background: var(--rep-flagged, #e2aca6);
+  box-shadow: 0 0 0 1px var(--rep-full, #a63d40);
+}
+
+.method-dot-judged {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint, #7d7668);
+}
+
+.method-dot-uncalled {
+  background: transparent;
+  border: 1.5px dashed var(--ink-faint, #7d7668);
+  box-shadow: none;
+}
+
+.method-footer {
+  border-top: 2px solid var(--ink, #1c1a16);
+  margin-top: 48px;
+  padding-top: 18px;
+  font-size: 13.5px;
+  color: var(--ink-faint, #7d7668);
+}
+
+.method-footer p {
+  margin: 0 0 10px;
+}
+
+.method-source {
+  font-size: 12.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .method-page * {
+    transition: none;
+  }
+}
+</style>
+</head>
+<body>
+<nav class="skip-links" aria-label="Skip links">
+<a class="skip-link" href="#main">Skip to main content</a>
+<a class="skip-link" href="../explore/">Skip to the data</a>
+</nav>
+<header class="topbar">
+<div class="wrap topbar-in">
+<div class="brand"><a href="../">The Receipts</a></div>
+<nav aria-label="Site">
+<a href="../">Story</a>
+<a href="../explore/">Explore the data</a>
+<a href="./">Methodology</a>
+<a href="../explore/#search">Search</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<article class="method-page">
+<p class="method-kicker">Methodology — the nerd box</p>
+<h1>How we flagged members</h1>
+<p class="method-lede">Every verdict on this site comes from a written rule applied to FEC filings — nothing is judged by eye. This page states the rules in plain English first and in formal form second, names the sources, shows the cleaning steps, and lists what the data cannot show. The full, authoritative version is <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a> in the repository; if this page and that document ever disagree, methodology.md wins.</p>
+<p class="method-stamp">Data as of — committee money through Oct 14, 2026; individual / self-funding / topline through Oct 14, 2026; independent expenditures through Nov 03, 2026. 2026 is partial. Generated 2026-11-27 15:07 UTC. · Next FEC update Dec 03, 2026</p>
+<nav class="method-toc" aria-label="On this page">
+<a href="#flag-rules">The flag rules</a>
+<a href="#sources">Sources &amp; cleaning</a>
+<a href="#definitions">Definitions</a>
+<a href="#charts">How to read the chamber charts</a>
+<a href="#limitations">Exclusions &amp; limitations</a>
+<a href="#updates">Updates &amp; corrections</a>
+</nav>
+
+<section id="flag-rules" class="method-section">
+<h2>1. The flag rules, in plain English first</h2>
+<p><strong>In plain English:</strong> a member is <strong>flagged</strong> if they took any money at all from the AIPAC PAC, or benefited from any UDP spending, in the term being judged. That flag is not tolerance-based — it applies under every preset, and a flagged member is never called clean, even if refunds elsewhere make their net dirty money zero or negative. Corporate PAC money is judged separately, under a tolerance preset: a little of it may leave a member below the threshold, but a lot of it counts as dirty.</p>
+<p><strong>The one-line reason, repeated on every flagged member wherever a verdict appears:</strong> “Flagged — took AIPAC PAC money or benefited from UDP spending.” The rule travels with the verdict so it never reads as an accusation without its reason.</p>
+
+<h3>The formal form</h3>
+<ul class="method-rules">
+<li><strong>Flagged</strong> — any AIPAC PAC direct dollar (<code>aipac_direct</code> &gt; 0) <em>or</em> any UDP benefit dollar (<code>udp_benefit</code> &gt; 0) in the term being judged. The flag takes precedence over the net: corporate refunds cannot cancel AIPAC or UDP money.</li>
+<li><strong>Strict</strong> — dirty when flagged, or when net dirty money is above zero. Clean is the same as the headline clean verdict: net dirty money at or below zero <em>and</em> not flagged.</li>
+<li><strong>Balanced (the default)</strong> — dirty when flagged, or when corporate PAC money is over $100,000 <em>and</em> over 5% of the term’s total receipts. Otherwise the member is clean, or below threshold (below).</li>
+<li><strong>Lenient</strong> — dirty when flagged, or when corporate PAC money is over $250,000 <em>and</em> over 10% of the term’s total receipts. Otherwise the member is clean, or below threshold (below).</li>
+<li><strong>Below threshold</strong> — the middle tier. The member took corporate PAC money below the preset’s thresholds. It is never called clean, and the dollar amount is always shown next to it.</li>
+</ul>
+<p>The share test compares corporate PAC money (committee filings) with total receipts (candidate summary filings), so the two must run through the same coverage end date or the share is skewed; when total receipts are not positive the share is undefined and the share test cannot pass. A count is never shown without its preset: every clean or not-dirty figure on this site is labelled Strict, Balanced or Lenient, and the default presentation is Balanced.</p>
+
+<h3>The headline term — “since last election”</h3>
+<p>The headline verdict judges a member on their last election’s cycle <em>and every cycle since</em>, summed as one term — so money raised between elections, toward the next race, counts. A member whose seat is up in the current cycle is judged on the current cycle onward; otherwise on their latest cycle up. The cycle picker in Explore judges one cycle at a time instead; the primary-target list always reads the headline verdict.</p>
+<p>Under the headline term, <b>299 of the incoming Congress are flagged</b>, and <b>77 are verified clean: 69 in the House (66 D, 3 R) + 8 in the Senate (7 D, 1 I, 0 R).</b> The 3 clean House Republicans are Anthony Constantino, Kimberlyn King-Hinds, and Mark Lamb. Under Balanced, 170 of the incoming Congress are not dirty; under Lenient, 203. 58 incoming House members are career-clean — no corporate PAC, AIPAC direct, UDP support or UDP opposition credit in any cycle. All of these figures are computed from the dataset at build time, never typed.</p>
+
+<h3>What “clean” means — and what it does not</h3>
+<ul>
+<li><strong>Clean</strong> means the member took no net dirty money in the term being judged and no flagged dollar: no corporate PAC money on net, no AIPAC PAC direct money, no UDP benefit. It is a statement about the money sources this tracker covers, not a character judgement.</li>
+<li><strong>Unverified</strong> means there is no linked filing for the member in the term being judged — no entry in any money source. Missing data is never read as clean. 2 members are unverified: Alan Armstrong and Elaine Luria.</li>
+<li><strong>Unopposed</strong> means the member ran with no opponent who filed receipts over $0. Zero dirty money in a race with no opponent is a structural zero, not a verified-clean campaign, so an unopposed member with no net dirty money is unverified, not clean. 3 members ran unopposed in 2026 — no opponent with receipts over $0 — so $0 dirty money there is not counted as verified-clean: Aumua Amata Coleman Radewagen, Ayanna Pressley, and Sara Jacobs. A dirty unopposed member stays dirty.</li>
+<li><strong>Individual contributions are never dirty money.</strong> They are the normal way campaigns are funded, from real people giving their own money — a candidate can raise millions from individuals and still be verified clean. Self-funding (the candidate’s own money) and other-committee money (party, labor, trade, leadership PACs) are also not dirty under this definition.</li>
+<li><strong>“Total accepted” measures scale, not dirtiness.</strong> It is individual contributions + corporate PAC money + AIPAC PAC direct — most of it individual money. That is why the site’s leaderboards and default sort lead with dirty money, not with total accepted.</li>
+</ul>
+</section>
+
+<section id="sources" class="method-section">
+<h2>2. Sources &amp; cleaning</h2>
+<p>FEC filings are the source of truth for every figure. OpenSecrets is a cross-check only, never a primary source. Every number traces to a filing, and the pipeline that builds the dataset is scripted (<code>python3 receipts/rebuild.py</code>) and reproduces the committed dataset byte-identically; this site is generated from that dataset by <code>receipts/site/build_site.py</code> — never hand-edited.</p>
+<h3>Which files</h3>
+<table class="method-table">
+<thead><tr><th>Money</th><th>Source file</th><th>How it is read</th></tr></thead>
+<tbody>
+<tr><td>Individual contributions, self-funding, topline</td><td>FEC all-candidates file (<code>weball</code>), every career cycle</td><td>Summary totals per candidate per cycle</td></tr>
+<tr><td>Corporate PAC, AIPAC direct, other-committee money</td><td>Schedule B committee-to-candidate file (<code>pas2</code>) joined to the committee-master file (<code>cm</code>), same cycle</td><td>Itemized contributions, classified by the contributing committee’s filed codes</td></tr>
+<tr><td>UDP and all independent expenditures</td><td>FEC independent-expenditure bulk files, 2022–2026</td><td>Spending for or against a candidate, filtered to registered committees and identified candidates</td></tr>
+<tr><td>AIPAC and pro-Israel direct money, 2022–2026</td><td>FEC API Schedule B merge (the bulk file drops nearly all earmarked checks)</td><td>Each conduit’s disbursements by recipient, deduplicated on the FEC sub-ID</td></tr>
+</tbody>
+</table>
+<p>Career money covers FEC cycles 1980–2026. The AIPAC PAC and UDP first filed in the first cycle of the 2022–2026 span, so earlier cycles are legitimately zero for those columns, not missing data.</p>
+<h3>How AIPAC money is identified in FEC data</h3>
+<p>AIPAC money is the Schedule B disbursements of the AIPAC PAC (committee ID set in <code>config.yaml</code>, verified against the OpenFEC API): transaction types <code>24K</code>/<code>24P</code>. The headline column is the total of the raw rows — the PAC’s own money <em>plus</em> earmarked individual checks transmitted through it as a conduit. Earmarked checks are identified by memo text naming a donor; the earmark part is broken out as its own column, but that column is the bulk-file-identified subset only — under the corrected headline, headline minus earmark does <em>not</em> give PAC own-money, because the API merge does not split earmark from own money. The earmarked money is also inside the individual-contributions column, because it is individuals’ money; the two columns must never be added together.</p>
+<h3>Cleaning steps</h3>
+<ul>
+<li><strong>Amended-filing dedup.</strong> Contributions are deduplicated on committee, transaction ID, candidate, amount, date and election — transaction ID alone is unsound, because some filers reuse line-number-style IDs across reports. Memo rows are kept, not blanket-excluded; the dedup rule removes the true duplicates instead.</li>
+<li><strong>Weball double-count correction.</strong> Where the candidate-summary file repeats one committee’s identical individual-contribution total under a person’s House and Senate IDs in the same cycle, it is counted once; the decision is recorded as data and applied, never re-derived. Transfer fields between two views of one shared committee are counted once the same way.</li>
+<li><strong>Blank candidate IDs resolved by name — only where the match is unique.</strong> Where a filer left the candidate ID blank and the name plus state, district and office match exactly one roster person, the spending is attributed to that person and flagged in their notes. Ambiguous names stay unattributed rather than guessed.</li>
+<li><strong>Independent-expenditure filter.</strong> The IE files contain large amounts of bogus filings, so only rows from a registered committee about an identified candidate are published; the excluded amounts per bucket are reported in the build, not silently dropped.</li>
+<li><strong>Refund netting.</strong> Negative rows are included in the sums, so the committee-money columns are net of refunds and voids as recorded — except voided earmark rows in the bulk file, which are excluded because their originals are not in the file and netting them creates phantom negatives. The API merge nets them instead, so a corrected per-cycle figure can be negative where voids exceed new earmarks.</li>
+<li><strong>Opposition credit is conservative.</strong> UDP spending against a candidate’s opponent is credited to the backed candidate only when UDP backed exactly one candidate in that race-phase (cycle + office + state + district + election phase, from the filing’s election type). Spending against the backed candidate themself is never credited.</li>
+</ul>
+<h3>The exact analysis</h3>
+<p>Per person, per cycle: money summed across all of the person’s FEC candidate IDs; the headline term sums the election cycle and every cycle since; the dependence share and the AIPAC/UDP flag are recomputed from those sums; tiers are applied from the thresholds in <code>config.yaml</code>. The standing audits re-derive every per-cycle sum, every rank, every clean count and every tier from the staged files and fail the build on any mismatch. The full method, with every reconciliation, is in methodology.md (§2–§4, §12–§14).</p>
+</section>
+
+<section id="definitions" class="method-section">
+<h2>3. Definitions</h2>
+<dl class="method-defs">
+<dt>Corporate PAC</dt>
+<dd>Direct contributions from corporate-connected PACs: a committee whose filed type is Q or N <em>and</em> whose organization type is C or W in the same cycle’s committee-master file. Trade associations, labor unions, membership organizations, cooperatives and hybrid PACs are excluded — they live in the other-committee columns. A blank organization type is unclassified, never corporate. A reviewed override in <code>config.yaml</code> beats the filed code; a conduit that forwards individuals’ earmarked contributions is overridden to unclassified, never corporate, because the money comes from individuals.</dd>
+<dt>Cycle</dt>
+<dd>A two-year election period named for its election year. Career money covers 1980–2026; the current cycle (2026) is partial. All independent-expenditure “career” figures cover 2022–2026 only — earlier IE files are not staged — and must never be described as lifetime totals.</dd>
+<dt>Flagged</dt>
+<dd>Any AIPAC PAC direct dollar or any UDP benefit dollar in the term being judged, under every preset. The flag is a money fact, not a verdict — it is carried on every row, including unverified ones.</dd>
+<dt>Clean</dt>
+<dd>Under Strict, no net dirty money and no flagged dollar in the term being judged, with linkage evidence (see §1). Under Balanced and Lenient, “not dirty” additionally includes members below the preset’s corporate PAC thresholds — clean or below threshold, never just “clean”.</dd>
+<dt>Below threshold</dt>
+<dd>Took corporate PAC money below the preset’s amount and share thresholds. Never called clean; the dollar amount is always shown.</dd>
+<dt>Dirty money</dt>
+<dd>Corporate PAC money + AIPAC PAC direct money + UDP benefit (UDP support + opposition credit). Individual contributions, self-funding and other-committee money are never dirty money.</dd>
+<dt>Total accepted</dt>
+<dd>Individual contributions + corporate PAC money + AIPAC PAC direct money. UDP spending is never accepted — it was never given to the campaign — and earmark columns are subsets of their parents, never added again.</dd>
+<dt>UDP benefit</dt>
+<dd>UDP independent expenditures supporting the candidate, plus UDP spending against their opponent credited under the exactly-one-backed-candidate rule. Spending <em>about</em> a race, legally uncoordinated with the campaign — never a contribution.</dd>
+<dt>Self-funding</dt>
+<dd>Candidate contributions + candidate loans. The candidate’s own money; a self-funded campaign with nothing in the tracked columns raised nothing <em>from others</em>, not nothing at all.</dd>
+<dt>Other committees</dt>
+<dd>Direct contributions from committees that are not corporate PACs and not the AIPAC PAC, classified by committee type: party, leadership, labor, trade, membership, cooperative, unclassified. Shown separately, never in total accepted or dirty money.</dd>
+<dt>Leadership PACs</dt>
+<dd>A leader’s leadership PAC is one of the other-committee classes, tracked in its own column — not folded into the leader’s total accepted or dirty money. See §5 for what that leaves out.</dd>
+<dt>Joint fundraising committees (JFCs)</dt>
+<dd>Money a conduit sends to a joint fundraising committee counts as money from that conduit under the headline rule, because it is earmarked by individual donors, transmitted by the conduit, and lands in the candidate’s own fundraising vehicle before reaching their committee. The excluded variant is carried as a parallel column for comparison; the split of a multi-candidate JFC’s outflows is a pro-rata allocation, stated as such, because the FEC record does not tag a JFC’s outflows by funding source.</dd>
+<dt>Unverified / unopposed</dt>
+<dd>Unverified: no linked filing in the term — a data gap, not a race fact. Unopposed: ran with no opponent who filed receipts over $0 — a race fact, not a data gap. The site renders them as distinct labels.</dd>
+</dl>
+</section>
+
+<section id="charts" class="method-section">
+<h2>4. How to read the chamber charts</h2>
+<p>The Story’s first beat and the Explore overview each show the same two charts — one per chamber, never one combined field. Each chart is a waffle: one dot per voting seat, House first, then Senate. The counts are computed from the dataset at render time, never typed.</p>
+<ul>
+<li><strong>The party split is drawn first.</strong> Inside each chamber, Democrats sit in one contiguous block and Republicans in one contiguous block — never interleaved, never dispersed across all members.</li>
+<li><strong>Flagged is overlaid on top of that split, never instead of it.</strong> Flagged members sit at the head of their own party’s block. Unflagged members keep their usual party colour at full strength — blue for Democrats, red for Republicans. Flagged members switch to the lighter tint of their own party’s colour — lighter blue for a flagged Democrat, lighter red for a flagged Republican — and are ringed in the full party colour. No third “flagged” colour appears anywhere; there is no amber.</li>
+<li><strong>The verdict is never carried by colour alone.</strong> Position at the head of the party block, the flag mark and the word “Flagged” back the tint up, so the chart still reads in greyscale and to a reader who cannot see the tint.</li>
+<li><strong>Not judged is not clean.</strong> Unopposed and unverified seats are grey hollow rings — zero dirty money there is not a clean verdict. Uncalled seats are dashed grey rings. Non-voting delegates are not plotted — they have no vote — and are listed under the chart, so the chart’s House clean counts can differ from the verified-clean counts in §1, which include delegates.</li>
+</ul>
+<p class="method-swatches" aria-label="Chart legend">
+<span><i class="method-dot method-dot-dem"></i> Democrat, not flagged</span>
+<span><i class="method-dot method-dot-dem-flagged"></i> Democrat, flagged — lighter blue</span>
+<span><i class="method-dot method-dot-rep"></i> Republican, not flagged</span>
+<span><i class="method-dot method-dot-rep-flagged"></i> Republican, flagged — lighter red</span>
+<span><i class="method-dot method-dot-judged"></i> Not judged (unopposed / unverified)</span>
+<span><i class="method-dot method-dot-uncalled"></i> Uncalled</span>
+</p>
+</section>
+
+<section id="limitations" class="method-section">
+<h2>5. Exclusions &amp; limitations — stated, not buried</h2>
+<table class="method-table">
+<thead><tr><th>Column family</th><th>Source</th><th>Coverage ends</th></tr></thead>
+<tbody>
+<tr><td>Individual, self-funding, topline</td><td>weball</td><td>Oct 14, 2026</td></tr>
+<tr><td>Corporate PAC, AIPAC, other committees</td><td>pas2</td><td>Oct 14, 2026</td></tr>
+<tr><td>UDP + all independent expenditures</td><td>IE bulk files</td><td>Nov 03, 2026</td></tr>
+</tbody>
+</table>
+<p>2026 is partial, and the cutoff differs by column family — figures from different families are not directly comparable, and current-cycle totals rise and get amended at each re-pull. Do not compare 2026 figures head-to-head with full cycles.</p>
+<ul>
+<li><strong>Leadership PACs and joint fundraising committees are partly out of the headline.</strong> A leader’s leadership-PAC money is tracked in its own other-committee column, not in their total accepted or dirty money — so, as OpenSecrets’ own reporting warns for candidate pages, the headline understates what a leader’s network raises. Joint fundraising shares from conduits count as direct under the headline rule (§3); the excluded variant is carried in parallel.</li>
+<li><strong>The FEC amends filings and files late.</strong> Totals move at each re-pull as reports arrive and corrections land. The summary file is a lower bound where the FEC API runs ahead of the bulk files; a freshness layer reports late money (48-hour notices, 24/48-hour independent expenditures) between pulls and is never merged into these totals.</li>
+<li><strong>Some spenders cannot be attributed by ID.</strong> A few large spenders file the candidate ID blank throughout, so their spending is excluded from the published all-IE totals; their name-resolvable amounts are reported as a diagnostic, never added to a published total.</li>
+<li><strong>Pro-Israel PAC money undercounts bundling.</strong> A listed PAC acting as a conduit forwards individuals’ earmarked checks with no candidate ID, which neither bulk file carries; the API merge covers the main conduits for recent cycles, and ambiguous recipient names stay unattributed. The list is Track AIPAC’s, as published; whether a listed committee belongs on it is their judgement, and their donor-matching layer is not reproduced here — so these columns are a lower bound of Track AIPAC’s totals.</li>
+<li><strong>Roster-linkage gaps are not derivation errors.</strong> Money filed under a candidate ID the roster does not link does not attach to the person, in either direction. Elaine Luria is unverified, not clean and not dirty — her real 2026 campaign runs under a candidate ID the roster does not link, and linking it is a roster change. Two members show $0 individual contributions alongside real corporate PAC money — a missing-committee-linkage gap, not a real zero. An appointed senator who never ran has no FEC record: all money cells read “unknown,” not zero, and they are unranked.</li>
+<li><strong>120th results are media calls, uncertified;</strong> uncalled seats read as unknown. Members who left before the roster was crawled are not included — the roster is current members plus the incoming Congress, not everyone who served in the 119th.</li>
+<li><strong>All-IE “career” means 2022–2026 only.</strong> The earlier IE files are not staged. A negative career total is kept as computed — it arises when a later filing voids contributions whose originals are not in the file — and ranks as filed.</li>
+<li><strong>Reconciliation gaps stay open, not adjusted.</strong> The AIPAC and UDP totals do not reconcile to the dollar with OpenSecrets, and a few other-committee reconciliations carry unexplained residuals. No figure is ever adjusted to force a match; the gaps are documented in methodology.md §8.</li>
+</ul>
+</section>
+
+<section id="updates" class="method-section">
+<h2>6. Updates &amp; corrections</h2>
+<p>Data as of — committee money through Oct 14, 2026; individual / self-funding / topline through Oct 14, 2026; independent expenditures through Nov 03, 2026. 2026 is partial. Generated 2026-11-27 15:07 UTC.</p>
+<p><strong>Re-pull plan.</strong> After each FEC filing deadline that closes the cycle — the post-general report, then the year-end report — a new pinned snapshot is published and the dataset is rebaselined: every figure that moved is reviewed, old next to new, before it reaches the site. The freshness layer covers the gap between the bulk coverage end and each re-pull; after each re-pull it starts fresh — freshness figures are never carried forward into the dataset.</p>
+<p><strong>Corrections.</strong> When a figure is corrected, the correction note goes on every page that showed the wrong figure — the Story, Explore and this page — not only on the page where the error was found. A rule change lands in methodology.md in the same change as the data, and the counts on this page are recomputed from the dataset at build time, so a corrected dataset corrects every surface at once.</p>
+<p><strong>How to check our work.</strong> The dataset (<code>congress-money-tracker.csv</code> / <code>.json</code>), the per-cycle records and the full method are public in <a href="https://github.com/craigSochocki/the-receipts">the repository</a>. Every figure on this site traces to an FEC filing; if a number looks wrong, the filing — not this page — is the place to check it.</p>
+</section>
+
+<footer class="method-footer">
+<p>This page is condensed from <a href="https://github.com/craigSochocki/the-receipts/blob/master/methodology.md">methodology.md</a>, which is authoritative. Back to the <a href="../">Story</a> · <a href="../explore/">Explore the data</a></p>
+<p class="method-source">Source: FEC filings, via the pinned bulk snapshot named in <code>data/source/baseline.json</code>. OpenSecrets is a cross-check only.</p>
+</footer>
+</article>
+
+</main>
+<footer>
+<div class="wrap">
+<p class="foot-fresh">Data through Nov 03, 2026 — 2026 is partial. Full coverage dates in the methodology.</p>
+<details class="foot-coverage"><summary>Coverage end dates — 2026 is partial</summary><p>Data as of — committee money through Oct 14, 2026; individual / self-funding / topline through Oct 14, 2026; independent expenditures through Nov 03, 2026. 2026 is partial. Generated 2026-11-27 15:07 UTC.</p></details>
+<p>Data as of 2026-11-22. Source: FEC bulk filings (weball, pas2, committee master, independent-expenditure files) — see <a href="./">Methodology</a>. Dataset md5: <code>5ab50a18f7b4030246ae3a44314c0dee</code>. Generated 2026-11-27 15:07 UTC.</p>
+<p>Next cycle: 2028. The Receipts is a voter guide for 2028 — every figure traces to an FEC filing, and the method for every column is written down in the methodology.</p>
+</div>
+</footer>
+
+
+</body>
+</html>
