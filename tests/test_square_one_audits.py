@@ -4,6 +4,8 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
+
 from receipts.square_one import audits, conduit, ie, money, opposition, roster, variants
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,8 +57,18 @@ def _full_derivation():
     return people, figures, pas2_per_cycle, pas2_career, ie_by_candidate
 
 
-def test_no_zero_columns_passes_and_fires():
-    people, figures, _pc, _career, _ie = _full_derivation()
+@pytest.fixture(scope='module')
+def full_derivation():
+    """The full derivation, run once and shared by every test that reads it.
+
+    Deriving re-parses the pinned bulk files and dominates this file's
+    runtime; the tests only read the result, so it is built once.
+    """
+    return _full_derivation()
+
+
+def test_no_zero_columns_passes_and_fires(full_derivation):
+    people, figures, _pc, _career, _ie = full_derivation
     results = audits.audit_no_zero_columns(
         figures,
         [2022, 2024, 2026],
@@ -107,8 +119,8 @@ def test_earmark_share_passes_corrected_and_fails_pas2():
     assert not failed[0]['passed']
 
 
-def test_live_spot_checks_and_headline_claim():
-    people, figures, pas2_per_cycle, _career, _ie = _full_derivation()
+def test_live_spot_checks_and_headline_claim(full_derivation):
+    people, figures, pas2_per_cycle, _career, _ie = full_derivation
     corrected_2026 = {
         person_key: entry['aipac_b_cents']
         for (person_key, cycle), entry in figures.items()
@@ -131,8 +143,8 @@ def test_live_spot_checks_and_headline_claim():
     assert passed, line
 
 
-def test_ta_comparison():
-    people, figures, pas2_per_cycle, pas2_career, ie_by_candidate = _full_derivation()
+def test_ta_comparison(full_derivation):
+    people, figures, pas2_per_cycle, pas2_career, ie_by_candidate = full_derivation
     person_of = roster.person_of(people)
     with open(ROOT / 'data' / 'source' / 'pro_israel_pacs.csv', newline='') as f:
         listed = sorted({row['committee_id'] for row in csv.DictReader(f)})
