@@ -5,10 +5,10 @@
        - the embedded payloads (same shape as the old page):
          <script id="receipts-cols" type="application/json">, #receipts-data,
          #opp-data — explore.js decodes them exactly as tracker.js did.
-       - %%EXPLORE_OVERVIEW%% replaced by the static overview strip
-         (receipts/site/static_explore.py: render_overview_slot),
-         %%EXPLORE_THEAD%% / %%EXPLORE_TBODY%% by the static first page
-         of the table (render_table_slots).
+       - %%EXPLORE_OVERVIEW%%, %%EXPLORE_THEAD%%, %%EXPLORE_TBODY%%
+         and %%EXPLORE_SHOWING%% replaced by the static overview strip
+         and the static first page of the table
+         (receipts/site/static_explore.py: render_explore_slots).
        - %%DATA_AS_OF%% and %%DATASET_MD5%% as in the old page.
        - %%PAGE_STYLE%% filled with explore.css; %%PAGE_SCRIPTS%% with
          explore.js. No d3 / Plot / Scrollama needed on this page:
@@ -19,7 +19,7 @@
      Element ids below are the contract explore.js binds to; renaming
      one means renaming it in explore.js and static_explore.py too.
 -->
-<main id="explore" class="explore">
+<div id="explore" class="explore">
   <p class="explore-kicker">Explore the data</p>
   <h1>Every member, every dollar — find yours first.</h1>
   <p class="explore-lede">The whole tracker, searchable. Start with your member of Congress, then filter, sort, and open any row for the full breakdown.</p>
@@ -132,7 +132,7 @@
     </div>
     <p class="view-intro" id="hemicycle-note"></p>
   </section>
-</main>
+</div>
 
 <!-- Step 3 · Details on demand: the member drawer. -->
 <div class="detail" id="detail" role="dialog" aria-modal="true"><div class="sheet" id="detail-sheet"></div></div>
