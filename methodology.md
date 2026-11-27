@@ -644,8 +644,8 @@ unopposed. The site renders unopposed members as **Unopposed**, distinct from
 AIPAC PAC direct, UDP support and UDP opposition credit (career columns) are all zero. It
 is derived from those career columns only and is untouched by the unopposed rule.
 
-**Primary targets — the next cycle's watchlist.** The site's "Primary targets — <next
-cycle>" tab lists incoming members of any party whose seat is up in the next cycle and
+**Primary targets — the next cycle's watchlist.** The list in Explore ("Primary targets — <next
+cycle>") names incoming members of any party whose seat is up in the next cycle and
 who took dirty money in their latest election. It is a watchlist, NOT a prediction of
 who will be on the ballot: retirements are unknown and the next cycle's filings are
 barely open. The rule is mechanical (dirty money only); the tracker does not judge
@@ -674,8 +674,7 @@ electability or anything else.
   cycle presence separates nobody; "earliest Senate-ID cycle mod 6" breaks on
   special-election winners; and the FEC candidate-ID digits carry no class. The class
   lives in the legislators data, not the FEC data.
-- **Front door.** The Data chapter carries a compact pointer whose button opens the
-  targets tab by in-page navigation (`showTab('targets')`).
+- **Targets pointer.** The Story's closing beat links to the targets list in Explore.
 
 **Data gaps — read before quoting any 2026 zero.**
 
@@ -730,10 +729,10 @@ linked in the roster therefore keeps the current cycle's verdict (unverified, §
 older cycle's. A person never up in any cycle with data has no headline verdict (all null).
 The current-cycle columns of §14 are unchanged and remain the current cycle's own verdict.
 
-**What the site shows.** The site opens on the headline verdict ("Since last election"):
-every board, chart, count and table reads each person's term — their `verdict_cycle` and
+**What the site shows.** The Story opens on the headline verdict ("Since last election"):
+every board, chart and count in it reads each person's term — their `verdict_cycle` and
 every cycle since, summed as above. The cycle
-picker swaps in one cycle's records instead, from `cycles.picker_start` to the current
+picker in Explore swaps in one cycle's records instead, from `cycles.picker_start` to the current
 cycle; a person with no record for the picked cycle shows zero money and no verdict. The
 primary-target list always reads the headline verdict (§14).
 
@@ -833,32 +832,36 @@ the rebuild unaffected.
 
 ---
 
-## 17. Chamber composition charts — House waffle and Senate state tiles
+## 17. Chamber composition charts — chamber-separated waffles
 
-The front door carries two composition charts, one per chamber, computed from the dataset
-at render time. Placement: front door, after the clean story and before the finder;
-stacked full-width, House first.
+The Story's first beat and the Explore overview each carry two composition charts, one per
+chamber, computed from the dataset at render time. House first, Senate second, stacked
+full-width — never one combined field, never one combined total.
 
-- **House: a 15-row × 29-column waffle grid, 435 bubbles, one per voting seat.** Bubbles
-  fill one column at a time from left to right (top to bottom, then the next column),
-  grouped Clean D, Dirty D, Dirty R, Clean R, then Unopposed, Unverified, Uncalled at the
-  far right. The 435 total is heading text — a grid has no middle to put it in.
-- **Senate: 50 tiles, one per state, in a 10 × 5 grid, each labeled with its two-letter
-  state code.** Each tile is split in half, one half per senator; a split delegation
-  colors each half for its own senator. Halves are ordered by party (D, R, I), then name,
-  so a split is deterministic.
-- **Encoding — clean is solid, dirty is black with the party color inside.** A clean seat
-  is a solid party-color bubble (House) or half (Senate): Democrat blue (#1e40af),
-  Republican red (#991b1b), Independent/other gray (#374151). A dirty seat is black with
-  the party color inside: a centered dot on the House waffle, a dotted party-color pattern
-  on the Senate tiles. Unopposed and unverified are gray hollow rings / white halves (not
-  judged — $0 dirty money there is not a clean verdict); uncalled is a dashed gray ring /
-  empty half.
-- **House: 435 voting seats** = named voting members + uncalled seats. Non-voting
-  delegates are **not plotted** — they have no vote — and are listed under the chart, so
-  the chart's House clean counts can differ from the verified-clean counts in §14, which
-  include delegates.
-- **Senate: 100 seats** = named senators + uncalled seats. A state with an uncalled seat
-  shows one half decided and one half uncalled.
+- **House: a waffle grid, one dot per voting seat.** Dots fill one column at a time from
+  left to right (top to bottom, then the next column). The seat total is heading text — a
+  grid has no middle to put it in.
+- **Senate: a waffle grid, one dot per seat.** The same grammar as the House, in its own
+  panel below it.
+- **The party split is drawn first.** Inside each chamber, Democrats sit in one contiguous
+  block and Republicans in one contiguous block — never interleaved, never dispersed across
+  all members. Independents and other labels sit together after them.
+- **Flagged is overlaid on top of that split, never instead of it.** Flagged members sit at
+  the head of their own party's block; no dot moves when the overlay lands. Unflagged
+  members keep their usual party colour at full strength: Democrat blue, Republican red,
+  Independent/other gray. A flagged member switches to the lighter tint of their own
+  party's colour — lighter blue for a flagged Democrat, lighter red for a flagged
+  Republican — and is ringed in the full party colour, so the lighter dot still reads as
+  flagged, not faded. No third "flagged" colour appears anywhere; there is no amber.
+- **The verdict is never carried by colour alone.** Position at the head of the party block,
+  the flag mark and the word back the tint up, so the chart still reads in greyscale.
+- **Not judged is not clean.** Unopposed and unverified seats are grey hollow rings — zero
+  dirty money there is not a clean verdict. Uncalled seats are dashed grey rings.
+- **House voting seats only.** Non-voting delegates are **not plotted** — they have no vote
+  — and are listed under the chart, so the chart's House clean counts can differ from the
+  verified-clean counts in §14, which include delegates.
+- **Senate seats** are named senators plus uncalled seats.
 
-The counts are computed at render, never typed, so they move with the data.
+The counts are computed at render, never typed, so they move with the data. The same
+grouping rule governs any party-versus-party or flagged view in Explore: chambers apart,
+party split first, flagged only ever overlaid on top of it.
