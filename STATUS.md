@@ -538,6 +538,29 @@
 8. **Public sharing:** the site is live and public by Craig's go-ahead
    (Nov 12, GitHub Pages on `docs/`). Nothing beyond the live site goes
    public without his explicit go-ahead.
+9. **New site rebuild — IN PROGRESS (branch `new-site-rebuild`, base `fbd7a37`, PR #75 merged Nov 27).**
+   The single-page site becomes three pages: the Story (`/`, precomputed aggregates embedded),
+   Explore (`/explore`, the full dataset embedded) and Methodology (`/methodology`, the nerd box).
+   Three workers in separate clones (Story, Explore, Methodology) so nobody collides; the
+   coordinator integrates the commits and pushes — no worker pushes. This worker's part: the
+   Methodology page (`receipts/site/templates/method.html` + `method.css`, body fragment for the
+   shared shell, no scripts, every figure a `%%TOKENS%%` substitution) and the docs that describe
+   the new site — methodology.md §17 rewritten for the chamber-separated waffles (party split
+   first in contiguous blocks, flagged overlaid after as the lighter tint of the member's own
+   party colour, ringed in full party colour, no amber, verdict by flag + word never colour
+   alone; the old clean-solid / dirty-black encoding and Senate state tiles are gone), the §14
+   targets pointer now points at Beat 6 + Explore, README and AGENTS.md (§3, §8) updated for
+   the three-page build and CI check, and the onboarding tour updated for the new embed model
+   (Explore embeds all 664 rows; the Story embeds precomputed aggregates from the same dataset)
+   with Soto's worked-example figure re-verified against the dataset ($310,236.17 holds).
+   Dataset untouched and byte-identical throughout (csv md5 4a591e983fcb84d41baa068e3c438fd6,
+   json md5 5ab50a18f7b4030246ae3a44314c0dee, cycles md5 f940a22ecbd65fa0a767aaa15b0e8180,
+   verified before and after). Open items below are carried forward unchanged — none dropped
+   by this change. Still open, for the coordinator: wire the Methodology page's new tokens
+   (`%%BALANCED_CORP_AMOUNT%%`, `%%BALANCED_CORP_SHARE%%`, `%%LENIENT_CORP_AMOUNT%%`,
+   `%%LENIENT_CORP_SHARE%%` from the config tolerance presets, `%%NEXT_FEC_UPDATE%%` — no config
+   source exists for it yet) into `build_site.py`, and update `verify_site.py` and `ci.yml` to
+   check all three generated pages.
 
 ## Open questions
 
