@@ -178,6 +178,9 @@ function storyStepText(stepId, data){
       + 'tolerance (' + esc(short) + '), '
       + '<b>' + data.counts.balanced_dirty + '</b> of the incoming '
       + meta.incoming_total + ' count as dirty. '
+      + 'These flagged counts are seats, not members: a seat whose race is '
+      + 'still uncalled counts here, with the person named for it, so the '
+      + 'totals can differ from the member counts in Explore. '
       + '<a href="methodology/">How we flagged members</a>.';
   }
   if(stepId === 'ranked'){
