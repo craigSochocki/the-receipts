@@ -471,7 +471,7 @@ function renderOverview(){
       + waffleHtml(members, seats, cols, 'waffle-'+name.toLowerCase())
       + '<p class="waffle-legend"><span><b class="dot dem"></b>Democrat</span><span><b class="dot dem flagged"></b>Democrat, flagged — lighter blue</span><span><b class="dot rep"></b>Republican</span><span><b class="dot rep flagged"></b>Republican, flagged — lighter red</span><span><b class="dot unjudged"></b>Not judged</span><span><b class="dot uncalled"></b>Uncalled seat</span></p>'
       + (delegates.length ? '<p class="delegates-note">Non-voting delegates not plotted: '+esc(delegates.map(p=>p.full_name).join(', '))+'. Total raised and flagged counts above cover all '+esc(name)+' members, delegates included.</p>' : '')
-      + '<p class="src">Source: FEC filings. Career totals; flagged means any AIPAC direct or UDP benefit dollar since the last election.</p></article>';
+      + '<p class="src">Source: FEC filings. Career totals; flagged means any AIPAC direct or UDP benefit dollar since the last election. Counts here cover named members; the Story\u2019s waffle counts seats, uncalled seats included, so its flagged totals can differ.</p></article>';
   }).join('');
 }
 

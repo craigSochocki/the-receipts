@@ -151,6 +151,9 @@ def story_texts(dataset):
             f'tolerance ({esc_html(short)}), '
             f'<b>{data["counts"]["balanced_dirty"]}</b> of the incoming '
             f'{data["meta"]["incoming_total"]} count as dirty. '
+            'These flagged counts are seats, not members: a seat whose race is '
+            'still uncalled counts here, with the person named for it, so the '
+            'totals can differ from the member counts in Explore. '
             '<a href="methodology/">How we flagged members</a>.'
         ),
         'ranked': (

@@ -97,7 +97,10 @@ def _panel_html(name, panel, voting_count, grid_class):
         )
     html += (
         '<p class="src">Source: FEC filings. Career totals; flagged means '
-        'any AIPAC direct or UDP benefit dollar since the last election.</p>'
+        'any AIPAC direct or UDP benefit dollar since the last election. '
+        'Counts here cover named members; the Story\u2019s waffle counts '
+        'seats, uncalled seats included, so its flagged totals can '
+        'differ.</p>'
         '</article>'
     )
     return html
