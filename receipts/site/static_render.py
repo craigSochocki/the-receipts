@@ -403,7 +403,7 @@ def targets_html(targets):
             f'<span class="pdot {t["party"].lower()}">{t["party"]}</span> '
             f'<a href="explore/?member={esc_html(t["key"])}">'
             f'{esc_html(t["name"])}</a> '
-            f'<span class="target-seat">{esc_html(t["seat"])} · {esc_html(t["chamber"])}</span>'
+            f'<span class="target-seat">{esc_html(t["seat"])}</span>'
             f'<span class="target-amt">{t["rounded"]}</span></li>'
         )
     return '<ol class="target-list">' + ''.join(rows) + '</ol>'
