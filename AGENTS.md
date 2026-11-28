@@ -219,14 +219,19 @@ the-receipts/
 
 A change to data or pipeline is not done until it passes this gate:
 
-**When to run what.** Every commit runs the fast checks, about ten
-seconds: `ruff check receipts tests`, `ruff format --check receipts
-tests`, `mypy` and `python3 -m pytest -q --cov=receipts tests`. The full
-rebuild (steps 1 and 2 below) runs once per batch of commits, before
-the pull request is opened, and CI runs it again on the pull request.
-A commit that touches only docs or tests never needs the rebuild. If a
-batch rebuild fails, find the commit with `git bisect`; never adjust a
-figure to get past it.
+**When to run what — two tiers.** Per commit (tier one — seconds to a
+couple of minutes): `ruff check receipts tests`, `ruff format --check
+receipts tests`, `mypy`, and the tests the change touches — the test
+file for each module changed, plus the fast structural guards (docs,
+onboarding, code quality, config). The full suite is not a per-commit
+check: it takes minutes, not seconds, and running it per commit is how
+verification time balloons. Once per batch of commits, before the pull
+request is opened (tier two): the full suite, `python3 -m pytest -q
+--cov=receipts tests`, and the full rebuild (steps 1 and 2 below). CI
+runs the whole gate again on the pull request. A batch that touches
+only docs or tests never needs the rebuild. If a batch rebuild fails,
+find the commit with `git bisect`; never adjust a figure to get past
+it.
 
 1. **Full rebuild from the pinned snapshot reproduces the committed
    dataset byte-identically:**

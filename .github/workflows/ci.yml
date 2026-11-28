@@ -32,9 +32,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          # The dependency set lives in pyproject.toml, pulled in via
+          # requirements.txt under constraints.txt pins; hash all three
+          # so any dependency change busts the cache.
+          cache-dependency-path: |
+            requirements.txt
+            constraints.txt
+            pyproject.toml
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Cache the Chromium browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          # constraints.txt pins the Playwright version, so a pin bump
+          # busts the cache and downloads the matching browser.
+          key: ms-playwright-${{ runner.os }}-${{ hashFiles('constraints.txt') }}
 
       - name: Install Chromium for the site smoke test
         run: python3 -m playwright install --with-deps chromium
@@ -59,7 +75,9 @@ jobs:
         run: ./fetch_snapshot.sh
 
       - name: Unit tests, complexity limits and coverage floor
-        run: python3 -m pytest -q --cov=receipts tests
+        # -n 4 spreads the suite across the runner's cores; pytest-cov
+        # merges the workers' coverage, so the floor check is unchanged.
+        run: python3 -m pytest -q -n 4 --cov=receipts tests
 
       - name: Rebuild dataset
         run: python3 receipts/rebuild.py

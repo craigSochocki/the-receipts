@@ -14,6 +14,8 @@ an unlinked candidate ID, so the API money is unattributed.
 import json
 from pathlib import Path
 
+import pytest
+
 from receipts.square_one import (
     conduit,
     counts,
@@ -131,6 +133,16 @@ def _assemble():
     }
 
 
+@pytest.fixture(scope='module')
+def assembled():
+    """The counts derivation inputs, assembled once and shared by every test.
+
+    Assembling re-parses the pinned bulk files and dominates this file's
+    runtime; the tests only read the result, so it is built once.
+    """
+    return _assemble()
+
+
 def _recount_counts(variant):
     rows = [v for v in RECOUNT[variant].values() if v['in_120']]
 
@@ -158,8 +170,8 @@ def _recount_counts(variant):
     }
 
 
-def test_counts_reproduce_recount_under_all_variants():
-    data = _assemble()
+def test_counts_reproduce_recount_under_all_variants(assembled):
+    data = assembled
     edges = {
         'baseline': [],
         'A': [('J000310', 2026), ('Z000018', 2026)],
@@ -185,8 +197,8 @@ def test_counts_reproduce_recount_under_all_variants():
         assert got_edges == edges[variant], (variant, got_edges)
 
 
-def test_ryan_stays_null_and_unflagged_under_both_variants():
-    data = _assemble()
+def test_ryan_stays_null_and_unflagged_under_both_variants(assembled):
+    data = assembled
     for variant in ('A', 'B'):
         results, _got = counts.run_variant(
             data['people'],
@@ -210,10 +222,10 @@ def test_ryan_stays_null_and_unflagged_under_both_variants():
         assert ryan['term']['aipac_udp_flag'] is False
 
 
-def test_cycle_records_match_dataset_for_spot_members():
+def test_cycle_records_match_dataset_for_spot_members(assembled):
     # The committed dataset holds the Variant A figures, so the
     # derivation's Variant A records must match it cycle by cycle.
-    data = _assemble()
+    data = assembled
     results, _got = counts.run_variant(
         data['people'],
         data['rollup'],
